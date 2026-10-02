@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+.aws/
+.codex/
+.agents/
+extracted/
+im6014-session*.json
+im6014-session*.csv
+motor_run.json
+/*.zip
+/*.json
+/ANALYSIS.md
+/BENCH.md
+/DASHBOARD_VALIDATION.md
+/check_archived_code.py
+/IM6014 Motor Bench.desktop
+/dashboard_preview.png
