@@ -12,6 +12,7 @@ import serial
 from im6014_codec import POSITION_MAX, POSITION_MIN, RATIO, RPM_MAX, RPM_MIN, command, crc32, feedback
 
 from im6014_serial import exchange
+from im6014_port import PortConfig, inspect_port
 
 PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
 
@@ -107,6 +108,11 @@ def main():
         parser.error('Optional speed/travel limits must be finite and nonnegative')
     if args.speed_limit and abs(args.rpm) > args.speed_limit:
         parser.error('Requested speed exceeds the configured measured-speed limit')
+    try:
+        port_report = inspect_port(PortConfig(args.port, args.baud))
+    except ValueError as error:
+        parser.error(str(error))
+    print(port_report, flush=True)
     # Confirm the result location is writable before commanding hardware.
     path = Path(args.log)
     log = dict(settings=vars(args), samples=[], stopped=False, error=None)

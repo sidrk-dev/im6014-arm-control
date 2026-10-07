@@ -1,0 +1,21 @@
+test_by_id_basename_reports_matching_serial_and_interface (test_port_config.B13PortConfig.test_by_id_basename_reports_matching_serial_and_interface) ... ok
+test_by_id_hint_completes_partial_os_metadata (test_port_config.B13PortConfig.test_by_id_hint_completes_partial_os_metadata) ... ok
+test_enumerated_metadata_for_symlink_alias_overrides_path_hint (test_port_config.B13PortConfig.test_enumerated_metadata_for_symlink_alias_overrides_path_hint) ... ok
+test_explicit_alternate_route_does_not_claim_ftdi_identity (test_port_config.B13PortConfig.test_explicit_alternate_route_does_not_claim_ftdi_identity) ... ok
+test_supported_baud_is_an_exact_integer (test_port_config.B13PortConfig.test_supported_baud_is_an_exact_integer) ... ok
+test_unknown_default_path_stays_unknown_and_does_not_open (test_port_config.B13PortConfig.test_unknown_default_path_stays_unknown_and_does_not_open) ... ok
+test_wrong_by_id_channel_names_expected_and_observed (test_port_config.B13PortConfig.test_wrong_by_id_channel_names_expected_and_observed) ... ok
+test_wrong_cli_channel_fails_before_log_file_or_serial_constructor (test_port_config.B13PortConfig.test_wrong_cli_channel_fails_before_log_file_or_serial_constructor) ... usage: spin_5rpm.py [-h] [--port PORT] [--id ID] [--baud {4000000,6000000}]
+                    [--rpm RPM] [--kd KD] [--torque-ff TORQUE_FF]
+                    [--duration DURATION] [--speed-limit SPEED_LIMIT]
+                    [--travel-limit TRAVEL_LIMIT] [--ack-timeout] [--arm]
+                    [--log LOG]
+spin_5rpm.py: error: Port /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if01-port0: expected FTDI serial FTC2RQ7H, interface 3; observed FTDI, serial FTC2RQ7H, interface 1 from by-id basename. Select the intended FTDI interface.
+ok
+test_wrong_enumerated_serial_and_channel_are_reported (test_port_config.B13PortConfig.test_wrong_enumerated_serial_and_channel_are_reported) ... ok
+test_wrong_gui_channel_fails_before_serial_constructor (test_port_config.B13PortConfig.test_wrong_gui_channel_fails_before_serial_constructor) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.010s
+
+OK

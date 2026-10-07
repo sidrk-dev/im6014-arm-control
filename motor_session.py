@@ -13,6 +13,7 @@ import time
 import serial
 
 from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
+from im6014_port import PortConfig, inspect_port
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
           3: 'Undervoltage', 4: 'Chip overheating', 5: 'MOS temperature outside range',
@@ -284,6 +285,8 @@ class MotorSession:
             motor_id, baud = v.get('id'), v.get('baud')
             if type(motor_id) is not int or not 0 <= motor_id <= 14 or type(baud) is not int or baud not in (4000000, 6000000):
                 raise ValueError('Individual motor ID 0–14; baud 4 or 6 Mbps')
+            if not v.get('demo'):
+                self._event(inspect_port(PortConfig(v['port'], baud)))
             self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
                       id=motor_id, baud=baud, port=v['port'], demo=bool(v.get('demo')), discovered=[],
                       connection=self.data['connection'] + 1, latest=None, armed=False, stopped=False,
