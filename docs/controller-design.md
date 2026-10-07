@@ -16,6 +16,8 @@ The reviewers missed a fault recovery gap in Sol's Stop row. Stop must preserve 
 - joint_controller.py defines State, Decision, JointSpec, JointStatus, Target, Snapshot and JointCore. Core instances are thread confined. They own a fixed joint order, observations, one pending immutable target and one sequence watermark. No serial import, port opening or exchange occurs inside the core.
 - Test-only FakeStation drives legal lifecycle transitions and fake packet writes. Positive legal actions must write expected fake commands; illegal actions must add zero writes. Production never imports it.
 
+The Linux ownership namespace is fixed for a user. A per-caller lock-directory option, environment-dependent namespace or fallback directory would let two cooperating clients avoid each other's lock. Tests use the same production namespace and PTY device identities. They may inject serial factories, but they do not bypass device inspection or acquisition.
+
 ## Algebra
 
 For external reduction N>0, integer direction s in {-1,1} and output offset q0:

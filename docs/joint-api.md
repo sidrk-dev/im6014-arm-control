@@ -21,3 +21,16 @@ Run a single offline acceptance check from the repository root:
 ```
 
 The command prints the path to its receipt and raw logs under `evidence/runs`. The test checks ratios 1, 3 and 6 in both directions, nonzero offsets, independent numeric anchors and invalid values.
+
+## Passive port inspection
+
+```python
+from im6014_port import PortConfig, inspect_port
+from spin_5rpm import PORT
+
+report = inspect_port(PortConfig(PORT, 6_000_000), ports=())
+```
+
+`ports=()` makes this example use only the configured by-id basename. The report names its evidence source and does not establish communication with the motor. Normal inspection can also read passive OS enumeration metadata. Known wrong serial numbers or interfaces reject with expected and observed values. Unknown metadata stays explicitly unverified.
+
+For an alternate adapter route, set both `expected_serial=None` and `expected_channel=None`. This removes the FTDI identity assertion. It does not bypass later device ownership checks or establish motor communication. The bench GUI and CLI default to the recorded FTDI serial and interface 3.

@@ -22,7 +22,7 @@
 - [x] B11 external joint mapping.
 - [x] B12 numerical input rejection.
 - [x] B13 explicit port configuration.
-- [ ] B14 diagnostic capture.
+- [x] B14 diagnostic capture.
 - [ ] C01 one bus owner.
 - [ ] C02 controller state transitions.
 - [ ] C03 per-joint feedback age.

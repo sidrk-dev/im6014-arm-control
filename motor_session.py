@@ -14,6 +14,7 @@ import serial
 
 from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
 from im6014_port import PortConfig, inspect_port
+from im6014_serial import PacketCapture, capture_exchange
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
           3: 'Undervoltage', 4: 'Chip overheating', 5: 'MOS temperature outside range',
@@ -156,6 +157,7 @@ class MotorSession:
         # ponytail: rolling session buffer; stream to disk if longer captures are needed.
         self.samples = deque(maxlen=10000)
         self.events = deque(maxlen=500)
+        self.packet_capture = PacketCapture()
         self.data = dict(state='Disconnected', connected=False, demo=False, id=0, port=PORT,
                          baud=6000000, armed=False, latest=None, reason='Select an adapter and connect.',
                          tx=0, rx=0, crc_errors=0, reply_timeouts=0, rtt_ms=0., target_rpm=0.,
@@ -170,7 +172,8 @@ class MotorSession:
     def snapshot(self):
         with self.lock:
             return dict(copy.deepcopy(self.data), samples=list(self.samples), events=list(self.events),
-                        age_s=time.monotonic() - self.last_reply if self.last_reply else None)
+                        age_s=time.monotonic() - self.last_reply if self.last_reply else None,
+                        packet_capture=self.packet_capture.snapshot())
 
     def request(self, action, **values):
         if action == 'stop':
@@ -202,7 +205,15 @@ class MotorSession:
         before = time.monotonic()
         self._set(tx=self.data['tx'] + 1, last_tx=packet.hex())
         try:
-            f = exchange(self.bus, packet, motor_id)
+            source = 'demo' if self.data['demo'] else 'physical'
+            f = capture_exchange(
+                self.packet_capture, exchange, self.bus, packet, motor_id,
+                source=source,
+                identity='demo-simulator' if source == 'demo' else self.data['port'],
+                connection=self.data['connection'],
+                port='' if source == 'demo' else self.data['port'],
+                baud=self.data['baud'],
+            )
         except Exception as error:
             if 'CRC' in str(error):
                 self._set(crc_errors=self.data['crc_errors'] + 1)

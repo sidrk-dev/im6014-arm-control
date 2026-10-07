@@ -11,7 +11,7 @@ import time
 import serial
 from im6014_codec import POSITION_MAX, POSITION_MIN, RATIO, RPM_MAX, RPM_MIN, command, crc32, feedback
 
-from im6014_serial import exchange
+from im6014_serial import PacketCapture, capture_exchange, exchange
 from im6014_port import PortConfig, inspect_port
 
 PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
@@ -27,11 +27,28 @@ def healthy(f, mode, allow_timeout=False, speed_limit=0):
         raise RuntimeError('Torque exceeds bench limit: ' + json.dumps(f))
 
 
-def run(bus, args, log):
+def _captured_exchange(capture, bus, packet, args, *, source, identity, connection, port, baud):
+    return capture_exchange(
+        capture, exchange, bus, packet, args.id,
+        source=source, identity=identity, connection=connection, port=port, baud=baud,
+    )
+
+
+def run(bus, args, log, capture=None, *, capture_source=None, capture_identity=None,
+        capture_connection=1, capture_port=None, capture_baud=None):
     samples = log['samples']
 
     def transact(mode=0, rpm=0, kd=0, torque=0, watchdog=True, allow_timeout=False, entering_foc=False):
-        f = exchange(bus, command(args.id, mode, rpm, kd, torque, watchdog), args.id)
+        packet = command(args.id, mode, rpm, kd, torque, watchdog)
+        if capture is None:
+            f = exchange(bus, packet, args.id)
+        else:
+            port = getattr(args, 'port', '') if capture_port is None else capture_port
+            baud = getattr(args, 'baud', 6000000) if capture_baud is None else capture_baud
+            f = _captured_exchange(
+                capture, bus, packet, args, source=capture_source,
+                identity=capture_identity, connection=capture_connection, port=port, baud=baud,
+            )
         f.update(elapsed_s=time.monotonic() - started, target_rpm=rpm)
         samples.append(f)
         healthy(f, f['mode'] if entering_foc else mode, allow_timeout, args.speed_limit)
@@ -45,6 +62,8 @@ def run(bus, args, log):
     initial = transact()
     print('STOP/status verified:', json.dumps(initial), flush=True)
     if not args.arm:
+        if capture is not None:
+            log['packet_capture'] = capture.snapshot()
         return
     # Firmware reports the previous state on its first mode-transition reply.
     # Permit this only for the zero-torque arming exchange, then require FOC.
@@ -78,6 +97,8 @@ def run(bus, args, log):
     if abs(mean_rpm - args.rpm) > 0.5:
         raise RuntimeError(f'Measured speed {mean_rpm:.3f} rpm did not reach the requested speed')
     print(f'Measured plateau average: {mean_rpm:.3f} rpm', flush=True)
+    if capture is not None:
+        log['packet_capture'] = capture.snapshot()
 
 
 def main():
@@ -115,7 +136,9 @@ def main():
     print(port_report, flush=True)
     # Confirm the result location is writable before commanding hardware.
     path = Path(args.log)
-    log = dict(settings=vars(args), samples=[], stopped=False, error=None)
+    capture = PacketCapture()
+    log = dict(settings=vars(args), samples=[], stopped=False, error=None,
+               packet_capture=capture.snapshot())
     path.write_text(json.dumps(log, indent=2) + '\n')
     bus = serial.Serial(port=None, baudrate=args.baud, timeout=0.005, write_timeout=0.05, exclusive=True)
     bus.port = args.port
@@ -123,7 +146,9 @@ def main():
     bus.rts = False
     try:
         bus.open()
-        run(bus, args, log)
+        run(bus, args, log, capture, capture_source='physical',
+            capture_identity=args.port, capture_connection=1,
+            capture_port=args.port, capture_baud=args.baud)
     except (Exception, KeyboardInterrupt) as error:
         log['error'] = str(error) or type(error).__name__
         print('STOPPING:', log['error'], flush=True)
@@ -131,7 +156,11 @@ def main():
         if bus.is_open:
             try:
                 for _ in range(3):
-                    f = exchange(bus, command(args.id), args.id)
+                    f = _captured_exchange(
+                        capture, bus, command(args.id), args, source='physical',
+                        identity=args.port, connection=1,
+                        port=args.port, baud=args.baud,
+                    )
                     log['samples'].append(dict(f, final_stop=True))
                     log['stopped'] = f['mode'] == 0
                     time.sleep(0.02)
@@ -141,6 +170,7 @@ def main():
                 log['stop_error'] = str(error)
                 print('Stop confirmation unavailable:', error, flush=True)
             bus.close()
+        log['packet_capture'] = capture.snapshot()
         path.write_text(json.dumps(log, indent=2) + '\n')
     if log['error'] or not log['stopped']:
         raise SystemExit(1)
