@@ -1,0 +1,98 @@
+{
+  "created_at": "2026-10-07T04:03:32.962850+00:00",
+  "source": "demo",
+  "argv": [
+    "/tmp/pstack-b01-b10-20261006-thwnnaa5/pre-change/run-20261007T040310Z-YbtEW9iq/.source-Ojo0uckW/motor_dashboard.py",
+    "--demo"
+  ],
+  "python": {
+    "executable": "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "version": "3.12.14 (main, Aug 13 2026, 00:00:00) [GCC 15.3.1 20260722 (Red Hat 15.3.1-1)]"
+  },
+  "packages": {
+    "PySide6": "6.11.1",
+    "pyserial": "3.5"
+  },
+  "source_fingerprint": {
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 20812,
+      "sha256": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3"
+    },
+    "spin_5rpm.py": {
+      "bytes": 10283,
+      "sha256": "d5909eb112b6237002b6f6be4dd4629fef54fcc9dccdff007639ec8bda4a9581"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_dashboard.py": {
+      "bytes": 20274,
+      "sha256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d"
+    },
+    "test_startup.py": {
+      "bytes": 13142,
+      "sha256": "a824deb695ce6ff1565ece0ff8ef3178fb9dec0d788a2cc048bb9d4b4fc1f5ee"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    }
+  },
+  "system_exit": true,
+  "exit_code": 0,
+  "main_exception": null,
+  "argv_restored": true,
+  "window_captured": true,
+  "callback_ran": true,
+  "callback_completed": true,
+  "callback_errors": [],
+  "pre": {
+    "bus_is_none": true,
+    "state": "Disconnected",
+    "connected": false,
+    "armed": false,
+    "tx": 0,
+    "rx": 0,
+    "source_selected_demo": true,
+    "window_visible": true,
+    "timer_active": true,
+    "worker_alive": true,
+    "event_loop_tick_seen": true
+  },
+  "post": {
+    "bus_is_none": true,
+    "state": "Disconnected",
+    "connected": false,
+    "armed": false,
+    "tx": 0,
+    "rx": 0,
+    "source_selected_demo": true,
+    "window_visible": false,
+    "timer_active": false,
+    "worker_alive": false,
+    "event_loop_tick_seen": false
+  },
+  "close_returned": true,
+  "sentinel_counts": {
+    "serial_open": 0,
+    "demo_open": 0,
+    "exchange": 0
+  },
+  "screenshot": {
+    "path": "/tmp/pstack-b01-b10-20261006-thwnnaa5/pre-change/run-20261007T040310Z-YbtEW9iq/startup-demo/dashboard.png",
+    "saved": true,
+    "width": 1200,
+    "height": 970,
+    "bytes": 113148,
+    "sha256": "b1c8a333447529b3e5f9a70aac5d320603068dbb21069277632382b79379d2f0"
+  }
+}

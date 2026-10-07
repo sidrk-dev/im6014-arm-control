@@ -1,0 +1,58 @@
+[
+  {
+    "input": {
+      "motor_id": 0
+    },
+    "hex": "feee80000000000000000000000000001d99fb6e"
+  },
+  {
+    "input": {
+      "motor_id": 14
+    },
+    "hex": "feee8e000000000000000000000000007da3a05b"
+  },
+  {
+    "input": {
+      "motor_id": 0,
+      "watchdog": false
+    },
+    "hex": "feee000000000000000000000000000080462079"
+  },
+  {
+    "input": {
+      "motor_id": 0,
+      "mode": 1,
+      "rpm": 5,
+      "kd": 6
+    },
+    "hex": "feee9000000044000000000000007b071f113ea7"
+  },
+  {
+    "input": {
+      "motor_id": 3,
+      "mode": 1,
+      "rpm": -5,
+      "kd": 1,
+      "torque": -0.2,
+      "position": -1.5707963267948966,
+      "kp": 3
+    },
+    "hex": "feee9300d8ffbcffab6afeffef003f013c754064"
+  },
+  {
+    "input": {
+      "motor_id": 1,
+      "mode": 1,
+      "rpm": 60
+    },
+    "hex": "feee910000002b0300000000000000006bad05c6"
+  },
+  {
+    "input": {
+      "motor_id": 1,
+      "mode": 1,
+      "rpm": -60
+    },
+    "hex": "feee91000000d5fc0000000000000000b16eeecc"
+  }
+]
