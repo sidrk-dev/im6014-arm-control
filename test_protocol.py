@@ -180,5 +180,31 @@ class B05Fake(unittest.TestCase):
         self.assertGreater(clock.monotonic(), 0)
 
 
+class B06Fragmented(unittest.TestCase):
+    def test_each_split_and_byte_at_a_time(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        cases = [(CAPTURED[:n], b"", CAPTURED[n:]) for n in range(27)]
+        cases.append(tuple(bytes([b]) for b in CAPTURED))
+        for chunks in cases:
+            clock = FakeClock()
+            bus = FakeSerial(responses=[chunks], clock=clock)
+            with self.subTest(chunks=chunks), patch.object(s.time, "monotonic", clock.monotonic):
+                result = s.exchange(bus, s.command(0), 0)
+                self.assertEqual(result["raw"], CAPTURED.hex())
+                self.assertEqual(bus.writes, (s.command(0),))
+
+    def test_each_truncated_prefix_expires(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        for size in range(26):
+            clock = FakeClock()
+            bus = FakeSerial(responses=[(CAPTURED[:size],)], clock=clock)
+            with self.subTest(size=size), patch.object(s.time, "monotonic", clock.monotonic):
+                with self.assertRaisesRegex(RuntimeError, "deadline"):
+                    s.exchange(bus, s.command(0), 0, .002)
+                self.assertEqual(len(bus.writes), 1)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
