@@ -237,5 +237,44 @@ class B07Recovery(unittest.TestCase):
         self.assertEqual(len(bus.writes), 1)
 
 
+class B08Identity(unittest.TestCase):
+    FOREIGN = bytes.fromhex("fcee811d1b48000000006cc4db000000000000000000ac48966a")
+
+    def test_decoder_and_stream_reject_other_identity(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        with self.assertRaisesRegex(RuntimeError, "ID/mode"):
+            s.feedback(self.FOREIGN, 0)
+        clock = FakeClock()
+        bus = FakeSerial(responses=[(self.FOREIGN + CAPTURED,)], clock=clock)
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            self.assertEqual(s.exchange(bus, s.command(0), 0)["id"], 0)
+        bus = FakeSerial(responses=[(self.FOREIGN,)], clock=clock)
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaisesRegex(RuntimeError, "deadline.*ID/mode"):
+                s.exchange(bus, s.command(0), 0, .002)
+
+    def test_foreign_feedback_never_refreshes_session(self):
+        import motor_session
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        with patch.object(motor_session.threading.Thread, "start"):
+            session = motor_session.MotorSession()
+        clock = FakeClock()
+        session.bus = FakeSerial(responses=[(self.FOREIGN,), (CAPTURED,)], clock=clock)
+        previous = dict(raw="old", id=0)
+        session.data.update(latest=previous, rx=7, total_samples=9, last_rx="old")
+        session.last_reply = 123
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaisesRegex(RuntimeError, "deadline"):
+                session._transact()
+            self.assertEqual(session.data["latest"], previous)
+            self.assertEqual(session.last_reply, 123)
+            self.assertEqual((session.data["rx"], session.data["total_samples"], session.data["last_rx"]), (7, 9, "old"))
+            self.assertEqual(len(session.samples), 0)
+            session._transact()
+            self.assertEqual(session.data["latest"]["raw"], CAPTURED.hex())
+            self.assertEqual((session.data["rx"], session.data["total_samples"]), (8, 10))
+            self.assertEqual(len(session.samples), 1)
 if __name__ == "__main__":
     unittest.main(verbosity=2)
