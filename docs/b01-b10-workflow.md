@@ -3,8 +3,8 @@
 - [x] Read the Principles section of poteto-mode.
 - [x] Phase A: Frame.
 - [x] Phase B: Design the workflow.
-- [ ] Phase C: Run the loop.
-- [ ] Phase D: Keep the audit trail.
+- [x] Phase C: Run the loop.
+- [x] Phase D: Keep the audit trail.
 - [ ] Phase E: Verify and hand back.
 
 ## Definition of done

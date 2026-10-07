@@ -1,6 +1,6 @@
 # IM6014 robot workbench
 
-Work alongside the construction of a custom six-joint IM6014 arm. The current software is the existing one-motor bench dashboard, with the A01-A10 repository baseline, offline checks, and reproducible environment.
+Work alongside the construction of a custom six-joint IM6014 arm. The current software is the existing one-motor bench dashboard, with the A01-A10 repository baseline and B01-B10 verified communication boundary.
 
 The original bench source and history come from [sidrk-dev/im6014Development](https://github.com/sidrk-dev/im6014Development). The workbench lives in one repository. See [component boundaries](docs/architecture.md), the [full milestone plan](docs/ROBOT_WORKBENCH_AGENT_PROMPT.md), and the [milestone ledger](docs/milestones.tsv).
 
@@ -24,7 +24,7 @@ python3.12 -m venv .venv
 scripts/check_offline_baseline.sh
 ```
 
-The driver runs packet fixtures, the existing 18-group dashboard suite, negative startup-verifier checks, and disconnected startup checks for both source selections. It uses copied source in temporary storage. It does not modify the checkout's preview images. Each run produces new logs, screenshots, and startup receipts under `evidence/runs`. The command prints the run directory.
+The driver runs packet and protocol fixtures, serial deadline checks through isolated pseudo-terminals, the existing 18-group dashboard suite, negative startup-verifier checks, and disconnected startup checks for both source selections. It uses copied source in temporary storage. It does not modify the checkout's preview images. Each run produces new logs, screenshots, and startup receipts under `evidence/runs`. The command prints the run directory.
 
 The parent must inspect the rendered screenshots before recording A10 as verified. A test's success alone does not establish that its display is useful.
 
@@ -53,9 +53,9 @@ Displayed motion quantities use output-shaft units. The packet boundary applies 
 
 ## Verification boundaries
 
-The committed evidence is in [evidence/baseline](evidence/baseline). It proves software behavior with fake transport and disconnected startup. It does not prove physical J1 mounting, calibration, communication, torque-off, or arm safety.
+The A01-A10 evidence is in [evidence/baseline](evidence/baseline). The B01-B10 evidence is in [evidence/boundary](evidence/boundary). The later batch verifies unchanged command bytes, strict decoder validation, stream recovery, requested motor identity, deadline behavior and output units. Software checks use fake transport, independent CRC fixtures, isolated pseudo-terminals and disconnected startup. Read [the transport design](docs/boundary-design.md) and [deadline limits](docs/serial-deadline.md).
 
-The inherited bench README reported a historic 5.002 rpm physical result. This run did not reproduce it. No motor port was opened and no physical control packet was sent.
+The inherited bench README reported a historic 5.002 rpm physical result. The B01-B10 batch performed a separately authorized Stop/status probe at 36 V and received CRC-valid ID 0 feedback. The firmware timeout flag was latched, so no FOC command or motion test followed. Final Stop mode was confirmed. This is communication and Stop evidence, not calibration, torque-off, arm safety or a new speed result. See [the raw capture](evidence/boundary/physical/stop-prechange.json).
 
 Stop releases torque on the bench and can let a gravity-loaded joint fall. A gravity-loaded arm needs its own supported shutdown procedure. The current bench tool is not the future six-joint station controller.
 
