@@ -1,0 +1,80 @@
+test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic) ... FAIL
+test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) ... 
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xeejunk\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE|\xfc\xee\x80\x1d') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xa0\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00?i\xa1\x8e\xfc\xee\x80\x1d') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee') ... ERROR
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xeejunk\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_protocol.py", line 223, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/spin_5rpm.py", line 40, in exchange
+    return feedback(bytes(data[start:start + 26]), motor_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_codec.py", line 48, in feedback
+    raise RuntimeError('Feedback CRC mismatch')
+RuntimeError: Feedback CRC mismatch
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE|\xfc\xee\x80\x1d')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_protocol.py", line 223, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/spin_5rpm.py", line 40, in exchange
+    return feedback(bytes(data[start:start + 26]), motor_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_codec.py", line 48, in feedback
+    raise RuntimeError('Feedback CRC mismatch')
+RuntimeError: Feedback CRC mismatch
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xa0\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00?i\xa1\x8e\xfc\xee\x80\x1d')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_protocol.py", line 223, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/spin_5rpm.py", line 40, in exchange
+    return feedback(bytes(data[start:start + 26]), motor_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_protocol.py", line 223, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/spin_5rpm.py", line 40, in exchange
+    return feedback(bytes(data[start:start + 26]), motor_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_codec.py", line 48, in feedback
+    raise RuntimeError('Feedback CRC mismatch')
+RuntimeError: Feedback CRC mismatch
+
+======================================================================
+FAIL: test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic)
+----------------------------------------------------------------------
+RuntimeError: Feedback CRC mismatch
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_protocol.py", line 233, in test_corrupt_only_expires_with_bounded_crc_diagnostic
+    with self.assertRaisesRegex(RuntimeError, "deadline.*CRC") as caught:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "deadline.*CRC" does not match "Feedback CRC mismatch"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.021s
+
+FAILED (failures=1, errors=4)

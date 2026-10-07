@@ -1,0 +1,11 @@
+{
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "route": "native",
+  "agent": "/root/boundary_design_sol",
+  "status": "complete",
+  "outputPath": "evidence/boundary/models/design-sol.md",
+  "outputSHA256": "5b9aa787538d09130d120b14c05e457cc67c36eb870fb738554d7f81a66fbcfd",
+  "evidence": "Exact host requested flags and final response attested by parent; no hidden depth claim"
+}

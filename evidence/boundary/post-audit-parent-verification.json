@@ -1,0 +1,33 @@
+{
+  "sourceRevision": "c33ef9a1de3af3d42b42a10a0eaf98bd64d98fa0",
+  "sourceCopySet": [
+    "motor_dashboard.py",
+    "motor_session.py",
+    "spin_5rpm.py",
+    "im6014_codec.py",
+    "im6014_serial.py",
+    "fake_serial.py",
+    "test_spin_5rpm.py",
+    "test_dashboard.py",
+    "test_startup.py",
+    "test_startup_verifier.py",
+    "test_protocol.py",
+    "test_serial_deadline.py",
+    "evidence/boundary/vendor-crc-vectors.json",
+    "USER_MANUAL.md"
+  ],
+  "checks": "eight checks exit0 after CRC diagnostic fix",
+  "protocolTests": 24,
+  "deadlineTests": 11,
+  "dashboardGroups": 18,
+  "startupVerifierTests": 5,
+  "sourceFingerprintsMatch": true,
+  "screenshots": "Parent visually inspected all four current PNGs; disconnected real/demo selection and legible demo speed/position plots confirmed",
+  "sourceCheckoutUnchanged": {
+    "revision": "69c8219d764a24d03dadf1df011efb027f0f8996",
+    "planSHA256": "70c4a04ed4d28e55daab5e78b280df515806d89de2091c40197fb1d37b628307",
+    "status": "Only user added plan is untracked"
+  },
+  "hardware": "Stop-only valid capture with timeout1; no acknowledgment or FOC; optional motion remains gated",
+  "observedAt": "2026-10-07T04:34:46.099444+00:00"
+}

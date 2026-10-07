@@ -1,0 +1,8 @@
+test_independent_command_fields (test_protocol.B10Units.test_independent_command_fields) ... ok
+test_independent_feedback_output_units (test_protocol.B10Units.test_independent_feedback_output_units) ... ok
+test_representable_endpoints_and_half_lsb_error (test_protocol.B10Units.test_representable_endpoints_and_half_lsb_error) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

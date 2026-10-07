@@ -1,0 +1,11 @@
+{
+  "sourceRevision": "e8b835debf1b3e485f794b085354642d623da55a",
+  "promptSHA256": "4d20db8c58aeb548b8e262357704b79cfd92740349f0192069d4718065c65f96",
+  "promptBytes": 202490,
+  "storedPrompt": "final-review.prompt.gz",
+  "scope": "Complete identical inline source bundle and rubric; OpenCode tools and permissions unavailable",
+  "reviewerModels": [
+    "opencode/muse-spark-1.3-contributor-free",
+    "opencode/mimo-v2.6-flash-free"
+  ]
+}

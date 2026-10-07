@@ -1,0 +1,7 @@
+test_captured_physical_stop_fields (test_protocol.B02Decoder.test_captured_physical_stop_fields) ... ok
+test_generated_signed_and_unsigned_fields (test_protocol.B02Decoder.test_generated_signed_and_unsigned_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK

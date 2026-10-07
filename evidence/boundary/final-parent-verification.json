@@ -1,0 +1,45 @@
+{
+  "sourceRevision": "e8b835debf1b3e485f794b085354642d623da55a",
+  "sourceCopySet": [
+    "motor_dashboard.py",
+    "motor_session.py",
+    "spin_5rpm.py",
+    "im6014_codec.py",
+    "im6014_serial.py",
+    "fake_serial.py",
+    "test_spin_5rpm.py",
+    "test_dashboard.py",
+    "test_startup.py",
+    "test_startup_verifier.py",
+    "test_protocol.py",
+    "test_serial_deadline.py",
+    "evidence/boundary/vendor-crc-vectors.json",
+    "USER_MANUAL.md"
+  ],
+  "startupFingerprintsMatchCurrentSource": [
+    {
+      "source": "real",
+      "receipt": "evidence/boundary/final-parent/startup-real/startup-result.json",
+      "filesCompared": 14
+    },
+    {
+      "source": "demo",
+      "receipt": "evidence/boundary/final-parent/startup-demo/startup-result.json",
+      "filesCompared": 14
+    }
+  ],
+  "checks": "eight parent-run checks exit0",
+  "protocolTests": 23,
+  "deadlineTests": 11,
+  "dashboardGroups": 18,
+  "startupVerifierTests": 5,
+  "hardware": "No physical I/O in offline checks; separate Stop-only probe reports latched timeout; acknowledgment choice pending",
+  "provenance": "Parent ran driver, checked all 14 copied source hashes, read logs and visually inspected four final PNGs",
+  "observedAt": "2026-10-07T04:31:34.054926+00:00",
+  "screenshotsInspected": [
+    "final-parent/startup-real/dashboard.png",
+    "final-parent/startup-demo/dashboard.png",
+    "final-parent/dashboard_preview.png",
+    "final-parent/dashboard_dark_preview.png"
+  ]
+}

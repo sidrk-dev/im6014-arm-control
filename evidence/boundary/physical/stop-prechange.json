@@ -1,0 +1,81 @@
+{
+  "settings": {
+    "port": "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0",
+    "id": 0,
+    "baud": 6000000,
+    "rpm": 1.0,
+    "kd": 6,
+    "torque_ff": 0.16,
+    "duration": 2.0,
+    "speed_limit": 2.0,
+    "travel_limit": 15.0,
+    "ack_timeout": false,
+    "arm": false,
+    "log": "/tmp/pstack-b01-b10-20261006-thwnnaa5/physical-stop-prechange.json"
+  },
+  "samples": [
+    {
+      "id": 0,
+      "mode": 0,
+      "timeout": 1,
+      "driver_c": 29,
+      "winding_c": 27,
+      "voltage": 36.0,
+      "torque_nm": 0.0,
+      "rpm": 0.0,
+      "position_rad": 218.02713164107217,
+      "errors": 0,
+      "warnings": 0,
+      "raw": "fcee801d1b48000000006cc4db000000000000000000f179457d",
+      "elapsed_s": 0.015441190000274219,
+      "target_rpm": 0
+    },
+    {
+      "id": 0,
+      "mode": 0,
+      "timeout": 1,
+      "driver_c": 29,
+      "winding_c": 27,
+      "voltage": 36.0,
+      "torque_nm": -0.0296875,
+      "rpm": -0.07401315789473685,
+      "position_rad": 218.02711650310385,
+      "errors": 0,
+      "warnings": 0,
+      "raw": "fcee801d1b48faffffff6bc4db000000000000000000ad1f9fb8",
+      "final_stop": true
+    },
+    {
+      "id": 0,
+      "mode": 0,
+      "timeout": 1,
+      "driver_c": 29,
+      "winding_c": 27,
+      "voltage": 36.0,
+      "torque_nm": 0.0,
+      "rpm": 0.0,
+      "position_rad": 218.02711650310385,
+      "errors": 0,
+      "warnings": 0,
+      "raw": "fcee801d1b48000000006bc4db000000000000000000ad15c4aa",
+      "final_stop": true
+    },
+    {
+      "id": 0,
+      "mode": 0,
+      "timeout": 1,
+      "driver_c": 29,
+      "winding_c": 27,
+      "voltage": 36.0,
+      "torque_nm": 0.0,
+      "rpm": 0.0,
+      "position_rad": 218.02711650310385,
+      "errors": 0,
+      "warnings": 0,
+      "raw": "fcee801d1b48000000006bc4db000000000000000000ad15c4aa",
+      "final_stop": true
+    }
+  ],
+  "stopped": true,
+  "error": "Motor mode/fault/warning/timeout gate: {\"id\": 0, \"mode\": 0, \"timeout\": 1, \"driver_c\": 29, \"winding_c\": 27, \"voltage\": 36.0, \"torque_nm\": 0.0, \"rpm\": 0.0, \"position_rad\": 218.02713164107217, \"errors\": 0, \"warnings\": 0, \"raw\": \"fcee801d1b48000000006cc4db000000000000000000f179457d\", \"elapsed_s\": 0.015441190000274219, \"target_rpm\": 0}"
+}

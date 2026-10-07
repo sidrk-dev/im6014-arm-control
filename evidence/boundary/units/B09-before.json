@@ -1,0 +1,17 @@
+{
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_serial_deadline.B09Deadline",
+    "-v"
+  ],
+  "exitCode": 1,
+  "source": {
+    "im6014_serial.py": "e1e7d891a89ff28d764585fe61da97fe9a94d515cd4138b38160d5201eb016f8",
+    "fake_serial.py": "9238ac6f33cf626c98f5bcc0f00e1abdfb72f44961c1d85ead00ac21c301d555",
+    "test_serial_deadline.py": "369839899b944d468ac8516222b56614b13d9bde788f97e374233511bf62dc9e"
+  },
+  "defect": "Configured read/write timeouts overrun entry budget; reset occurs before deadline starts"
+}

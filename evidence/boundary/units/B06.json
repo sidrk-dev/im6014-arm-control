@@ -1,0 +1,29 @@
+{
+  "unit": "B06",
+  "observedAt": "2026-10-07T04:26:20.518355+00:00",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_protocol.B06Fragmented",
+    "-v"
+  ],
+  "exitCode": 0,
+  "sourceFingerprint": {
+    "spin_5rpm.py": "cb596a3ea547ac86271d9a187250ab0b7e2cd160a98cd1c8d8688ec4d5f12da7",
+    "motor_session.py": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3",
+    "motor_dashboard.py": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+    "im6014_codec.py": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563",
+    "fake_serial.py": "9238ac6f33cf626c98f5bcc0f00e1abdfb72f44961c1d85ead00ac21c301d555",
+    "test_protocol.py": "a4f1145cef22b5a99d28ca1acbf6a06e7e4d91b5be11769d111000347e291c53",
+    "test_spin_5rpm.py": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+    "test_dashboard.py": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+    "test_startup.py": "8c2c3ea012105250f11acd0d05a484f589a24099dbb3d810f93dd2605060ea62",
+    "test_startup_verifier.py": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71",
+    "scripts/check_offline_baseline.sh": "d641766d736e42563dda0bf80bd699fdd10f54b958a6156df6eec06cbca440d0",
+    "evidence/boundary/vendor-crc-vectors.json": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+  },
+  "sourceSnapshotSHA256": "c7d179dea7d224a430d8f48b56078d218b2e10ca9530abff61a35050c5ff9a61",
+  "provenance": "Parent-owned direct execution; hardware not used by these checks"
+}

@@ -1,0 +1,10 @@
+{
+  "exitCode": 1,
+  "source": {
+    "spin_5rpm.py": "cb596a3ea547ac86271d9a187250ab0b7e2cd160a98cd1c8d8688ec4d5f12da7",
+    "im6014_codec.py": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563",
+    "fake_serial.py": "9238ac6f33cf626c98f5bcc0f00e1abdfb72f44961c1d85ead00ac21c301d555",
+    "test_protocol.py": "8e30433136851eb305a45b85a56b9c44fc0aa10be6039d8bafed74060797525b"
+  },
+  "defect": "First corrupt or unsupported candidate aborts before subsequent valid frame"
+}

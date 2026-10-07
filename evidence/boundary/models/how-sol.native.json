@@ -1,0 +1,11 @@
+{
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "route": "native",
+  "agent": "/root/boundary_how",
+  "status": "complete",
+  "outputPath": "evidence/boundary/how.md",
+  "outputSHA256": "e3952d1b6ada3000a95b6fda8f8eb3ab747532a08ca33416fc70fa057578bf50",
+  "evidence": "Parent attests exact native spawn arguments and host final response; no hidden applied effort claims"
+}

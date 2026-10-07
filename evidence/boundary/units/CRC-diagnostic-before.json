@@ -1,0 +1,6 @@
+{
+  "observed": "No validated motor feedback within deadline; rejected 2; Feedback ID/mode mismatch; tail ",
+  "expected": "Terminal diagnostic includes CRC rejection even if a later candidate has wrong ID",
+  "defectReproduced": true,
+  "sourceSHA256": "b226fc513fbc5e7e7f6eec058d3a3c7ad714754b772dddb30947c3cc11a95fd7"
+}

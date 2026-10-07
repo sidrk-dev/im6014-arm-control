@@ -1,0 +1,9 @@
+test_delays_timeouts_and_write_controls (test_protocol.B05Fake.test_delays_timeouts_and_write_controls) ... ok
+test_empty_nonblocking_read_advances_fake_clock (test_protocol.B05Fake.test_empty_nonblocking_read_advances_fake_clock) ... ok
+test_partial_write_preserves_next_successful_reply (test_protocol.B05Fake.test_partial_write_preserves_next_successful_reply) ... ok
+test_record_reset_and_chunk_remainder (test_protocol.B05Fake.test_record_reset_and_chunk_remainder) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+OK

@@ -1,0 +1,33 @@
+test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) ... ok
+test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success) ... FAIL
+test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) ... FAIL
+test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget) ... FAIL
+
+======================================================================
+FAIL: test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_serial_deadline.py", line 57, in test_late_frame_is_not_success
+    self.assertLessEqual(clock.monotonic(), .020001)
+AssertionError: 0.021 not less than or equal to 0.020001
+
+======================================================================
+FAIL: test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_serial_deadline.py", line 25, in test_read_timeout_cannot_overrun_budget_and_restores
+    self.assertLessEqual(clock.monotonic(), .020001)
+AssertionError: 0.5 not less than or equal to 0.020001
+
+======================================================================
+FAIL: test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_serial_deadline.py", line 36, in test_reset_and_write_share_entry_budget
+    self.assertEqual(len(bus.writes), 0)
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.045s
+
+FAILED (failures=3)

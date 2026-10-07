@@ -1,0 +1,560 @@
+# IM6014 Communication Boundary (B01–B10): Cohesive Transceiver Design
+
+## Problem
+
+The current communication layer in [`spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py) conflates wire encoding/decoding, low-level stream reading, bench health policies, and standalone CLI lifecycle inside procedural helpers. Crucially, `exchange()` resets input and then starts its clock, blocks indefinitely on partial writes or slow reads, abandons parsing upon encountering the first corrupt candidate or foreign-motor packet in the stream, and permits unbounded growth of raw noise buffers. At the same time, existing consumers ([`motor_session.py`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py) and offline test harnesses [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py), [`test_startup.py`](file:///home/sid/Documents/code/im6014Workbench/test_startup.py)) rely on exact monkeypatch interception points (`motor_session.exchange`, `motor_session.serial.Serial`, `motor_session.DemoSerial`), direct property inspection (`session.bus`), and substring matching on exception text (`"CRC"`, `"deadline"`). The challenge is to extract a robust, cohesive communication boundary that encapsulates streaming resynchronization, deterministic deadline bounding, and transport timeouts behind a deep object interface while strictly preserving existing test fixtures, compatibility entry points, and patch points for milestones B01–B10.
+
+---
+
+## Usage (caller's view)
+
+Callers interact with the extracted boundary either through the cohesive `IM6014Transceiver` object (which hides framing, buffering, streaming resynchronization, and deadline adjustment) or through backwards-compatible functions in [`spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py) and [`motor_session.py`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py).
+
+### Quickstart & Primary Usage
+
+```python
+from motor_protocol import IM6014Transceiver, encode_command, decode_feedback
+
+# 1. High-level cohesive transceiver: handles packaging, bounded write/read,
+# resynchronization past noise/foreign frames, and deadline enforcement.
+transceiver = IM6014Transceiver(serial_bus)
+
+# High-level domain transaction (output-shaft units: rpm, rad, Nm)
+feedback = transceiver.transact(
+    motor_id=0,
+    mode=1,
+    rpm=5.0,
+    kd=6.0,
+    torque=0.16,
+    watchdog=True,
+    deadline_s=0.020,
+)
+print(f"Motor {feedback['id']} at {feedback['rpm']:.2f} rpm, {feedback['position_rad']:.3f} rad")
+
+# Direct packet exchange (preserves existing exchange protocol signature)
+packet = encode_command(motor_id=0, mode=0)
+reply = transceiver.exchange(packet, motor_id=0, deadline_s=0.010)
+```
+
+### Realistic Call Sites
+
+#### Call Site 1: Worker Thread in `motor_session.py`
+```python
+# Inside MotorSession._transact:
+# The module-level exchange() remains patched by test_startup sentinels.
+# Internally, it delegates to IM6014Transceiver(self.bus).exchange()
+packet = command(motor_id, mode, rpm, kd, torque, watchdog, position, kp)
+self._set(tx=self.data['tx'] + 1, last_tx=packet.hex())
+try:
+    # exchange() encapsulates stream resynchronization and deadline
+    f = exchange(self.bus, packet, motor_id, deadline_s=0.05)
+except Exception as error:
+    # Preserves substring checks used for counter instrumentation
+    if 'CRC' in str(error):
+        self._set(crc_errors=self.data['crc_errors'] + 1)
+    if 'deadline' in str(error):
+        self._set(reply_timeouts=self.data['reply_timeouts'] + 1)
+    raise
+```
+
+#### Call Site 2: Standalone Bench Script in `spin_5rpm.py`
+```python
+# Standalone CLI run loop using transceiver:
+transceiver = IM6014Transceiver(bus)
+f = transceiver.transact(
+    motor_id=args.id,
+    mode=1,
+    rpm=target_rpm,
+    kd=args.kd,
+    torque=torque_ff,
+    deadline_s=0.050,
+)
+healthy(f, expected_mode=1, allow_timeout=False, speed_limit=args.speed_limit)
+```
+
+#### Call Site 3: Deterministic Offline Test with `FakeSerialTransport`
+```python
+from test_motor_protocol import FakeSerialTransport
+from motor_protocol import IM6014Transceiver, DeadlineExceededError
+
+fake = FakeSerialTransport()
+# Script: noise + bad CRC candidate + foreign motor candidate + valid motor 0 frame
+fake.queue_stream_bytes(
+    b"garbage_noise" +
+    corrupt_crc_frame +
+    valid_motor_1_frame +
+    valid_motor_0_frame
+)
+
+transceiver = IM6014Transceiver(fake)
+result = transceiver.exchange(b"\xfe\xee...", motor_id=0, deadline_s=0.050)
+assert result['id'] == 0
+assert fake.write_count == 1
+assert fake.timeouts_restored is True
+```
+
+---
+
+## Shape
+
+### Architecture & Module Map
+
+```mermaid
+flowchart TD
+    subgraph Callers["Callers & Adapters"]
+        GUI["motor_session.py (MotorSession)"]
+        CLI["spin_5rpm.py (CLI / run)"]
+        TESTS["test_spin_5rpm.py & test_dashboard.py"]
+    end
+
+    subgraph Boundary["motor_protocol.py (Communication Boundary)"]
+        COMPAT["Compatibility exports: command, feedback, exchange, healthy, crc32"]
+        CODEC["Pure Codec: encode_command, decode_feedback"]
+        TRANS["IM6014Transceiver (Cohesive Transaction Engine)"]
+        SCANNER["Stream Frame Resynchronizer & Noise Bounding"]
+        TIMER["Monotonic Deadline & Transport Timeout Guard"]
+    end
+
+    subgraph Transport["Transport Layer"]
+        REAL["pyserial.Serial (exclusive=True)"]
+        DEMO["DemoSerial (dashboard simulation)"]
+        FAKE["FakeSerialTransport (deterministic scripted test fake)"]
+    end
+
+    GUI --> COMPAT
+    CLI --> COMPAT
+    TESTS --> COMPAT
+    COMPAT --> TRANS
+    COMPAT --> CODEC
+    TRANS --> CODEC
+    TRANS --> SCANNER
+    TRANS --> TIMER
+    TRANS --> Transport
+```
+
+### File Responsibilities
+
+1. [`motor_protocol.py`](file:///home/sid/Documents/code/im6014Workbench/motor_protocol.py) *(new extracted module)*:
+   - Owns polynomial CRC32, packet encode/decode functions, protocol constants, and error types.
+   - Owns `IM6014Transceiver`: encapsulates stream buffering, sliding-window `b'\xfc\xee'` framing, candidate rejection/recovery, timeout capping, and timeout restoration.
+   - Exposes compatibility wrappers so existing callers and signatures remain identical.
+2. [`spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py) *(preserved entry point)*:
+   - Imports and re-exports `command`, `feedback`, `exchange`, `healthy`, `crc32`, `PORT`, `RATIO`, and bounds from [`motor_protocol.py`](file:///home/sid/Documents/code/im6014Workbench/motor_protocol.py).
+   - Retains CLI argument parsing, motion ramping, and shutdown logging.
+3. [`motor_session.py`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py) *(preserved GUI session)*:
+   - Imports packet functions and `exchange` into module namespace (preserving `test_startup` monkeypatch).
+   - Retains `DemoSerial` and worker loop without modification to public UI contracts.
+4. [`test_motor_protocol.py`](file:///home/sid/Documents/code/im6014Workbench/test_motor_protocol.py) *(new test file for B01–B10)*:
+   - Provides `FakeSerialTransport` with scripted chunks, recorded writes, and deadline instrumentation.
+   - Implements independent test suites for B01–B10.
+5. [`scripts/check_offline_baseline.sh`](file:///home/sid/Documents/code/im6014Workbench/scripts/check_offline_baseline.sh) and [`test_startup.py`](file:///home/sid/Documents/code/im6014Workbench/test_startup.py):
+   - Adds `motor_protocol.py` and `test_motor_protocol.py` to the copy list and fingerprint sets.
+
+---
+
+### Data Structures & Exact Public Signatures
+
+```python
+# ==============================================================================
+# motor_protocol.py
+# ==============================================================================
+from typing import Any, Protocol, runtime_checkable
+import struct
+
+# Protocol & reduction constants
+RATIO: float = 38 / 3
+HEADER_CMD: bytes = b'\xfe\xee'
+HEADER_REPLY: bytes = b'\xfc\xee'
+CMD_LEN: int = 20
+REPLY_LEN: int = 26
+
+RPM_MIN: float = -32768 / 64 / RATIO * 60
+RPM_MAX: float = 32767 / 64 / RATIO * 60
+POSITION_MIN: float = -2147483648 / 32768 / RATIO * 6.283185307179586
+POSITION_MAX: float = 2147483647 / 32768 / RATIO * 6.283185307179586
+PORT: str = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
+
+
+class ProtocolError(RuntimeError):
+    """Base error for communication boundary failures."""
+    pass
+
+
+class FrameCrcError(ProtocolError):
+    """Frame failed CRC32 validation; retains 'CRC' in str for caller matching."""
+    def __init__(self, message: str = "Feedback CRC mismatch"):
+        super().__init__(message)
+
+
+class DeadlineExceededError(ProtocolError):
+    """Transaction exceeded monotonic budget; retains 'deadline' for caller matching."""
+    def __init__(self, message: str = "No validated motor feedback within deadline"):
+        super().__init__(message)
+
+
+@runtime_checkable
+class SerialTransport(Protocol):
+    """Duck-typed transport interface matching pySerial and test fakes."""
+    timeout: float | None
+    write_timeout: float | None
+    in_waiting: int
+
+    def reset_input_buffer(self) -> None: ...
+    def write(self, data: bytes) -> int: ...
+    def read(self, size: int) -> bytes: ...
+
+
+def crc32(data: bytes) -> int:
+    """Compute vendor STM32/Unitree compatible CRC32 over 4-byte words."""
+    // TODO: Validate len(data) % 4 == 0, apply polynomial 0x04C11DB7 with reversed word bytes
+    raise NotImplementedError
+
+
+def encode_command(
+    motor_id: int,
+    mode: int = 0,
+    rpm: float = 0.0,
+    kd: float = 0.0,
+    torque: float = 0.0,
+    watchdog: bool = True,
+    position: float = 0.0,
+    kp: float = 0.0,
+) -> bytes:
+    """Encode output-shaft targets into exact 20-byte command packet."""
+    // TODO: Validate ID 0-14, mode 0-1, finite floats, bench limits (Kd 0-6, Kp 0-30, tau +/-3.5)
+    // TODO: Pack feee + control fields + CRC32
+    raise NotImplementedError
+
+
+def decode_feedback(raw: bytes, expected_motor_id: int | None = None) -> dict[str, Any]:
+    """Decode exact 26-byte frame into canonical feedback dictionary."""
+    // TODO: Verify len == 26, raw[:2] == b'\xfc\xee', CRC32 matches
+    // TODO: Unpack fields, check expected_motor_id and mode in (0, 1)
+    // TODO: Return dict with id, mode, timeout, driver_c, winding_c, voltage, torque_nm, rpm, position_rad, errors, warnings, raw
+    raise NotImplementedError
+
+
+def validate_bench_health(
+    feedback_dict: dict[str, Any],
+    expected_mode: int,
+    allow_timeout: bool = False,
+    speed_limit: float = 0.0,
+) -> None:
+    """Apply bench safety envelope checks to decoded feedback."""
+    // TODO: Check mode, errors == 0, warnings == 0, timeout gate, voltage 24-72V, temps, speed_limit
+    raise NotImplementedError
+
+
+class IM6014Transceiver:
+    """Cohesive transaction engine managing streaming resync, deadlines, and framing."""
+
+    def __init__(self, transport: Any, max_buffer_bytes: int = 256):
+        self.transport: Any = transport
+        self.max_buffer_bytes: int = max_buffer_bytes
+        self._buffer: bytearray = bytearray()
+
+    def exchange(self, packet: bytes, motor_id: int, deadline_s: float = 0.05) -> dict[str, Any]:
+        """Execute one bounded synchronous exchange with full stream resynchronization."""
+        // TODO: See detailed resynchronization algorithm below
+        raise NotImplementedError
+
+    def transact(
+        self,
+        motor_id: int,
+        mode: int = 0,
+        rpm: float = 0.0,
+        kd: float = 0.0,
+        torque: float = 0.0,
+        watchdog: bool = True,
+        position: float = 0.0,
+        kp: float = 0.0,
+        deadline_s: float = 0.05,
+    ) -> dict[str, Any]:
+        """High-level transaction encoding command and executing exchange."""
+        packet = encode_command(motor_id, mode, rpm, kd, torque, watchdog, position, kp)
+        return self.exchange(packet, motor_id, deadline_s)
+
+
+# Backwards-compatibility aliases matching current spin_5rpm.py
+command = encode_command
+feedback = decode_feedback
+healthy = validate_bench_health
+
+def exchange(bus: Any, packet: bytes, motor_id: int, deadline_s: float = 0.05) -> dict[str, Any]:
+    """Preserved functional entry point delegating to cohesive transceiver."""
+    return IM6014Transceiver(bus).exchange(packet, motor_id, deadline_s)
+```
+
+---
+
+### Stream Resynchronization Algorithm & Deadline Handling
+
+The resynchronization algorithm specifically solves all five defects noted in Phase A grounding:
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant Transceiver as IM6014Transceiver
+    participant Bus as Serial / Fake Transport
+
+    Caller->>Transceiver: exchange(packet, motor_id, deadline_s)
+    Note over Transceiver: Record start_time, deadline = start_time + deadline_s<br/>Save orig_timeout, orig_write_timeout
+    Transceiver->>Bus: reset_input_buffer()
+    Note over Transceiver: Check remaining monotonic budget > 0
+    Transceiver->>Bus: write(packet) [write_timeout capped to budget]
+    
+    loop While monotonic() < deadline
+        Note over Transceiver: Cap bus.timeout = min(orig_timeout, remaining)
+        Transceiver->>Bus: read(min(26, max(1, in_waiting)))
+        Note over Transceiver: Append chunk to _buffer
+        loop Scan _buffer for candidates
+            alt Header b'\xfc\xee' not found
+                Note over Transceiver: If last byte is 0xfc, keep it; else clear _buffer.<br/>(Prevents unbounded noise growth)
+            else Header found at index `start`
+                Note over Transceiver: Discard noise before `start`
+                alt len(_buffer) < 26
+                    Note over Transceiver: Break to outer read loop (wait for more bytes)
+                else len(_buffer) >= 26
+                    Note over Transceiver: Inspect candidate = _buffer[0:26]
+                    alt CRC invalid OR motor_id mismatch OR mode invalid
+                        Note over Transceiver: Discard 1 byte (_buffer[:1]) to check overlapping headers.<br/>Continue inner candidate scan.
+                    else Valid CRC AND motor_id match AND mode valid
+                        Note over Transceiver: Consume frame (_buffer[:26]).<br/>Restore timeouts in finally.<br/>Return decode_feedback(candidate)
+                    end
+                end
+            end
+        end
+    end
+
+    Note over Transceiver: Deadline expired! Restore timeouts in finally.
+    Transceiver-->>Caller: raise DeadlineExceededError("...deadline... received: " + hex)
+```
+
+#### Pseudocode for Algorithm:
+```python
+def exchange(self, packet: bytes, motor_id: int, deadline_s: float = 0.05) -> dict[str, Any]:
+    start_time = time.monotonic()
+    deadline = start_time + deadline_s
+    bus = self.transport
+
+    # 1. Capture original timeouts
+    orig_read_timeout = getattr(bus, 'timeout', None)
+    orig_write_timeout = getattr(bus, 'write_timeout', None)
+
+    try:
+        # 2. Reset transport input and local buffer
+        if hasattr(bus, 'reset_input_buffer'):
+            bus.reset_input_buffer()
+        self._buffer.clear()
+
+        # 3. Monotonic budget check before write
+        rem = deadline - time.monotonic()
+        if rem <= 0:
+            raise DeadlineExceededError("Transaction deadline expired before write")
+
+        # Temporarily cap write timeout to deadline budget
+        if orig_write_timeout is not None:
+            bus.write_timeout = min(orig_write_timeout, max(0.0001, rem))
+
+        written = bus.write(packet)
+        if written != len(packet):
+            raise RuntimeError(f"Incomplete serial write: {written}/{len(packet)} bytes")
+
+        # 4. Stream read & candidate resynchronization loop
+        accumulated_hex = bytearray()
+        while time.monotonic() < deadline:
+            rem = deadline - time.monotonic()
+            if rem <= 0:
+                break
+
+            # Cap read timeout to remaining budget
+            if orig_read_timeout is not None:
+                bus.timeout = min(orig_read_read_timeout, max(0.0001, rem))
+
+            to_read = min(26, max(1, getattr(bus, 'in_waiting', 1)))
+            chunk = bus.read(to_read)
+            if chunk:
+                self._buffer.extend(chunk)
+                accumulated_hex.extend(chunk)
+                if len(self._buffer) > self.max_buffer_bytes:
+                    del self._buffer[:-self.max_buffer_bytes]
+
+            # Candidate scan inside accumulated buffer
+            while True:
+                idx = self._buffer.find(b'\xfc\xee')
+                if idx < 0:
+                    # Header absent: bound buffer by discarding all except trailing 0xfc
+                    if len(self._buffer) > 0 and self._buffer[-1:] == b'\xfc':
+                        self._buffer = bytearray(b'\xfc')
+                    else:
+                        self._buffer.clear()
+                    break
+
+                # Discard prefix noise before header
+                if idx > 0:
+                    del self._buffer[:idx]
+                    idx = 0
+
+                # Check if complete frame is available
+                if len(self._buffer) < 26:
+                    break  # Wait for subsequent reads
+
+                candidate = bytes(self._buffer[:26])
+                body = candidate[2:22]
+                crc_calc = crc32(body)
+                (crc_wire,) = struct.unpack('<I', candidate[22:])
+
+                # Condition 1: CRC validation
+                if crc_wire != crc_calc:
+                    # Noise or damaged candidate; advance 1 byte to check overlapping headers
+                    del self._buffer[:1]
+                    continue
+
+                # Condition 2: Motor ID and mode match
+                m_byte = candidate[2]
+                cand_id = m_byte & 15
+                cand_mode = (m_byte >> 4) & 7
+
+                if cand_id != motor_id or cand_mode not in (0, 1):
+                    # Valid frame but foreign motor or unsupported mode; advance 1 byte
+                    del self._buffer[:1]
+                    continue
+
+                # Condition 3: Valid target frame found within deadline
+                if time.monotonic() >= deadline:
+                    break
+
+                del self._buffer[:26]
+                return decode_feedback(candidate, expected_motor_id=motor_id)
+
+        raise DeadlineExceededError(
+            f"No validated motor feedback within deadline; received {accumulated_hex.hex()}"
+        )
+    finally:
+        # Guarantee restoration of transport timeouts in all cases
+        if orig_read_timeout is not None:
+            bus.timeout = orig_read_timeout
+        if orig_write_timeout is not None:
+            bus.write_timeout = orig_write_timeout
+```
+
+---
+
+### Fake Serial Shape (`FakeSerialTransport`)
+
+```python
+class FakeClock:
+    """Deterministic monotonic clock for simulation."""
+    def __init__(self, start: float = 1000.0):
+        self._time = start
+    def monotonic(self) -> float:
+        return self._time
+    def advance(self, dt: float) -> None:
+        self._time += dt
+
+
+class FakeSerialTransport:
+    """Scriptable, deterministic transport for B01–B10 testing."""
+    def __init__(self, clock: FakeClock | None = None):
+        self.clock = clock or FakeClock()
+        self.timeout: float = 0.005
+        self.write_timeout: float = 0.05
+        self.is_open: bool = True
+        self.writes: list[tuple[bytes, float]] = []
+        self._rx_queue: bytearray = bytearray()
+        self._chunk_schedule: list[int] = []
+        self.partial_write_bytes: int | None = None
+        self.timeout_assignments: list[tuple[float | None, float | None]] = []
+
+    @property
+    def in_waiting(self) -> int:
+        return len(self._rx_queue)
+
+    def reset_input_buffer(self) -> None:
+        self._rx_queue.clear()
+
+    def write(self, data: bytes) -> int:
+        self.writes.append((data, self.clock.monotonic()))
+        if self.partial_write_bytes is not None:
+            return min(len(data), self.partial_write_bytes)
+        return len(data)
+
+    def read(self, size: int) -> bytes:
+        if not self._rx_queue:
+            # Simulate blocking up to timeout
+            if self.timeout:
+                self.clock.advance(self.timeout)
+            return b''
+        chunk_len = self._chunk_schedule.pop(0) if self._chunk_schedule else size
+        actual_len = min(size, chunk_len, len(self._rx_queue))
+        chunk = bytes(self._rx_queue[:actual_len])
+        del self._rx_queue[:actual_len]
+        return chunk
+
+    def queue_stream_bytes(self, data: bytes, chunk_schedule: list[int] | None = None) -> None:
+        self._rx_queue.extend(data)
+        if chunk_schedule:
+            self._chunk_schedule.extend(chunk_schedule)
+```
+
+---
+
+## Synthesis decision
+
+*Base candidate*: Unified deep object architecture (`IM6014Transceiver`) with strict backwards-compatible procedural bindings.
+*Strengths integrated*:
+- Concentrates streaming, framing, candidate resynchronization, and deadline math behind one cohesive domain object (`IM6014Transceiver`).
+- Completely preserves existing module patch points (`motor_session.exchange`, `motor_session.serial.Serial`, `motor_session.DemoSerial`) required by [`test_startup.py`](file:///home/sid/Documents/code/im6014Workbench/test_startup.py) and [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py).
+- Ensures exception messages retain literal substrings `"CRC"` and `"deadline"` so existing counter logic in `MotorSession._transact` and suppression logic in `_handle('scan')` continue working unchanged without brittle rewrites.
+- Independent verification tests in [`test_motor_protocol.py`](file:///home/sid/Documents/code/im6014Workbench/test_motor_protocol.py) test exact golden values derived without production formulas.
+
+---
+
+## Tradeoffs accepted
+
+- **1-byte advance on candidate rejection**: We accept scanning `start + 1` (a linear re-scan) rather than jumping 26 bytes when a candidate fails CRC or ID, in exchange for guaranteed discovery of valid frames overlapping an invalid or fragmented prefix. At 26 bytes per frame and max buffer size of 256 bytes, this is computationally trivial while mathematically complete.
+- **Transceiver per exchange in functional wrappers**: We accept instantiating `IM6014Transceiver(bus)` inside the module-level `exchange()` function in exchange for zero state pollution across unrelated transactions and 100% backwards compatibility with callers that pass bare serial handles.
+- **Subclassing RuntimeError**: We accept having custom exceptions (`ProtocolError`, `FrameCrcError`, `DeadlineExceededError`) inherit from `RuntimeError` in exchange for complete compatibility with existing callers that catch `RuntimeError`.
+- **Buffer clearing on reset**: We accept clearing the local buffer on `reset_input_buffer()` in exchange for preventing stale bytes from an abandoned previous transaction leaking into the current one.
+
+---
+
+## Alternatives considered
+
+### Rejected Alternative 1: Procedural Extraction Only (Function-only module)
+- *Description*: Extract `encode_command`, `decode_feedback`, and rewrite `exchange(bus, packet, motor_id)` as a standalone procedural function without introducing a transceiver class.
+- *Why it was rejected*: It represents a **shallow module** (per `design-red-flags.md`). It exposes raw transport timeouts, buffering state, and retry logic to callers or forces `exchange()` to maintain ad-hoc local state. It fails the explicit requirement for a *cohesive object that hides transaction and stream details*.
+
+### Rejected Alternative 2: Connection-Owning Protocol Class
+- *Description*: Have `IM6014Transceiver` own the physical connection lifecycle (opening the port, closing the port, managing thread locks).
+- *Why it was rejected*: It causes **split ownership** and violates the single bus owner rule. `MotorSession` already manages connection states, user prompts, GUI heartbeats, and worker thread lifecycle. Handing connection ownership to the protocol layer would require restructuring `MotorSession`, breaking existing GUI lifecycle tests in [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py) and startup sentinels in [`test_startup.py`](file:///home/sid/Documents/code/im6014Workbench/test_startup.py).
+
+---
+
+## Open questions and risks
+
+1. **PTY write timeout behavior**: Standard Linux pseudo-terminals (`pty`) do not enforce `write_timeout` in the exact same manner as FTDI hardware driver buffers. Will the parent-run PTY check for B09 test read timeouts specifically, or simulated non-blocking writes? *(Recommendation: Use `FakeSerialTransport` for write timeout / partial write assertions and PTY for real OS read timeout bounds).*
+2. **Scan counter classification**: When scanning IDs 0–14, absent motors produce deadline timeouts (which `_handle('scan')` suppresses). If noisy candidate frames on an absent ID trigger a CRC mismatch before timing out, should that increment `crc_errors`? *(The proposed design records candidate CRC warnings internally but only raises `DeadlineExceededError` if no valid packet was addressed to that motor, preserving clean scanning).*
+
+---
+
+## Verification Plan per Milestone (B01–B10)
+
+| Milestone | Target Behavior | Exact Verification Method |
+|---|---|---|
+| **B01** | Pure command encoder extraction | Verify byte-for-byte equality with all 7 fixtures in [`evidence/boundary/commands-before.json`](file:///home/sid/Documents/code/im6014Workbench/evidence/boundary/commands-before.json) and [`test_spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/test_spin_5rpm.py). |
+| **B02** | Captured packet decoding | Decode captured physical packet `fcee801d1b48000000006cc4db000000000000000000f179457d` from [`evidence/boundary/captured-decoder-reference.json`](file:///home/sid/Documents/code/im6014Workbench/evidence/boundary/captured-decoder-reference.json). Assert exact fields (ID 0, Stop, timeout 1, 36V, 29°C, 27°C, 0 RPM, pos 218.02713164 rad). |
+| **B03** | Checksum validation & corruption | Verify CRC against C++ table reference ([`vendor-crc.cpp`](file:///home/sid/Documents/code/im6014Workbench/evidence/boundary/vendor-crc.cpp)). Bit-flip each of the 20 payload bytes and 4 CRC bytes; assert each raises `FrameCrcError` with `"CRC"` in message. |
+| **B04** | Length & framing rejection | Test lengths 0, 1, 25, 27, 52; test invalid headers (`0xfdee`, `0x0000`); test invalid mode 2. Assert each raises `ProtocolError`. |
+| **B05** | Fake serial transport | Verify `FakeSerialTransport` records exact write bytes, schedules chunks, simulates partial writes, and tracks timeout configuration. |
+| **B06** | Fragmented stream decoding | Feed valid packet in 1-byte chunks (`chunk_schedule=[1]*26`), 2 chunks (`[2, 24]`), and boundary splits (`[22, 4]`). Assert all return valid feedback. |
+| **B07** | Noise & candidate resynchronization | Feed stream containing: `noise + corrupt_candidate + noise + foreign_motor_frame + valid_frame`. Assert transceiver skips invalid candidates, bounds noise buffer to <= 1 byte when header absent, and returns valid frame. |
+| **B08** | Motor identity enforcement | Feed frame with ID 1 when requesting ID 0; assert rejected. Feed stream with ID 1 frame followed by ID 0 frame; assert ID 0 frame extracted without updating ID 1 session state. |
+| **B09** | Monotonic deadline enforcement | Using `FakeSerialTransport` and clock, execute exchange with no response; assert `DeadlineExceededError` raised, elapsed monotonic time matches deadline within tolerance, and transport timeouts are restored. Verify on Linux PTY. |
+| **B10** | Independent signed output units | Verify conversion using independent constants: raw speed 608 -> exactly 45.0 rpm; raw position 311296 -> 4.71238898 rad; negative counterparts. Assert internal reduction (38/3) applied once and no external reduction. |
+
+---
+
+## Next implementation step
+
+Create [`motor_protocol.py`](file:///home/sid/Documents/code/im6014Workbench/motor_protocol.py) with the complete codec and `IM6014Transceiver` class, add it to [`scripts/check_offline_baseline.sh`](file:///home/sid/Documents/code/im6014Workbench/scripts/check_offline_baseline.sh) and [`test_startup.py`](file:///home/sid/Documents/code/im6014Workbench/test_startup.py) file lists, and verify milestone B01 command fixtures against the extracted module.

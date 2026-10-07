@@ -1,0 +1,151 @@
+{
+  "runId": 37572251552,
+  "url": "https://github.com/sidrk-dev/im6014-workbench/actions/runs/37572251552",
+  "headSHA": "6efb2bd3880e1c231eeb6a440c31d0cf1a5cc5ed",
+  "checks": "check\texit_code\ninterpreter\t0\npacket-tests\t0\nprotocol-tests\t0\nserial-deadline-tests\t0\ndashboard-tests\t0\nstartup-verifier-tests\t0\nstartup-real\t0\nstartup-demo\t0\n",
+  "actualArtifactSourceHashesMatchCurrentRuntimeAndTests": true,
+  "results": {
+    "real": {
+      "python": "3.12.14 (main, Aug 13 2026, 02:47:42) [GCC 13.3.0]",
+      "packages": {
+        "PySide6": "6.11.1",
+        "pyserial": "3.5"
+      },
+      "fingerprints": {
+        "motor_dashboard.py": {
+          "bytes": 32125,
+          "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+        },
+        "motor_session.py": {
+          "bytes": 20892,
+          "sha256": "0b467f2ea69c45b8dc3245ed97f6d7e70c363d6fe0e62fd434de77471d4ec084"
+        },
+        "spin_5rpm.py": {
+          "bytes": 6925,
+          "sha256": "4cb8a150c1adadfb56c3ecc0a348f2d7083371e5ef09b97957c70165c2ea6f65"
+        },
+        "im6014_codec.py": {
+          "bytes": 2752,
+          "sha256": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563"
+        },
+        "im6014_serial.py": {
+          "bytes": 4170,
+          "sha256": "2988670c6df0a59b427d53476ad0b7fefa6f4027f7a9e1e9dd3a4c0eb6ea9306"
+        },
+        "fake_serial.py": {
+          "bytes": 6862,
+          "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+        },
+        "USER_MANUAL.md": {
+          "bytes": 18881,
+          "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+        },
+        "test_spin_5rpm.py": {
+          "bytes": 3278,
+          "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+        },
+        "test_dashboard.py": {
+          "bytes": 20274,
+          "sha256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d"
+        },
+        "test_startup.py": {
+          "bytes": 13291,
+          "sha256": "a5de87b93f39f5654209473e7316abb6030cbb6fd5f9af08784512baa6bb130e"
+        },
+        "test_startup_verifier.py": {
+          "bytes": 6678,
+          "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+        },
+        "test_protocol.py": {
+          "bytes": 16673,
+          "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+        },
+        "test_serial_deadline.py": {
+          "bytes": 10995,
+          "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+        },
+        "evidence/boundary/vendor-crc-vectors.json": {
+          "bytes": 25235,
+          "sha256": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+        }
+      },
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "python": "3.12.14 (main, Aug 13 2026, 02:47:42) [GCC 13.3.0]",
+      "packages": {
+        "PySide6": "6.11.1",
+        "pyserial": "3.5"
+      },
+      "fingerprints": {
+        "motor_dashboard.py": {
+          "bytes": 32125,
+          "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+        },
+        "motor_session.py": {
+          "bytes": 20892,
+          "sha256": "0b467f2ea69c45b8dc3245ed97f6d7e70c363d6fe0e62fd434de77471d4ec084"
+        },
+        "spin_5rpm.py": {
+          "bytes": 6925,
+          "sha256": "4cb8a150c1adadfb56c3ecc0a348f2d7083371e5ef09b97957c70165c2ea6f65"
+        },
+        "im6014_codec.py": {
+          "bytes": 2752,
+          "sha256": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563"
+        },
+        "im6014_serial.py": {
+          "bytes": 4170,
+          "sha256": "2988670c6df0a59b427d53476ad0b7fefa6f4027f7a9e1e9dd3a4c0eb6ea9306"
+        },
+        "fake_serial.py": {
+          "bytes": 6862,
+          "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+        },
+        "USER_MANUAL.md": {
+          "bytes": 18881,
+          "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+        },
+        "test_spin_5rpm.py": {
+          "bytes": 3278,
+          "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+        },
+        "test_dashboard.py": {
+          "bytes": 20274,
+          "sha256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d"
+        },
+        "test_startup.py": {
+          "bytes": 13291,
+          "sha256": "a5de87b93f39f5654209473e7316abb6030cbb6fd5f9af08784512baa6bb130e"
+        },
+        "test_startup_verifier.py": {
+          "bytes": 6678,
+          "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+        },
+        "test_protocol.py": {
+          "bytes": 16673,
+          "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+        },
+        "test_serial_deadline.py": {
+          "bytes": 10995,
+          "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+        },
+        "evidence/boundary/vendor-crc-vectors.json": {
+          "bytes": 25235,
+          "sha256": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+        }
+      },
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "provenance": "Downloaded actual GitHub Actions artifact; parent compares every hash and observes zero hardware sentinels; historical candidate CI, final-head CI remains required",
+  "observedAt": "2026-10-07T04:38:38.647652+00:00"
+}

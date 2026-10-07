@@ -1,0 +1,8 @@
+test_256_independent_vendor_vectors (test_protocol.B03Checksum.test_256_independent_vendor_vectors) ... ok
+test_each_payload_and_checksum_bit_rejected (test_protocol.B03Checksum.test_each_payload_and_checksum_bit_rejected) ... ok
+test_incomplete_checksum_words_rejected (test_protocol.B03Checksum.test_incomplete_checksum_words_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.010s
+
+OK

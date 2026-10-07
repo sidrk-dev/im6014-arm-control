@@ -68,6 +68,7 @@ class DemoSerial:
     is_open = True
     in_waiting = 26
     timeout = 0.005
+    write_timeout = 0
 
     def __init__(self):
         self.data = b''
@@ -120,7 +121,7 @@ class DemoSerial:
     def read(self, size):
         data, self.data = self.data[:size], self.data[size:]
         if not data:
-            time.sleep(0.001)
+            time.sleep(min(0.001, self.timeout) if self.timeout is not None else 0.001)
         return data
 
     def close(self):

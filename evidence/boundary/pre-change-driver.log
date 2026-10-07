@@ -1,0 +1,8 @@
+Evidence: /tmp/pstack-b01-b10-20261006-thwnnaa5/pre-change/run-20261007T040310Z-YbtEW9iq
+check	exit_code
+interpreter	0
+packet-tests	0
+dashboard-tests	0
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0

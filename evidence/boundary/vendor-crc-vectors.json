@@ -1,0 +1,1031 @@
+{
+  "source": "Unmodified archived Unitree C++ table and routine extracted in vendor-crc.cpp",
+  "seed": 6014,
+  "count": 256,
+  "vectors": [
+    {
+      "inputHex": "008254ffffe0669defe08c403a3783c0",
+      "crcHex": "61e84876"
+    },
+    {
+      "inputHex": "c88fa6f5d0b60195285aeead9f7870fb85dea775",
+      "crcHex": "4e0ae319"
+    },
+    {
+      "inputHex": "5e070817150556e1ff817a69f464965e",
+      "crcHex": "80b7510c"
+    },
+    {
+      "inputHex": "2e135e1a46c6ab6b0afbbf36720fe3ce431c33eb",
+      "crcHex": "a06a0814"
+    },
+    {
+      "inputHex": "b15d0cd9ea6253f27c82bc0f0bc9e474",
+      "crcHex": "6d4a53d7"
+    },
+    {
+      "inputHex": "b96508a1692ede274b9efa96cc7dd24bc6c1f13c",
+      "crcHex": "9f2ad58f"
+    },
+    {
+      "inputHex": "dbff27dd50704a05fbe446368a53492d",
+      "crcHex": "2d6842d0"
+    },
+    {
+      "inputHex": "6f77d045128f090c773da2cff02cb227c2500212",
+      "crcHex": "c2490c6b"
+    },
+    {
+      "inputHex": "c81d69634bb5caec98a06fcbd2bbbb7e",
+      "crcHex": "19635761"
+    },
+    {
+      "inputHex": "cd7875e81515bc4d2e0538259bef83406d367fcf",
+      "crcHex": "f6bf56f5"
+    },
+    {
+      "inputHex": "6c8ad4a1878f9500eb4da30fd1566c3d",
+      "crcHex": "e46f989d"
+    },
+    {
+      "inputHex": "00941933ddb6df8b454ec64847c52221a3249f8e",
+      "crcHex": "fd7a79e2"
+    },
+    {
+      "inputHex": "f65a8855d7cbae5d05d99b96621b2ce4",
+      "crcHex": "27ca5a75"
+    },
+    {
+      "inputHex": "49ee35f2e92d5a2af89dd46dd5de9d986e569514",
+      "crcHex": "f46fdfc0"
+    },
+    {
+      "inputHex": "aba0d1c332a0f1318c3c9fe12803de75",
+      "crcHex": "9fa8592b"
+    },
+    {
+      "inputHex": "cabe659d406dfbebd60529554b0652ac90b460c1",
+      "crcHex": "8234d374"
+    },
+    {
+      "inputHex": "1cc40d79bb39af0f801ebdf88303f3f4",
+      "crcHex": "af156978"
+    },
+    {
+      "inputHex": "d957adbe5675c8e54dce05bf1be737bfe0750309",
+      "crcHex": "41d22193"
+    },
+    {
+      "inputHex": "dd4332fb7042cceec3d7a7a2b0486bb3",
+      "crcHex": "899118fd"
+    },
+    {
+      "inputHex": "1ca294b302aa98131e321fc05aa6bf16264a8a5e",
+      "crcHex": "7382ae02"
+    },
+    {
+      "inputHex": "9e72c2fadc2b992113e52c71fef6bcaf",
+      "crcHex": "97d4405e"
+    },
+    {
+      "inputHex": "37c9f699e3c558ea7f6f3434bdf28aabc25a92b1",
+      "crcHex": "9fcb6198"
+    },
+    {
+      "inputHex": "8dcd57f2ec3a753d3cf0ae222d7d3abd",
+      "crcHex": "d8ba22ee"
+    },
+    {
+      "inputHex": "c8b419b7c0a9c19ff290d2c94e408c26c420ef39",
+      "crcHex": "156ce1cd"
+    },
+    {
+      "inputHex": "2d4654bed210a00647d30d3af8683ae7",
+      "crcHex": "5decef41"
+    },
+    {
+      "inputHex": "7a1ede33345569ecedab2e639d83bc6884740204",
+      "crcHex": "c38b6535"
+    },
+    {
+      "inputHex": "0c9822970aa4d1d9d25efefed1b837c9",
+      "crcHex": "5043cf6b"
+    },
+    {
+      "inputHex": "8348541b59824510ab1d8595491e313ca477103e",
+      "crcHex": "e11159f2"
+    },
+    {
+      "inputHex": "0972ab81b7ac0a8daff84baad3765525",
+      "crcHex": "62f48d37"
+    },
+    {
+      "inputHex": "4846df79a6d6ee3f6a0f9e961a8f3fd5cc997f08",
+      "crcHex": "76dc6d8c"
+    },
+    {
+      "inputHex": "d50de65735749e0842a7706c46f8953c",
+      "crcHex": "95485714"
+    },
+    {
+      "inputHex": "540d4655ed6fb90eb1d5dbad34aa888aa3b6f80a",
+      "crcHex": "0a0e2bd1"
+    },
+    {
+      "inputHex": "aad7748366d95d1af411bbe5c16def5b",
+      "crcHex": "c4c097d1"
+    },
+    {
+      "inputHex": "3748c67b81a1c44e6a327c52a0bdf62c495d3605",
+      "crcHex": "84a9aa16"
+    },
+    {
+      "inputHex": "0a9717cc30cd8495bd77d1ec21756bdd",
+      "crcHex": "4ab1129b"
+    },
+    {
+      "inputHex": "f64b8c63b9592e31f4065521f859563882992b52",
+      "crcHex": "e4471314"
+    },
+    {
+      "inputHex": "3a26e8091ad1360dd42cdbfaf69a32b6",
+      "crcHex": "de98cec1"
+    },
+    {
+      "inputHex": "06bf9df44ed95e92d89ce6ed43457b6a06c3f589",
+      "crcHex": "a8762e2f"
+    },
+    {
+      "inputHex": "b3b082cc2689b67eda35fa2867d23cad",
+      "crcHex": "40800cbe"
+    },
+    {
+      "inputHex": "57f2ed93cb01be0eb400117cca4ec5c561e3bc01",
+      "crcHex": "07955efb"
+    },
+    {
+      "inputHex": "a8c740d0ea8fa101b5d22710277bb55b",
+      "crcHex": "be44a1ba"
+    },
+    {
+      "inputHex": "3bb11022f312c0f26c49f4914a5926e39dbe0167",
+      "crcHex": "1a7ea11f"
+    },
+    {
+      "inputHex": "24c952e6e525382cafaa3934c24afe5d",
+      "crcHex": "d5b163c8"
+    },
+    {
+      "inputHex": "1cfa50b9e5a14ab2022a03114534b91a254f43eb",
+      "crcHex": "8cecad06"
+    },
+    {
+      "inputHex": "bcbbabb25f3c68471f491d59adb5ae30",
+      "crcHex": "bd7a5d5c"
+    },
+    {
+      "inputHex": "292fef6f74805a8cf7ecfd8cfc78645142b22263",
+      "crcHex": "800a0090"
+    },
+    {
+      "inputHex": "d0b41e6ddcb9c9b9d11468fd357105ca",
+      "crcHex": "758aedf3"
+    },
+    {
+      "inputHex": "051b5d502ae46bb8a76b6168df5f219efd16bd47",
+      "crcHex": "c93bd5bf"
+    },
+    {
+      "inputHex": "1dcedf3d1aee97777284749b810720e9",
+      "crcHex": "5b0bb351"
+    },
+    {
+      "inputHex": "4fa237e613938efb7bef9feee513abfd53a688ac",
+      "crcHex": "ed9a7690"
+    },
+    {
+      "inputHex": "7ff5b4b9c815c3365781cfcd272d91aa",
+      "crcHex": "33dcd599"
+    },
+    {
+      "inputHex": "051512c9b7b7e76e22d28d704640fdafa8f052ba",
+      "crcHex": "6571ca9a"
+    },
+    {
+      "inputHex": "a0ce00a1557cd3f6d586561e95c5c1a9",
+      "crcHex": "75177b6d"
+    },
+    {
+      "inputHex": "61aff9167725e286b5f5504efa8dbdeb715e7545",
+      "crcHex": "6cff4f9e"
+    },
+    {
+      "inputHex": "5eec6b2dc1cc727cd7223b2aa23bd94e",
+      "crcHex": "6639ee70"
+    },
+    {
+      "inputHex": "496ca11a6465939bd97bfabc1ca9d44587e5859f",
+      "crcHex": "74d93b41"
+    },
+    {
+      "inputHex": "6234bba326d150888d2e2196fd2e698a",
+      "crcHex": "a9b322c4"
+    },
+    {
+      "inputHex": "4e91e5cb8de6c8fbb07a08b3b661ed48d8c2377b",
+      "crcHex": "2498977a"
+    },
+    {
+      "inputHex": "b7128ff9010227945782716cd4b0d513",
+      "crcHex": "8bf1eda7"
+    },
+    {
+      "inputHex": "77a6afc6eace43c543a81657493b01367aa39733",
+      "crcHex": "1f0d2caf"
+    },
+    {
+      "inputHex": "d26a84e49e1717d340a655cac0f1ba64",
+      "crcHex": "cdea06ea"
+    },
+    {
+      "inputHex": "1d03c64dff0135d0d27323cf6d4296b4706d7922",
+      "crcHex": "2aad135e"
+    },
+    {
+      "inputHex": "270fdac31252d6ed494122b7b830b3f3",
+      "crcHex": "36fe5315"
+    },
+    {
+      "inputHex": "51ae50ca3f6a99eb7a0b8d1536ef6eec595abb94",
+      "crcHex": "f877c382"
+    },
+    {
+      "inputHex": "dbb0ae6f964ce230ff0832ea22510158",
+      "crcHex": "dfe6f248"
+    },
+    {
+      "inputHex": "33b889f06d16d939e9fa2cb904b9a0761a589a84",
+      "crcHex": "b4b6ce9b"
+    },
+    {
+      "inputHex": "beb0cc299e02c476317f20f794643346",
+      "crcHex": "06abecd1"
+    },
+    {
+      "inputHex": "99044e521277727c771cf5602921a3a9e0186082",
+      "crcHex": "225797bd"
+    },
+    {
+      "inputHex": "4b9dbfbd272e28d1b9357e9d14dc6c3e",
+      "crcHex": "3697bb87"
+    },
+    {
+      "inputHex": "9cc0ce921106f8b2e20df031387faecfe861b68a",
+      "crcHex": "2c5c67f2"
+    },
+    {
+      "inputHex": "1c796c0c45f054d48f093086650d8c75",
+      "crcHex": "f6916a95"
+    },
+    {
+      "inputHex": "67bd13761c14b0ba46439209fbfe4439a889ae0f",
+      "crcHex": "ecfa7290"
+    },
+    {
+      "inputHex": "d857d7c9bb9351e056231f6c64802bb9",
+      "crcHex": "f09630f8"
+    },
+    {
+      "inputHex": "9fb30d43e04af37e88e541821870699fc11b1d24",
+      "crcHex": "200e0635"
+    },
+    {
+      "inputHex": "42ab75fd4097d65a1b94f19d77c2cb5f",
+      "crcHex": "d7efdf4e"
+    },
+    {
+      "inputHex": "f1464bd8f29ad4e689aaccdc1a02d57207748e85",
+      "crcHex": "d18e0375"
+    },
+    {
+      "inputHex": "f66637ea1c46d030e4762896cbb792b0",
+      "crcHex": "f98ba70c"
+    },
+    {
+      "inputHex": "0a2b563c5d7b583a00d9c23efa22202437a4fc90",
+      "crcHex": "2af72b97"
+    },
+    {
+      "inputHex": "63715e92f97937133712cf79b2be3bf6",
+      "crcHex": "c3a5158b"
+    },
+    {
+      "inputHex": "b19b6a68cf3bfc728310f453b392e24eb794f10c",
+      "crcHex": "6ca3f0e2"
+    },
+    {
+      "inputHex": "584f1d15f3171f15206306e943b1ade4",
+      "crcHex": "649f4aef"
+    },
+    {
+      "inputHex": "c72fb0eb3cad7d71492d270736a3d568253a3feb",
+      "crcHex": "dd7fd24b"
+    },
+    {
+      "inputHex": "57e713d2e398d18e8f0f7b40e04606c5",
+      "crcHex": "ef1c5c9c"
+    },
+    {
+      "inputHex": "069337cbf952da266a38c06366683ae702f63799",
+      "crcHex": "9a74c54c"
+    },
+    {
+      "inputHex": "5d5e14f65e8f9988444fa28d94d74260",
+      "crcHex": "13ea54f5"
+    },
+    {
+      "inputHex": "38ec7a25357b6bc56a5f40f7e11477b572e1e311",
+      "crcHex": "703d4b23"
+    },
+    {
+      "inputHex": "9decf1aa8180b4230af4a7dc3a3559b9",
+      "crcHex": "802de1b2"
+    },
+    {
+      "inputHex": "ac6986598fe32fb9ff9834b3f682852ed0d89680",
+      "crcHex": "70808ca3"
+    },
+    {
+      "inputHex": "71118da69bd0785e4b8c4c5525100a95",
+      "crcHex": "f378e271"
+    },
+    {
+      "inputHex": "b21d0470f455e4e2e83bcdf0da58c2286e297ff7",
+      "crcHex": "a8c03f62"
+    },
+    {
+      "inputHex": "ee6b1fb2ef888845764a1235c0f95299",
+      "crcHex": "fb72616b"
+    },
+    {
+      "inputHex": "143c63ede623ef30219294558e74db8f40748493",
+      "crcHex": "7001a0cc"
+    },
+    {
+      "inputHex": "a8fb8ccc116b00c7fadb4d9473d34a4c",
+      "crcHex": "e27124e5"
+    },
+    {
+      "inputHex": "f7c32417836c0c7bc8a820ed2cafbccfd22636da",
+      "crcHex": "38ed4830"
+    },
+    {
+      "inputHex": "1e3bfdee0c571e85cf70e15419665c61",
+      "crcHex": "137b7638"
+    },
+    {
+      "inputHex": "d3875cd16c57531093cfab663d4119cf10b834fc",
+      "crcHex": "6db78f57"
+    },
+    {
+      "inputHex": "f7df99920e2d1263c9f03565724221e6",
+      "crcHex": "b88911f0"
+    },
+    {
+      "inputHex": "c3d93f3a7f1d29f9c2050111f085ba0ef2dbc4c3",
+      "crcHex": "d4afa492"
+    },
+    {
+      "inputHex": "8fe9e09ad41ae81e395a07b74d962f87",
+      "crcHex": "570fe25c"
+    },
+    {
+      "inputHex": "5897fed919c40d7f4a422eb6fd66dd47a22f837e",
+      "crcHex": "34a59023"
+    },
+    {
+      "inputHex": "f035250eb39c446c51df5bc95e7fffd5",
+      "crcHex": "03e365f0"
+    },
+    {
+      "inputHex": "0a32d8c3ab8725916244f95a8a772fb75a1c7847",
+      "crcHex": "eadafc49"
+    },
+    {
+      "inputHex": "b3350a1be898d500900516c8d604ca26",
+      "crcHex": "78d57c72"
+    },
+    {
+      "inputHex": "bd976d8843817dc69efe7061726781873971aee7",
+      "crcHex": "e0937b7f"
+    },
+    {
+      "inputHex": "a422250eee76b115ddaf1b8d78a91be9",
+      "crcHex": "a21bec58"
+    },
+    {
+      "inputHex": "3dd77398237c01d6191f06f34b75c17d5f9f4787",
+      "crcHex": "9e5cd0f6"
+    },
+    {
+      "inputHex": "9aafdcfaf0e00fe7048da3796f67fa63",
+      "crcHex": "2016d70e"
+    },
+    {
+      "inputHex": "48b5e7023fbe3f8a929b2621a17bf0b7ed28c963",
+      "crcHex": "23115d8c"
+    },
+    {
+      "inputHex": "0e911fb863e87e8e74d0b2f0727acf43",
+      "crcHex": "386177e3"
+    },
+    {
+      "inputHex": "f38d892e0dbb607f5cfd9206ceaa78586786da1b",
+      "crcHex": "a0d45363"
+    },
+    {
+      "inputHex": "4ea5628839687e995eec443b9cd0617a",
+      "crcHex": "4df3cc94"
+    },
+    {
+      "inputHex": "55f5ddfc67cf42a3c7a11d83eea780b959ba7101",
+      "crcHex": "d39b4c51"
+    },
+    {
+      "inputHex": "d368e8681b1348e89756605d681d6139",
+      "crcHex": "a2a093ac"
+    },
+    {
+      "inputHex": "193fc8f5a6d8e4cc0dc4cdb52abcae63581ca70f",
+      "crcHex": "aa9add2f"
+    },
+    {
+      "inputHex": "648ca1548d9fcafa3062c99e654d7293",
+      "crcHex": "fc746dba"
+    },
+    {
+      "inputHex": "8b6af7af181ee93c8e1384ce08be6d3ac24fecd7",
+      "crcHex": "460888ec"
+    },
+    {
+      "inputHex": "079d452436d3dbef4179a5ac620cdb5a",
+      "crcHex": "96566787"
+    },
+    {
+      "inputHex": "ca2bed0084c80e059702500f23614a394702fb23",
+      "crcHex": "2865a9ce"
+    },
+    {
+      "inputHex": "1fc4d92cb25867b430842485425e5b0b",
+      "crcHex": "50396f5f"
+    },
+    {
+      "inputHex": "754b5a17a4522d9788e5a18066e2db8f2a57d8dc",
+      "crcHex": "8dacb286"
+    },
+    {
+      "inputHex": "ffebff7577d9680fb28fd9d1c9326e1f",
+      "crcHex": "cdcf5457"
+    },
+    {
+      "inputHex": "5988ff5914aea9fcfbb0ecb44ac115be64a07028",
+      "crcHex": "0ff7f912"
+    },
+    {
+      "inputHex": "2937beba92bcce989be7798af7b04f53",
+      "crcHex": "498ccdc2"
+    },
+    {
+      "inputHex": "a1ad109fa79ffadc566843ff9c3e6076c782774a",
+      "crcHex": "d32824f9"
+    },
+    {
+      "inputHex": "a5976436364bfe741c57341e832ead71",
+      "crcHex": "b506edb3"
+    },
+    {
+      "inputHex": "f9fc54e2e11927f1e5f22b78f1e5ed347be45924",
+      "crcHex": "b92329c6"
+    },
+    {
+      "inputHex": "4b205887bec5cff08fdfa8fb06cc3124",
+      "crcHex": "06b8e529"
+    },
+    {
+      "inputHex": "422b373a6455fb0b665bde5a92c92b2f57cdc806",
+      "crcHex": "083c053f"
+    },
+    {
+      "inputHex": "042b74e017bc2c0677a17f6f32090328",
+      "crcHex": "bfa101bd"
+    },
+    {
+      "inputHex": "f3a7f290ef73481cfe9d82dcc2144b7df516e5e2",
+      "crcHex": "d71c8ff9"
+    },
+    {
+      "inputHex": "f55cae72d97d3daee23583ebb9ee5989",
+      "crcHex": "2cb166b5"
+    },
+    {
+      "inputHex": "4fe222c3ea675d27194b2a3a0a4b302b13374e17",
+      "crcHex": "c219b89f"
+    },
+    {
+      "inputHex": "a65030db73efe62701506d6d03c01b83",
+      "crcHex": "ae78f5ea"
+    },
+    {
+      "inputHex": "0fb6f4dd093a24744dc013554d5b649c3845a62e",
+      "crcHex": "98efae98"
+    },
+    {
+      "inputHex": "34d1a59528ace67f30adbd2d9949fe02",
+      "crcHex": "0ccd6735"
+    },
+    {
+      "inputHex": "0ad2f59514ce0eda52417fc8f593c965d0b9eb5f",
+      "crcHex": "24ee3db4"
+    },
+    {
+      "inputHex": "db2ec89a3af1c4c85bdba31f4a4889c9",
+      "crcHex": "13138575"
+    },
+    {
+      "inputHex": "3cadd7de29561569ae0a0086d979f442ee64bcc7",
+      "crcHex": "c7d76cf4"
+    },
+    {
+      "inputHex": "38c52fa69fa5adb184101005e72e0873",
+      "crcHex": "524b9eba"
+    },
+    {
+      "inputHex": "095e6c5a5a0353b724e56f00c6d696699ef36378",
+      "crcHex": "ad6f8634"
+    },
+    {
+      "inputHex": "71e861ab3d935188cbb49153cbec2a25",
+      "crcHex": "fb830ba2"
+    },
+    {
+      "inputHex": "3564c99390c0d26de1f3d17203214a620e05ff3f",
+      "crcHex": "c5993541"
+    },
+    {
+      "inputHex": "55cb7a2b2179197c882e14a51c19b469",
+      "crcHex": "9c11698a"
+    },
+    {
+      "inputHex": "87aa23a633c2eb13102b4dbdbc48a64feff8d0c4",
+      "crcHex": "73387eec"
+    },
+    {
+      "inputHex": "a02fb079722986492f80800727166240",
+      "crcHex": "f6cb8c0a"
+    },
+    {
+      "inputHex": "83230ec8d6d7a851b99b34c5b036994441cf2ccd",
+      "crcHex": "1b299dc1"
+    },
+    {
+      "inputHex": "7b2af7966e7d920833b3a18ca609bacc",
+      "crcHex": "42dd3315"
+    },
+    {
+      "inputHex": "9e7ed481a0907b4c0fbf4bbff1f2aaedc94bb221",
+      "crcHex": "d91d6688"
+    },
+    {
+      "inputHex": "eb3d0d2b1c2a59e74a6ceafaf44acb5e",
+      "crcHex": "d14420ee"
+    },
+    {
+      "inputHex": "344cf833c1f91df893fa3de0129785a6fb6467c3",
+      "crcHex": "7313d954"
+    },
+    {
+      "inputHex": "6ac339dd88f686737490fc113208ac42",
+      "crcHex": "c8321475"
+    },
+    {
+      "inputHex": "a8df73fc86133528ab36713885ad15593a87e43e",
+      "crcHex": "36667249"
+    },
+    {
+      "inputHex": "26755eb0a207e2be8ede8aaf338d723d",
+      "crcHex": "75161cc0"
+    },
+    {
+      "inputHex": "a89ca8206b74015ebd922b292569fce70f57b5a7",
+      "crcHex": "0dc47754"
+    },
+    {
+      "inputHex": "1f017d8456f16211c9dc41afdf02c93e",
+      "crcHex": "60eb162b"
+    },
+    {
+      "inputHex": "e0ff99a30e9b9f89d7dfb4ba8e92164ffde76a05",
+      "crcHex": "ec553303"
+    },
+    {
+      "inputHex": "4140ddbd2f328c51c85fdc8e57f87fa9",
+      "crcHex": "da669ee0"
+    },
+    {
+      "inputHex": "8ceffa7f244967ff8230e526ca9a051a0a3fc146",
+      "crcHex": "477d2d14"
+    },
+    {
+      "inputHex": "dd918cd4694303654aa785a5e180f768",
+      "crcHex": "7e7d21f0"
+    },
+    {
+      "inputHex": "d4001304d69c01a6a300685f4827e8130cd50149",
+      "crcHex": "14f04aaa"
+    },
+    {
+      "inputHex": "1f1e009677594cd42cdc8fb10ad8d38b",
+      "crcHex": "8e559645"
+    },
+    {
+      "inputHex": "3963ae3b1d07a827ddecd496841d0a51d2ba5776",
+      "crcHex": "8212e3e7"
+    },
+    {
+      "inputHex": "f248e7ad6954ef84bb6b5150bb93e313",
+      "crcHex": "f1c75882"
+    },
+    {
+      "inputHex": "9c5cb50960203c9ac2a68db7fe6f98c70f7c2242",
+      "crcHex": "921a6f91"
+    },
+    {
+      "inputHex": "d0cc08a2ef7d4b5929af7d38aab6bf5f",
+      "crcHex": "94f278a4"
+    },
+    {
+      "inputHex": "f252b30915baa9c97e044177281b4fedfbbd9a06",
+      "crcHex": "8599cf9e"
+    },
+    {
+      "inputHex": "9dd9dad0243336a4ebc6cc98e872c859",
+      "crcHex": "144b8c59"
+    },
+    {
+      "inputHex": "3276beac47d9115473fca752171e9895fce354e7",
+      "crcHex": "54ea31f3"
+    },
+    {
+      "inputHex": "f82560e9114cfe8ee8592f771b5c2d60",
+      "crcHex": "2b8624cf"
+    },
+    {
+      "inputHex": "0cc78837d28cc5a6ba2ef6f2748c93af0c4eb9eb",
+      "crcHex": "ac1d4068"
+    },
+    {
+      "inputHex": "55e1718b24425c98d7a1fe58ec5e1fd9",
+      "crcHex": "7ed76e80"
+    },
+    {
+      "inputHex": "dce883dfa65ac33596eb22486263c35265673ee1",
+      "crcHex": "9b99a17c"
+    },
+    {
+      "inputHex": "697139016ec76b5c5227a3fb71afa0e5",
+      "crcHex": "2738c68b"
+    },
+    {
+      "inputHex": "56ccc635a4dc8313420bb3e562afd4862a496cb9",
+      "crcHex": "0758a27f"
+    },
+    {
+      "inputHex": "fbf176a2681113bf9e3ae94ebc376d69",
+      "crcHex": "086a6b07"
+    },
+    {
+      "inputHex": "33a499585abfd3cca63a42f6f8f5cc7873e6472e",
+      "crcHex": "070293ec"
+    },
+    {
+      "inputHex": "627ea29496516ce115f90b415539ef3c",
+      "crcHex": "239a3d7c"
+    },
+    {
+      "inputHex": "6ae65d8c90ee2cdbbea181749a2da8321a9eee10",
+      "crcHex": "12d52106"
+    },
+    {
+      "inputHex": "e1b4cd5904f97c70bfc5ff4666431394",
+      "crcHex": "e2c6231e"
+    },
+    {
+      "inputHex": "0f88215b8342a9b26b4bfb13349332392d5100b6",
+      "crcHex": "74021c0f"
+    },
+    {
+      "inputHex": "e88dd8bc65788943d98780b7286c0b65",
+      "crcHex": "6789452d"
+    },
+    {
+      "inputHex": "51783a153006b4450b48934be62e933dfa4d984f",
+      "crcHex": "2f2646f9"
+    },
+    {
+      "inputHex": "2106189b7adb272d511b3d45d65e7d90",
+      "crcHex": "1068a7ee"
+    },
+    {
+      "inputHex": "37c575a2eb3d7792a4bf3a5565c82ef9aa145459",
+      "crcHex": "f94f70fd"
+    },
+    {
+      "inputHex": "d46775f8cc79c370fcf3d6c9366bdcdb",
+      "crcHex": "f656ddd2"
+    },
+    {
+      "inputHex": "fe8b198af8a01a5bc59f136cf22f2364efae6b23",
+      "crcHex": "e21a3440"
+    },
+    {
+      "inputHex": "657361949a4455e896dd5eb127758629",
+      "crcHex": "a94ad09e"
+    },
+    {
+      "inputHex": "3e7f7f8343c3e237e904babac27777cfdc112ab6",
+      "crcHex": "237391c6"
+    },
+    {
+      "inputHex": "af8b55a23137ee0467524a22d3d0bfec",
+      "crcHex": "2232e8a9"
+    },
+    {
+      "inputHex": "5bde6c74356ed6f5ee0e015cb20b35745a26ba2f",
+      "crcHex": "231532bd"
+    },
+    {
+      "inputHex": "5fe9f3a3720d0bd3a64d47ca6497703c",
+      "crcHex": "10a83f9e"
+    },
+    {
+      "inputHex": "00513a5744f443c17ff7a71a1638773901732afa",
+      "crcHex": "2f73714d"
+    },
+    {
+      "inputHex": "9372e39c766745024c870ecbac740a15",
+      "crcHex": "ea258f3b"
+    },
+    {
+      "inputHex": "ed1c8b3882d863d5dc13696c3f8c8ef1dac50688",
+      "crcHex": "85e111fd"
+    },
+    {
+      "inputHex": "449a51f779aa763317f3fa1202959afd",
+      "crcHex": "19a6989e"
+    },
+    {
+      "inputHex": "34caeaa993f7cd9bf09a223c335f47774bf5989f",
+      "crcHex": "ef334662"
+    },
+    {
+      "inputHex": "8168912c527e9c033c838c1cae198295",
+      "crcHex": "10507cce"
+    },
+    {
+      "inputHex": "dd37be0fbb2cd2c47b2986fc4bb74036a126b19f",
+      "crcHex": "a1389154"
+    },
+    {
+      "inputHex": "3ce8a938ae451cc77219401dd5c40cd9",
+      "crcHex": "a3b29a5e"
+    },
+    {
+      "inputHex": "876f8f94003d77f38a82c7fc9f2721f7bae6009d",
+      "crcHex": "b722d646"
+    },
+    {
+      "inputHex": "398a32d765016ee914bd3a1737136a4a",
+      "crcHex": "c4c15915"
+    },
+    {
+      "inputHex": "4301b7c42a6a10a07d5e56a3fd1474f90a383367",
+      "crcHex": "768a1c0a"
+    },
+    {
+      "inputHex": "b0737ade7f7aca5a97014b7df16a8db5",
+      "crcHex": "30301dda"
+    },
+    {
+      "inputHex": "8a98191d318e04830e36b404a96c9085e3946fcf",
+      "crcHex": "bc0a0632"
+    },
+    {
+      "inputHex": "b585b04a6cefd08247e9f8117dfb05d5",
+      "crcHex": "84a2d954"
+    },
+    {
+      "inputHex": "33ed41e90eb7398e4c22209b3d4fbc92fd87906a",
+      "crcHex": "64a3b6f6"
+    },
+    {
+      "inputHex": "843ec6bd4b6c3e32aeaf2c5ffbb52501",
+      "crcHex": "ca020935"
+    },
+    {
+      "inputHex": "f96ec3effc7e0ad56fd3c4da2b8bd7651e6228dd",
+      "crcHex": "b524cca4"
+    },
+    {
+      "inputHex": "9103cb52061619f7cc53ef5c3542752f",
+      "crcHex": "0efe4d78"
+    },
+    {
+      "inputHex": "b9db2f5773236d9ee806f1d2727428aae51b71bf",
+      "crcHex": "0607221e"
+    },
+    {
+      "inputHex": "076826463ceb857f177fe23d461e4692",
+      "crcHex": "4c33aac6"
+    },
+    {
+      "inputHex": "943a7cb6842a90f6036ea32bcddec44cbdc6481a",
+      "crcHex": "336406ed"
+    },
+    {
+      "inputHex": "c30ff2ea795984b943aa14af04656c2a",
+      "crcHex": "bdf9f7cc"
+    },
+    {
+      "inputHex": "589819d861294083ff6eb50abcb34ebc4a249fb4",
+      "crcHex": "699e3106"
+    },
+    {
+      "inputHex": "fd0001b46bca83978e3711b84fbe2fca",
+      "crcHex": "d44b2b18"
+    },
+    {
+      "inputHex": "cf8ea741b898e28dbb97af99534e98677dd98d2f",
+      "crcHex": "d6d4bc5a"
+    },
+    {
+      "inputHex": "00efa97e3f32607e8351dd105a9d4df9",
+      "crcHex": "259808f0"
+    },
+    {
+      "inputHex": "f545783ceb228165570ab3a6229a3b83f1ed692e",
+      "crcHex": "f0c79f43"
+    },
+    {
+      "inputHex": "be5146eef9eba3b6f6b3f19f3424bffa",
+      "crcHex": "413b8c3e"
+    },
+    {
+      "inputHex": "03a63ae86217732c7c3649fde89767c2d6910acd",
+      "crcHex": "a48ecfd8"
+    },
+    {
+      "inputHex": "1836a3dbcb19c24a580d9225a43df597",
+      "crcHex": "ce719bef"
+    },
+    {
+      "inputHex": "6f9324cafd74f9d4de0e2bfe8aad80ef7b29c37d",
+      "crcHex": "a8e4a774"
+    },
+    {
+      "inputHex": "481bc24a1c20791a3b150670ded6bc9b",
+      "crcHex": "a609481f"
+    },
+    {
+      "inputHex": "917f663712a77dab0e56f29e405d4b1073e37ebd",
+      "crcHex": "453db12e"
+    },
+    {
+      "inputHex": "cf1e263a9b76dbb3a034de687c4a7fdd",
+      "crcHex": "2e8408f1"
+    },
+    {
+      "inputHex": "61b4f7dea146e7d3d73fedc0b89adc92ed632bbc",
+      "crcHex": "78f4a3fd"
+    },
+    {
+      "inputHex": "0523819591bfdc2b167d174d99d80351",
+      "crcHex": "2f5b6ffb"
+    },
+    {
+      "inputHex": "fafdf6aae6cdf75f13fc51ba61cf32b4456f99ce",
+      "crcHex": "fa58e399"
+    },
+    {
+      "inputHex": "dcfd9925dc08bb91fd64635ba1eb8033",
+      "crcHex": "324b7293"
+    },
+    {
+      "inputHex": "1a6f355652bd6586974072ba86981900c212075b",
+      "crcHex": "865cdaa5"
+    },
+    {
+      "inputHex": "43b3e4734b3b908f2093e16892d427ad",
+      "crcHex": "ea3a6112"
+    },
+    {
+      "inputHex": "7fc6c9753deb5b126620d1ab82e3c91f940061ae",
+      "crcHex": "016eb90f"
+    },
+    {
+      "inputHex": "77b7a8371cb3ffbe8bb073f1a9148ba9",
+      "crcHex": "0d01bdec"
+    },
+    {
+      "inputHex": "a6de1bc6b729eb25d775160fe0d04a756da95c65",
+      "crcHex": "7e62ee43"
+    },
+    {
+      "inputHex": "d9cdae4b9669adcc1c128c32645b1054",
+      "crcHex": "8ef4fb91"
+    },
+    {
+      "inputHex": "46e288f75b299180cb5768a1a54001d6dd15911e",
+      "crcHex": "5c98440c"
+    },
+    {
+      "inputHex": "eb939dbf68a2b087f98775ecee43a7c3",
+      "crcHex": "1506d101"
+    },
+    {
+      "inputHex": "5e5adce5503e0d287a2782da5eb0e642fbf0744b",
+      "crcHex": "f780d07d"
+    },
+    {
+      "inputHex": "c9167e4942ddbd0b26aeb959a344478d",
+      "crcHex": "aa30af9b"
+    },
+    {
+      "inputHex": "622e55ae22e69392587c020756f415623fd94313",
+      "crcHex": "056f2b08"
+    },
+    {
+      "inputHex": "c69b4c8d8341a6cfa764205d3b11fec9",
+      "crcHex": "90a93f39"
+    },
+    {
+      "inputHex": "c5959e295685b89c231052df6281009ebae676fc",
+      "crcHex": "caef7efd"
+    },
+    {
+      "inputHex": "c5a2d5f981f8dc22e636442cc1734dda",
+      "crcHex": "67673cbc"
+    },
+    {
+      "inputHex": "11bfa3e91fcbec9ad8438c781de83c303d79d386",
+      "crcHex": "0c1f8950"
+    },
+    {
+      "inputHex": "92b65094f5b197d0da737538f7528f30",
+      "crcHex": "7fbb7664"
+    },
+    {
+      "inputHex": "1b4dcfb3bea08b4ffc493c39324093cbf8ee628d",
+      "crcHex": "dd76f18b"
+    },
+    {
+      "inputHex": "b17abbd0f155d9641d0e268b853b3bb4",
+      "crcHex": "4bb19d0d"
+    },
+    {
+      "inputHex": "30eab1942c7c932313c9108c0bc14d8cf9af5f53",
+      "crcHex": "593f8cef"
+    },
+    {
+      "inputHex": "27f4b3496f7060697cc8ea7b470d12d6",
+      "crcHex": "eb83eca6"
+    },
+    {
+      "inputHex": "885542f3e27edf7a913912f0eabb6e017216dc8c",
+      "crcHex": "26936475"
+    },
+    {
+      "inputHex": "bf4cf0dc95fc9b60e3f83cff4ac6241d",
+      "crcHex": "8fcffbbe"
+    },
+    {
+      "inputHex": "5a04fd8d78448523d4d117dfe5e67cc1df8c74ba",
+      "crcHex": "397ec6ab"
+    },
+    {
+      "inputHex": "1eb1b739053eee2825f496f5187ce410",
+      "crcHex": "e03d4572"
+    },
+    {
+      "inputHex": "11b2ea753b49122fe0cbb111cc55e1d70d493be7",
+      "crcHex": "9b51a73e"
+    },
+    {
+      "inputHex": "51c32dd753aa8f3e74d0c029b5db5bde",
+      "crcHex": "ba09e5c6"
+    },
+    {
+      "inputHex": "d23790e4726adcb059a85a194951e26bff737a85",
+      "crcHex": "fcb93ddc"
+    }
+  ]
+}

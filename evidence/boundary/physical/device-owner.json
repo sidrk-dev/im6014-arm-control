@@ -1,0 +1,8 @@
+{
+  "device": "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0",
+  "resolved": "/dev/ttyUSB3",
+  "exists": true,
+  "fuserExit": 1,
+  "ownerPIDs": "",
+  "fuserStderr": ""
+}

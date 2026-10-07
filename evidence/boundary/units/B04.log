@@ -1,0 +1,8 @@
+test_every_unrelated_header_byte_rejected (test_protocol.B04Framing.test_every_unrelated_header_byte_rejected) ... ok
+test_short_oversized_and_coalesced_decoder_inputs (test_protocol.B04Framing.test_short_oversized_and_coalesced_decoder_inputs) ... ok
+test_unsupported_modes_with_valid_vendor_crc_rejected (test_protocol.B04Framing.test_unsupported_modes_with_valid_vendor_crc_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

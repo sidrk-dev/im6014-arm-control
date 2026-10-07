@@ -1,0 +1,9 @@
+test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic) ... ok
+test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) ... ok
+test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) ... ok
+test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.103s
+
+OK

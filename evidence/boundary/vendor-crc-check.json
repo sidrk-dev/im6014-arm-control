@@ -1,0 +1,11 @@
+{
+  "sourcePath": "/home/sid/.codex/skills/unitree-im6014/references/examples/cpp/IM6014_C++_Demo_Cmake/src/MotorProtocol.cpp",
+  "sourceSHA256": "0d668662453989f1efc92b45537305d591aa1796d191c36313070e5e58c407f5",
+  "extractedTableAndRoutineSHA256": "b953aa71f9655d5000d18e87f4f6ef67537938f332535cf68016c39d555643f1",
+  "compiler": "g++ (GCC) 15.3.1 20260722 (Red Hat 15.3.1-1)",
+  "physicalPacket": "fcee801d1b48000000006cc4db000000000000000000f179457d",
+  "crcCoveredBytes": "801d1b48000000006cc4db000000000000000000",
+  "vendorCRC": "7d4579f1",
+  "storedCRC": "7d4579f1",
+  "match": true
+}
