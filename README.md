@@ -1,53 +1,60 @@
-# IM6014 Motor Bench
+# IM6014 robot workbench
 
-Linux desktop dashboard for connecting, diagnosing and testing a Unitree IM6014 actuator over USB/RS-485. Uses a moteus tview-style layout with connection controls, telemetry, live plots and an event/packet console.
+Work alongside the construction of a custom six-joint IM6014 arm. The current software is the existing one-motor bench dashboard, with the A01-A10 repository baseline, offline checks, and reproducible environment.
 
-![Position mode with a dark desktop theme; simulated motor](dashboard_dark_preview.png)
+The original bench source and history come from [sidrk-dev/im6014Development](https://github.com/sidrk-dev/im6014Development). The workbench lives in one repository. See [component boundaries](docs/architecture.md), the [full milestone plan](docs/ROBOT_WORKBENCH_AGENT_PROMPT.md), and the [milestone ledger](docs/milestones.tsv).
 
-## Install and start
+## Install the verified Linux environment
+
+The hash lock covers Linux x86_64 with glibc 2.34 or later. The selected interpreter is Python 3.12. Other platforms are not validated by this baseline.
 
 ```bash
-git clone https://github.com/sidrk-dev/im6014Development.git
-cd im6014Development
-python3 -m venv .venv
+git clone https://github.com/sidrk-dev/im6014-workbench.git
+cd im6014-workbench
+python3.12 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements.lock
+.venv/bin/python -m pip check
+```
+
+`requirements.txt` preserves the original direct pins. `requirements.lock` adds the exact Qt component versions and wheel hashes. Install the lock for the verified environment.
+
+## Run the offline baseline
+
+```bash
+scripts/check_offline_baseline.sh
+```
+
+The driver runs packet fixtures, the existing 18-group dashboard suite, negative startup-verifier checks, and disconnected startup checks for both source selections. It uses copied source in temporary storage. It does not modify the checkout's preview images. Each run produces new logs, screenshots, and startup receipts under `evidence/runs`. The command prints the run directory.
+
+The parent must inspect the rendered screenshots before recording A10 as verified. A test's success alone does not establish that its display is useful.
+
+## Launch the disconnected dashboard
+
+```bash
 source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-./start_dashboard.sh
+./start_dashboard.sh --demo
 ```
 
-Start without hardware using `./start_dashboard.sh --demo`. Both modes start disconnected and disarmed. The launcher finds the application relative to its own location.
+Demo mode starts disconnected. Click Connect only when you want simulated telemetry. To select real hardware while remaining disconnected, omit `--demo`. Starting the app does not open the motor port.
 
-## Controls
+Connect, Check, Scan, timeout acknowledgment, and Stop transmit control packets after a physical connection. They are not passive diagnostics. Physical operation requires explicit authorization and the setup procedures in [USER_MANUAL.md](USER_MANUAL.md).
 
-- **Speed:** signed output-shaft rpm, with acceleration/deceleration ramps and friction compensation. No fixed 5 rpm cap; protocol bounds still apply.
-- **Position:** relative or absolute angles in degrees, smooth target movement, adjustable Kp/Kd, and holding until the test duration ends.
-- **Torque pulse and damping:** short torque tests or resistance to manual motion.
-- **Diagnostics:** valid-reply counters, CRC/deadline errors, decoded faults, individual-ID Stop/status discovery, and JSON/CSV exports.
-- **Stop/disarm:** priority button or Esc. Each motion test requires a fresh arm action. Optional measured-speed and travel trips default to Off.
+## Current bench controls
 
-Read the [user manual](USER_MANUAL.md) for setup, units, commissioning steps and recovery. All displayed motion quantities use output-shaft units, converted using the exact 38/3 reduction.
+- Speed in signed output-shaft rpm, with acceleration and deceleration ramps.
+- Relative or absolute position in degrees, smooth targets, and adjustable Kp/Kd.
+- Bounded torque pulses and damping tests.
+- Telemetry, plots, packet traces, fault checks, and JSON/CSV exports.
+- Priority Stop/disarm through the button or Esc. Each test needs fresh arming.
 
-## Hardware and validation
+Displayed motion quantities use output-shaft units. The packet boundary applies the internal 38/3 reduction. A future external joint reduction is separate work.
 
-The recorded unloaded bench test used motor ID 0, 6 Mbps, and the supplied FTDI FT4232H adapter's Channel D. Device paths are machine-specific; select your adapter in the app.
+## Verification boundaries
 
-The earlier physical test achieved a measured 5.002 rpm average and confirmed Stop afterward. Higher-speed and position changes have been tested offline only. Detailed bench records and validation reports remain in the original local workspace.
+The committed evidence is in [evidence/baseline](evidence/baseline). It proves software behavior with fake transport and disconnected startup. It does not prove physical J1 mounting, calibration, communication, torque-off, or arm safety.
 
-Use a secured, unloaded motor with power isolation within reach. Stop releases torque and can let a gravity-loaded joint fall. The dashboard retains firmware/host watchdogs and fault, voltage, temperature and measured-torque checks; it is not a safety-rated controller or a commissioned robot-arm controller.
+The inherited bench README reported a historic 5.002 rpm physical result. This run did not reproduce it. No motor port was opened and no physical control packet was sent.
 
-## Offline checks
+Stop releases torque on the bench and can let a gravity-loaded joint fall. A gravity-loaded arm needs its own supported shutdown procedure. The current bench tool is not the future six-joint station controller.
 
-With the virtual environment active:
-
-```bash
-python3 test_spin_5rpm.py
-QT_QPA_PLATFORM=offscreen python3 test_dashboard.py
-```
-
-These checks use packet fixtures and simulated serial devices, without opening a physical motor port. The dashboard check writes screenshots and a result summary into the project folder.
-
-## Repository contents
-
-This source repository contains the desktop application, shared packet codec, serial-session worker, launcher, dependency file, user manual, offline tests and a simulator screenshot. The dashboard does not require vendor archives to run.
-
-Vendor ZIPs and extracted files, archive inspection tools/reports, machine-specific shortcuts, hardware logs and generated JSON results stay local and are excluded from Git. Historical evidence-file references in the manual refer to that original workspace. No archived executables or firmware are uploaded or run.
+MakerMods Lab is the planned operator interface for E01-E10. Its exact inspected revision and Python compatibility are recorded in [architecture.md](docs/architecture.md). It is not installed or integrated here. Six-joint simulation, recording, VLA training, and cloud inference remain later milestones.
