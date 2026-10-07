@@ -1,0 +1,34 @@
+{
+  "unit": "B09",
+  "observedAt": "2026-10-07T04:28:10.576569+00:00",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_serial_deadline.B09Deadline",
+    "test_serial_deadline.B09PseudoTerminal",
+    "test_protocol.B07Recovery",
+    "test_protocol.B08Identity",
+    "-v"
+  ],
+  "exitCode": 0,
+  "sourceFingerprint": {
+    "spin_5rpm.py": "4cb8a150c1adadfb56c3ecc0a348f2d7083371e5ef09b97957c70165c2ea6f65",
+    "motor_session.py": "0b467f2ea69c45b8dc3245ed97f6d7e70c363d6fe0e62fd434de77471d4ec084",
+    "motor_dashboard.py": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+    "im6014_codec.py": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563",
+    "im6014_serial.py": "ed90ae7cbd6fe029a2cdb2434c13a5496332fe58165ed365793442b2653fd93c",
+    "fake_serial.py": "9238ac6f33cf626c98f5bcc0f00e1abdfb72f44961c1d85ead00ac21c301d555",
+    "test_protocol.py": "d62bc907ef5318bf6ebee30fa8e98ed6dd61d0ad4c69d476aff04c95e6780e51",
+    "test_serial_deadline.py": "ccd8db0ec3e37f6a5d7b44eb19274fc5802d2fc476286d559287def048703c82",
+    "test_spin_5rpm.py": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+    "test_dashboard.py": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+    "test_startup.py": "a5de87b93f39f5654209473e7316abb6030cbb6fd5f9af08784512baa6bb130e",
+    "test_startup_verifier.py": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71",
+    "scripts/check_offline_baseline.sh": "4d31ab4267cc5535c6276827e0c524c9a5e00938f3349755ab90c7b9d8e26acb",
+    "evidence/boundary/vendor-crc-vectors.json": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+  },
+  "sourceSnapshotSHA256": "5cb4a28bb921a635b3a9e1a3a28a9fe87cf96e8fa298bd06647021627cddfbdd",
+  "provenance": "Parent-owned direct execution; hardware not used by these checks"
+}

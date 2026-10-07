@@ -1,0 +1,13 @@
+{
+  "package": "pyserial",
+  "version": "3.5",
+  "backend": "POSIX select-based serial",
+  "sourceSHA256": "5d56f98513391e1766a1847a04e2e1202ced4172a152803ba1c823a149a9b6f9",
+  "sourceLines": {
+    "read": "552-605",
+    "write": "612-664"
+  },
+  "kernel": "7.2.5-100.fc43.x86_64",
+  "system": "Linux-7.2.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+  "contract": "Finite positive write_timeout prevents zero-timeout EAGAIN retry loop; read select timeout bounded to remaining budget. Tests use PTYs, no motor device."
+}
