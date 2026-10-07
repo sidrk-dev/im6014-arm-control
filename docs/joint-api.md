@@ -46,3 +46,13 @@ The GUI includes its ring in the existing JSON snapshot. The CLI enables it in `
 Both real bench open sites use `open_managed_port(PortConfig(...), serial_factory=...)`. It checks passive identity before device acquisition and construction. A successful result owns `bus`; call `close()` and inspect its boolean result. `False` means ownership remains held because closure was not confirmed. Retry cleanup before reconnecting. A context manager raises `PortCloseError` on an otherwise normal exit with unconfirmed close; its `managed_port` remains available for cleanup.
 
 This API opens hardware when given a motor path. Its acceptance tests use Linux PTYs exclusively. The device lease coordinates these workbench clients; it cannot exclude a raw client that ignores the lock.
+
+When passive identity metadata is incomplete, the default route reports it as unverified and still permits device acquisition; known mismatches reject. The serial factory must expose the pyserial `is_open` status for confirmed cleanup. A missing status retains the lease. Neither passive inspection nor opening establishes CRC-valid motor communication.
+
+## Controller lifecycle and freshness
+
+`JointCore` owns a fixed ordered set of unique `JointSpec` names and motor IDs. Its states and immutable `Snapshot` are transport-free; `connected(SourceIdentity(...))` records a declaration and never opens hardware. `Decision` evaluates to its `accepted` value.
+
+Connect, check, and arm are distinct steps. `receive(id, JointSample(...), MotorHealth(...))` stamps each valid observation with the core's monotonic clock. `checked()` needs fresh healthy Stop-mode feedback from every active joint. `arm()` requires fresh healthy feedback. The configurable maximum age defaults to 0.5 seconds; this software policy is not a measured loop-rate guarantee. Snapshot `feedback_ages_s` preserves joint order and uses `None` before receipt. Timestamp zero is valid. Unknown IDs and invalid records do not refresh timestamps.
+
+Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, disconnect/reconnect, and healthy packets do not clear a fault latch. Recovery requires `begin_check(acknowledge_fault=True)` followed by fresh healthy Stop feedback and successful `checked()`. The check clears observations first. Target dispatch, attributed fault records and command ordering are the next milestones.

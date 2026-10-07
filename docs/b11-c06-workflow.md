@@ -25,7 +25,7 @@
 - [x] B14 diagnostic capture.
 - [x] C01 one bus owner.
 - [x] C02 controller state transitions.
-- [ ] C03 per-joint feedback age.
+- [x] C03 per-joint feedback age.
 - [ ] C04 per-joint error status.
 - [ ] C05 bounded latest target.
 - [ ] C06 command sequence validation.

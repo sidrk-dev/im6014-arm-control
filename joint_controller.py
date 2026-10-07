@@ -7,6 +7,8 @@ transport and all externally visible records are immutable snapshots.
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
+import math
+import time
 from typing import Literal
 
 from joint_mapping import JointMap, JointSample
@@ -34,6 +36,7 @@ class DecisionCode(str, Enum):
     FAULT_ACK_REQUIRED = "fault_ack_required"
     FAULT_LATCHED = "fault_latched"
     OBSERVATIONS_INCOMPLETE = "observations_incomplete"
+    STALE_FEEDBACK = "stale_feedback"
     UNHEALTHY = "unhealthy"
     NOT_STOPPED = "not_stopped"
 
@@ -111,6 +114,7 @@ class SourceIdentity:
 class JointStatus:
     sample: JointSample | None = None
     health: MotorHealth | None = None
+    received_at: float | None = None
 
     def __post_init__(self) -> None:
         if (self.sample is None) != (self.health is None):
@@ -119,6 +123,20 @@ class JointStatus:
             raise ValueError("sample must be a JointSample")
         if self.health is not None and not isinstance(self.health, MotorHealth):
             raise ValueError("health must be MotorHealth")
+        if self.valid and self.received_at is None:
+            raise ValueError("a valid observation requires received_at")
+        if self.received_at is not None:
+            if isinstance(self.received_at, bool) or not isinstance(self.received_at, (int, float)):
+                raise ValueError("received_at must be a finite real number or None")
+            try:
+                received_at = float(self.received_at)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError("received_at must be finite") from exc
+            if not math.isfinite(received_at):
+                raise ValueError("received_at must be finite")
+            if not self.valid:
+                raise ValueError("received_at requires a valid observation")
+            object.__setattr__(self, "received_at", received_at)
 
     @property
     def valid(self) -> bool:
@@ -136,6 +154,7 @@ class Snapshot:
     joints: tuple[JointStatus, ...]
     source: SourceIdentity | None
     fault_latched: bool
+    feedback_ages_s: tuple[float | None, ...]
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -144,8 +163,29 @@ class Snapshot:
             raise ValueError("joint_names must be a tuple of strings")
         if type(self.joints) is not tuple or any(not isinstance(joint, JointStatus) for joint in self.joints):
             raise ValueError("joints must be a tuple of JointStatus")
+        if type(self.feedback_ages_s) is not tuple:
+            raise ValueError("feedback_ages_s must be a tuple")
         if len(self.joint_names) != len(self.joints):
             raise ValueError("joint names and statuses must have equal lengths")
+        if len(self.feedback_ages_s) != len(self.joints):
+            raise ValueError("feedback ages and joint statuses must have equal lengths")
+        normalized_ages: list[float | None] = []
+        for joint, age in zip(self.joints, self.feedback_ages_s):
+            if joint.received_at is None:
+                if age is not None:
+                    raise ValueError("feedback age must be None before a joint is received")
+                normalized_ages.append(None)
+                continue
+            if isinstance(age, bool) or not isinstance(age, (int, float)):
+                raise ValueError("feedback age must be a finite nonnegative number")
+            try:
+                age_value = float(age)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError("feedback age must be finite") from exc
+            if not math.isfinite(age_value) or age_value < 0.0:
+                raise ValueError("feedback age must be finite and nonnegative")
+            normalized_ages.append(age_value)
+        object.__setattr__(self, "feedback_ages_s", tuple(normalized_ages))
         if self.source is not None and not isinstance(self.source, SourceIdentity):
             raise ValueError("source must be a SourceIdentity or None")
         if type(self.fault_latched) is not bool:
@@ -155,7 +195,26 @@ class Snapshot:
 class JointCore:
     """Thread-confined state machine for one fixed, ordered set of joints."""
 
-    def __init__(self, joints: Iterable[JointSpec]):
+    def __init__(
+        self,
+        joints: Iterable[JointSpec],
+        *,
+        feedback_max_age_s: float = 0.5,
+        clock=None,
+    ):
+        if isinstance(feedback_max_age_s, bool) or not isinstance(feedback_max_age_s, (int, float)):
+            raise ValueError("feedback_max_age_s must be a finite positive real number")
+        try:
+            feedback_max_age_s = float(feedback_max_age_s)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("feedback_max_age_s must be finite") from exc
+        if not math.isfinite(feedback_max_age_s) or feedback_max_age_s <= 0.0:
+            raise ValueError("feedback_max_age_s must be finite and positive")
+        if clock is None:
+            clock = time.monotonic
+        if not callable(clock):
+            raise ValueError("clock must be callable")
+
         try:
             specs = tuple(joints)
         except TypeError as exc:
@@ -177,6 +236,8 @@ class JointCore:
         self._observations: list[JointStatus] = [JointStatus() for _ in specs]
         self._source: SourceIdentity | None = None
         self._fault_latched: bool = False
+        self._feedback_max_age_s = feedback_max_age_s
+        self._clock = clock
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
@@ -192,6 +253,33 @@ class JointCore:
 
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
+
+    def _now(self) -> float:
+        value = self._clock()
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError("clock must return a finite real number")
+        try:
+            result = float(value)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("clock must return a finite real number") from exc
+        if not math.isfinite(result):
+            raise ValueError("clock must return a finite real number")
+        return result
+
+    @staticmethod
+    def _age(received_at: float, now: float) -> float:
+        age = now - received_at
+        if not math.isfinite(age) or age < 0.0:
+            raise ValueError("clock must be monotonic and feedback age finite")
+        return age
+
+    def _all_fresh(self, now: float) -> bool:
+        return all(
+            joint.valid
+            and joint.received_at is not None
+            and self._age(joint.received_at, now) <= self._feedback_max_age_s
+            for joint in self._observations
+        )
 
     def begin_connect(self) -> Decision:
         if self._state is not State.DISCONNECTED:
@@ -241,7 +329,7 @@ class JointCore:
         if not isinstance(sample, JointSample) or not isinstance(status, MotorHealth):
             return self._rejected(DecisionCode.INVALID_OBSERVATION)
 
-        self._observations[index] = JointStatus(sample, status)
+        self._observations[index] = JointStatus(sample, status, self._now())
         if not status.healthy:
             self._fault_latched = True
             self._state = State.FAULT
@@ -252,6 +340,9 @@ class JointCore:
             return self._rejected(DecisionCode.INVALID_STATE)
         if any(not joint.valid for joint in self._observations):
             return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
+        now = self._now()
+        if not self._all_fresh(now):
+            return self._rejected(DecisionCode.STALE_FEEDBACK)
         if any(not joint.healthy for joint in self._observations):
             return self._rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
@@ -267,9 +358,25 @@ class JointCore:
             return self._rejected(DecisionCode.FAULT_LATCHED)
         if any(not joint.valid for joint in self._observations):
             return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
+        now = self._now()
+        if not self._all_fresh(now):
+            return self._rejected(DecisionCode.STALE_FEEDBACK)
         if any(not joint.healthy for joint in self._observations):
             return self._rejected(DecisionCode.UNHEALTHY)
         self._state = State.ARMED
+        return self._accepted()
+
+    def tick(self) -> Decision:
+        if self._state in (State.DISCONNECTED, State.CONNECTING):
+            return self._rejected(DecisionCode.INVALID_STATE)
+        if self._state in (State.READY, State.ARMED, State.MOVING):
+            if any(not joint.valid or joint.received_at is None for joint in self._observations):
+                self._fault_latched = True
+                self._state = State.FAULT
+                return self._accepted()
+            if not self._all_fresh(self._now()):
+                self._fault_latched = True
+                self._state = State.FAULT
         return self._accepted()
 
     def stop(self) -> Decision:
@@ -288,10 +395,17 @@ class JointCore:
         return self._accepted()
 
     def snapshot(self) -> Snapshot:
+        received = [joint.received_at for joint in self._observations]
+        now = self._now() if any(value is not None for value in received) else None
+        ages = tuple(
+            None if value is None else self._age(value, now)
+            for value in received
+        )
         return Snapshot(
             state=self._state,
             joint_names=tuple(spec.name for spec in self._specs),
             joints=tuple(self._observations),
             source=self._source,
             fault_latched=self._fault_latched,
+            feedback_ages_s=ages,
         )
