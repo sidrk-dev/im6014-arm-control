@@ -243,6 +243,24 @@ class B07Recovery(unittest.TestCase):
         self.assertEqual(len(bus.writes), 1)
 
 
+    def test_earlier_crc_rejection_remains_visible_after_foreign_frame(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        clock = FakeClock()
+        bad = CAPTURED[:-1] + bytes([CAPTURED[-1] ^ 1])
+        foreign = bytes.fromhex("fcee811d1b48000000006cc4db000000000000000000ac48966a")
+        bus = FakeSerial(responses=[(bad + foreign,)], clock=clock)
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaisesRegex(RuntimeError, "deadline.*CRC rejected 1.*ID/mode"):
+                s.exchange(bus, s.command(0), 0, .002)
+        clock = FakeClock()
+        bus = FakeSerial(responses=[(foreign,)], clock=clock)
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaises(RuntimeError) as caught:
+                s.exchange(bus, s.command(0), 0, .002)
+        self.assertNotIn("CRC", str(caught.exception))
+
+
 class B08Identity(unittest.TestCase):
     FOREIGN = bytes.fromhex("fcee811d1b48000000006cc4db000000000000000000ac48966a")
 

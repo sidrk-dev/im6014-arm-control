@@ -22,6 +22,7 @@ def _bounded_timeout(original, remaining, writing=False):
 def _receive(bus, motor_id, deadline, original_timeout):
     data = bytearray()
     rejected = 0
+    crc_rejected = 0
     last_error = ''
     try:
         while True:
@@ -45,14 +46,16 @@ def _receive(bus, motor_id, deadline, original_timeout):
                 except RuntimeError as error:
                     rejected += 1
                     last_error = str(error)
+                    crc_rejected += int("CRC" in last_error)
                     del data[:1]
                 else:
                     _remaining(deadline)
                     return result
     except RuntimeError as error:
         if 'deadline' in str(error):
+            crc_detail = f'CRC rejected {crc_rejected}; ' if crc_rejected else ''
             raise RuntimeError(f'No validated motor feedback within deadline; rejected {rejected}; '
-                               f'{last_error}; tail {data[-25:].hex()}') from error
+                               f'{crc_detail}{last_error}; tail {data[-25:].hex()}') from error
         raise
 
 
