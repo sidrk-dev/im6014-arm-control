@@ -78,8 +78,9 @@ run_logged() {
     return 0
 }
 
-files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py USER_MANUAL.md)
+files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md)
 for name in "${files[@]}"; do
+    mkdir -p -- "$scratch/$(dirname -- "$name")" || exit 2
     if ! cp -- "$repo_dir/$name" "$scratch/$name" || ! cmp -s -- "$repo_dir/$name" "$scratch/$name"; then
         printf 'Could not create a byte-identical baseline copy: %s\n' "$name" >&2
         exit 2

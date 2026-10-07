@@ -1,5 +1,7 @@
 """Offline IM6014 communication-boundary acceptance checks."""
 import math
+import json
+from pathlib import Path
 import unittest
 
 import spin_5rpm as s
@@ -67,6 +69,31 @@ class B02Decoder(unittest.TestCase):
                 self.assertAlmostEqual(result["torque_nm"], sign * 12.666666666666666, places=12)
                 self.assertAlmostEqual(result["position_rad"], sign * 4.71238898038469, places=12)
                 self.assertEqual(result["raw"], raw.hex())
+
+
+class B03Checksum(unittest.TestCase):
+    def test_each_payload_and_checksum_bit_rejected(self):
+        for offset in range(2, 26):
+            for bit in range(8):
+                with self.subTest(offset=offset, bit=bit):
+                    damaged = bytearray(CAPTURED)
+                    damaged[offset] ^= 1 << bit
+                    with self.assertRaisesRegex(RuntimeError, "CRC"):
+                        s.feedback(bytes(damaged), 0)
+
+    def test_256_independent_vendor_vectors(self):
+        path = Path(__file__).parent / "evidence/boundary/vendor-crc-vectors.json"
+        records = json.loads(path.read_text())
+        self.assertEqual(len(records["vectors"]), 256)
+        for index, item in enumerate(records["vectors"]):
+            with self.subTest(index=index):
+                self.assertEqual(s.crc32(bytes.fromhex(item["inputHex"])), int(item["crcHex"], 16))
+        self.assertEqual(s.crc32(CAPTURED[2:22]), 0x7d4579f1)
+
+    def test_incomplete_checksum_words_rejected(self):
+        for size in [1, 2, 3, 5, 6, 7, 17, 21]:
+            with self.subTest(size=size), self.assertRaises(ValueError):
+                s.crc32(bytes(size))
 
 
 if __name__ == "__main__":
