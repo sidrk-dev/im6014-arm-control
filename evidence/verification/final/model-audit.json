@@ -1,0 +1,82 @@
+{
+  "records": [
+    {
+      "descriptor": "codex:gpt-6.1-sol@xhigh",
+      "evidence": "evidence/baseline/models/design-sol.native.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "affcec85c2d3b78091f2cb6b6e63ca2232a0d2c14d590f4eff13cd2a9564f90c",
+      "evidenceLimit": "Parent native dispatch attestation. Requested model and effort; no independent model identity or hidden reasoning attestation."
+    },
+    {
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "evidence": "evidence/baseline/models/design-gemini.receipt.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "ade0fd20d56b14760311efcf2d5d348337f88fc693301d8533fd90045a2be999",
+      "modelVerified": false,
+      "modelEvidence": "pinned-argv",
+      "apiSpend": "deny",
+      "exitCode": 0
+    },
+    {
+      "descriptor": "opencode:opencode/muse-spark-1.3-contributor-free@default",
+      "evidence": "evidence/baseline/models/design-judge.receipt.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "2497511b61f2b6c933c137a6d602942724c3e6512b4950157d032bdabc113b25",
+      "modelVerified": false,
+      "modelEvidence": "pinned-request",
+      "apiSpend": "approved",
+      "exitCode": 0
+    },
+    {
+      "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+      "evidence": "evidence/baseline/models/mimo-probe.receipt.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "67f7ca91ccb8572916df35978f3534cb635e70383ae8ae336eb32d41f82b80bb",
+      "modelVerified": false,
+      "modelEvidence": "pinned-request",
+      "apiSpend": "approved",
+      "exitCode": 0
+    },
+    {
+      "descriptor": "codex:gpt-6-luna@max",
+      "evidence": "evidence/baseline/models/implementation-luna.native.json",
+      "indexStatus": "execution delivered; partial task completed by parent",
+      "receiptStatus": "partial handoff after denied cache removal command",
+      "receiptSHA256": "5fff1c3ae81773ca4e0cb760db56d7e8a04318f8e14a95d9a0e882f06ad5afc4",
+      "evidenceLimit": "Parent native dispatch attestation. Requested model and effort; no independent model identity or hidden reasoning attestation."
+    },
+    {
+      "descriptor": "opencode:opencode/muse-spark-1.3-contributor-free@default",
+      "evidence": "evidence/baseline/models/final-muse.receipt.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "300deafab9688d03454d0b0d97f7b96f99feba6ae107326d1359fdb4a7a3adbf",
+      "modelVerified": false,
+      "modelEvidence": "pinned-request",
+      "apiSpend": "approved",
+      "exitCode": 0,
+      "outputSHA256": "9e23489b6927094d994d7aa5f7ae01c54ea938ca042cb23d07bcef4ee62bc3f3",
+      "reviewPromptFileAvailable": true,
+      "reviewPromptSHA256": "c61c721ce1bf29ca8a08c125f68fb4e5b115e9bef8624278e5d5053b2aa7ff1a"
+    },
+    {
+      "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+      "evidence": "evidence/baseline/models/final-mimo.receipt.json",
+      "indexStatus": "complete",
+      "receiptStatus": "complete",
+      "receiptSHA256": "595c457eebffb53ac2caefa7e52ddf758b8dd3b617e9e4b816c989dad4b9abb1",
+      "modelVerified": false,
+      "modelEvidence": "pinned-request",
+      "apiSpend": "approved",
+      "exitCode": 0,
+      "outputSHA256": "3c8a0599c204d5472b7dc3541ca29862b7e52c3521f4d0ae4f7ffe2b713fe284",
+      "reviewPromptFileAvailable": true,
+      "reviewPromptSHA256": "c61c721ce1bf29ca8a08c125f68fb4e5b115e9bef8624278e5d5053b2aa7ff1a"
+    }
+  ],
+  "note": "No model route was rerun. External records remain pinned requests/backend reports with modelVerified false. Native records remain parent attestations. Luna partial handoff is preserved."
+}

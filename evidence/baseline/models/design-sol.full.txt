@@ -1,0 +1,23 @@
+Message Type: FINAL_ANSWER
+Task name: /root
+Sender: /root/baseline_design_sol
+Payload:
+Extend the existing offline scripts and add one Bash driver. The inspected source already supports this approach: `Dashboard` constructs `MotorSession` with `bus=None`; `--demo` changes the selector; `main()` owns the Qt event loop; `closeEvent()` stops the timer and joins the session worker. The current UI test connects its simulator before capturing screenshots, so those images do not establish disconnected startup.
+
+- Add `run_startup_probe(demo, evidence_dir, run_id)` to [test_dashboard.py](/home/sid/Documents/code/im6014Workbench/test_dashboard.py). A `--startup-only` branch runs one mode per process; ordinary invocation retains the current suite. Invoke the real `motor_dashboard.main()` with its existing arguments. Wrap the real `Dashboard` constructor to retain the window and schedule probe callbacks.
+
+- During startup, patch `motor_session.serial.Serial`, `motor_session.DemoSerial`, and `motor_session.exchange` with recording sentinels that reject calls. Mock `list_ports.comports()` to return no devices. Require an event-loop callback, visible window, active GUI timer, live session worker, `Disconnected`, `bus=None`, disarmed controls, and zero TX/RX. Capture the window, then call its normal `close()`. Require exit code zero, inactive timer, terminated worker, and zero sentinel calls after shutdown. Callback errors must survive Qt’s exception handling and cause process failure.
+
+- Write a completion JSON only after those assertions. Its shape includes `run_id`, timestamps, source revision, interpreter/dependency fingerprint, requested application argv, lifecycle observations, sentinel counts, screenshot dimensions/path/SHA256, and result. Reject a null grab, failed save, empty image, missing completion marker, mismatched run ID, nonzero exit, or timeout.
+
+- Add `scripts/check_baseline.sh --python PATH --evidence-root DIR`. It creates a fresh run directory, captures environment facts, executes [test_spin_5rpm.py](/home/sid/Documents/code/im6014Workbench/test_spin_5rpm.py), the existing dashboard suite, and both startup modes with bounded process lifetimes. Preserve each exit status and log. Add `--evidence-dir` to the dashboard test to redirect its generated images and JSON there. Keep its existing default behavior. The driver prints the exact artifact paths for parent inspection.
+
+For A06, retain direct pins in [requirements.txt](/home/sid/Documents/code/im6014Workbench/requirements.txt). Add a complete wheel/hash lock covering PySide6, its resolved components, shiboken6, and pyserial. Record supported Python/platform tags and resolver provenance. Parent verification installs that lock into a fresh environment using hash enforcement, checks dependency consistency, and runs the baseline there.
+
+Document the caller boundaries in `docs/baseline.md`: launcher → dashboard → session worker → shared codec/transport; simulator and packet fixtures remain test dependencies. Audit explicit GUI connect, check, scan, arm, motion, stop, disconnect, and close routes, plus the standalone serial-opening CLI. Record environment facts without claiming device enumeration proves communication.
+
+Retain [docs/milestones.tsv](/home/sid/Documents/code/im6014Workbench/docs/milestones.tsv) and `docs/decisions.tsv`. Every verified row names its current revision and exact run artifacts. A10 remains “capture awaiting inspection” until the parent opens the newly recorded screenshot and checks its disconnected presentation. A09 stores exact route descriptors, probe outputs, and terminal receipts; reported model/effort fields remain provider evidence.
+
+This adds evidence generation to existing tests without replacing the bench application. No files were changed, and no tests, applications, or hardware operations were executed during this design review.
+
+

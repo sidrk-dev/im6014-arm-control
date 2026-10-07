@@ -5,6 +5,10 @@
   "route": "native",
   "agent": "/root/baseline_design_sol",
   "status": "complete",
-  "evidence": "Parent attests exact host spawn arguments and returned final response; no hidden applied effort claims",
-  "responseSha256": "d1e37429ee773238c6343c6760f969904bb7e62c9f9485e64e3e61a7dc99b0d6"
+  "evidence": "Parent attests exact host spawn arguments; full host final-response envelope and parent condensed summary are separately preserved and hashed. No independently attested hidden reasoning depth.",
+  "summarySha256": "d1e37429ee773238c6343c6760f969904bb7e62c9f9485e64e3e61a7dc99b0d6",
+  "summaryPath": "evidence/baseline/design-sol.txt",
+  "hostFinalResponsePath": "evidence/baseline/models/design-sol.full.txt",
+  "hostFinalResponseSha256": "9254ee1ef176a2dd28db2b355019995de0f3b36a6ea50833fed037ba97e2db0a",
+  "hostFinalResponseObservedAt": "2026-10-07T02:55:51.292Z"
 }

@@ -7,7 +7,7 @@
 - [x] Phase B: Design the workflow.
 - [x] Phase C: Run the loop.
 - [x] Phase D: Keep the audit trail.
-- [ ] Phase E: Verify and hand back.
+- [x] Phase E: Verify and hand back.
 
 ## Definition of done
 
@@ -47,3 +47,13 @@ Ten baseline milestones, one existing small Python dashboard, one package enviro
 6. Verify
 
 Rubric: preserve bench behavior; prove absence of physical I/O; rerunnable evidence; minimal dependencies and code; clear component boundaries.
+
+## Final independent verification and landing
+
+A fresh read-only Sol verifier returned **PASS+NOTES** on candidate `91634b433b3b917458fa51d2fbe14bceb8c57299` against base `7a6881e6da6884fa1e796a662e9e3f347b7d349c`. The binary stable patch ID is `ea1f7768acbaf5f486aadca6b665f79ade304837`. It ran the complete offline driver and checked the actual source, screenshots, dependencies, ledger, receipts, and preserved original checkout.
+
+[PR #1](https://github.com/sidrk-dev/im6014-workbench/pull/1) merged at `25200eda48654ddb3a4cdd08a58ffb67b4d1919d` after current-head CI passed. The parent required the expected head in the server merge operation, confirmed both automatic merge and merge queue requests were absent, and compared the merged tree with the verified candidate tree. They are identical. This closing commit adds factual audit material only.
+
+The complete verdict, fresh execution, source audits, candidate CI, and merge records are in [the final verification directory](../evidence/verification/final/). Its [artifact map](../evidence/verification/final/artifact-map.json) hashes every preserved file and maps historical receipt paths to the portable `run/` copy. Raw GLX whitespace and inherited adapter text clipping remain documented nonblocking notes. No physical motor operation or CUDA computation was performed.
+
+The closing evidence copy also preserves the verifier’s exact binary diff and native host-response envelope. Their original whitespace is retained and is reported by whole-diff whitespace checks; authored documentation and metadata are checked separately.

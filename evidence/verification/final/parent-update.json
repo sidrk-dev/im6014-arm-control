@@ -1,0 +1,9 @@
+{
+  "recordType": "Parent message received during independent verification; not an independent remote query",
+  "sender": "/root",
+  "head": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+  "parentComputedStablePatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837",
+  "parentMethod": "git diff --binary base head | git patch-id --stable",
+  "parentCIReport": "Both GitHub CI checks at91634b4 are green.",
+  "rawGLXWhitespaceDisposition": "Intentional preserved evidence; no formatting edit requested."
+}

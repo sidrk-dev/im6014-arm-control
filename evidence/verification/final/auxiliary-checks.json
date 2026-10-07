@@ -1,0 +1,45 @@
+{
+  "recordType": "Verifier attestation of actual host tool outcomes",
+  "checks": [
+    {
+      "command": "git diff --check 7a6881e6da6884fa1e796a662e9e3f347b7d349c 91634b433b3b917458fa51d2fbe14bceb8c57299",
+      "exitCode": 2,
+      "hostChunk": "0b1f3b",
+      "log": "diff-check.log",
+      "disposition": "Nonblocking trailing blank lines in two raw GLX stdout captures. Preserved raw evidence."
+    },
+    {
+      "command": "/home/sid/Documents/code/im6014Workbench/.venv/bin/python -m pip check",
+      "exitCode": 0,
+      "hostChunk": "24b428",
+      "log": "dependency-check.log"
+    },
+    {
+      "command": "git status --porcelain=v1",
+      "exitCode": 0,
+      "hostChunk": "ec3306",
+      "output": ""
+    },
+    {
+      "command": "assigned interpreter running evidence-only audit.py, first attempt",
+      "exitCode": 1,
+      "hostChunk": "6349de",
+      "evidence": "audit-first-summary.json",
+      "disposition": "Audit parser incorrectly required case PASS at column zero. First serial_open case follows unittest test-label prefix. Parser corrected; candidate unchanged."
+    },
+    {
+      "command": "assigned interpreter running corrected evidence-only audit.py",
+      "exitCode": 0,
+      "hostChunk": "5f1609",
+      "log": "audit.log",
+      "evidence": "audit-summary.json"
+    },
+    {
+      "command": "git diff --binary 7a6881e6da6884fa1e796a662e9e3f347b7d349c 91634b433b3b917458fa51d2fbe14bceb8c57299 | git patch-id --stable",
+      "exitCode": 0,
+      "hostChunk": "bea2b5",
+      "log": "patch-id.log",
+      "stablePatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837"
+    }
+  ]
+}

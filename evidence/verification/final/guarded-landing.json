@@ -1,0 +1,44 @@
+{
+  "baseRepo": "sidrk-dev/im6014-workbench",
+  "headRemote": "origin",
+  "headURL": "https://github.com/sidrk-dev/im6014-workbench.git",
+  "baseRemote": "origin",
+  "trunk": "main",
+  "trunkTip": "7a6881e6da6884fa1e796a662e9e3f347b7d349c",
+  "landingHead": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+  "stableBinaryPatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837",
+  "queue": {
+    "headRefOid": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+    "baseRefName": "main",
+    "autoMergeRequest": null,
+    "mergeQueueEntry": null
+  },
+  "pr": {
+    "baseRefName": "main",
+    "headRefOid": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+    "mergeStateStatus": "CLEAN",
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-07T03:34:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sidrk-dev/im6014-workbench/actions/runs/37567296183/job/112617817632",
+        "name": "offline",
+        "startedAt": "2026-10-07T03:33:27Z",
+        "status": "COMPLETED",
+        "workflowName": "Offline baseline"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-07T03:34:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/sidrk-dev/im6014-workbench/actions/runs/37567292735/job/112617806522",
+        "name": "offline",
+        "startedAt": "2026-10-07T03:33:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Offline baseline"
+      }
+    ]
+  }
+}

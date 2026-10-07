@@ -1,0 +1,120 @@
+{
+  "sourceFingerprints": {
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 20812,
+      "sha256": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3"
+    },
+    "spin_5rpm.py": {
+      "bytes": 10283,
+      "sha256": "d5909eb112b6237002b6f6be4dd4629fef54fcc9dccdff007639ec8bda4a9581"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_dashboard.py": {
+      "bytes": 20274,
+      "sha256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d"
+    },
+    "test_startup.py": {
+      "bytes": 13142,
+      "sha256": "a824deb695ce6ff1565ece0ff8ef3178fb9dec0d788a2cc048bb9d4b4fc1f5ee"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    }
+  },
+  "parentVerifiedCodeRevision": "818073cb6167fa3645f8f382056c9f18a96c966a",
+  "modes": {
+    "real": {
+      "freshReceipt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification/run-20261007T033511Z-9hzNOvAI/startup-real/startup-result.json",
+      "freshScreenshot": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification/run-20261007T033511Z-9hzNOvAI/startup-real/dashboard.png",
+      "freshScreenshotSHA256": "c9c8aacd45192e2a68ec99cc2037252c91823b1558a8a945058ded0bdd04c63f",
+      "committedReceipt": "evidence/baseline/startup/startup-real/startup-result.json",
+      "committedScreenshot": "evidence/baseline/startup/startup-real/dashboard.png",
+      "committedScreenshotSHA256": "ea8a1331cc4420295049fc0492b7cfe5616426559f0c4e2a9d897d3cfd2619df",
+      "freshPre": {
+        "bus_is_none": true,
+        "state": "Disconnected",
+        "connected": false,
+        "armed": false,
+        "tx": 0,
+        "rx": 0,
+        "source_selected_demo": false,
+        "window_visible": true,
+        "timer_active": true,
+        "worker_alive": true,
+        "event_loop_tick_seen": true
+      },
+      "freshPost": {
+        "bus_is_none": true,
+        "state": "Disconnected",
+        "connected": false,
+        "armed": false,
+        "tx": 0,
+        "rx": 0,
+        "source_selected_demo": false,
+        "window_visible": false,
+        "timer_active": false,
+        "worker_alive": false,
+        "event_loop_tick_seen": false
+      },
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      },
+      "visualInspection": "Both fresh and committed actual PNGs opened through view_image. Correct source badge, Disconnected, blank telemetry, disabled check/ack/arm/run controls; readable layout."
+    },
+    "demo": {
+      "freshReceipt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification/run-20261007T033511Z-9hzNOvAI/startup-demo/startup-result.json",
+      "freshScreenshot": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification/run-20261007T033511Z-9hzNOvAI/startup-demo/dashboard.png",
+      "freshScreenshotSHA256": "39ef4ec17774f424052f67c9f493a9eb7eba8aa0c5a0f0ca82a62e43f318f245",
+      "committedReceipt": "evidence/baseline/startup/startup-demo/startup-result.json",
+      "committedScreenshot": "evidence/baseline/startup/startup-demo/dashboard.png",
+      "committedScreenshotSHA256": "b1c8a333447529b3e5f9a70aac5d320603068dbb21069277632382b79379d2f0",
+      "freshPre": {
+        "bus_is_none": true,
+        "state": "Disconnected",
+        "connected": false,
+        "armed": false,
+        "tx": 0,
+        "rx": 0,
+        "source_selected_demo": true,
+        "window_visible": true,
+        "timer_active": true,
+        "worker_alive": true,
+        "event_loop_tick_seen": true
+      },
+      "freshPost": {
+        "bus_is_none": true,
+        "state": "Disconnected",
+        "connected": false,
+        "armed": false,
+        "tx": 0,
+        "rx": 0,
+        "source_selected_demo": true,
+        "window_visible": false,
+        "timer_active": false,
+        "worker_alive": false,
+        "event_loop_tick_seen": false
+      },
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      },
+      "visualInspection": "Both fresh and committed actual PNGs opened through view_image. Correct source badge, Disconnected, blank telemetry, disabled check/ack/arm/run controls; readable layout."
+    }
+  },
+  "note": "Fresh PNG hashes need not equal historical PNG hashes; each matches its own actual bytes and receipt. All eight source hashes match."
+}

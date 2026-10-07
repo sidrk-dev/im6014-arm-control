@@ -1,0 +1,8 @@
+Evidence: /tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification/run-20261007T033511Z-9hzNOvAI
+check	exit_code
+interpreter	0
+packet-tests	0
+dashboard-tests	0
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0

@@ -1,0 +1,80 @@
+{
+  "head": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+  "patchBase": "7a6881e6da6884fa1e796a662e9e3f347b7d349c",
+  "benchBase": "69c8219d764a24d03dadf1df011efb027f0f8996",
+  "stablePatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837",
+  "patchIDRawOutput": "ea1f7768acbaf5f486aadca6b665f79ade304837 0000000000000000000000000000000000000000",
+  "actualDiffSHA256": "d0e0267504009d236dd4a8634c971b1eb9c10799d695fd20c8bedb920d598859",
+  "checkoutStatus": "",
+  "driverIndexRecord": "100755 8f88198ad2a1f65538251aa4dc31ab3a2e60caca 0\tscripts/check_offline_baseline.sh",
+  "preservedFiles": {
+    "USER_MANUAL.md": {
+      "benchSHA256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7",
+      "checkoutSHA256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7",
+      "originalSHA256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "dashboard_dark_preview.png": {
+      "benchSHA256": "f77572c325fe776e0db84a1c8c64364ecf2af6b99e23a7703df466fb37bdd969",
+      "checkoutSHA256": "f77572c325fe776e0db84a1c8c64364ecf2af6b99e23a7703df466fb37bdd969",
+      "originalSHA256": "f77572c325fe776e0db84a1c8c64364ecf2af6b99e23a7703df466fb37bdd969",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "motor_dashboard.py": {
+      "benchSHA256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+      "checkoutSHA256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+      "originalSHA256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "motor_session.py": {
+      "benchSHA256": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3",
+      "checkoutSHA256": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3",
+      "originalSHA256": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "requirements.txt": {
+      "benchSHA256": "4e39e95e48df1aea5d1e2c5a253b0b5002b9ba514e2e692991280330312f5ee5",
+      "checkoutSHA256": "4e39e95e48df1aea5d1e2c5a253b0b5002b9ba514e2e692991280330312f5ee5",
+      "originalSHA256": "4e39e95e48df1aea5d1e2c5a253b0b5002b9ba514e2e692991280330312f5ee5",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "spin_5rpm.py": {
+      "benchSHA256": "d5909eb112b6237002b6f6be4dd4629fef54fcc9dccdff007639ec8bda4a9581",
+      "checkoutSHA256": "d5909eb112b6237002b6f6be4dd4629fef54fcc9dccdff007639ec8bda4a9581",
+      "originalSHA256": "d5909eb112b6237002b6f6be4dd4629fef54fcc9dccdff007639ec8bda4a9581",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "start_dashboard.sh": {
+      "benchSHA256": "b055d90d2d8fc5608ae60fa6590b369c42ce4ba8da54f484e620c5cfbd1c506f",
+      "checkoutSHA256": "b055d90d2d8fc5608ae60fa6590b369c42ce4ba8da54f484e620c5cfbd1c506f",
+      "originalSHA256": "b055d90d2d8fc5608ae60fa6590b369c42ce4ba8da54f484e620c5cfbd1c506f",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "test_dashboard.py": {
+      "benchSHA256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+      "checkoutSHA256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+      "originalSHA256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    },
+    "test_spin_5rpm.py": {
+      "benchSHA256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+      "checkoutSHA256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+      "originalSHA256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+      "checkoutMatchesBench": true,
+      "originalMatchesBench": true
+    }
+  },
+  "originalCheckout": {
+    "head": "69c8219d764a24d03dadf1df011efb027f0f8996",
+    "status": "?? \"ROBOT_WORKBENCH_AGENT_PROMPT (2).md\"\n",
+    "planSHA256": "70c4a04ed4d28e55daab5e78b280df515806d89de2091c40197fb1d37b628307"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "head": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+  "base": "7a6881e6da6884fa1e796a662e9e3f347b7d349c",
+  "stablePatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837",
+  "failures": [],
+  "checks": [
+    {
+      "check": "interpreter",
+      "exit_code": "0"
+    },
+    {
+      "check": "packet-tests",
+      "exit_code": "0"
+    },
+    {
+      "check": "dashboard-tests",
+      "exit_code": "0"
+    },
+    {
+      "check": "startup-verifier-tests",
+      "exit_code": "0"
+    },
+    {
+      "check": "startup-real",
+      "exit_code": "0"
+    },
+    {
+      "check": "startup-demo",
+      "exit_code": "0"
+    }
+  ],
+  "dashboardGroups": 18,
+  "verifierTests": 5,
+  "explicitFaultCases": [
+    "serial_open",
+    "demo_open",
+    "exchange",
+    "screenshot",
+    "close",
+    "missing_window",
+    "exit_code"
+  ],
+  "outputRoot": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-verification"
+}

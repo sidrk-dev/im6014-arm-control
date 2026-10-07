@@ -1,0 +1,273 @@
+{
+  "createdAt": "2026-10-07T03:38:52.239744+00:00",
+  "head": "91634b433b3b917458fa51d2fbe14bceb8c57299",
+  "base": "7a6881e6da6884fa1e796a662e9e3f347b7d349c",
+  "stablePatchID": "ea1f7768acbaf5f486aadca6b665f79ade304837",
+  "failures": [],
+  "readOnlyCommandExits": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "--full-index",
+        "7a6881e6da6884fa1e796a662e9e3f347b7d349c",
+        "91634b433b3b917458fa51d2fbe14bceb8c57299"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "patch-id",
+        "--stable"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "7a6881e6da6884fa1e796a662e9e3f347b7d349c"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "ls-files",
+        "--stage",
+        "scripts/check_offline_baseline.sh"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:USER_MANUAL.md"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:dashboard_dark_preview.png"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:motor_dashboard.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:motor_session.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:requirements.txt"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:spin_5rpm.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:start_dashboard.sh"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:test_dashboard.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "69c8219d764a24d03dadf1df011efb027f0f8996:test_spin_5rpm.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/sid/Documents/code/im6014Development",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/home/sid/Documents/code/im6014Development",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:motor_dashboard.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:motor_session.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:spin_5rpm.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:USER_MANUAL.md"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:test_spin_5rpm.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:test_dashboard.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:test_startup.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "818073cb6167fa3645f8f382056c9f18a96c966a:test_startup_verifier.py"
+      ],
+      "cwd": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/verifier",
+      "exitCode": 0,
+      "stderr": ""
+    }
+  ],
+  "result": "PASS+NOTES",
+  "notes": [
+    "git diff --check exited 2 only for intentional preserved trailing blank EOF lines in two raw GLX captures. No formatting edit requested.",
+    "Inherited real adapter text clipping is cosmetic and already documented.",
+    "Historical receipt paths map to verified committed relative files.",
+    "Phase E and GitHub landing/handback remain parent owned."
+  ],
+  "auxiliaryCheckEvidence": "auxiliary-checks.json",
+  "upstreamEvidence": "upstream-audit.json",
+  "parentUpdateEvidence": "parent-update.json"
+}
