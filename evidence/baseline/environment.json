@@ -20,8 +20,14 @@
   ],
   "nvidiaSmiAvailable": false,
   "vram": {
-    "status": "unavailable",
-    "reason": "nvidia-smi is not installed; no device allocation or GPU workload performed"
+    "status": "observed driver report",
+    "reportedDedicatedVideoMemoryMB": 8188,
+    "unifiedMemory": false,
+    "renderer": "zink Vulkan NVIDIA GeForce RTX 4060 Laptop GPU (NVK AD107) (MESA_NVK)",
+    "source": "DRI_PRIME=1 glxinfo -B; GL_NVX_gpu_memory_info",
+    "evidence": "evidence/baseline/glxinfo-nvidia.txt",
+    "initialQueryFailure": "Plain vulkaninfo failed with ERROR_OUT_OF_HOST_MEMORY. Default GLX selected Intel unified memory. Explicit discrete-renderer GLX query succeeded.",
+    "cudaVerified": false
   },
   "packages": {
     "PySide6": "6.11.1",
@@ -30,5 +36,6 @@
     "shiboken6": "6.11.1",
     "pyserial": "3.5"
   },
-  "hardwareIoPerformed": false
+  "hardwareIoPerformed": false,
+  "gpuDriver": "nouveau for PCI0000:01:00.0"
 }

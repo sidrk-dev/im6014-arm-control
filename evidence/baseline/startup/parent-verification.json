@@ -1,0 +1,28 @@
+{
+  "status": "parent verified",
+  "driverExitCode": 0,
+  "driverCommand": "scripts/check_offline_baseline.sh",
+  "sourceRun": "/home/sid/Documents/code/im6014Workbench/evidence/runs/run-20261007T032638Z-ly08OppV",
+  "packetTestsExitCode": 0,
+  "dashboardTestsExitCode": 0,
+  "dashboardGroups": 18,
+  "startupVerifierTests": 5,
+  "actualStartupFaultInjections": 7,
+  "realStartupExitCode": 0,
+  "demoStartupExitCode": 0,
+  "invalidInterpreterExitCode": 2,
+  "missingDependenciesDriverExitCode": 1,
+  "originalPreviewChanged": false,
+  "parentScreenshotInspection": {
+    "real": "Final PNG opened by parent: real source, Disconnected, no live telemetry, expected disabled arming controls.",
+    "demo": "Final PNG opened by parent: DEMO source, Disconnected, no live telemetry, expected disabled arming controls."
+  },
+  "realMotorIoPerformed": false,
+  "screenshotLocations": [
+    "evidence/baseline/startup/startup-real/dashboard.png",
+    "evidence/baseline/startup/startup-demo/dashboard.png"
+  ],
+  "reviewFix": "All eight copied source/test files have SHA256 fingerprints; callback failures are reported first; each injected failure is logged after assertions.",
+  "verifiedCodeRevision": "818073cb6167fa3645f8f382056c9f18a96c966a",
+  "verifiedAt": "2026-10-07T03:29:54.297984+00:00"
+}

@@ -1,0 +1,1 @@
+Fresh native comment review: /root/baseline_comment_sicko. Three narrating docstrings deleted. CLI help docstring and shell shebang retained as functional content. No MUST KILL, restores, wider fixes, or unenforced constraints. Parent accepted scoped deletions and reran full baseline afterward.

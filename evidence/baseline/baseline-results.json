@@ -4,5 +4,8 @@
   "dashboardCommand": "QT_QPA_PLATFORM=offscreen python3 test_dashboard.py",
   "dashboardExitCode": 0,
   "dashboardGroupedChecks": 18,
-  "realMotorIoPerformed": false
+  "realMotorIoPerformed": false,
+  "recordType": "parent attestation after observed terminal outcomes; numeric fields are summaries, not machine-captured statuses",
+  "confirmationEvidence": "evidence/baseline/audit-timing.json",
+  "groupCountEvidence": "evidence/baseline/dashboard_test_results.json"
 }

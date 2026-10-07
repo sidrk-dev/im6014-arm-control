@@ -1,0 +1,60 @@
+## Findings
+
+**1. MEDIUM — CI run step depends on an executable bit that is not yet committed.**
+- Location: `.github/workflows/offline-baseline.yml` step `Run hardware-independent baseline` → `run: scripts/check_offline_baseline.sh`; `scripts/check_offline_baseline.sh`.
+- Execution path: workflow invokes the script directly (no `bash` wrapper). The script was delivered by the Luna worker without the bit set (worker's combined `chmod +x … && rm -rf __pycache__` was denied, `implementation-luna.txt`), and the parent applied `p.chmod(0o755)` only in the worktree at 03:11:59. The last observed `git status` (03:14:09) still shows `?? scripts/`, i.e. nothing is staged, so the mode has never been recorded in the index.
+- Evidence: transcript 03:11:22 (denied command), 03:11:59 (parent chmod), 03:14:09 (`?? scripts/`).
+- Suggestion: at commit time confirm the staged mode is `100755` (e.g. parent checks `git ls-files -s` on the path), or make the workflow step `bash scripts/check_offline_baseline.sh` so CI cannot fail on mode alone.
+
+**2. MEDIUM — Baseline evidence JSONs assert exit codes as literals, written before the corresponding processes were observed.**
+- Location: `evidence/baseline/baseline-results.json`, `evidence/baseline/clean-environment.json`.
+- Execution path: the collection scripts hardcode `"packetExitCode": 0, "dashboardExitCode": 0, "dashboardGroups": 18` instead of capturing statuses. `baseline-results.json` was written at 02:55:04 while the dashboard suite was still an asynchronous session (launched 02:54:08, session 52223 still running at 02:54:10). `clean-environment.json` (02:58:24) likewise writes `packetTestsExitCode` as a constant.
+- Evidence: transcript timestamps above; corroborating logs later show the claims are *true* (`dashboard-tests.log` tail read 02:57:58 = 18 groups; final driver run 03:13:45→03:14:08 shows all checks 0; `checks.tsv` all 0).
+- Suggestion: derive these fields from captured process statuses/log tails at write time, or label the JSON as an expectation confirmed by the named `.log` files. No false pass exists today, but the artifact overstates what was observed when written.
+
+**3. LOW — Committed startup receipts carry dangling absolute paths.**
+- Location: `evidence/baseline/startup/startup-{real,demo}/startup-result.json` (`argv[0]`, `screenshot.path`), `parent-verification.json` (`sourceRun`).
+- Execution path: paths point into the deleted scratch dir (`.source-XXXXXXXX`) and a gitignored `evidence/runs/...` directory. A clone-only reader cannot resolve any of them; only the SHA-equality check performed by the parent (03:14:59) ties them to the committed copies at `evidence/baseline/startup/startup-*/dashboard.png`.
+- Evidence: receipt contents; `.gitignore` contains `/evidence/runs/`.
+- Suggestion: add a `committedEvidence` relative path (or replace `path`) alongside the existing hash fields.
+
+**4. LOW — Screenshot-inspection claim is not traceable to the committed images in the supplied record.**
+- Location: `evidence/baseline/startup/parent-verification.json` → `parentScreenshotInspection` (`real`: "matching SHA previously inspected"; `demo`: "inspected").
+- Execution path: the only image view visible in the excerpts is `/tmp/pstack-a01-a10-20261006-bv_ho4fx/parent-startup-real-1/dashboard.png` (03:10:24) — a scratch path that is neither preserved nor SHA-linked to the final run `run-20261007T031345Z-wTRr4rc1`. No demo screenshot view appears at all. A10's definition of done requires "The screenshot is inspected."
+- Evidence: transcript 03:10:24; parent-verification JSON; `docs/workflow.md` definition of done.
+- Suggestion: before marking A10, view `evidence/baseline/startup/startup-{real,demo}/dashboard.png` directly, or record the exact path + SHA that was viewed. (Excerpts are bounded, so an unshown inspection may exist — the flag is that the artifact does not pin it.)
+
+**5. LOW — Validation order hides root cause behind exit code.**
+- Location: `test_startup.py` `validate_report()` — `exit_code` is checked before `callback_errors`.
+- Execution path: e.g. the `screenshot` fault produces `callback_errors=["startup observation failed … injected screenshot failure"]` *and* `exit_code=1`; the FAIL line reports `application exit code was 1`, and the real cause appears only in the JSON dump on stderr. The verifier test still passes (it asserts against the whole stderr), so this is diagnostic quality, not correctness.
+- Evidence: `test_startup_verifier.py` fault `screenshot` expects `injected screenshot failure` in stderr — satisfied only because `run()` dumps the full report on failure.
+- Suggestion: check `callback_errors` before `exit_code`. All seven fault-injection expectations remain satisfiable.
+
+**6. LOW — `_cleanup_after_main` duplicates its terminal action.**
+- Location: `test_startup.py` `_cleanup_after_main` — branches 1 (`callback_completed`) and 3 (no `timer`) both end in `window.session.close()`; only the middle branch does something different (close window + record `post`).
+- Execution path: two of three branches are identical; the third is reachable only for a partially constructed `Dashboard`. The behavior is correct (and `test_cleanup_cannot_hide_worker_alive_after_normal_close` pins the important invariant), but the three-way branch reads as more structure than the logic needs.
+- Suggestion: collapse to two branches (`callback_completed` → session close; else → window close + observe). Optional; current code is correct.
+
+**7. LOW — Aggregate model-execution receipt is stale and incomplete.**
+- Location: `evidence/baseline/models/observed-executions.json`.
+- Execution path: `status` still reads `"awaiting Luna task and final panel review"` although Luna completed a partial handoff at 03:11:22, and `records` contains only four seats while `docs/model-review.md` documents five (Luna lives only in `implementation-luna.native.json`).
+- Evidence: both files' contents.
+- Suggestion: refresh status and add the Luna record before A09 is closed, so the aggregate file matches the review document.
+
+**8. LOW — `actualStartupFaultInjections: 7` is not independently observable from the logs.**
+- Location: `evidence/baseline/startup/parent-verification.json`.
+- Execution path: the value equals `len(cases)` in `test_startup_verifier.py` (7 keys), but unittest collapses passing subtests into a single `ok` line (`startup-verifier-tests.log` shows 5 tests / OK), so the log does not evidence seven executed injections.
+- Evidence: `startup-verifier-tests.log`; `cases` table in the verifier.
+- Suggestion: either label the field as derived from the case table, or have the verifier print per-fault results.
+
+No correctness defect was found in the harness itself: the sentinel coverage (`serial.Serial` patched on the shared `serial` module, `DemoSerial`, `exchange`) closes the actual open/write paths for the unchanged production code; the event-loop/tick/clock ordering (350 ms callback before 15 s watchdog, strict `last_ui > initial_ping`) is sound; `mkdir(exist_ok=False)` + scratch `cmp -s` copies give exclusive, byte-identical evidence; the shell driver's path quoting, evidence-root confinement, and failure aggregation behave as documented; no file crosses 1000 lines; CI actions are SHA-pinned with `contents: read`.
+
+## Attention
+
+- **Git state vs. repository contents (actual issue, parent-only).** The `main` push happened at 03:02:56, but the A10 artifacts were still uncommitted at the last observed status (03:14:09: `?? .github/`, `?? scripts/`, `?? test_startup.py`, `?? test_startup_verifier.py`, ` M README.md`, ` M docs/*`, ` M evidence/baseline/environment.json`). The GitHub repository therefore does not yet contain the startup verifier, driver, workflow, or final evidence, and CI cannot have run on this tree. Commit + push remain outstanding parent operations (finding 1 applies at that moment).
+- **Decision recorded before its evidence existed (ordering nit).** `docs/decisions.tsv` row `2026-10-07T03:13:46Z verification … "parent full baseline passes after corrections"` was written in the same dispatch that *started* `scripts/check_offline_baseline.sh > parent-full-2.log`; that log was first read at 03:14:09. The claim turned out true (all six checks 0), but it was logged ~20s before observation. The subsequent row at `03:14:59Z` ("18 dashboard groups and 7 actual injected failures pass") is correctly post-observation, as is the `02:58:29Z` baseline row (log read 02:57:58). Note also that `baseline-results.json` — cited by the `02:58:29Z` decision — is the artifact from finding 2.
+- **A09/A10 remain correctly pending.** All external receipts honestly carry `modelVerified: false` / `modelEvidence: pinned-argv|pinned-request`, and `design-sol.native.json` / `implementation-luna.native.json` are parent attestations — consistent with `docs/model-review.md`. Before closing A09, state explicitly that "verified identifier" for external seats means launcher-reported model plus pinned argv/request (no provider-side attestation), and resolve finding 7.
+- **Screenshot inspection (finding 4)** gates A10's own definition of done; the ledger's pending status is consistent with intent, but `parent-verification.json` already reads as "parent verified" — do not let that file substitute for the final inspection of the committed PNGs.
+- **Phase D/E of `docs/workflow.md` still unchecked** — expected at this stage; audit-trail and handback steps remain.
+- **Unverified future dependency (not a current defect):** GitHub CI has not run. The Qt runtime set (`libegl1 libopengl0 libgl1 libxkbcommon0`) plus `QT_QPA_PLATFORM=offscreen` is plausible on ubuntu-24.04 but unproven; a first run may still need e.g. `libfontconfig1`/`libdbus-1-3`. Similarly, the README's `glibc 2.34+` lock claim and the inherited "historic 5.002 rpm" line are platform/historical statements outside the supplied artifacts (the latter is correctly labeled historical).
+- **Checked and clean:** original checkout untouched (only the user's untracked plan file at 03:01:31; `repository.json` records it); repository confirmed `PRIVATE`; no physical I/O anywhere in A01–A10 (sentinel counts 0, `tx`/`rx` 0 in both receipts, `hardwareIoPerformed: false`, tests run only in the workbench copy with preview files restored from `HEAD`); the denied worker operation was honored without retry; no later arm milestones were implemented.

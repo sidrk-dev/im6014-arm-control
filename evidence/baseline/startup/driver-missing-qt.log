@@ -1,0 +1,8 @@
+Evidence: /tmp/pstack-a01-a10-20261006-bv_ho4fx/driver-missing-qt/run-20261007T031408Z-HTAVJO85
+check	exit_code
+interpreter	0
+packet-tests	1
+dashboard-tests	1
+startup-verifier-tests	1
+startup-real	1
+startup-demo	1

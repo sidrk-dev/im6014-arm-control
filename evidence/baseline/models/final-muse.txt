@@ -1,0 +1,68 @@
+Review - A01-A10 baseline only. No tools used. All material taken inline.
+
+## 1. Code findings
+
+### [Medium] Startup receipt fingerprint is incomplete - tampered test files would not be detected
+Location: `test_startup.py:_fingerprint`, `scripts/check_offline_baseline.sh:files=(...)`
+
+Execution path:
+- Driver copies 8 files byte-identical to scratch: `motor_dashboard.py motor_session.py spin_5rpm.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py USER_MANUAL.md`, then `cmp -s` and `cd scratch` and runs tests there.
+- Receipt `source_fingerprint` only records 6: `motor_dashboard.py motor_session.py spin_5rpm.py USER_MANUAL.md test_startup.py test_startup_verifier.py`.
+- Missing: `test_dashboard.py`, `test_spin_5rpm.py`.
+
+Evidence: `evidence/baseline/startup/startup-real/startup-result.json:source_fingerprint` has 6 keys; driver `files` array has 8.
+
+Impact: Receipt proves which production files ran, but not which packet/UI test files ran. A mutated `test_dashboard.py` in scratch would still produce a passing receipt with identical fingerprint.
+
+Suggestion: Add the two missing test files to `_fingerprint`. Keep the 6 existing entries byte-identical. One-line fix, no behavior change.
+
+### [Medium] Verifier records interpreter/packages but never enforces them
+Location: `test_startup.py:validate_report`, `test_startup.py:run:report{python,packages}`
+
+Execution path:
+- `run()` captures `sys.version`, `PySide6`, `pyserial` versions into report.
+- `validate_report()` checks `system_exit, exit_code, argv_restored, window, callback, pre/post, sentinel_counts, screenshot` - never checks `python.version` or `packages`.
+- `scripts/check_offline_baseline.sh` accepts any `[absolute-python]`, only logs `python-version.txt`, never asserts `3.12.14`.
+
+Evidence: `startup-real/startup-result.json:python.version 3.12.14` is present but no validator asserts it; driver `run_logged` would PASS with system `3.14.6` if Qt/pyserial happened to import.
+
+This does not invalidate the current parent run - `clean-environment.json`, `parent-verification.json`, and both startup receipts all show `3.12.14` - but the guard itself cannot catch a wrong-interpreter run.
+
+Suggestion: Either assert in `validate_report` that `python.version` starts with `3.12.14` and `packages` match `requirements.lock`, or explicitly document that version-pinning is a parent-inspection step outside the JSON gate. Do not silently rely on CI `python-version: '3.12.14'` alone, since the script is also runnable locally.
+
+### [Low] Fragile line-continuation in negative harness
+Location: `test_startup_verifier.py:test_faults_fail_actual_startup_process:script`
+
+`with patch.object(motor_dashboard, "Dashboard", FaultyDashboard), \` inside a `'''...'''` string relies on backslash-newline handling inside triple-quoted strings to collapse to a single `with A, B:` line. It works today - 7 injected faults pass, 5 verifier tests pass - but it is needlessly brittle and hard to read.
+
+Suggestion: Use parenthesized `with (patch... , patch...):` or two nested `with` statements in the generated script. No behavior change, removes a future syntax break.
+
+### [Low] No other code blockers
+- `ForbiddenMotorIO` counts-before-raise + `validate_report: sentinel_counts==0` correctly fails even caught attempts. Covered by `test_caught_forbidden_io_attempts_still_fail`.
+- Pre/post lifecycle: `bus_is_none, Disconnected, not connected, not armed, tx==0 rx==0, timer active->inactive, worker alive->not alive, window visible->not visible, close_returned` is complete. Zero-window / zero-tick / nonzero-exit false positives are rejected.
+- `_cleanup_after_main` does not overwrite `post`; `test_cleanup_cannot_hide_worker_alive_after_normal_close` proves a cleanup success cannot mask a failed first close.
+- 7 actual fault injections (serial/demo/exchange, screenshot, close, missing window, exit code) run the real process via subprocess and assert `returncode==1` + diagnostic + no `startup-result.json`. This is the correct anti-fabrication guard.
+- Driver: `exist_ok=False`, `mktemp -d`, byte-identical `cp+cmp`, `trap rm -rf scratch`, refusal of `/`, repo-root, and non-`evidence/runs` evidence roots, `QT_QPA_PLATFORM=offscreen`, `PYTHONDONTWRITEBYTECODE=1`. No secret handling, no shell injection, no second bus owner.
+- `requirements.lock` format `== --hash=sha256:` x5, `pip check`, `freeze` comparison, Linux `manylinux_2_34_x86_64` + `cp310-abi3` tags documented. `.python-version 3.12.14` matches CI and clean env.
+- `offline-baseline.yml`: pinned action SHAs, `contents: read`, `3.12.14`, Qt libs, `pip install --require-hashes`, `upload-artifact evidence/runs/`. Correct.
+- Unchanged `motor_dashboard.py / motor_session.py / spin_5rpm.py / test_dashboard.py / test_spin_5rpm.py` correctly left alone per A01-A10 scope. No B/C/D/E/F/G/S/P/T/R/H work introduced.
+
+Do NOT turn into blockers: MakerMods/LeRobot not installed, no sim, no recording, no VLA, no CUDA compute, no physical J1 mounting/calibration, single-view screenshots. All correctly marked pending/out-of-scope for A01-A10.
+
+## 2. Attention - audit trail
+
+1. **A09/A10 correctly pending.** `docs/milestones.tsv` shows A01-A08 `software verified`, A09/A10 `pending` with empty evidence. Matches intent: A09 waits for this panel, A10 after final review + parent screenshot inspection. Do not mark them from this review alone.
+
+2. **GitHub state incomplete - expected.** Transcript `call_6tUnyEBVqN4tWc4XX4srLLUz` shows `gh repo create sidrk-dev/im6014-workbench --private` -> PRIVATE, `viewerPermission ADMIN`, and one `main -> main` push at 03:02:56Z. That push predates `test_startup.py / test_startup_verifier.py / scripts/check_offline_baseline.sh` and later parent fixes. No successful commit of the final tree is in evidence; earlier `git commit` failed with `Author identity unknown` (`call_3M738UGcMCTgAxbXbu5JI5ud`). `revision` column uses `source 69c8219 plus A01-A10 additions`, not a new commit SHA. CI has not run per intent. Required parent steps remain: commit, push, verify remote contents, run CI. Do not claim A10 until then.
+
+3. **Model receipts are truthful - keep them that way.** `evidence/baseline/models/observed-executions.json` + `design-*.receipt.json` + `mimo-probe.receipt.json` correctly show `modelVerified:false`, `modelEvidence:pinned-argv/pinned-request`, and `docs/model-review.md` explicitly states flags describe requested dispatch, not hidden reasoning, and both OpenCode reviewers share one provider. No fallback chains claimed. Good.
+
+   Flag: `observed-executions.json:status=awaiting Luna task` is stale. `implementation-luna.native.json` + `implementation-luna.txt` prove Luna delivered `test_startup.py / test_startup_verifier.py / check_offline_baseline.sh` with `partial handoff after denied cache removal command`. Update the JSON status to include Luna as 5th record on next ledger edit; do not re-run models to fix JSON.
+
+4. **Worker-contract compliance verified.** Luna stopped after `chmod +x ... && rm -rf __pycache__` was denied (`call_619acde3...` FINAL_ANSWER), did not retry. Parent set the executable bit separately and independently ran `scripts/check_offline_baseline.sh`. Matches `docs/decisions.tsv 2026-10-07T03:14:59Z handoff` row. No violation.
+
+5. **Visual proof not independently checkable here.** `parent-verification.json` claims `1200x970 disconnected` and `DEMO disconnected` screenshots inspected with matching SHA. Only hashes/paths are supplied (`startup-real/dashboard.png sha ea8a...`, `startup-demo sha b1c8...`), no image bytes in this review packet. The claim is plausible and driver logs show `startup-real 0 / startup-demo 0`, but this reviewer cannot confirm display usefulness. A10 must still require parent opening `evidence/baseline/startup/startup-real/dashboard.png` and `startup-demo/dashboard.png` from the final pushed run.
+
+6. **Environment honesty preserved.** `environment.json` reports Fedora 43, system Python 3.14.6, selected 3.12.14, RTX4060 via explicit `DRI_PRIME=1 glxinfo` `8188 MB dedicated, unifiedMemory:false`, `cudaVerified:false`, `nvidiaSmiAvailable:false`, `vulkaninfo ERROR_OUT_OF_HOST_MEMORY`. Does not mistake Intel unified memory for VRAM. `decisions.tsv 2026-10-07T03:04:42Z environment` documents the correction. No action.
+
+Zero additional audit flags. No tool requests, no scope expansion recommended.

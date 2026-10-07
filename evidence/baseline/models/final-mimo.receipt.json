@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "e929e48c-dec5-47fa-8c2c-44cd5a36b4c1",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/mimo-v2.6-flash-free",
+  "reportedModel": "opencode/mimo-v2.6-flash-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/mimo-v2.6-flash-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-review.prompt.txt",
+    "--output",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.out",
+    "--receipt",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/mimo-v2.6-flash-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-07T03:16:07.730Z",
+  "completedAt": "2026-10-07T03:25:46.201Z",
+  "elapsedMs": 578471,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-review.prompt.txt",
+  "outputPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.out",
+  "receiptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Workbench",
+    "prompt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-review.prompt.txt",
+    "output": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.out",
+    "receipt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 64,
+        "write": 0
+      },
+      "input": 130397,
+      "output": 2631,
+      "reasoning": 26869,
+      "total": 159961
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

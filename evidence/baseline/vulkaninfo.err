@@ -1,0 +1,2 @@
+WARNING: [Loader Message] Code 0 : terminator_CreateInstance: Received return code -9 from call to vkCreateInstance in ICD /usr/lib64/libvulkan_dzn.so. Skipping this driver.
+ERROR at /builddir/build/BUILD/vulkan-tools-1.4.341.0-build/Vulkan-Tools-vulkan-sdk-1.4.341.0/vulkaninfo/./vulkaninfo.h:249:vkGetPhysicalDeviceDisplayPlanePropertiesKHR failed with ERROR_OUT_OF_HOST_MEMORY

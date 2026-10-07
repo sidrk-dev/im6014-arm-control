@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 1,
+  "lane": "interrogate reviewers#2",
+  "attempt": "opencode:opencode/mimo-v2.6-flash-free@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "complete",
+    "processStarted": true,
+    "execution": {
+      "id": "e929e48c-dec5-47fa-8c2c-44cd5a36b4c1",
+      "outputPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.out",
+      "receiptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.receipt.json",
+      "workspacePath": "/home/sid/Documents/code/im6014Workbench",
+      "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+      "apiSpend": "approved",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/final-mimo.receipt.json"
+  }
+}
