@@ -25,4 +25,3 @@ The exact requested route ended with child-failed, HTTP 502, exit 1, after one s
 ## Agreement and verdict
 
 Only Muse completed the final panel. The run therefore provides no final multi-model agreement claim. Its three findings contain no new boundary defect. Two existing CLI issues are noted; the torque-pulse claim is dismissed with product evidence. The parent diagnostic fix has separate reproduction and full regression proof. The code is ready for a fresh independent verifier and final-head CI. No model output establishes a physical result.
-
