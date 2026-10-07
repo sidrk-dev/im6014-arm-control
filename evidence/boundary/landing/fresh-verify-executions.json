@@ -1,0 +1,24 @@
+[
+  {
+    "role": "base",
+    "command": [
+      "/tmp/pstack-b01-b10-20261006-thwnnaa5/verifier-base/scripts/check_offline_baseline.sh",
+      "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+      "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base"
+    ],
+    "exitCode": 0,
+    "revision": "c5132702a164e4f2f611e30de914f24d8d52739a",
+    "driverSHA256": "cfa29abca5a37fa419d2305faf3900f8845969cd2fdf90580a6ec7a4acd7467b"
+  },
+  {
+    "role": "head",
+    "command": [
+      "/tmp/pstack-b01-b10-20261006-thwnnaa5/verifier-head/scripts/check_offline_baseline.sh",
+      "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+      "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head"
+    ],
+    "exitCode": 0,
+    "revision": "dfe4e9d6cd78e755663cd0de30195d771411e402",
+    "driverSHA256": "4d31ab4267cc5535c6276827e0c524c9a5e00938f3349755ab90c7b9d8e26acb"
+  }
+]

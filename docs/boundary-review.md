@@ -25,3 +25,7 @@ The exact requested route ended with child-failed, HTTP 502, exit 1, after one s
 ## Agreement and verdict
 
 Only Muse completed the final panel. The run therefore provides no final multi-model agreement claim. Its three findings contain no new boundary defect. Two existing CLI issues are noted; the torque-pulse claim is dismissed with product evidence. The parent diagnostic fix has separate reproduction and full regression proof. The code is ready for a fresh independent verifier and final-head CI. No model output establishes a physical result.
+
+## Independent verification and landing
+
+A fresh Sol verifier recorded PASS+NOTES for head dfe4e9d over c513270 after inspecting parent-run checks, source bytes, raw receipts and eight screenshots. Its complete written verdict preceded a host quota interruption. The parent checked the artifacts, unchanged patch and current CI, then merged [PR #2](https://github.com/sidrk-dev/im6014-workbench/pull/2) with the expected-head guard. The independent verdict and actual merge record are in [landing evidence](../evidence/boundary/landing). The two inherited CLI notes remain follow-up work.

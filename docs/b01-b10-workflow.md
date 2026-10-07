@@ -5,7 +5,7 @@
 - [x] Phase B: Design the workflow.
 - [x] Phase C: Run the loop.
 - [x] Phase D: Keep the audit trail.
-- [ ] Phase E: Verify and hand back.
+- [x] Phase E: Verify and hand back.
 
 ## Definition of done
 
@@ -37,3 +37,7 @@ Ten related behaviors in one small transport boundary. One writer implements eac
 ## Hardware authorization
 
 The operator authorizes low-speed physical tests. They report an unobstructed motor mounted on a solid base, a 36 V supply, ability to cut power immediately, and a successful recent workbench spin. This is operator-reported setup. The parent rediscovers the adapter, checks its owner, uses Stop/status first, and stops on any invalid response or fault. No automatic timeout acknowledgment, clearing, reset, ID change or calibration operation is authorized by this run. Motion is limited to the existing CLI at 1 rpm, 2 seconds, measured-speed trip 2 rpm and travel trip 15 degrees, with zero position stiffness and bounded feedforward. A physical result is recorded from actual decoded traces, not the operator's earlier result.
+
+## Closure
+
+PR #2 merged the exact independently reviewed head with a server-enforced expected-head guard. Sol recorded PASS+NOTES before a quota interruption; the parent inspected and retained its complete artifacts. Fresh base/head checks passed and final-head CI was green. The parent preserved all final runtime/test source hashes after the squash merge. The original bench checkout and user plan remain unchanged. The optional motion test was not run because the firmware timeout flag requires an explicit acknowledgment choice.

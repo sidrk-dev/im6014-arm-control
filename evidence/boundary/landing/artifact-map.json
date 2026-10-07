@@ -1,0 +1,122 @@
+{
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-demo.log": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-demo.log",
+    "sha256": "fe136b1b88aa197d1dfcc8d0bdd90709d4dd3b3de9b1d8a5761d58626a1de7a1"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-real.log": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-real.log",
+    "sha256": "16e3344a8c2370b3dffe09a0efa759859db098d6e81a1e966cf5b24a03deabf9"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-verifier-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-verifier-tests.log",
+    "sha256": "40d009cd235471bffa4e1ac9557762535e2c8defdaadc9821842efa452bc7725"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard_test_results.json": {
+    "storedPath": "evidence/boundary/landing/fresh-base/dashboard_test_results.json",
+    "sha256": "fda471d2a5046c7c1e856ae243cd30d5ee3d5a2d82ea243d2d3645f3bbc0dce8"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard_dark_preview.png": {
+    "storedPath": "evidence/boundary/landing/fresh-base/dashboard_dark_preview.png",
+    "sha256": "b2833e905d207636afe65734dc35d93826f37403675c1685961517fc680b2fa1"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard_preview.png": {
+    "storedPath": "evidence/boundary/landing/fresh-base/dashboard_preview.png",
+    "sha256": "7662368f1afcac71981b11d904c0b1310a097b00b362523591b301cc0a826ae2"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-base/dashboard-tests.log",
+    "sha256": "5e698f4cb21a093db7bea494edb3e807728ed7b8aaa3887f8082b90010dd61c1"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/packet-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-base/packet-tests.log",
+    "sha256": "459b1f5af6e868cdc859fcb4e7453a097f3ab6d1fed4680b3f1c7d60cd8d555d"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/python-version.txt": {
+    "storedPath": "evidence/boundary/landing/fresh-base/python-version.txt",
+    "sha256": "326c20447cbcd53cafb2d3e3e95e29567a1f503e808e35de01172868bfa2c7eb"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/checks.tsv": {
+    "storedPath": "evidence/boundary/landing/fresh-base/checks.tsv",
+    "sha256": "5cf050d470182d7dc5ff254cb0b7c24f8c673b43737c3bcef657e93fdeeafc25"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-demo/startup-result.json": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-demo/startup-result.json",
+    "sha256": "29cc03ea2c5320e649349d1761635b5fbb2c2940459925469c149437c8c0592b"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-demo/dashboard.png": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-demo/dashboard.png",
+    "sha256": "b1c8a333447529b3e5f9a70aac5d320603068dbb21069277632382b79379d2f0"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-real/startup-result.json": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-real/startup-result.json",
+    "sha256": "0001fb1713736f28807b42df12e93c5a7d97bed32ce5cf37c53bfe5e86067ef6"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-real/dashboard.png": {
+    "storedPath": "evidence/boundary/landing/fresh-base/startup-real/dashboard.png",
+    "sha256": "ea8a1331cc4420295049fc0492b7cfe5616426559f0c4e2a9d897d3cfd2619df"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-demo.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-demo.log",
+    "sha256": "4eab4c296acddd53cde3b3afee3f0c68358202e8e890ecf0bd8ae0ef374f3161"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-real.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-real.log",
+    "sha256": "4569822b565c217e611c4b77f8144d0d2c0954f33d3ddcf857e56502817f93f9"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-verifier-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-verifier-tests.log",
+    "sha256": "157e6060cc2672e73f4758f68b1144990e945dfd9e302b8cf8d67e0bc79e8780"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard_test_results.json": {
+    "storedPath": "evidence/boundary/landing/fresh-head/dashboard_test_results.json",
+    "sha256": "fda471d2a5046c7c1e856ae243cd30d5ee3d5a2d82ea243d2d3645f3bbc0dce8"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard_dark_preview.png": {
+    "storedPath": "evidence/boundary/landing/fresh-head/dashboard_dark_preview.png",
+    "sha256": "0dd14a55399951d584f8075c4f0e790cacbfcb0ef3b196d500ebd8e6f1484183"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard_preview.png": {
+    "storedPath": "evidence/boundary/landing/fresh-head/dashboard_preview.png",
+    "sha256": "064c27d35d4977377e365d3bae71064180357c8f2d5fe07d1334c5f734c77d2c"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/dashboard-tests.log",
+    "sha256": "28bcb26f1744e7e0e8c34f6d8bd08853b92627754df07327c0cc0c05922f7ac8"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/serial-deadline-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/serial-deadline-tests.log",
+    "sha256": "32a89181cb239e8d2c01018f43894b4084f025d2fa8bf6bb8c3a008da4fe16f9"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/protocol-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/protocol-tests.log",
+    "sha256": "2021343c908cc49634cfbf957f88d4d9276da9d83343e9555eb70b75408e6498"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/packet-tests.log": {
+    "storedPath": "evidence/boundary/landing/fresh-head/packet-tests.log",
+    "sha256": "459b1f5af6e868cdc859fcb4e7453a097f3ab6d1fed4680b3f1c7d60cd8d555d"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/python-version.txt": {
+    "storedPath": "evidence/boundary/landing/fresh-head/python-version.txt",
+    "sha256": "326c20447cbcd53cafb2d3e3e95e29567a1f503e808e35de01172868bfa2c7eb"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/checks.tsv": {
+    "storedPath": "evidence/boundary/landing/fresh-head/checks.tsv",
+    "sha256": "32ac29bbdad8343c8bec698a11338b655438aa35c95ae688ec9ca3f58c663b5d"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-demo/startup-result.json": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-demo/startup-result.json",
+    "sha256": "0012724e798a845a1ddb308f4c65a96274f98ef6ad45b04457fc78c32db4eccd"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-demo/dashboard.png": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-demo/dashboard.png",
+    "sha256": "b1c8a333447529b3e5f9a70aac5d320603068dbb21069277632382b79379d2f0"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-real/startup-result.json": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-real/startup-result.json",
+    "sha256": "50e9df46b383ffd9cedc42af05bd083128db28f38ec29668efe80307378a526c"
+  },
+  "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-real/dashboard.png": {
+    "storedPath": "evidence/boundary/landing/fresh-head/startup-real/dashboard.png",
+    "sha256": "ea8a1331cc4420295049fc0492b7cfe5616426559f0c4e2a9d897d3cfd2619df"
+  }
+}

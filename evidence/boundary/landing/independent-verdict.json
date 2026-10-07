@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "verdict": "PASS+NOTES",
+  "scope": "B01-B10 communication boundary",
+  "pr": "https://github.com/sidrk-dev/im6014-workbench/pull/2",
+  "head": "dfe4e9d6cd78e755663cd0de30195d771411e402",
+  "base": "c5132702a164e4f2f611e30de914f24d8d52739a",
+  "stableBinaryPatchID": "2ce438b5209b377a9a6f92bf3cf78a27793274e0",
+  "checkoutsClean": true,
+  "independentOfImplementation": true,
+  "testExecutor": "repository-owning parent",
+  "verifierExecutedTests": false,
+  "verifierPerformedHardwareIO": false,
+  "verifierPerformedRepositoryMutations": false,
+  "toolDenialOccurred": false,
+  "blockingFindings": [],
+  "evidenceRoot": "/tmp/pstack-b01-b10-20261006-thwnnaa5",
+  "freshRuns": {
+    "base": {
+      "path": "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-base/run-20261007T044037Z-ouByxldZ",
+      "driverExitCode": 0,
+      "driverChecks": 6,
+      "sourceFingerprintFiles": 8,
+      "sourceHashMismatches": [],
+      "driverHashMatches": true,
+      "copyListMatchesFingerprint": true,
+      "dashboardGroupsPassed": 18,
+      "startupVerifierMethodsPassed": 5,
+      "disconnectedStartupModesPassed": ["real", "demo"]
+    },
+    "head": {
+      "path": "/tmp/pstack-b01-b10-20261006-thwnnaa5/fresh-verify-head/run-20261007T044100Z-rbbxrUdA",
+      "driverExitCode": 0,
+      "driverChecks": 8,
+      "sourceFingerprintFiles": 14,
+      "sourceHashMismatches": [],
+      "driverHashMatches": true,
+      "copyListMatchesFingerprint": true,
+      "protocolMethodsPassed": 24,
+      "deadlineMethodsPassed": 11,
+      "dashboardGroupsPassed": 18,
+      "startupVerifierMethodsPassed": 5,
+      "disconnectedStartupModesPassed": ["real", "demo"],
+      "ptyMissingReplyObservations": 15,
+      "ptyMissingReplyElapsedMsRange": [20.071143000677694, 20.349935999547597],
+      "ptySaturatedWriteObservations": 3,
+      "ptySaturatedWriteElapsedMsRange": [20.555139999487437, 20.86250399952405],
+      "ptyBudgetMs": 20,
+      "ptyAcceptanceBoundMs": 70
+    }
+  },
+  "startupArtifactAudit": {
+    "reportsInspected": 4,
+    "sourceHashesComparedToActualBytes": true,
+    "screenshotsComparedToRecordedHashes": true,
+    "serialOpenAttempts": 0,
+    "demoOpenAttempts": 0,
+    "exchangeAttempts": 0,
+    "zeroTXRX": true,
+    "disconnectedAndDisarmed": true,
+    "normalUITimerObserved": true,
+    "normalCloseJoinedWorkers": true,
+    "callbackErrors": []
+  },
+  "screenshotsInspectedWithViewImage": [
+    "fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-real/dashboard.png",
+    "fresh-verify-base/run-20261007T044037Z-ouByxldZ/startup-demo/dashboard.png",
+    "fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard_preview.png",
+    "fresh-verify-base/run-20261007T044037Z-ouByxldZ/dashboard_dark_preview.png",
+    "fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-real/dashboard.png",
+    "fresh-verify-head/run-20261007T044100Z-rbbxrUdA/startup-demo/dashboard.png",
+    "fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard_preview.png",
+    "fresh-verify-head/run-20261007T044100Z-rbbxrUdA/dashboard_dark_preview.png"
+  ],
+  "sourceConclusions": {
+    "encoderAndDecoderPreserveBaseBehavior": true,
+    "benchAliasesPreserved": true,
+    "vendorSourceHashMatches": true,
+    "vendorCRCBodyMatchesArchivedSource": true,
+    "vendorVectorsCheckedInFreshRun": 256,
+    "B07BeforeFailureAndAfterPassInspected": true,
+    "B09BeforeFailureAndAfterPassInspected": true,
+    "readWriteTimeoutRestorationReviewed": true,
+    "lateDecodeAndCleanupSuccessRejected": true,
+    "foreignFeedbackDoesNotRefreshSession": true,
+    "CRCDiagnosticRetentionCorrectionReviewed": true,
+    "milestoneScopePreserved": true
+  },
+  "forgeObservation": {
+    "source": "parent-captured forge JSON independently inspected",
+    "ciArtifact": "final-head-ci.json",
+    "queueArtifact": "final-head-queue.json",
+    "head": "dfe4e9d6cd78e755663cd0de30195d771411e402",
+    "state": "OPEN",
+    "mergeStateStatus": "CLEAN",
+    "autoMergeRequest": null,
+    "mergeQueueEntry": null,
+    "checks": [
+      {"run": 37572499319, "status": "COMPLETED", "conclusion": "SUCCESS"},
+      {"run": 37572504058, "status": "COMPLETED", "conclusion": "SUCCESS"}
+    ]
+  },
+  "reviewPanel": {
+    "reviewedRevision": "e8b835debf1b3e485f794b085354642d623da55a",
+    "promptHashMatches": true,
+    "muse": {"status": "complete", "exitCode": 0, "submissionCount": 1, "rejectedPermissions": 0, "cleanupErrors": []},
+    "mimo": {"status": "child-failed", "exitCode": 1, "failure": "HTTP 502", "submissionCount": 1, "outputProduced": false, "rejectedPermissions": 0, "cleanupErrors": []},
+    "finalMultiModelAgreementEstablished": false,
+    "laterParentCRCCorrectionIndependentlyReviewedAtFinalHead": true
+  },
+  "notes": [
+    {"id": "inherited-cli-zero-rpm", "disposition": "nonblocking inherited issue", "location": "spin_5rpm.py:65", "summary": "Zero-rpm CLI applies friction torque; dashboard applies zero. Track a separate CLI correction."},
+    {"id": "inherited-cli-invalid-friction", "disposition": "nonblocking inherited issue", "location": "spin_5rpm.py:97", "summary": "Large negative friction input raises traceback before usage validation, before port opening."},
+    {"id": "pulse-travel-limit", "disposition": "reviewer finding dismissed", "summary": "Fixed 15 degree pulse trip is documented; optional GUI travel field is hidden for pulse mode."},
+    {"id": "failed-mimo-seat", "disposition": "review limitation", "summary": "MiMo returned HTTP 502 with no output; no successful second review or multi-model agreement is claimed."},
+    {"id": "deadline-contract", "disposition": "documented limitation", "summary": "Synchronous driver or kernel operations cannot be forcibly interrupted; PTY results are software acceptance evidence."},
+    {"id": "physical-boundary", "disposition": "physical verification pending", "summary": "Existing Stop capture has timeout=1, arm=false and acknowledgment=false. No motion or revised-software hardware validation is established."}
+  ],
+  "remainingVerifierWork": [],
+  "parentOperationsRemaining": ["post immutable verdict if requested", "perform any authorized guarded merge"]
+}

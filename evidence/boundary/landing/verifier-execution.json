@@ -1,0 +1,17 @@
+{
+  "descriptor": "codex:gpt-6.1-sol@xhigh",
+  "route": "native",
+  "agent": "/root/boundary_independent_verifier",
+  "hostTerminalStatus": "errored: usage limit",
+  "artifactsWrittenBeforeInterruption": [
+    "independent-verdict.md",
+    "independent-verdict.json"
+  ],
+  "parentInspection": "Complete PASS+NOTES artifacts, no remaining verifier work; source hashes, raw base/head execution evidence, CI and exact binary patch checked. No retry, substitution or fallback.",
+  "freshAccountUsageOnResume": {
+    "ordinaryUsageAllowed": true,
+    "fiveHourUsedPercent": 1,
+    "weeklyUsedPercent": 16
+  },
+  "verdictSHA256": "6e33ef53a41ff86e2155dc4fe6afb0e104812ae5cd0d4a07b71d230818ce31fa"
+}

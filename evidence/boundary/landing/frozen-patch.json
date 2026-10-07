@@ -1,0 +1,10 @@
+{
+  "base": "c5132702a164e4f2f611e30de914f24d8d52739a",
+  "head": "dfe4e9d6cd78e755663cd0de30195d771411e402",
+  "stableBinaryPatchID": "2ce438b5209b377a9a6f92bf3cf78a27793274e0",
+  "headPushURL": "https://github.com/sidrk-dev/im6014-workbench.git",
+  "baseFetchURL": "https://github.com/sidrk-dev/im6014-workbench.git",
+  "pr": "https://github.com/sidrk-dev/im6014-workbench/pull/2",
+  "autoMergeRequest": null,
+  "mergeQueueEntry": null
+}
