@@ -19,7 +19,7 @@
 
 ## Units
 
-- [ ] B11 external joint mapping.
+- [x] B11 external joint mapping.
 - [ ] B12 numerical input rejection.
 - [ ] B13 explicit port configuration.
 - [ ] B14 diagnostic capture.
