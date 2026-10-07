@@ -276,5 +276,39 @@ class B08Identity(unittest.TestCase):
             self.assertEqual(session.data["latest"]["raw"], CAPTURED.hex())
             self.assertEqual((session.data["rx"], session.data["total_samples"]), (8, 10))
             self.assertEqual(len(session.samples), 1)
+class B10Units(unittest.TestCase):
+    def test_independent_command_fields(self):
+        import struct
+        for sign in (-1, 1):
+            packet = s.command(0, 1, rpm=sign * 5, torque=sign * .1,
+                               position=sign * math.pi / 2, kp=3, kd=1)
+            self.assertEqual(struct.unpack("<hhihh", packet[4:16]),
+                             (sign * 20, sign * 68, sign * 103765, 239, 319))
+            packet = s.command(0, 1, rpm=sign * 60)
+            self.assertEqual(struct.unpack("<h", packet[6:8])[0], sign * 811)
+
+    def test_independent_feedback_output_units(self):
+        import struct
+        for raw, sign in [(NEGATIVE, -1), (POSITIVE, 1)]:
+            self.assertEqual(struct.unpack("<hhi", raw[6:14]),
+                             (sign * 2560, sign * 608, sign * 311296))
+            value = s.feedback(raw, 0)
+            self.assertEqual(value["rpm"], sign * 45)
+            self.assertAlmostEqual(value["position_rad"], sign * 4.71238898038469, places=12)
+            self.assertAlmostEqual(value["torque_nm"], sign * 12.666666666666666, places=12)
+
+    def test_representable_endpoints_and_half_lsb_error(self):
+        import struct
+        for value, raw in [(s.RPM_MIN, -32768), (s.RPM_MAX, 32767)]:
+            packet = s.command(0, 1, rpm=value)
+            self.assertEqual(struct.unpack("<h", packet[6:8])[0], raw)
+        for value, raw in [(s.POSITION_MIN, -2147483648), (s.POSITION_MAX, 2147483647)]:
+            packet = s.command(0, 1, position=value)
+            self.assertEqual(struct.unpack("<i", packet[8:12])[0], raw)
+        for value in [-60.123, -1, 0, 1, 60.123]:
+            raw = struct.unpack("<h", s.command(0, 1, rpm=value)[6:8])[0]
+            self.assertLessEqual(abs(raw * 45 / 608 - value), 45 / 608 / 2 + 1e-12)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
