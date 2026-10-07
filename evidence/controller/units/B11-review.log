@@ -1,0 +1,17 @@
+test_arithmetic_underflow_and_overflow_raise_value_error (test_joint_mapping.B11JointMapping.test_arithmetic_underflow_and_overflow_raise_value_error) ... ok
+test_dataclasses_are_frozen (test_joint_mapping.B11JointMapping.test_dataclasses_are_frozen) ... ok
+test_direction_and_reduction_validation (test_joint_mapping.B11JointMapping.test_direction_and_reduction_validation) ... ok
+test_gains_must_be_nonnegative (test_joint_mapping.B11JointMapping.test_gains_must_be_nonnegative) ... ok
+test_mapping_does_not_clip_speed_and_codec_still_rejects_it (test_joint_mapping.B11JointMapping.test_mapping_does_not_clip_speed_and_codec_still_rejects_it) ... ok
+test_mapping_keeps_excessive_torque_for_codec_rejection (test_joint_mapping.B11JointMapping.test_mapping_keeps_excessive_torque_for_codec_rejection) ... ok
+test_n3_negative_direction_anchor (test_joint_mapping.B11JointMapping.test_n3_negative_direction_anchor) ... ok
+test_n6_positive_direction_anchor (test_joint_mapping.B11JointMapping.test_n6_positive_direction_anchor) ... ok
+test_numeric_fields_reject_invalid_types_nonfinite_and_huge_integers (test_joint_mapping.B11JointMapping.test_numeric_fields_reject_invalid_types_nonfinite_and_huge_integers) ... ok
+test_round_trip_for_ratios_directions_and_offsets (test_joint_mapping.B11JointMapping.test_round_trip_for_ratios_directions_and_offsets) ... ok
+test_torque_speed_power_invariant (test_joint_mapping.B11JointMapping.test_torque_speed_power_invariant) ... ok
+test_zero_vectors_round_trip (test_joint_mapping.B11JointMapping.test_zero_vectors_round_trip) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.002s
+
+OK

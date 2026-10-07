@@ -74,6 +74,23 @@ class B11JointMapping(unittest.TestCase):
                 kp=output.kp,
             )
 
+    def test_mapping_keeps_excessive_torque_for_codec_rejection(self):
+        output = JointMap(3, -1, .25).to_output(JointTarget(-.5, 2, 12, 36, 9))
+        self.assertEqual(output.tau_nm, -4)
+        with self.assertRaises(ValueError):
+            codec.command(0, mode=1, rpm=output.rpm, torque=output.tau_nm,
+                          position=output.q_rad, kp=output.kp, kd=output.kd)
+
+    def test_zero_vectors_round_trip(self):
+        for reduction in (1, 3, 6):
+            for direction in (-1, 1):
+                mapping = JointMap(reduction, direction, .37)
+                output = mapping.to_output(JointTarget(0, 0, 0, 0, 0))
+                self.assertEqual(output.kp, 0)
+                self.assertEqual(output.kd, 0)
+                self.assertEqual(mapping.from_output(OutputSample(
+                    output.q_rad, output.rpm, output.tau_nm)), JointSample(0, 0, 0))
+
     def test_dataclasses_are_frozen(self):
         values = [
             (JointMap(3, 1, 0.2), "reduction"),

@@ -333,7 +333,10 @@ def _metadata(item, source):
     is_ftdi = (isinstance(manufacturer, str) and 'ftdi' in manufacturer.lower())
     is_ftdi = is_ftdi or (isinstance(product, str) and 'ftdi' in product.lower())
     is_ftdi = is_ftdi or vid in (0x0403, '0403', '0x0403')
-    adapter = 'FTDI' if is_ftdi else manufacturer or product
+    if vid is not None and vid not in (0x0403, '0403', '0x0403'):
+        adapter = f'non-FTDI USB VID {vid}'
+    else:
+        adapter = 'FTDI' if is_ftdi else manufacturer or product
     if serial is None and interface is None and adapter is None:
         return None
     return serial, interface, str(adapter) if adapter else None, source

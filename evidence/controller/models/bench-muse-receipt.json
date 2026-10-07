@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "a18b2f76-90c2-455c-bd66-79f4f1ab57ea",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "reportedModel": "opencode/muse-spark-1.3-contributor-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/muse-spark-1.3-contributor-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-review-prompt.md",
+    "--output",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-output.md",
+    "--receipt",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/muse-spark-1.3-contributor-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-07T21:23:39.363Z",
+  "completedAt": "2026-10-07T21:25:44.574Z",
+  "elapsedMs": 125211,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-review-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-output.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Workbench",
+    "prompt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-review-prompt.md",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-output.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/bench-muse-receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 241,
+        "write": 0
+      },
+      "input": 50106,
+      "output": 1298,
+      "reasoning": 20127,
+      "total": 71772
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

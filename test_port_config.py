@@ -33,6 +33,14 @@ class B13PortConfig(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, r'expected FTDI serial FTC2RQ7H, interface 3; observed .*OTHER123.*interface 1'):
             inspect_port(config, metadata=metadata)
 
+    def test_non_ftdi_vid_rejects_even_with_matching_serial_and_channel(self):
+        config = PortConfig('/dev/ttyUSB8', 6_000_000)
+        for manufacturer in (None, 'FTDI'):
+            with self.subTest(manufacturer=manufacturer), self.assertRaisesRegex(
+                    ValueError, 'observed non-FTDI USB VID'):
+                inspect_port(config, metadata=dict(serial_number='FTC2RQ7H',
+                    channel=3, manufacturer=manufacturer, vid=0x1A86))
+
     def test_enumerated_metadata_for_symlink_alias_overrides_path_hint(self):
         with TemporaryDirectory() as directory:
             target = Path(directory, 'ttyUSB3')
