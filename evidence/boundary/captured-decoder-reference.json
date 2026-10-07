@@ -1,0 +1,19 @@
+{
+  "provenance": "Parent physical Stop/status, ID0 6Mbps ChannelD; not a synthetic frame",
+  "packetHex": "fcee801d1b48000000006cc4db000000000000000000f179457d",
+  "positionRawSigned": 14402668,
+  "independentPositionCalculation": "raw * 2*pi * 3 / (32768 * 38), Decimal60, literal pi",
+  "expectedPositionRad": "218.027131641072163803368577102362853583731933909971811094759",
+  "expectedFields": {
+    "id": 0,
+    "mode": 0,
+    "timeout": 1,
+    "driver_c": 29,
+    "winding_c": 27,
+    "voltage": 36.0,
+    "torque_nm": 0.0,
+    "rpm": 0.0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

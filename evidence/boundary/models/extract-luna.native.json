@@ -1,0 +1,10 @@
+{
+  "provider": "codex",
+  "model": "gpt-6-luna",
+  "effort": "max",
+  "route": "native",
+  "agent": "/root/boundary_extract_luna",
+  "status": "complete",
+  "evidence": "Exact requested native host flags and final response attested by parent; no worker test claim accepted",
+  "parentASTCheck": "Moved crc32/command/feedback AST identical to c513270 baseline"
+}

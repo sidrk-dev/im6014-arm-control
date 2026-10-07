@@ -1,0 +1,36 @@
+[
+  {
+    "provenance": "Generated protocol fixture, checksum independently calculated by vendor C++ routine",
+    "packetHex": "fcee10fbc89600f6a0fd0040fbff0110008000e01234c9a85ecc",
+    "expected": {
+      "id": 0,
+      "mode": 1,
+      "timeout": 0,
+      "driver_c": -5,
+      "winding_c": 200,
+      "voltage": 75.0,
+      "torque_nm": -12.666666666666666,
+      "rpm": -45.0,
+      "position_rad": -4.71238898038469,
+      "errors": 2147487745,
+      "warnings": 7
+    }
+  },
+  {
+    "provenance": "Generated protocol fixture, checksum independently calculated by vendor C++ routine",
+    "packetHex": "fcee10fbc896000a600200c004000110008000e012348ddd0a74",
+    "expected": {
+      "id": 0,
+      "mode": 1,
+      "timeout": 0,
+      "driver_c": -5,
+      "winding_c": 200,
+      "voltage": 75.0,
+      "torque_nm": 12.666666666666666,
+      "rpm": 45.0,
+      "position_rad": 4.71238898038469,
+      "errors": 2147487745,
+      "warnings": 7
+    }
+  }
+]

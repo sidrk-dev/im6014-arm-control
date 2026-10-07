@@ -1,0 +1,27 @@
+{
+  "unit": "B01",
+  "observedAt": "2026-10-07T04:16:42.944976+00:00",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "test_protocol.B01Encoder",
+    "-v"
+  ],
+  "exitCode": 0,
+  "sourceFingerprint": {
+    "spin_5rpm.py": "cb596a3ea547ac86271d9a187250ab0b7e2cd160a98cd1c8d8688ec4d5f12da7",
+    "motor_session.py": "7da77ff879f1dea39b6906ef71f614268ca9222803badb7b101e09739c5617a3",
+    "motor_dashboard.py": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+    "im6014_codec.py": "3404c2c56169909dc27e813171715566cbeb2e81e16e41c55dc2b44a39982563",
+    "test_protocol.py": "1b3163283d50a5e6a1b61a51aa750644fe6f5454d9a68711ee9f5124e83876a0",
+    "test_spin_5rpm.py": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+    "test_dashboard.py": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d",
+    "test_startup.py": "8656d1b424665c5e5df20825c2c80417da44b8825fe50a4c1fc1a8914529f9b3",
+    "test_startup_verifier.py": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71",
+    "scripts/check_offline_baseline.sh": "4b38c34cac9314cbb657ac2d338d9ea33968b6a0b1b70c8d463111e8fa20bb29"
+  },
+  "sourceSnapshotSHA256": "adf75bdfb262a5b5997e45d82011261318feaebea92c65af42f055828d303c37",
+  "provenance": "Parent-owned direct execution; hardware not used by these checks"
+}

@@ -1,0 +1,28 @@
+Base recommendation: Adopt Candidate A (functions) as implementation base. Graft only narrow clarifications from B; do not adopt its object/transact scaffolding.
+
+Scores 0-5 on: compatibility / strict decode+fixtures / bounded recovery / deadline+restore / fake+freshness / minimal ownership+scope.
+
+Candidate A: 5 / 5 / 5 / 5 / 5 / 5 = 30
+Candidate B: 3 / 3 / 2 / 2 / 2 / 2 = 14
+
+Why:
+
+1. Compatibility: A preserves `command/feedback/crc32/exchange(RATIO, dict keys/order, error families/text, PORT/healthy/run/main` and `motor_session.exchange, serial.Serial, DemoSerial` lookup via aliases, no second encoder. B renames to `encode_command/decode_feedback/validate_bench_health`, makes `decode_feedback(raw, expected_id=None)` optional, adds `transact()`, `SerialTransport`, `ProtocolError/FrameCrcError/DeadlineExceededError`. Optional ID and dual validation invite foreign refresh; per-exchange `IM6014Transceiver(bus)` still works functionally but adds lifetime to patch around.
+
+2. Strict decode/fixtures: A calls one strict `feedback(candidate, requested_id)` for every candidate; length 26, `fc ee`, CRC bytes 2-21, ID, supported mode 0/1, not request-mode equality so valid Stop during FOC transition is allowed; oversize `valid+extra` rejected at decoder but extractable in stream; fixtures independently derived via word-feed/C++ reference, fixed Stop `feee...1d99fb6e` and B02 `fcee...f179457d` with ID0/mode0/timeout1/36V/29C/27C/0rpm/218.02713rad. B pre-checks CRC/ID/mode in scanner then calls `decode_feedback`, two paths to diverge; `None` ID path and scan-counter handling underspecified.
+
+3. Bounded recovery: A: max 26B read, retain max 25B, append max 51B, trailing `fc` only, discard 1B on CRC/ID/mode reject to preserve overlapping header, clock checked inside candidate loop, bounded tail-hex/count with `CRC` only if CRC candidate seen. B: 1B advance is correct, header-absent clear to `fc` is correct, but `accumulated_hex` is unbounded, `max_buffer 256B` is 5x looser than needed, inner scan has no deadline check so one large read with many candidates can postpone expiry.
+
+4. Deadline/restore: A is the only honest contract: budget at entry before reset, checks before/after reset/setters/write/read/decode/restore, reject at/after expiry, clamp finite read and positive finite write, replace infinite/zero write with remaining, recompute remaining after setters, restore both independently, normalize setter/restore `ValueError` to `RuntimeError`, `Incomplete serial write`, write-timeout to `deadline` error, states POSIX `select/Timeout`, `EAGAIN`, `tcflush/tcdrain` plus overhead, no `flush`, DemoSerial `write_timeout=0` and legacy fake without attribute handled. B starts clock then resets outside budget, `min(orig,rem)` preserves `None`/0 infinite, typo `orig_read_read_timeout`, no setter/`in_waiting`/decode/restore checks, no restore-failure chaining, uses `time.monotonic` directly with no injectable clock/sleep, punts PTY write-timeout to fake and needs measured elapsed assertion.
+
+5. Fake/freshness: A: `Transaction(chunks,write_count,reset/write/read delays/errors)` + `Chunk(data,delay)` + `FakeClock`, reset peeks next script without consuming, write consumes exactly one script, size-split reads, records exact bytes once, empty/0/partial/close observable, honors finite timeouts, reset delay advances to prove pre-write expiry, never generates expected packets via production codec, no motion model. B: single `queue_stream_bytes` global queue, `reset_input_buffer` clears future replies causing stale-loss/cross-talk, no per-transaction isolation, no delays/errors, `writes` as tuples, `chunk_schedule` detached, no deterministic clock binding.
+
+6. Minimal scope: A: `im6014_codec` pure no-I/O, `im6014_serial` one write + local buffer, no bus ownership, no retry/arm/clear/close, shutdown/Stop/close-boolean preserved. `Feedback` TypedDict is static only. B adds unnecessary persistent `Transceiver._buffer`, `transact`, `Protocol`, exception hierarchy, `max_buffer_bytes` option, `exclusive=True`, sequence/mermaid ceremony. Cohesive object was exploratory, not requirement.
+
+Concrete defects to fix in A during implementation: none structural; ensure fingerprint/copylist covers `im6014_codec, im6014_serial, fake_serial, test_boundary, test_serial_deadline` and startup render inspection.
+
+Useful graft from B: explicit note that scan 0-14 deadline-only absence must not become CRC fault if noisy candidate precedes timeout; A already keeps failed-transaction counters, keep that.
+
+Do not graft: `Transceiver`, `transact`, `Protocol`, custom hierarchy, 256B buffer, global fake queue.
+
+Both are designs only, no proof. Preserve `healthy`/watchdog/bench limits in `spin_5rpm`, fail-disarmed `_fault`/Stop/close semantics, and no physical arming beyond parent Stop/status.
