@@ -28,6 +28,8 @@ The driver runs packet fixtures, the existing 18-group dashboard suite, negative
 
 The parent must inspect the rendered screenshots before recording A10 as verified. A test's success alone does not establish that its display is useful.
 
+The startup gate checks behavior with the supplied interpreter and records its versions. For reproducible runs, use the locked installation above and compare the receipt's interpreter and package versions with the recorded baseline. Version pinning is checked during installation and evidence review.
+
 ## Launch the disconnected dashboard
 
 ```bash

@@ -73,8 +73,8 @@ def faulty_main():
             raise SystemExit(2)
         raise
 
-with patch.object(motor_dashboard, "Dashboard", FaultyDashboard), \\
-     patch.object(motor_dashboard, "main", faulty_main):
+with (patch.object(motor_dashboard, "Dashboard", FaultyDashboard),
+      patch.object(motor_dashboard, "main", faulty_main)):
     raise SystemExit(run("real", Path(evidence)))
 '''
         cases = {

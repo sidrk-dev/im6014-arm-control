@@ -113,13 +113,12 @@ def _cleanup_after_main(window, state):
 
 def _fingerprint(root):
     names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "USER_MANUAL.md",
-             "test_startup.py", "test_startup_verifier.py")
+             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py")
     files = {}
     for name in names:
         path = root / name
-        if path.is_file():
-            data = path.read_bytes()
-            files[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+        data = path.read_bytes()
+        files[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
     return files
 
 
