@@ -17,13 +17,13 @@ def _need(condition, message):
 
 def validate_report(report):
     _need(report.get("system_exit") is True, "application main did not exit through SystemExit")
+    _need(not report.get("callback_errors"), "event-loop callback or close raised an exception")
     _need(report.get("exit_code") == 0, f"application exit code was {report.get('exit_code')!r}")
     _need(not report.get("main_exception"), "application main raised an exception")
     _need(report.get("argv_restored") is True, "sys.argv was not restored")
     _need(report.get("window_captured") is True, "Dashboard constructor did not produce a window")
     _need(report.get("callback_ran") is True, "event-loop verification callback did not run")
     _need(report.get("callback_completed") is True, "event-loop verification callback did not complete")
-    _need(not report.get("callback_errors"), "event-loop callback or close raised an exception")
 
     source = report.get("source")
     _need(source in ("real", "demo"), f"invalid source mode: {source!r}")
@@ -100,9 +100,7 @@ def _cleanup_after_main(window, state):
     if window is None or not hasattr(window, "session") or not window.session.thread.is_alive():
         return
     try:
-        if state["callback_completed"]:
-            window.session.close()
-        elif hasattr(window, "timer"):
+        if not state["callback_completed"] and hasattr(window, "timer"):
             state["close_returned"] = bool(window.close())
             state["post"] = _observe(window, False)
         else:

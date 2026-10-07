@@ -99,6 +99,8 @@ with (patch.object(motor_dashboard, "Dashboard", FaultyDashboard),
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                     self.assertIn(diagnostic, result.stderr)
                     self.assertFalse((evidence / "startup-result.json").exists())
+                    print(f"PASS: injected {fault} rejected; exit {result.returncode}; no startup receipt",
+                          flush=True)
 
     def test_valid_report_passes(self):
         validate_report(passing_report())
