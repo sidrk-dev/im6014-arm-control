@@ -5,6 +5,7 @@ from pathlib import Path
 import unittest
 
 import spin_5rpm as s
+import im6014_serial as transport
 
 CAPTURED = bytes.fromhex("fcee801d1b48000000006cc4db000000000000000000f179457d")
 NEGATIVE = bytes.fromhex("fcee10fbc89600f6a0fd0040fbff0110008000e01234c9a85ecc")
@@ -189,7 +190,7 @@ class B06Fragmented(unittest.TestCase):
         for chunks in cases:
             clock = FakeClock()
             bus = FakeSerial(responses=[chunks], clock=clock)
-            with self.subTest(chunks=chunks), patch.object(s.time, "monotonic", clock.monotonic):
+            with self.subTest(chunks=chunks), patch.object(transport, "_monotonic", clock.monotonic):
                 result = s.exchange(bus, s.command(0), 0)
                 self.assertEqual(result["raw"], CAPTURED.hex())
                 self.assertEqual(bus.writes, (s.command(0),))
@@ -200,10 +201,40 @@ class B06Fragmented(unittest.TestCase):
         for size in range(26):
             clock = FakeClock()
             bus = FakeSerial(responses=[(CAPTURED[:size],)], clock=clock)
-            with self.subTest(size=size), patch.object(s.time, "monotonic", clock.monotonic):
+            with self.subTest(size=size), patch.object(transport, "_monotonic", clock.monotonic):
                 with self.assertRaisesRegex(RuntimeError, "deadline"):
                     s.exchange(bus, s.command(0), 0, .002)
                 self.assertEqual(len(bus.writes), 1)
+
+
+class B07Recovery(unittest.TestCase):
+    def test_noise_corrupt_and_overlapping_candidates_recover(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        bad = CAPTURED[:-1] + bytes([CAPTURED[-1] ^ 1])
+        mode = bytes.fromhex("fceea01d1b48000000006cc4db0000000000000000003f69a18e")
+        cases = [b"noise" + CAPTURED, b"x" * 10000 + CAPTURED,
+                 b"\xfc" + CAPTURED, b"\xfc\xeejunk" + CAPTURED,
+                 bad + CAPTURED, mode + CAPTURED,
+                 b"\xfc\xee" * 20 + CAPTURED, CAPTURED + CAPTURED]
+        for stream in cases:
+            clock = FakeClock()
+            bus = FakeSerial(responses=[(stream,)], clock=clock)
+            with self.subTest(prefix=stream[:30]), patch.object(transport, "_monotonic", clock.monotonic):
+                self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                self.assertEqual(len(bus.writes), 1)
+
+    def test_corrupt_only_expires_with_bounded_crc_diagnostic(self):
+        from fake_serial import FakeClock, FakeSerial
+        from unittest.mock import patch
+        clock = FakeClock()
+        bad = CAPTURED[:-1] + bytes([CAPTURED[-1] ^ 1])
+        bus = FakeSerial(responses=[(bad * 1000,)], clock=clock)
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaisesRegex(RuntimeError, "deadline.*CRC") as caught:
+                s.exchange(bus, s.command(0), 0, .002)
+        self.assertLess(len(str(caught.exception)), 500)
+        self.assertEqual(len(bus.writes), 1)
 
 
 if __name__ == "__main__":

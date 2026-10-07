@@ -11,6 +11,8 @@ import time
 import serial
 from im6014_codec import POSITION_MAX, POSITION_MIN, RATIO, RPM_MAX, RPM_MIN, command, crc32, feedback
 
+from im6014_serial import exchange
+
 PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
 
 def healthy(f, mode, allow_timeout=False, speed_limit=0):
@@ -22,23 +24,6 @@ def healthy(f, mode, allow_timeout=False, speed_limit=0):
         raise RuntimeError('Measured speed exceeds configured limit: ' + json.dumps(f))
     if abs(f['torque_nm']) > 4:
         raise RuntimeError('Torque exceeds bench limit: ' + json.dumps(f))
-
-
-def exchange(bus, packet, motor_id, deadline_s=0.05):
-    # One owner and one outstanding transaction; discard data older than this request.
-    bus.reset_input_buffer()
-    deadline = time.monotonic() + deadline_s
-    if bus.write(packet) != len(packet):
-        raise RuntimeError('Incomplete serial write')
-    data = bytearray()
-    while time.monotonic() < deadline:
-        data.extend(bus.read(min(26, max(1, bus.in_waiting))))
-        start = data.find(b'\xfc\xee')
-        if start >= 0 and len(data) - start >= 26:
-            if time.monotonic() >= deadline:
-                break
-            return feedback(bytes(data[start:start + 26]), motor_id)
-    raise RuntimeError('No validated motor feedback within deadline; received ' + data.hex())
 
 
 def run(bus, args, log):
