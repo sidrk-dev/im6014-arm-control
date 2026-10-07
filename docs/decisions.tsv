@@ -1,0 +1,5 @@
+ts	phase	decision	why	evidence	result
+2026-10-07T02:53:37Z	frame	Use one private im6014-workbench repository with inherited bench history	One owner and one dependency graph make A01-A10 easier to maintain; submodules add no current benefit	evidence/baseline/repository.json	source preserved; separate checkout ready
+2026-10-07T02:58:29Z	baseline	Keep existing bench code after offline checks passed	Existing behavior meets the baseline; startup evidence can be added separately	evidence/baseline/baseline-results.json	packet suite and 18 dashboard groups pass
+2026-10-07T02:58:29Z	dependencies	Use clean Python3.12 and hash-locked five-package environment	Inspected MakerMods revision excludes Python3.14; existing pins already work offline	evidence/baseline/clean-environment.json	hash install and full offline tests pass
+2026-10-07T02:59:39Z	design	Select separate startup verifier; graft real-main and lifecycle checks	Keeps existing bench and tests unchanged while proving disconnected event-loop startup	docs/startup-design.md	two designs and Muse cross-judge complete

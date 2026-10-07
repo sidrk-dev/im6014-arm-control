@@ -1,0 +1,8 @@
+{
+  "packetCommand": "python3 test_spin_5rpm.py",
+  "packetExitCode": 0,
+  "dashboardCommand": "QT_QPA_PLATFORM=offscreen python3 test_dashboard.py",
+  "dashboardExitCode": 0,
+  "dashboardGroupedChecks": 18,
+  "realMotorIoPerformed": false
+}

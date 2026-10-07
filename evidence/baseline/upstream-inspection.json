@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/makermods-robotics/makermodslab",
+  "revision": "64defd4e5e9641199b1af5b90587080f721374ba",
+  "purpose": "Future E01-E10 dashboard foundation; inspected, not installed or integrated",
+  "inspectedFile": "pyproject.toml",
+  "fileSha256": "e5c9d1c4850592c77f1631ff7b7352d3abb9d10e1f9aa5b716124281d02bc632",
+  "pythonRequires": ">=3.12,<3.14",
+  "lerobotRevision": "5ce2fe41a63647c20b2ab6e84bcb4cc7295a9b21",
+  "hostSystemPython": "3.14.6",
+  "selectedWorkbenchPython": "3.12",
+  "compatibility": "Current system Python is outside upstream range. Workbench uses installed Python3.12. No MakerMods functionality claimed."
+}

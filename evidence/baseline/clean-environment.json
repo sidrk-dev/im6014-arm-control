@@ -1,0 +1,12 @@
+{
+  "status": "verified",
+  "python": "Python 3.12.14",
+  "requirementsLock": "requirements.lock",
+  "hashEnforced": true,
+  "packagesMatchLock": true,
+  "pipCheckExitCode": 0,
+  "packetTestsExitCode": 0,
+  "dashboardTestsExitCode": 0,
+  "dashboardGroups": 18,
+  "hardwareIoPerformed": false
+}

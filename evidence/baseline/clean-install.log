@@ -1,0 +1,9 @@
+Looking in links: /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels
+Processing /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels/pyserial-3.5-py2.py3-none-any.whl (from -r requirements.lock (line 1))
+Processing /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels/pyside6-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl (from -r requirements.lock (line 2))
+Processing /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels/pyside6_addons-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl (from -r requirements.lock (line 3))
+Processing /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels/pyside6_essentials-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl (from -r requirements.lock (line 4))
+Processing /tmp/pstack-a01-a10-20261006-bv_ho4fx/wheels/shiboken6-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl (from -r requirements.lock (line 5))
+Installing collected packages: pyserial, shiboken6, PySide6_Essentials, PySide6_Addons, PySide6
+
+Successfully installed PySide6-6.11.1 PySide6_Addons-6.11.1 PySide6_Essentials-6.11.1 pyserial-3.5 shiboken6-6.11.1
