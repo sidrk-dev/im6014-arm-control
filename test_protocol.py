@@ -1,4 +1,3 @@
-"""Offline IM6014 communication-boundary acceptance checks."""
 import math
 import json
 from pathlib import Path
@@ -118,7 +117,14 @@ class B04Framing(unittest.TestCase):
                         s.feedback(bytes(raw), 0)
 
     def test_unsupported_modes_with_valid_vendor_crc_rejected(self):
-        frames = ['fceea01d1b48000000006cc4db0000000000000000003f69a18e', 'fceeb01d1b48000000006cc4db000000000000000000586153f7', 'fceec01d1b48000000006cc4db000000000000000000da454c9e', 'fceed01d1b48000000006cc4db000000000000000000bd4dbee7', 'fceee01d1b48000000006cc4db0000000000000000001455a86d', 'fceef01d1b48000000006cc4db000000000000000000735d5a14']
+        frames = [
+            'fceea01d1b48000000006cc4db0000000000000000003f69a18e',
+            'fceeb01d1b48000000006cc4db000000000000000000586153f7',
+            'fceec01d1b48000000006cc4db000000000000000000da454c9e',
+            'fceed01d1b48000000006cc4db000000000000000000bd4dbee7',
+            'fceee01d1b48000000006cc4db0000000000000000001455a86d',
+            'fceef01d1b48000000006cc4db000000000000000000735d5a14',
+        ]
         for raw in frames:
             with self.subTest(raw=raw), self.assertRaisesRegex(RuntimeError, "ID/mode"):
                 s.feedback(bytes.fromhex(raw), 0)

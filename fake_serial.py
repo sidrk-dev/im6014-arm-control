@@ -1,5 +1,3 @@
-"""Scripted, deterministic serial fake for offline boundary tests."""
-
 from collections import deque
 from dataclasses import dataclass
 import math

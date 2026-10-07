@@ -1,4 +1,3 @@
-"""One-owner, single-request IM6014 stream transaction."""
 import math
 import time
 

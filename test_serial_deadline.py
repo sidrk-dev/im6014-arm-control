@@ -1,4 +1,3 @@
-"""Deadline behavior on scripted transports and isolated Linux pseudo-terminals."""
 import os
 import pty
 import select
