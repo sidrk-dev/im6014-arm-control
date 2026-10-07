@@ -96,5 +96,32 @@ class B03Checksum(unittest.TestCase):
                 s.crc32(bytes(size))
 
 
+class B04Framing(unittest.TestCase):
+    def test_short_oversized_and_coalesced_decoder_inputs(self):
+        invalid = [CAPTURED[:n] for n in range(26)]
+        invalid += [CAPTURED + bytes(n) for n in [1, 2, 26, 1000]]
+        invalid += [CAPTURED + CAPTURED]
+        for raw in invalid:
+            with self.subTest(length=len(raw)), self.assertRaisesRegex(RuntimeError, "length/header"):
+                s.feedback(raw, 0)
+
+    def test_every_unrelated_header_byte_rejected(self):
+        for offset, valid in [(0, 0xfc), (1, 0xee)]:
+            for value in range(256):
+                if value == valid:
+                    continue
+                with self.subTest(offset=offset, value=value):
+                    raw = bytearray(CAPTURED)
+                    raw[offset] = value
+                    with self.assertRaisesRegex(RuntimeError, "length/header"):
+                        s.feedback(bytes(raw), 0)
+
+    def test_unsupported_modes_with_valid_vendor_crc_rejected(self):
+        frames = ['fceea01d1b48000000006cc4db0000000000000000003f69a18e', 'fceeb01d1b48000000006cc4db000000000000000000586153f7', 'fceec01d1b48000000006cc4db000000000000000000da454c9e', 'fceed01d1b48000000006cc4db000000000000000000bd4dbee7', 'fceee01d1b48000000006cc4db0000000000000000001455a86d', 'fceef01d1b48000000006cc4db000000000000000000735d5a14']
+        for raw in frames:
+            with self.subTest(raw=raw), self.assertRaisesRegex(RuntimeError, "ID/mode"):
+                s.feedback(bytes.fromhex(raw), 0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
