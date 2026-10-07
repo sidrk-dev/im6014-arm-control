@@ -4,16 +4,16 @@
 
 - [x] Read the Principles section of poteto-mode.
 - [x] Frame the ten acceptance predicates and scope.
-- [ ] Design the workflow.
+- [x] Design the workflow.
 - [ ] Run each unit as a measured experiment.
 - [ ] Keep the audit trail in docs/decisions.tsv.
 - [ ] Verify the whole and hand back.
 
 ## Architect
 
-- [ ] Ground.
-- [ ] Sketch.
-- [ ] Agree. Default proceeds after parent synthesis.
+- [x] Ground.
+- [x] Sketch.
+- [x] Agree. Parent selected the typed Sol core with explicit corrections.
 - [ ] Implement.
 - [ ] Scrap. Skip unless the selected shape fails repeated checks.
 
