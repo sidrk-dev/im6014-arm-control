@@ -1,0 +1,28 @@
+STOP/status verified: {"mode": 0, "errors": 0, "warnings": 0, "timeout": 0, "voltage": 36.0, "driver_c": 25, "winding_c": 25, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "elapsed_s": 0.0, "target_rpm": 0}
+t=0.00s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=0.50s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=1.00s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=1.50s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+Measured plateau average: 0.000 rpm
+STOP/status verified: {"mode": 0, "errors": 0, "warnings": 0, "timeout": 0, "voltage": 36.0, "driver_c": 25, "winding_c": 25, "torque_nm": 0.0, "rpm": 1.0, "position_rad": 0.0, "elapsed_s": 0.0, "target_rpm": 0}
+t=0.00s target=0.00 rpm measured=1.000 rpm torque=0.000 Nm
+t=0.50s target=0.00 rpm measured=1.000 rpm torque=0.000 Nm
+t=1.00s target=0.00 rpm measured=1.000 rpm torque=0.000 Nm
+t=1.50s target=0.00 rpm measured=1.000 rpm torque=0.000 Nm
+test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial (test_numerical_inputs.B12CliAndZeroSpeed.test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial) ... ok
+test_negative_cli_feedforward_fails_before_encoder (test_numerical_inputs.B12CliAndZeroSpeed.test_negative_cli_feedforward_fails_before_encoder) ... ok
+test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean (test_numerical_inputs.B12CliAndZeroSpeed.test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean) ... ok
+test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) ... ok
+test_exact_existing_golden_packets_are_unchanged (test_numerical_inputs.B12CodecNumerics.test_exact_existing_golden_packets_are_unchanged) ... ok
+test_existing_control_bounds_and_signed_packet_endpoints (test_numerical_inputs.B12CodecNumerics.test_existing_control_bounds_and_signed_packet_endpoints) ... ok
+test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) ... ok
+test_mapping_preserves_large_target_and_codec_rejects_it (test_numerical_inputs.B12CodecNumerics.test_mapping_preserves_large_target_and_codec_rejects_it) ... ok
+test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) ... ok
+test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) ... ok
+test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) ... ok
+test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.011s
+
+OK

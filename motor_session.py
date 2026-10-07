@@ -34,15 +34,25 @@ def fault_text(errors, warnings):
     return '; '.join(result) or 'No faults or warnings'
 
 
+def _test_number(value, name):
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise ValueError(f'{name} must be a finite number')
+    try:
+        result = float(value)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError(f'{name} must be a finite number') from error
+    if not math.isfinite(result):
+        raise ValueError(f'{name} must be finite')
+    return result
+
+
 def validate_test(values):
     kind = values.get('kind')
     if kind not in ('Speed', 'Position', 'Torque pulse', 'Damping'):
         raise ValueError('Choose Speed, Position, Torque pulse, or Damping')
-    v = {k: float(values[k]) for k in ('rpm', 'kd', 'ff', 'torque', 'duration')}
-    v.update({k: float(values.get(k, default)) for k, default in
+    v = {k: _test_number(values[k], k) for k in ('rpm', 'kd', 'ff', 'torque', 'duration')}
+    v.update({k: _test_number(values.get(k, default), k) for k, default in
               [('position_deg', 10), ('kp', 3), ('speed_limit', 0), ('travel_limit', 0)]})
-    if not all(math.isfinite(x) for x in v.values()):
-        raise ValueError('Test values must be finite')
     packet = command(0, 1, rpm=v['rpm'], kd=v['kd'], kp=v['kp'], position=math.radians(v['position_deg']))
     if not 0 <= v['ff'] <= 0.5:
         raise ValueError('Friction compensation must be 0–0.5 Nm')
@@ -272,7 +282,7 @@ class MotorSession:
             if self.bus:
                 raise ValueError('Disconnect before changing adapter or motor ID')
             motor_id, baud = v.get('id'), v.get('baud')
-            if type(motor_id) is not int or not 0 <= motor_id <= 14 or baud not in (4000000, 6000000):
+            if type(motor_id) is not int or not 0 <= motor_id <= 14 or type(baud) is not int or baud not in (4000000, 6000000):
                 raise ValueError('Individual motor ID 0–14; baud 4 or 6 Mbps')
             self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
                       id=motor_id, baud=baud, port=v['port'], demo=bool(v.get('demo')), discovered=[],

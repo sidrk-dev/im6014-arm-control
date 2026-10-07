@@ -68,8 +68,8 @@
       "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
     },
     "scripts/check_offline_baseline.sh": {
-      "bytes": 4346,
-      "sha256": "f99888e2203804dbe78ead80136918de00c570a9b763a6e340da6740e982b73f"
+      "bytes": 4452,
+      "sha256": "390158f6089479929ba4e824e00d5732de1c55015d06244ad0c5a3ff40928360"
     },
     "scripts/check_milestone.py": {
       "bytes": 2901,
@@ -82,6 +82,6 @@
   },
   "sourceUnchanged": true,
   "exitCode": 0,
-  "recordedAt": "2026-10-07T20:25:20.288361+00:00",
+  "recordedAt": "2026-10-07T20:25:32.658576+00:00",
   "physicalIO": "none; parent reviewed fixtures or pseudo-terminals before execution"
 }

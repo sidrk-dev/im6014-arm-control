@@ -20,7 +20,7 @@
 ## Units
 
 - [x] B11 external joint mapping.
-- [ ] B12 numerical input rejection.
+- [x] B12 numerical input rejection.
 - [ ] B13 explicit port configuration.
 - [ ] B14 diagnostic capture.
 - [ ] C01 one bus owner.

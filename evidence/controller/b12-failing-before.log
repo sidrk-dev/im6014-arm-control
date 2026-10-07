@@ -1,0 +1,1047 @@
+STOP/status verified: {"mode": 0, "errors": 0, "warnings": 0, "timeout": 0, "voltage": 36.0, "driver_c": 25, "winding_c": 25, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "elapsed_s": 0.0, "target_rpm": 0}
+t=0.00s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=0.50s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=1.00s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+t=1.50s target=0.00 rpm measured=0.000 rpm torque=0.000 Nm
+Measured plateau average: 0.000 rpm
+test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial (test_numerical_inputs.B12CliAndZeroSpeed.test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial) ... ERROR
+test_negative_cli_feedforward_fails_before_encoder (test_numerical_inputs.B12CliAndZeroSpeed.test_negative_cli_feedforward_fails_before_encoder) ... FAIL
+test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean (test_numerical_inputs.B12CliAndZeroSpeed.test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean) ... FAIL
+test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) ... 
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=True) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=False) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value='1') ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=None) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=1j) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=True) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=False) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value='1') ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=None) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=1j) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=True) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=False) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value='1') ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=None) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=1j) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=True) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=False) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value='1') ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=None) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=1j) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=True) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=False) ... FAIL
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value='1') ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=None) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=1j) ... ERROR
+  test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+test_exact_existing_golden_packets_are_unchanged (test_numerical_inputs.B12CodecNumerics.test_exact_existing_golden_packets_are_unchanged) ... ok
+test_existing_control_bounds_and_signed_packet_endpoints (test_numerical_inputs.B12CodecNumerics.test_existing_control_bounds_and_signed_packet_endpoints) ... ok
+test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) ... 
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=True) ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=False) ... FAIL
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=0.0) ... FAIL
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id='0') ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=None) ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=-1) ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=15) ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='NoneType') ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='str') ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='list') ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='int') ... ERROR
+  test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='object') ... ERROR
+test_mapping_preserves_large_target_and_codec_rejects_it (test_numerical_inputs.B12CodecNumerics.test_mapping_preserves_large_target_and_codec_rejects_it) ... ok
+test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) ... 
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=True) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=False) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=1.0) ... ERROR
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value='1') ... ERROR
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=None) ... ERROR
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=True) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=False) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=0.0) ... ERROR
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=1.0) ... ERROR
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=0) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=1) ... FAIL
+  test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=None) ... ERROR
+test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) ... 
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=True) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=False) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=0.0) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id='0') ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=None) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=-1) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=15) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=True) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline='0.05') ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=None) ... ERROR
+  test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000) ... ERROR
+test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) ... 
+  test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) (baud=4000000.0) ... ERROR
+  test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) (baud=6000000.0) ... ERROR
+test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) ... 
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='rpm', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='rpm', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kd', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kd', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='ff', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='torque', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='torque', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='position_deg', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='position_deg', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kp', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kp', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='speed_limit', value=False) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='travel_limit', value=True) ... FAIL
+  test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='travel_limit', value=False) ... FAIL
+
+======================================================================
+ERROR: test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial (test_numerical_inputs.B12CliAndZeroSpeed.test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 160, in test_invalid_cli_codec_input_is_argparse_error_before_file_or_serial
+    spin_5rpm.main()
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/spin_5rpm.py", line 97, in main
+    command(args.id, 1, args.rpm, args.kd, args.torque_ff)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 27, in command
+    raise ValueError('Nonfinite control input')
+ValueError: Nonfinite control input
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=1j)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not complex
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=1j)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not complex
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=1j)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not complex
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=1j)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not complex
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=1j)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+TypeError: must be real number, not complex
+
+======================================================================
+ERROR: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 40, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    codec.command(0, mode=1, **{field: value})
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in command
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 26, in <genexpr>
+    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
+               ^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 78, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(CAPTURED_STOP, value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id='0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 78, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(CAPTURED_STOP, value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 78, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(CAPTURED_STOP, value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=-1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 78, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(CAPTURED_STOP, value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=15)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 78, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(CAPTURED_STOP, value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 51, in feedback
+    raise RuntimeError('Feedback ID/mode mismatch')
+RuntimeError: Feedback ID/mode mismatch
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='NoneType')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 81, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(value, 0)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 45, in feedback
+    if len(raw) != 26 or raw[:2] != b'\xfc\xee':
+       ^^^^^^^^
+TypeError: object of type 'NoneType' has no len()
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='str')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 81, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(value, 0)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 46, in feedback
+    raise RuntimeError('Invalid feedback length/header')
+RuntimeError: Invalid feedback length/header
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='list')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 81, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(value, 0)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 46, in feedback
+    raise RuntimeError('Invalid feedback length/header')
+RuntimeError: Invalid feedback length/header
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 81, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(value, 0)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 45, in feedback
+    if len(raw) != 26 or raw[:2] != b'\xfc\xee':
+       ^^^^^^^^
+TypeError: object of type 'int' has no len()
+
+======================================================================
+ERROR: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (raw_type='object')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 81, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    codec.feedback(value, 0)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 45, in feedback
+    if len(raw) != 26 or raw[:2] != b'\xfc\xee':
+       ^^^^^^^^
+TypeError: object of type 'object' has no len()
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=1.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 27, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 37, in command
+    raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
+                               ~~~~~~~~~^~~~~~~~~~~
+TypeError: unsupported operand type(s) for |: 'float' and 'int'
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 27, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 24, in command
+    if not 0 <= motor_id <= 14 or mode not in (0, 1):
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: '<=' not supported between instances of 'int' and 'str'
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 27, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 24, in command
+    if not 0 <= motor_id <= 14 or mode not in (0, 1):
+           ^^^^^^^^^^^^^^^^^^^
+TypeError: '<=' not supported between instances of 'int' and 'NoneType'
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=0.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 30, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(0, mode=value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 37, in command
+    raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
+                                          ~~~~~^^~~
+TypeError: unsupported operand type(s) for <<: 'float' and 'int'
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=1.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 30, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(0, mode=value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 37, in command
+    raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
+                                          ~~~~~^^~~
+TypeError: unsupported operand type(s) for <<: 'float' and 'int'
+
+======================================================================
+ERROR: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 33, in test_motor_ids_modes_and_watchdog_use_exact_types
+    codec.command(0, watchdog=value)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_codec.py", line 37, in command
+    raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
+                                                      ^^^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=0.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id='0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=-1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (motor_id=15)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 143, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', motor_id)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 148, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', 0, deadline)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 73, in exchange
+    original_timeout = bus.timeout
+                       ^^^^^^^^^^^
+AttributeError: 'NoIoBus' object has no attribute 'timeout'
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline='0.05')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 148, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', 0, deadline)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 70, in exchange
+    if not math.isfinite(deadline_s) or deadline_s <= 0:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: must be real number, not str
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 148, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', 0, deadline)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 70, in exchange
+    if not math.isfinite(deadline_s) or deadline_s <= 0:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: must be real number, not NoneType
+
+======================================================================
+ERROR: test_invalid_ids_and_deadlines_do_no_bus_io (test_numerical_inputs.B12SerialInputs.test_invalid_ids_and_deadlines_do_no_bus_io) (deadline=10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 148, in test_invalid_ids_and_deadlines_do_no_bus_io
+    transport.exchange(bus, b'one megabyte not required here', 0, deadline)
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/im6014_serial.py", line 70, in exchange
+    if not math.isfinite(deadline_s) or deadline_s <= 0:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) (baud=4000000.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 118, in test_connect_rejects_non_integer_baud_before_opening
+    motor_session.MotorSession._handle(
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/motor_session.py", line 277, in _handle
+    self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
+    ^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute '_set'
+
+======================================================================
+ERROR: test_connect_rejects_non_integer_baud_before_opening (test_numerical_inputs.B12SessionInputs.test_connect_rejects_non_integer_baud_before_opening) (baud=6000000.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 118, in test_connect_rejects_non_integer_baud_before_opening
+    motor_session.MotorSession._handle(
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/motor_session.py", line 277, in _handle
+    self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
+    ^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute '_set'
+
+======================================================================
+FAIL: test_negative_cli_feedforward_fails_before_encoder (test_numerical_inputs.B12CliAndZeroSpeed.test_negative_cli_feedforward_fails_before_encoder)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 179, in test_negative_cli_feedforward_fails_before_encoder
+    encode.assert_not_called()
+  File "/usr/lib64/python3.12/unittest/mock.py", line 910, in assert_not_called
+    raise AssertionError(msg)
+AssertionError: Expected 'command' to not have been called. Called 1 times.
+Calls: [call(0, 1, 5, 6, -0.1)].
+
+======================================================================
+FAIL: test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean (test_numerical_inputs.B12CliAndZeroSpeed.test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 220, in test_zero_rpm_encodes_zero_feedforward_and_still_checks_measured_mean
+    self.assertEqual(set(foc_torque_fields), {0})
+AssertionError: Items in the first set but not the second:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='rpm', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kd', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='torque', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='position', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_controls_reject_bad_types_huge_ints_and_nonfinite_values (test_numerical_inputs.B12CodecNumerics.test_controls_reject_bad_types_huge_ints_and_nonfinite_values) (field='kp', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 39, in test_controls_reject_bad_types_huge_ints_and_nonfinite_values
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 77, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    with self.subTest(expected_id=value), self.assertRaises(ValueError):
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately (test_numerical_inputs.B12CodecNumerics.test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately) (expected_id=0.0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 77, in test_feedback_rejects_bad_expected_ids_and_buffer_types_deliberately
+    with self.subTest(expected_id=value), self.assertRaises(ValueError):
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 26, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='motor_id', value=value), self.assertRaises(ValueError):
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='motor_id', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 26, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='motor_id', value=value), self.assertRaises(ValueError):
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 29, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='mode', value=value), self.assertRaises(ValueError):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='mode', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 29, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='mode', value=value), self.assertRaises(ValueError):
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 32, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='watchdog', value=value), self.assertRaises(ValueError):
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_motor_ids_modes_and_watchdog_use_exact_types (test_numerical_inputs.B12CodecNumerics.test_motor_ids_modes_and_watchdog_use_exact_types) (field='watchdog', value=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 32, in test_motor_ids_modes_and_watchdog_use_exact_types
+    with self.subTest(field='watchdog', value=value), self.assertRaises(ValueError):
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='rpm', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='rpm', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kd', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kd', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='ff', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='torque', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='torque', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='position_deg', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='position_deg', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kp', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='kp', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='speed_limit', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='travel_limit', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite (test_numerical_inputs.B12SessionInputs.test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite) (field='travel_limit', value=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-b11-c06-20261007-1mwdi1cr/b12-prechange-source/test_numerical_inputs.py", line 112, in test_dashboard_accepts_numeric_strings_and_rejects_bool_or_nonfinite
+    with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.014s
+
+FAILED (failures=34, errors=50)

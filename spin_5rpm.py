@@ -62,7 +62,8 @@ def run(bus, args, log):
             raise RuntimeError('Host feedback watchdog expired; motion remains disarmed')
         # 0.75-second acceleration/deceleration ramps, with zero position stiffness.
         ramp = min(1, elapsed / 0.75, (args.duration - elapsed) / 0.75)
-        f = transact(1, args.rpm * ramp, args.kd, args.torque_ff * ramp * (1 if args.rpm >= 0 else -1))
+        torque_ff = args.torque_ff * ramp * (1 if args.rpm > 0 else -1) if args.rpm else 0
+        f = transact(1, args.rpm * ramp, args.kd, torque_ff)
         last_reply = time.monotonic()
         if args.travel_limit and abs(f['position_rad'] - start_position) > math.radians(args.travel_limit):
             raise RuntimeError('Exceeded configured output travel limit')
@@ -73,7 +74,7 @@ def run(bus, args, log):
     plateau = [f['rpm'] for f in samples if f.get('target_rpm') == args.rpm and f['mode'] == 1]
     mean_rpm = sum(plateau) / len(plateau) if plateau else 0
     log['mean_rpm'] = mean_rpm
-    if args.rpm and abs(mean_rpm - args.rpm) > 0.5:
+    if abs(mean_rpm - args.rpm) > 0.5:
         raise RuntimeError(f'Measured speed {mean_rpm:.3f} rpm did not reach the requested speed')
     print(f'Measured plateau average: {mean_rpm:.3f} rpm', flush=True)
 
@@ -94,9 +95,12 @@ def main():
     parser.add_argument('--arm', action='store_true', help='Allow this bounded unloaded-bench motion test')
     parser.add_argument('--log', default='motor_run.json')
     args = parser.parse_args()
-    command(args.id, 1, args.rpm, args.kd, args.torque_ff)
     if args.torque_ff < 0:
         parser.error('Friction compensation must be nonnegative; direction follows --rpm')
+    try:
+        command(args.id, 1, args.rpm, args.kd, args.torque_ff)
+    except ValueError as error:
+        parser.error(str(error))
     if not math.isfinite(args.duration) or not 2 <= args.duration <= 10:
         parser.error('Duration must be 2–10 seconds')
     if not all(math.isfinite(x) and x >= 0 for x in (args.speed_limit, args.travel_limit)):

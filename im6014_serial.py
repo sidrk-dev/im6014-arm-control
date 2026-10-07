@@ -67,9 +67,19 @@ def exchange(bus, packet, motor_id, deadline_s=0.05):
     Synchronous driver calls and cleanup cannot be forcibly interrupted.
     Read/write settings are restored before any validated result is returned.
     """
+    if type(motor_id) is not int or not 0 <= motor_id <= 14:
+        raise ValueError('Expected motor ID must be an integer from 0 to 14')
+    if isinstance(deadline_s, bool) or not isinstance(deadline_s, (int, float)):
+        raise ValueError('Transaction deadline must be a finite positive int or float')
+    try:
+        deadline_s = float(deadline_s)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError('Transaction deadline must be finite and positive') from error
     if not math.isfinite(deadline_s) or deadline_s <= 0:
         raise ValueError('Transaction deadline must be finite and positive')
     deadline = _monotonic() + deadline_s
+    if not math.isfinite(deadline):
+        raise ValueError('Transaction deadline is not representable')
     original_timeout = bus.timeout
     has_write_timeout = hasattr(bus, 'write_timeout')
     original_write_timeout = bus.write_timeout if has_write_timeout else None
