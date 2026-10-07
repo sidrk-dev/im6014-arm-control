@@ -1,0 +1,48 @@
+[
+  {
+    "field": "motor_id",
+    "input": "True",
+    "accepted": true,
+    "packet": "feee91000000000000000000000000009ce9c752"
+  },
+  {
+    "field": "motor_id",
+    "input": "1.0",
+    "accepted": false,
+    "errorType": "TypeError",
+    "error": "unsupported operand type(s) for |: 'float' and 'int'"
+  },
+  {
+    "field": "mode",
+    "input": "True",
+    "accepted": true,
+    "packet": "feee9000000000000000000000000000ee08c88f"
+  },
+  {
+    "field": "mode",
+    "input": "1.0",
+    "accepted": false,
+    "errorType": "TypeError",
+    "error": "unsupported operand type(s) for <<: 'float' and 'int'"
+  },
+  {
+    "field": "watchdog",
+    "input": "2",
+    "accepted": false,
+    "errorType": "ValueError",
+    "error": "bytes must be in range(0, 256)"
+  },
+  {
+    "field": "rpm",
+    "input": "True",
+    "accepted": true,
+    "packet": "feee900000000e000000000000000000914c8240"
+  },
+  {
+    "field": "rpm",
+    "input": "'1'",
+    "accepted": false,
+    "errorType": "TypeError",
+    "error": "must be real number, not str"
+  }
+]
