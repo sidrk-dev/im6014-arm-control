@@ -6,6 +6,7 @@ import csv
 import json
 import math
 import os
+import pty
 from pathlib import Path
 import tempfile
 import struct
@@ -252,19 +253,25 @@ with patch('motor_session.DemoSerial', TrackedDemo), patch('motor_session.serial
     finally:
         assert session.close()
 
+pty_master, pty_slave = pty.openpty()
+pty_path = os.ttyname(pty_slave)
 with patch('motor_session.serial.Serial') as serial_constructor:
     serial_constructor.return_value.is_open = False
-    serial_constructor.return_value.open.side_effect = OSError('permission denied')
+    serial_constructor.return_value.open.side_effect = OSError('injected PTY open failure')
     session = MotorSession()
     try:
-        session.request('connect', demo=False, port='/not-real', id=0, baud=6000000)
+        session.request('connect', demo=False, port=pty_path, id=0, baud=6000000)
         wait(session, lambda x: x['state'].startswith('Fault'))
+        assert serial_constructor.called and serial_constructor.return_value.open.called
+        assert serial_constructor.return_value.close.called
         assert not session.snapshot()['connected'] and session.bus is None
         session.request('connect', demo=True, port='demo', id=0, baud=6000000)
         wait(session, lambda x: x['connected'])
-        passed('failed adapter open releases ownership and permits a fresh connection')
+        passed('failed PTY adapter open closes the partial handle, releases ownership and permits a fresh demo connection')
     finally:
         session.close()
+        os.close(pty_master)
+        os.close(pty_slave)
 
 app = QApplication([])
 app.setStyle('Fusion')

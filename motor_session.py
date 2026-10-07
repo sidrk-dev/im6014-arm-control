@@ -13,7 +13,7 @@ import time
 import serial
 
 from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
-from im6014_port import PortConfig, inspect_port
+from im6014_port import PortConfig, inspect_port, open_managed_port
 from im6014_serial import PacketCapture, capture_exchange
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
@@ -148,6 +148,7 @@ class MotorSession:
         self.closing = threading.Event()
         self.generation = 0
         self.bus = None
+        self.port_owner = None
         self.test = None
         self.started = time.monotonic()
         self.last_ui = self.started
@@ -187,7 +188,9 @@ class MotorSession:
         self.request('stop')
         self.closing.set()
         self.thread.join(2)
-        return not self.thread.is_alive()
+        if not self.thread.is_alive() and self.port_owner:
+            self._close_managed_port()
+        return not self.thread.is_alive() and self.port_owner is None
 
     def _event(self, text):
         with self.lock:
@@ -253,21 +256,69 @@ class MotorSession:
 
     def _fault(self, error):
         message = str(error)
+        close_unconfirmed = False
+        failed_open_owner = getattr(error, 'managed_port', None)
+        if failed_open_owner is not None:
+            self.port_owner = failed_open_owner
         self._stop()
-        if self.bus and not self.bus.is_open:
-            self.bus.close()
+        if failed_open_owner is not None:
             self.bus = None
+            close_unconfirmed = not self._close_managed_port()
             self._set(connected=False)
-        self._set(state='Fault — disarmed', reason=message)
+        elif self.bus and not self.bus.is_open:
+            if self.port_owner:
+                if self._close_managed_port():
+                    self._set(connected=False)
+                else:
+                    close_unconfirmed = True
+            else:
+                self.bus.close()
+                self.bus = None
+                self._set(connected=False)
+        if close_unconfirmed:
+            self._set(state='Fault — serial close unconfirmed',
+                      reason='Serial close could not be confirmed; adapter ownership remains held. ' + message)
+        else:
+            self._set(state='Fault — disarmed', reason=message)
         self._event('DISARMED: ' + message)
 
+    def _close_managed_port(self):
+        owner = self.port_owner
+        if owner is None:
+            return True
+        if not owner.close():
+            self._event('SERIAL CLOSE NOT CONFIRMED: bus lease retained.')
+            return False
+        if self.bus is owner.bus:
+            self.bus = None
+        self.port_owner = None
+        return True
+
     def _disconnect(self):
+        close_confirmed = True
         if self.bus:
             self._stop()
-            self.bus.close()
-            self.bus = None
-        self._set(connected=False, armed=False, state='Disconnected', latest=None,
-                  reason='Disconnected. Reconnect requires a new check and arm action.', last_tx='', last_rx='')
+            if self.port_owner:
+                close_confirmed = self._close_managed_port()
+                # Do not keep polling a bus whose close was not confirmed.
+                self.bus = None
+            else:
+                self.bus.close()
+                self.bus = None
+        elif self.port_owner:
+            if (self.port_owner.verified and self.port_owner.bus and
+                    self.port_owner.bus.is_open):
+                self.bus = self.port_owner.bus
+                self._stop()
+                self.bus = None
+            close_confirmed = self._close_managed_port()
+        if close_confirmed:
+            self._set(connected=False, armed=False, state='Disconnected', latest=None,
+                      reason='Disconnected. Reconnect requires a new check and arm action.', last_tx='', last_rx='')
+        else:
+            self._set(connected=False, armed=False, state='Fault — serial close unconfirmed', latest=None,
+                      reason='Serial close could not be confirmed. Adapter ownership remains held; retry cleanup before reconnecting.',
+                      last_tx='', last_rx='')
         self.last_reply = 0.
 
     def _check(self, acknowledge=False):
@@ -291,7 +342,7 @@ class MotorSession:
 
     def _handle(self, action, v):
         if action == 'connect':
-            if self.bus:
+            if self.bus or getattr(self, 'port_owner', None):
                 raise ValueError('Disconnect before changing adapter or motor ID')
             motor_id, baud = v.get('id'), v.get('baud')
             if type(motor_id) is not int or not 0 <= motor_id <= 14 or type(baud) is not int or baud not in (4000000, 6000000):
@@ -306,17 +357,18 @@ class MotorSession:
             if v.get('demo'):
                 self.bus = DemoSerial()
             else:
-                self.bus = serial.Serial(port=None, baudrate=baud, timeout=0.005,
-                                         write_timeout=0.05, exclusive=True)
-                self.bus.port = v['port']
-                self.bus.dtr = self.bus.rts = False
-                self.bus.open()
+                self.port_owner = open_managed_port(
+                    PortConfig(v['port'], baud), serial_factory=serial.Serial)
+                self.bus = self.port_owner.bus
             self._set(connected=True)
             self._event(f"{'DEMO' if v.get('demo') else 'REAL'} adapter open: {v['port']} · ID {motor_id} · {baud}")
             self._check()
         elif action == 'disconnect':
             self._disconnect()
-            self._event('Disconnected.')
+            if self.port_owner:
+                self._event('Disconnect requested; serial close unconfirmed, bus ownership retained.')
+            else:
+                self._event('Disconnected.')
         elif action in ('check', 'ack'):
             self._check(acknowledge=action == 'ack')
         elif action == 'arm':

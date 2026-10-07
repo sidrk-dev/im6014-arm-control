@@ -12,7 +12,7 @@ import serial
 from im6014_codec import POSITION_MAX, POSITION_MIN, RATIO, RPM_MAX, RPM_MIN, command, crc32, feedback
 
 from im6014_serial import PacketCapture, capture_exchange, exchange
-from im6014_port import PortConfig, inspect_port
+from im6014_port import PortConfig, inspect_port, open_managed_port
 
 PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
 
@@ -140,20 +140,24 @@ def main():
     log = dict(settings=vars(args), samples=[], stopped=False, error=None,
                packet_capture=capture.snapshot())
     path.write_text(json.dumps(log, indent=2) + '\n')
-    bus = serial.Serial(port=None, baudrate=args.baud, timeout=0.005, write_timeout=0.05, exclusive=True)
-    bus.port = args.port
-    bus.dtr = False
-    bus.rts = False
+    managed_port = None
+    bus = None
     try:
-        bus.open()
+        managed_port = open_managed_port(
+            PortConfig(args.port, args.baud), serial_factory=serial.Serial)
+        bus = managed_port.bus
         run(bus, args, log, capture, capture_source='physical',
             capture_identity=args.port, capture_connection=1,
             capture_port=args.port, capture_baud=args.baud)
     except (Exception, KeyboardInterrupt) as error:
+        if managed_port is None:
+            managed_port = getattr(error, 'managed_port', None)
+        if bus is None and managed_port is not None:
+            bus = managed_port.bus
         log['error'] = str(error) or type(error).__name__
         print('STOPPING:', log['error'], flush=True)
     finally:
-        if bus.is_open:
+        if managed_port is not None and managed_port.verified and bus and bus.is_open:
             try:
                 for _ in range(3):
                     f = _captured_exchange(
@@ -169,6 +173,13 @@ def main():
                 log['stopped'] = False
                 log['stop_error'] = str(error)
                 print('Stop confirmation unavailable:', error, flush=True)
+        if managed_port is not None:
+            if not managed_port.close():
+                log['close_confirmed'] = False
+                print('Serial close not confirmed; bus ownership retained.', flush=True)
+            else:
+                log['close_confirmed'] = True
+        elif bus:
             bus.close()
         log['packet_capture'] = capture.snapshot()
         path.write_text(json.dumps(log, indent=2) + '\n')

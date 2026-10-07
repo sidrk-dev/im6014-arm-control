@@ -23,7 +23,7 @@
 - [x] B12 numerical input rejection.
 - [x] B13 explicit port configuration.
 - [x] B14 diagnostic capture.
-- [ ] C01 one bus owner.
+- [x] C01 one bus owner.
 - [ ] C02 controller state transitions.
 - [ ] C03 per-joint feedback age.
 - [ ] C04 per-joint error status.

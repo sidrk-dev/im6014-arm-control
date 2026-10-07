@@ -1,13 +1,18 @@
 """Passive configuration checks for the existing IM6014 serial entry points."""
 from dataclasses import dataclass
+import errno
+import fcntl
 import os
 from pathlib import Path
 import re
+import stat
 
 
 SUPPORTED_BAUDS = (4_000_000, 6_000_000)
 BENCH_SERIAL = 'FTC2RQ7H'
 BENCH_CHANNEL = 3
+
+_LOCK_DIRECTORY = f'/tmp/im6014-port-owner-{os.getuid()}'
 
 _BY_ID_FTDI = re.compile(r'_(?P<serial>[^_]+)-if(?P<channel>\d{2})-port\d+$')
 _LOCATION_CHANNEL = re.compile(r':\d+\.(\d+)$')
@@ -36,6 +41,255 @@ class PortConfig:
             raise ValueError('Expected adapter channel must be a nonnegative integer or None')
         if (self.expected_serial is None) != (self.expected_channel is None):
             raise ValueError('Expected serial and channel must both be set or both be None')
+
+
+class PortBusyError(RuntimeError):
+    """Another cooperating workbench client owns this character device."""
+
+
+class PortOwnershipError(RuntimeError):
+    """The device path or the private lock namespace is unsafe or changed."""
+
+
+class PortCloseError(RuntimeError):
+    """A context manager could not confirm close and still holds its lease."""
+
+    def __init__(self, managed_port):
+        super().__init__('Serial close was not confirmed; the bus lease remains held')
+        self.managed_port = managed_port
+
+
+class ManagedPort:
+    """One serial handle and the device lease held until close is confirmed.
+
+    The advisory lease coordinates cooperating workbench clients. A raw client
+    can ignore it. ``bus`` is the serial object consumed by the existing packet
+    code; ``verified`` becomes true only after the opened fd matches the device
+    inspected before construction.
+    """
+
+    def __init__(self, bus, lock_fd):
+        self.bus = bus
+        self._lock_fd = lock_fd
+        self.verified = False
+        self.close_confirmed = False
+        self.close_attempted = False
+
+    @property
+    def close_unconfirmed(self):
+        return self.close_attempted and not self.close_confirmed
+
+    def close(self):
+        """Close the bus and release the lease only after confirmed closure.
+
+        A failed close deliberately keeps the lock fd alive. Calling ``close``
+        again is safe and can release the lease after the bus really closes.
+        """
+        if self.close_confirmed:
+            return True
+        self.close_attempted = True
+        if self.bus is not None:
+            try:
+                self.bus.close()
+            except Exception:
+                return False
+            try:
+                if getattr(self.bus, 'is_open', True):
+                    return False
+            except Exception:
+                return False
+        try:
+            os.close(self._lock_fd)
+        except OSError:
+            return False
+        self._lock_fd = None
+        self.close_confirmed = True
+        return True
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        if self.close():
+            return False
+        if exc is not None:
+            try:
+                exc.managed_port = self
+            except Exception:
+                pass
+            return False
+        raise PortCloseError(self)
+
+
+def _validate_private_directory(path, uid=None):
+    """Open and validate a fixed private directory without following links."""
+    uid = os.getuid() if uid is None else uid
+    try:
+        before = os.lstat(path)
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot inspect bus lock directory: {error.strerror}') from error
+    if not stat.S_ISDIR(before.st_mode) or stat.S_ISLNK(before.st_mode):
+        raise PortOwnershipError('Bus lock namespace must be a real directory')
+    if before.st_uid != uid or stat.S_IMODE(before.st_mode) != 0o700:
+        raise PortOwnershipError('Bus lock namespace must be owned by this user with mode 0700')
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, 'O_CLOEXEC', 0)
+    try:
+        directory_fd = os.open(path, flags)
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot open bus lock directory: {error.strerror}') from error
+    opened = os.fstat(directory_fd)
+    try:
+        current = os.lstat(path)
+    except OSError:
+        os.close(directory_fd)
+        raise PortOwnershipError('Bus lock namespace changed while opening')
+    if (not stat.S_ISDIR(opened.st_mode) or opened.st_uid != uid or
+            stat.S_IMODE(opened.st_mode) != 0o700 or
+            (opened.st_dev, opened.st_ino) != (current.st_dev, current.st_ino)):
+        os.close(directory_fd)
+        raise PortOwnershipError('Bus lock namespace changed while opening')
+    return directory_fd
+
+
+def _validate_tmp_root():
+    """Require the fixed namespace parent to be the trusted sticky /tmp."""
+    path = '/tmp'
+    try:
+        before = os.lstat(path)
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot inspect trusted /tmp: {error.strerror}') from error
+    if (not stat.S_ISDIR(before.st_mode) or stat.S_ISLNK(before.st_mode) or
+            before.st_uid != 0 or stat.S_IMODE(before.st_mode) != 0o1777):
+        raise PortOwnershipError('Bus ownership requires root-owned sticky /tmp with mode 1777')
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, 'O_CLOEXEC', 0)
+    try:
+        directory_fd = os.open(path, flags)
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot open trusted /tmp: {error.strerror}') from error
+    try:
+        opened = os.fstat(directory_fd)
+        current = os.lstat(path)
+        if ((opened.st_dev, opened.st_ino) != (current.st_dev, current.st_ino) or
+                not stat.S_ISDIR(opened.st_mode) or opened.st_uid != 0 or
+                stat.S_IMODE(opened.st_mode) != 0o1777):
+            raise PortOwnershipError('Trusted /tmp changed while opening')
+    except BaseException:
+        os.close(directory_fd)
+        raise
+    os.close(directory_fd)
+
+
+def _private_lock_fd(device_number):
+    """Acquire a never-unlinked lockfile keyed by character-device st_rdev."""
+    uid = os.getuid()
+    _validate_tmp_root()
+    try:
+        os.mkdir(_LOCK_DIRECTORY, 0o700)
+    except FileExistsError:
+        pass
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot create bus lock namespace: {error.strerror}') from error
+
+    directory_fd = _validate_private_directory(_LOCK_DIRECTORY, uid)
+    name = f'{os.major(device_number)}-{os.minor(device_number)}.lock'
+    flags = os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | getattr(os, 'O_CLOEXEC', 0)
+    lock_fd = None
+    try:
+        lock_fd = os.open(name, flags, 0o600, dir_fd=directory_fd)
+        details = os.fstat(lock_fd)
+        if (not stat.S_ISREG(details.st_mode) or details.st_uid != uid or
+                stat.S_IMODE(details.st_mode) & 0o077):
+            raise PortOwnershipError('Bus lock file must be a private regular file owned by this user')
+        path_details = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+        if ((path_details.st_dev, path_details.st_ino) != (details.st_dev, details.st_ino) or
+                not stat.S_ISREG(path_details.st_mode)):
+            raise PortOwnershipError('Bus lock file changed while opening')
+    except OSError as error:
+        if lock_fd is not None:
+            os.close(lock_fd)
+        raise PortOwnershipError(f'Cannot verify bus lock file: {error.strerror}') from error
+    except BaseException:
+        if lock_fd is not None:
+            os.close(lock_fd)
+        raise
+    finally:
+        os.close(directory_fd)
+    # Never unlink lockfiles: all processes must keep locking the same inode.
+    try:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as error:
+        os.close(lock_fd)
+        if error.errno in (errno.EACCES, errno.EAGAIN):
+            raise PortBusyError('This adapter is already owned by another workbench client') from error
+        raise PortOwnershipError(f'Cannot acquire bus lock: {error.strerror}') from error
+    return lock_fd
+
+
+def _character_device(path):
+    try:
+        observed = os.stat(path)
+    except OSError as error:
+        raise PortOwnershipError(f'Cannot inspect character device {path}: {error.strerror}') from error
+    if not stat.S_ISCHR(observed.st_mode):
+        raise PortOwnershipError(f'Configured port is not a character device: {path}')
+    return observed
+
+
+def _same_device(path, device_number):
+    observed = _character_device(path)
+    if observed.st_rdev != device_number:
+        raise PortOwnershipError(f'Character device changed while opening: {path}')
+    return observed
+
+
+def open_managed_port(config: PortConfig, serial_factory=None):
+    """Open a serial device while holding a cross-process per-device lease.
+
+    The lease is acquired before calling the injectable serial factory. The
+    fixed per-user namespace ignores TMPDIR/XDG settings and has no caller
+    override. This protects cooperating workbench entry points only.
+    """
+    if not isinstance(config, PortConfig):
+        raise TypeError('open_managed_port requires a PortConfig')
+    if serial_factory is None:
+        import serial
+        serial_factory = serial.Serial
+
+    inspect_port(config)
+    device = _character_device(config.path)
+    lock_fd = _private_lock_fd(device.st_rdev)
+    managed = ManagedPort(None, lock_fd)
+    try:
+        _same_device(config.path, device.st_rdev)
+        bus = serial_factory(port=None, baudrate=config.baud, timeout=0.005,
+                             write_timeout=0.05, exclusive=True)
+        managed.bus = bus
+        bus.port = config.path
+        bus.dtr = False
+        bus.rts = False
+        _same_device(config.path, device.st_rdev)
+        bus.open()
+
+        path_after_open = _same_device(config.path, device.st_rdev)
+        try:
+            opened = os.fstat(bus.fileno())
+        except (AttributeError, OSError, TypeError, ValueError) as error:
+            raise PortOwnershipError('Cannot verify opened serial device identity') from error
+        if not stat.S_ISCHR(opened.st_mode) or opened.st_rdev != device.st_rdev:
+            raise PortOwnershipError('Serial file descriptor does not match the configured character device')
+        if path_after_open.st_rdev != opened.st_rdev:
+            raise PortOwnershipError('Configured path changed during serial open')
+        managed.verified = True
+        return managed
+    except BaseException as error:
+        # Keep an unconfirmed owner reachable through the original exception so
+        # callers can retry cleanup instead of dropping the lock fd.
+        if not managed.close():
+            try:
+                error.managed_port = managed
+            except Exception:
+                pass
+        raise
 
 
 def _value(item, name, default=None):
