@@ -1,0 +1,10 @@
+{
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "route": "native",
+  "agent": "/root/baseline_design_sol",
+  "status": "complete",
+  "evidence": "Parent attests exact host spawn arguments and returned final response; no hidden applied effort claims",
+  "responseSha256": "d1e37429ee773238c6343c6760f969904bb7e62c9f9485e64e3e61a7dc99b0d6"
+}

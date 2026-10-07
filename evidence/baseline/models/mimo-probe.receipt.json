@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "dc1d279f-9823-4c7d-b8de-c5a437f65d5d",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/mimo-v2.6-flash-free",
+  "reportedModel": "opencode/mimo-v2.6-flash-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/mimo-v2.6-flash-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.txt",
+    "--output",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.out",
+    "--receipt",
+    "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/mimo-v2.6-flash-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-07T03:02:54.459Z",
+  "completedAt": "2026-10-07T03:03:00.413Z",
+  "elapsedMs": 5954,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Development",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.txt",
+  "outputPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.out",
+  "receiptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Development",
+    "prompt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.txt",
+    "output": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.out",
+    "receipt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/mimo-probe.receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 64,
+        "write": 0
+      },
+      "input": 8576,
+      "output": 18,
+      "reasoning": 13,
+      "total": 8671
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

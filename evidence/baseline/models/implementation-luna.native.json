@@ -1,0 +1,16 @@
+{
+  "model": "codex:gpt-6-luna@max",
+  "route": "native Codex agent",
+  "agent": "/root/implement_startup_baseline",
+  "modelEvidence": "exact requested spawn flags and host response",
+  "modelVerified": false,
+  "status": "partial handoff after denied cache removal command",
+  "output": "evidence/baseline/models/implementation-luna.txt",
+  "outputSHA256": "0863e54663fa03a333d5a05eb039929c6b8c3b24d433673b0fb4df4f2356c899",
+  "remaining": "Parent full driver and panel review",
+  "scope": [
+    "test_startup.py",
+    "test_startup_verifier.py",
+    "scripts/check_offline_baseline.sh"
+  ]
+}

@@ -8,5 +8,8 @@
   "packetTestsExitCode": 0,
   "dashboardTestsExitCode": 0,
   "dashboardGroups": 18,
-  "hardwareIoPerformed": false
+  "hardwareIoPerformed": false,
+  "recordType": "parent attestation after observed terminal outcomes; numeric fields are summaries, not machine-captured statuses",
+  "confirmationEvidence": "evidence/baseline/audit-timing.json",
+  "groupCountEvidence": "evidence/baseline/clean-dashboard-tests.log"
 }

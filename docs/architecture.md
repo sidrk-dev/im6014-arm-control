@@ -4,7 +4,7 @@
 
 Use one private `sidrk-dev/im6014-workbench` repository for the bench, future controller integration, workbench adapters, and milestone evidence. These components currently share one developer, one control contract, and one verification cycle. Separate repositories or Git submodules would add version coordination without an independent release boundary.
 
-The bench history is inherited from `sidrk-dev/im6014Development` at `69c8219d764a24d03dadf1df011efb027f0f8996`. The original repository is a read-only provenance remote named `bench-upstream`. Do not merge unrelated upstream code into the protocol boundary without review.
+The bench history is inherited from `sidrk-dev/im6014Development` at `69c8219d764a24d03dadf1df011efb027f0f8996`. The `bench-upstream` remote records that source. Publish workbench changes to `origin`. Review upstream changes before incorporating them into the protocol boundary.
 
 Inspect external foundations at exact revisions and record the revision in evidence. Add a submodule only when a component needs an independent release and its interface is stable. Do not add placeholder submodules for unimplemented milestones.
 

@@ -1,0 +1,16 @@
+{
+  "nameWithOwner": "sidrk-dev/im6014-workbench",
+  "url": "https://github.com/sidrk-dev/im6014-workbench",
+  "isPrivate": true,
+  "defaultBranch": "main",
+  "sourceHistoryCommit": "69c8219d764a24d03dadf1df011efb027f0f8996",
+  "initialFoundationCommit": "7a6881e",
+  "originFetchURL": "https://github.com/sidrk-dev/im6014-workbench.git",
+  "originPushURL": "https://github.com/sidrk-dev/im6014-workbench.git",
+  "localAuthor": {
+    "name": "sidrk-dev",
+    "email": "118194256+sidrk-dev@users.noreply.github.com"
+  },
+  "globalOrOriginalConfigChanged": false,
+  "forge": "GitHub CLI; Origin command unavailable"
+}

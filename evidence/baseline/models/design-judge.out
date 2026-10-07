@@ -1,0 +1,11 @@
+Scores 0-5 A/B:
+
+Preserve bench: 3/5 — A reuses/patches existing test, risks behavior drift; B leaves motor_*, spin_5rpm, start_dashboard.sh untouched.
+Prove no I/O: 5/2 — A runs actual main, event-loop callback, failure->process failure, rejection sentinels on Serial/DemoSerial/exchange; B guards only Serial init/open, misses DemoSerial and CLI spin_5rpm also writes packets, not solely session.
+Truthful evidence: 4/2 — A: runid/argv/env/hash, normal close/thread exit. B mtime/arbitrary byte threshold is not proof of current valid UI; need exclusive fresh run dir and inspect real screenshots.
+Minimal/deps: 3/3 — A couples to test flow; B standalone+thin driver better but lock only 3 versions, no hashes, plus milestones/MakerMods bloat.
+Boundaries: 3/5 — B standalone verifier + driver isolates cold launch from motion mocks.
+
+Recommend base B + grafts from A: actual-main, event-loop scheduling, exception propagation, full sentinel coverage.
+
+Fix B: exclusive fresh run dir; driver runs existing tests on byte-identical temp source copies so root assets don't modify checkout; lock all 5 exact versions with hash verification, clean Python3.12 install; startup checks both real and demo selections without Connect; drop milestones/MakerMods integration; parent independently checks app/render/receipt, not delegate claims.

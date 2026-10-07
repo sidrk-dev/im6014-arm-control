@@ -1,0 +1,48 @@
+### Minimal A01–A10 Baseline Delivery Design
+
+#### 1. Architecture & Caller Direction
+- **Approach**: Preserve existing production code ([`motor_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/motor_dashboard.py), [`motor_session.py`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py), [`spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py)) and bench entrypoints ([`start_dashboard.sh`](file:///home/sid/Documents/code/im6014Workbench/start_dashboard.sh)) without modification.
+- **Callers**:
+  - `verify_startup.py`: Standalone verifier executing cold launch and close.
+  - `check_offline_baseline.sh`: Headless orchestrator running [`test_spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/test_spin_5rpm.py), [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py), and `verify_startup.py` without mutating files.
+- **Rationale vs. Extending [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py)**: [`test_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/test_dashboard.py) exercises full interactive test flows using [`DemoSerial`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py#L66) simulation, arming, and motion. Extending it couples A10 proof with mock-state artifacts. A dedicated script isolates pure cold launch verification (`bus=None`, disconnected state, zero serial instantiation) from motion testing.
+
+#### 2. Source Boundaries & Audits (A02, A04, A06, A07)
+- **Dependency DAG**: Strict layering: [`spin_5rpm.py`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py) (codec, [`crc32`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py#L22), protocol limits) $\leftarrow$ [`motor_session.py`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py) ([`MotorSession`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py#L130), worker thread, parameter validation) $\leftarrow$ [`motor_dashboard.py`](file:///home/sid/Documents/code/im6014Workbench/motor_dashboard.py) ([`Dashboard`](file:///home/sid/Documents/code/im6014Workbench/motor_dashboard.py#L84), PySide6 UI) $\leftarrow$ verification scripts. Test files do not leak into production modules.
+- **Control Transmission Audit (A04)**: Packet transmissions occur exclusively inside [`MotorSession._transact()`](file:///home/sid/Documents/code/im6014Workbench/motor_session.py#L185) calling [`spin_5rpm.exchange()`](file:///home/sid/Documents/code/im6014Workbench/spin_5rpm.py#L81). Launch initializes `bus=None`; no serial open or packet transmission is permitted until user triggers `connect`.
+- **Reproducible Dependency Lock (A06)**: Generate clean `requirements.lock` from [`requirements.txt`](file:///home/sid/Documents/code/im6014Workbench/requirements.txt) (`PySide6==6.11.1`, `shiboken6==6.11.1`, `pyserial==3.5`).
+
+#### 3. Functions & Data Shapes
+- **`verify_startup.py`**:
+  - `verify_baseline_launch(image_out: Path, receipt_out: Path) -> dict`:
+    1. Installs assertion guards patching `serial.Serial`.
+    2. Constructs `QApplication` and [`Dashboard`](file:///home/sid/Documents/code/im6014Workbench/motor_dashboard.py#L84)`(demo=False)`.
+    3. Asserts `session.bus is None` and `session.data['state'] == 'Disconnected'`.
+    4. Renders offscreen (`QT_QPA_PLATFORM=offscreen`), grabs pixmap, and executes screenshot validation.
+    5. Invokes `window.close()`, asserts `session.close()` joined `session.thread`.
+    6. Writes structured JSON receipt.
+- **Receipt Schema (`evidence/baseline/startup_receipt.json`)**:
+  `{"timestamp": str, "bus_opened": false, "tx_count": 0, "state": "Disconnected", "screenshot": {"path": str, "sha256": str, "width": 1200, "height": 970, "bytes": int}, "clean_close": true}`
+- **Ledger Schema ([`docs/milestones.tsv`](file:///home/sid/Documents/code/im6014Workbench/docs/milestones.tsv))**:
+  Persistent 11-column TSV: `id`, `description`, `status`, `changed_files`, `verification`, `expected`, `actual`, `evidence`, `parent_review`, `revision`, `remaining_dependency`.
+- **Model Probes (`evidence/baseline/model_probes.json`)**:
+  Provider-reported API probe metadata, exact model identifiers, and response hashes.
+
+#### 4. File Layout
+- `verify_startup.py`: Standalone launch/shutdown proof.
+- `check_offline_baseline.sh`: Baseline suite orchestrator.
+- `requirements.lock`: Fully locked clean-environment dependencies.
+- `evidence/baseline/`:
+  - `environment.json`: System facts (Linux OS, Python 3.12, RAM, GPU/VRAM) (A05).
+  - `control_audit.md`: Packet transmission call-path audit (A04).
+  - `model_probes.json`: Provider-reported subagent probe results (A09).
+  - `startup_receipt.json` & `dashboard_startup.png`: A10 launch evidence.
+
+#### 5. Test Negatives & Anti-Stale Screenshot Verification
+- **Negative Serial Guard**: Fail immediately if `serial.Serial.__init__` or `open()` is called on startup.
+- **Negative TX Guard**: Fail if any byte is written or queued before explicit connect.
+- **Anti-Stale Screenshot Proofing**:
+  1. *Freshness*: Unlink target screenshot before launch; assert final file modification time $\ge$ script start timestamp.
+  2. *Integrity*: Assert file size exceeds non-trivial threshold (>15 KB) to catch truncated or 0-byte writes.
+  3. *Geometry*: Assert image dimensions equal expected window geometry (`1200x970`).
+  4. *Content Entropy*: Calculate color histogram / variance across pixel buffer; reject solid blank/black/white renderings.

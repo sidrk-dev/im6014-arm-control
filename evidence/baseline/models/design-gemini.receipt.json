@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "promptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.txt",
+  "outputPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.out",
+  "receiptPath": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.receipt.json",
+  "executionId": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Workbench",
+    "output": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.out",
+    "receipt": "/tmp/pstack-a01-a10-20261006-bv_ho4fx/design-gemini.receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-07T02:54:09.812Z",
+  "completedAt": "2026-10-07T02:56:36.823Z",
+  "elapsedMs": 147011,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-29a10d2f5811dcbb",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/home/sid/Documents/code/im6014Workbench"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "7cd4351a-0bc9-4497-a340-f92227b91dd5",
+  "usage": {
+    "inputTokens": 207836,
+    "cachedInputTokens": 312376,
+    "outputTokens": 11114,
+    "reasoningTokens": 7546,
+    "totalTokens": 218950
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}
