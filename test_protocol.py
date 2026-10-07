@@ -4,6 +4,10 @@ import unittest
 
 import spin_5rpm as s
 
+CAPTURED = bytes.fromhex("fcee801d1b48000000006cc4db000000000000000000f179457d")
+NEGATIVE = bytes.fromhex("fcee10fbc89600f6a0fd0040fbff0110008000e01234c9a85ecc")
+POSITIVE = bytes.fromhex("fcee10fbc896000a600200c004000110008000e012348ddd0a74")
+
 
 class B01Encoder(unittest.TestCase):
     def test_pre_extraction_golden_commands(self):
@@ -36,6 +40,33 @@ class B01Encoder(unittest.TestCase):
              "assert c.command(0).hex() == 'feee80000000000000000000000000001d99fb6e'"],
             capture_output=True, text=True, timeout=5)
         self.assertEqual(result.returncode, 0, result.stderr)
+
+
+class B02Decoder(unittest.TestCase):
+    def test_captured_physical_stop_fields(self):
+        expected = dict(id=0, mode=0, timeout=1, driver_c=29, winding_c=27,
+                        voltage=36.0, torque_nm=0.0, rpm=0.0, errors=0, warnings=0,
+                        position_rad=218.02713164107216, raw=CAPTURED.hex())
+        result = s.feedback(CAPTURED, 0)
+        self.assertEqual(set(result), set(expected))
+        for key, value in expected.items():
+            with self.subTest(key=key):
+                if key == "position_rad":
+                    self.assertAlmostEqual(result[key], value, places=12)
+                else:
+                    self.assertEqual(result[key], value)
+
+    def test_generated_signed_and_unsigned_fields(self):
+        for raw, sign in [(NEGATIVE, -1), (POSITIVE, 1)]:
+            with self.subTest(sign=sign):
+                result = s.feedback(raw, 0)
+                self.assertEqual((result["id"], result["mode"], result["timeout"]), (0, 1, 0))
+                self.assertEqual((result["driver_c"], result["winding_c"], result["voltage"]), (-5, 200, 75.0))
+                self.assertEqual((result["errors"], result["warnings"]), (2147487745, 7))
+                self.assertEqual(result["rpm"], sign * 45.0)
+                self.assertAlmostEqual(result["torque_nm"], sign * 12.666666666666666, places=12)
+                self.assertAlmostEqual(result["position_rad"], sign * 4.71238898038469, places=12)
+                self.assertEqual(result["raw"], raw.hex())
 
 
 if __name__ == "__main__":
