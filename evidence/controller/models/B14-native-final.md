@@ -1,0 +1,1 @@
+Implemented B14 only. The capture ring is bounded at 256 records, stores allowlisted fields and fixed outcome codes, and returns independent snapshots. Dashboard snapshots now include it; CLI logging captures transactions when explicitly enabled. Tests were authored but not run, as instructed. No Git, package, or physical I/O operations were performed.

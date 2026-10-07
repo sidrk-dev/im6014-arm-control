@@ -24,7 +24,7 @@
 - [x] B13 explicit port configuration.
 - [x] B14 diagnostic capture.
 - [x] C01 one bus owner.
-- [ ] C02 controller state transitions.
+- [x] C02 controller state transitions.
 - [ ] C03 per-joint feedback age.
 - [ ] C04 per-joint error status.
 - [ ] C05 bounded latest target.
