@@ -1,0 +1,19 @@
+## Findings
+
+### 1. [warning] Speed-zero feedforward divergence: CLI applies torque, dashboard does not
+**Location**: `spin_5rpm.py` in `run()` ramp loop vs `motor_session.py` in `_tick()`
+**Finding**: Same `Speed` request with `rpm==0` commands different wire torque. CLI does `torque_ff * ramp * (1 if args.rpm >= 0 else -1)` so `rpm==0` yields `+torque_ff*ramp` with target `0 rpm`. Dashboard does `t['ff']*ramp*... if kind=='Speed' and t['rpm'] else 0` so `rpm==0` yields `0`.
+**Evidence**: CLI default `torque-ff=0.16`; `spin_5rpm --rpm 0 --arm` would send `mode=1, rpm=0, kd=6, torque~0.16` and drift under damping, while dashboard `Speed rpm=0 ff=0.16` sends `torque=0`. CLI plateau gate `if args.rpm and abs(mean-rpm...)` is falsy for `0` so it also skips speed verification and can PASS while drifting. Dashboard path is the safe one.
+**Suggestion**: Make CLI match session: zero torque when `args.rpm==0`, or reject `Speed rpm==0` explicitly.
+
+### 2. [warning] Torque-pulse ignores configured travel_limit
+**Location**: `motor_session.py` `_tick()` travel check
+**Finding**: Code uses `limit = 15 if kind=='Torque pulse' else t['travel_limit']`, so user `travel_limit` is never honored for `Torque pulse`.
+**Evidence**: `validate_test()` accepts `travel_limit` for any kind (`0 means Off`, only checks `>=0`) and `Position/Speed` honor it, but `_tick` hard-codes `15` for `Torque pulse`. A user setting `travel_limit=2` gets `15` (less safe than requested); setting `travel_limit=100` or `0==Off` still gets `15`. Silent ignore of a safety input.
+**Suggestion**: Use `t['travel_limit'] or 15` for Torque pulse if a 15-degree cap is intended as default, or reject/document that travel_limit does not apply to Torque pulse.
+
+### 3. [nit] CLI bench-limit error order leaks ValueError for large negative ff
+**Location**: `spin_5rpm.py` `main()` pre-validation
+**Finding**: `command(args.id,1,args.rpm,args.kd,args.torque_ff)` runs before `if args.torque_ff<0: parser.error(...)`.
+**Evidence**: `--torque-ff -10` fails inside `command()` bench check `±3.5 Nm` with traceback instead of clean `parser.error` usage error; `--torque-ff -0.1` correctly hits `parser.error`. Same outcome class, different UX/exit path.
+**Suggestion**: Move `torque_ff<0` check before the `command()` smoke call.
