@@ -110,7 +110,7 @@ def _cleanup_after_main(window, state):
 
 
 def _fingerprint(root):
-    names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "im6014_codec.py", "USER_MANUAL.md",
+    names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "im6014_codec.py", "fake_serial.py", "USER_MANUAL.md",
              "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "evidence/boundary/vendor-crc-vectors.json")
     files = {}
     for name in names:

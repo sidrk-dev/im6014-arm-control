@@ -123,5 +123,62 @@ class B04Framing(unittest.TestCase):
                 s.feedback(bytes.fromhex(raw), 0)
 
 
+class B05Fake(unittest.TestCase):
+    def test_record_reset_and_chunk_remainder(self):
+        from fake_serial import FakeClock, FakeSerial
+        clock = FakeClock()
+        bus = FakeSerial(responses=[(b"abc", b"de"), (b"new",)], clock=clock)
+        mutable = bytearray(b"request")
+        self.assertEqual(bus.write(mutable), 7)
+        mutable[:] = b"changed"
+        self.assertEqual(bus.writes, (b"request",))
+        self.assertEqual(bus.read(2), b"ab")
+        self.assertEqual(bus.read(2), b"cd")
+        bus.reset_input_buffer()
+        self.assertEqual(bus.in_waiting, 0)
+        bus.write(b"second")
+        self.assertEqual(bus.read(99), b"new")
+        self.assertEqual(bus.writes, (b"request", b"second"))
+
+    def test_delays_timeouts_and_write_controls(self):
+        from fake_serial import FakeClock, FakeChunk, FakeSerial
+        clock = FakeClock()
+        bus = FakeSerial(responses=[(FakeChunk(b"ab", .03),)], clock=clock, timeout=.01)
+        bus.write(b"x")
+        self.assertEqual(bus.read(2), b"")
+        self.assertAlmostEqual(clock.monotonic(), .01)
+        bus.timeout = .05
+        self.assertEqual(bus.read(1), b"a")
+        self.assertAlmostEqual(clock.monotonic(), .03)
+        self.assertEqual(bus.read(1), b"b")
+        bus.write_result = 0
+        self.assertEqual(bus.write(b"y"), 0)
+        bus.write_error = OSError("write failed")
+        with self.assertRaisesRegex(OSError, "write failed"):
+            bus.write(b"z")
+        bus.read_error = OSError("read failed")
+        with self.assertRaisesRegex(OSError, "read failed"):
+            bus.read(1)
+        bus.reset_error = OSError("reset failed")
+        with self.assertRaisesRegex(OSError, "reset failed"):
+            bus.reset_input_buffer()
+
+    def test_partial_write_preserves_next_successful_reply(self):
+        from fake_serial import FakeSerial
+        bus = FakeSerial(responses=[(b"reply",)], write_result=0)
+        self.assertEqual(bus.write(b"x"), 0)
+        self.assertEqual(bus.read(5), b"")
+        bus.write_result = None
+        self.assertEqual(bus.write(b"x"), 1)
+        self.assertEqual(bus.read(5), b"reply")
+
+    def test_empty_nonblocking_read_advances_fake_clock(self):
+        from fake_serial import FakeClock, FakeSerial
+        clock = FakeClock()
+        bus = FakeSerial(clock=clock)
+        self.assertEqual(bus.read(1), b"")
+        self.assertGreater(clock.monotonic(), 0)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

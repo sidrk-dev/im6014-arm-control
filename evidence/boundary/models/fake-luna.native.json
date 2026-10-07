@@ -1,0 +1,10 @@
+{
+  "provider": "codex",
+  "model": "gpt-6-luna",
+  "effort": "max",
+  "route": "native",
+  "agent": "/root/boundary_fake_luna",
+  "status": "complete",
+  "evidence": "Requested native dispatch flags, inspected isolated file and terminal response; parent runs checks",
+  "parentCorrection": "Partial write must not schedule a successful reply; independently checked"
+}
