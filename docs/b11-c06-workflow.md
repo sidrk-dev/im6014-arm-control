@@ -29,7 +29,7 @@
 - [x] C04 per-joint error status.
 - [x] C05 bounded latest target.
 - [x] C06 command sequence validation.
-- [ ] Full regression and inspected images.
+- [x] Full regression and inspected images.
 - [ ] Comment review and configured OpenCode review panel.
 - [ ] Fresh independent verdict, exact-head CI, unarmed queue and guarded merge.
 
