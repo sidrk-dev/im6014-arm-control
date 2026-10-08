@@ -21,8 +21,8 @@ from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STO
 class LatestTargetTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
         )
 
     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_repeated_refresh(self):
@@ -273,8 +273,8 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         specs_ratio = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
         )
         core_ratio = JointCore(specs_ratio, clock=clock, max_reference_gap_s=1.0)
         station_ratio = FakeStation(core_ratio)
@@ -295,8 +295,8 @@ class LatestTargetTests(unittest.TestCase):
     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
         clock = DeterministicClock(0.0)
         specs = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
         )
         core = JointCore(specs, clock=clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
@@ -529,8 +529,8 @@ class LatestTargetTests(unittest.TestCase):
 class CommandSequenceTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),

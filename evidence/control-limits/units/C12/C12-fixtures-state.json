@@ -1,0 +1,11 @@
+{
+  "events": [
+    {
+      "attemptIndex": 0,
+      "status": "complete",
+      "processStarted": true
+    }
+  ],
+  "exhaustedGroups": [],
+  "access": "isolated-write"
+}

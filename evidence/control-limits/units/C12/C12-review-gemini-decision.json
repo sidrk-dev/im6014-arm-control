@@ -1,0 +1,28 @@
+{
+  "status": "decision",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 2,
+  "lane": "interrogate reviewers#3",
+  "decision": {
+    "kind": "launch",
+    "attemptIndex": 0,
+    "attempt": {
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "attempt": {
+        "kind": "descriptor",
+        "provider": "antigravity",
+        "model": "gemini-3.8-flash-high",
+        "effort": "default"
+      },
+      "exhaustionGroup": "antigravity",
+      "funding": "included",
+      "apiSpend": "deny",
+      "route": "external",
+      "authorization": {
+        "state": "allowed"
+      }
+    },
+    "execution": 1
+  }
+}

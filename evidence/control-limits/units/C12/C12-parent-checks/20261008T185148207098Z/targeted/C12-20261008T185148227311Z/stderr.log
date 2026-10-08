@@ -1,0 +1,58 @@
+test_attributed_fault_union_and_recovery (test_controller_limits.ReferenceLeadTests.test_attributed_fault_union_and_recovery) ... ok
+test_deterministic_seeded_fuzz_four_constraint_invariants (test_controller_limits.ReferenceLeadTests.test_deterministic_seeded_fuzz_four_constraint_invariants) ... ERROR
+test_exact_lead_equality_and_outside_bounds (test_controller_limits.ReferenceLeadTests.test_exact_lead_equality_and_outside_bounds) ... ok
+test_h0_refresh_inside_and_outside_lead (test_controller_limits.ReferenceLeadTests.test_h0_refresh_inside_and_outside_lead) ... FAIL
+test_healthy_rejected_goal_preservation (test_controller_limits.ReferenceLeadTests.test_healthy_rejected_goal_preservation) ... ok
+test_lead_limit_requires_finite_positive_real_value (test_controller_limits.ReferenceLeadTests.test_lead_limit_requires_finite_positive_real_value) ... ok
+test_measured_drift_between_admit_prepare_claim (test_controller_limits.ReferenceLeadTests.test_measured_drift_between_admit_prepare_claim) ... ok
+test_missing_and_stale_feedback_handling (test_controller_limits.ReferenceLeadTests.test_missing_and_stale_feedback_handling) ... FAIL
+test_negative_direction_and_wire_quantization (test_controller_limits.ReferenceLeadTests.test_negative_direction_and_wire_quantization) ... ok
+test_progression_over_multistep_and_conservative_stop_on_too_small_cadence (test_controller_limits.ReferenceLeadTests.test_progression_over_multistep_and_conservative_stop_on_too_small_cadence) ... ERROR
+test_simultaneous_speed_accel_position_lead_satisfiable_and_infeasible (test_controller_limits.ReferenceLeadTests.test_simultaneous_speed_accel_position_lead_satisfiable_and_infeasible) ... ok
+
+======================================================================
+ERROR: test_deterministic_seeded_fuzz_four_constraint_invariants (test_controller_limits.ReferenceLeadTests.test_deterministic_seeded_fuzz_four_constraint_invariants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/test_controller_limits.py", line 3065, in test_deterministic_seeded_fuzz_four_constraint_invariants
+    anchor = JointTrajectoryReference(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 11, in __init__
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/joint_contract.py", line 416, in __post_init__
+    raise ValueError("an emitted reference requires its requested goal")
+ValueError: an emitted reference requires its requested goal
+
+======================================================================
+ERROR: test_progression_over_multistep_and_conservative_stop_on_too_small_cadence (test_controller_limits.ReferenceLeadTests.test_progression_over_multistep_and_conservative_stop_on_too_small_cadence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/test_controller_limits.py", line 2959, in test_progression_over_multistep_and_conservative_stop_on_too_small_cadence
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/joint_controller.py", line 365, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+FAIL: test_h0_refresh_inside_and_outside_lead (test_controller_limits.ReferenceLeadTests.test_h0_refresh_inside_and_outside_lead)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/test_controller_limits.py", line 2857, in test_h0_refresh_inside_and_outside_lead
+    self.assertTrue(station.submit(t_emit).accepted)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_missing_and_stale_feedback_handling (test_controller_limits.ReferenceLeadTests.test_missing_and_stale_feedback_handling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench/test_controller_limits.py", line 2911, in test_missing_and_stale_feedback_handling
+    self.assertEqual(core.snapshot().admitted_target, t1)
+AssertionError: None != Target(sequence=1, joints=(JointTarget(q_[282 chars]er'))
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.044s
+
+FAILED (failures=2, errors=2)

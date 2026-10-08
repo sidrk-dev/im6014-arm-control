@@ -1,0 +1,52 @@
+test_attributed_fault_union_and_recovery (test_controller_lead.ReferenceLeadTests.test_attributed_fault_union_and_recovery) ... ok
+test_deterministic_seeded_fuzz_four_constraint_invariants (test_controller_lead.ReferenceLeadTests.test_deterministic_seeded_fuzz_four_constraint_invariants) ... ok
+test_exact_binary_admission_boundaries_are_inclusive (test_controller_lead.ReferenceLeadTests.test_exact_binary_admission_boundaries_are_inclusive) ... ok
+test_exact_binary_h0_lead_equality_reuses_cached_command (test_controller_lead.ReferenceLeadTests.test_exact_binary_h0_lead_equality_reuses_cached_command) ... FAIL
+test_exact_lead_equality_and_outside_bounds (test_controller_lead.ReferenceLeadTests.test_exact_lead_equality_and_outside_bounds) ... ok
+test_final_gate_clock_failure_withdraws_authority_without_write (test_controller_lead.ReferenceLeadTests.test_final_gate_clock_failure_withdraws_authority_without_write) ... ok
+test_h0_refresh_inside_and_outside_lead (test_controller_lead.ReferenceLeadTests.test_h0_refresh_inside_and_outside_lead) ... ok
+test_healthy_rejected_goal_preservation (test_controller_lead.ReferenceLeadTests.test_healthy_rejected_goal_preservation) ... ok
+test_lead_limit_requires_finite_positive_real_value (test_controller_lead.ReferenceLeadTests.test_lead_limit_requires_finite_positive_real_value) ... ok
+test_measured_drift_between_admit_prepare_claim (test_controller_lead.ReferenceLeadTests.test_measured_drift_between_admit_prepare_claim) ... ok
+test_missing_and_stale_feedback_handling (test_controller_lead.ReferenceLeadTests.test_missing_and_stale_feedback_handling) ... ok
+test_negative_direction_and_wire_quantization (test_controller_lead.ReferenceLeadTests.test_negative_direction_and_wire_quantization) ... FAIL
+test_parent_exact_admission_reproduction (test_controller_lead.ReferenceLeadTests.test_parent_exact_admission_reproduction) ... ok
+test_parent_exact_h0_replay_reproduction (test_controller_lead.ReferenceLeadTests.test_parent_exact_h0_replay_reproduction) ... FAIL
+test_progression_over_multistep_and_conservative_stop_on_too_small_cadence (test_controller_lead.ReferenceLeadTests.test_progression_over_multistep_and_conservative_stop_on_too_small_cadence) ... ok
+test_simultaneous_speed_accel_position_lead_satisfiable_and_infeasible (test_controller_lead.ReferenceLeadTests.test_simultaneous_speed_accel_position_lead_satisfiable_and_infeasible) ... ok
+
+======================================================================
+FAIL: test_exact_binary_h0_lead_equality_reuses_cached_command (test_controller_lead.ReferenceLeadTests.test_exact_binary_h0_lead_equality_reuses_cached_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-workbench/test_controller_lead.py", line 500, in test_exact_binary_h0_lead_equality_reuses_cached_command
+    spec, goal, emitted_ref, actual, packet = self._quarter_cache(0.375)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-workbench/test_controller_lead.py", line 476, in _quarter_cache
+    self.assertIsNone(code)
+AssertionError: <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> is not None
+
+======================================================================
+FAIL: test_negative_direction_and_wire_quantization (test_controller_lead.ReferenceLeadTests.test_negative_direction_and_wire_quantization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-workbench/test_controller_lead.py", line 641, in test_negative_direction_and_wire_quantization
+    self.assertTrue(station.submit(t_bound).accepted)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_parent_exact_h0_replay_reproduction (test_controller_lead.ReferenceLeadTests.test_parent_exact_h0_replay_reproduction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-workbench/test_controller_lead.py", line 485, in test_parent_exact_h0_replay_reproduction
+    spec, goal, emitted_ref, actual, _ = self._quarter_cache(0.36)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-workbench/test_controller_lead.py", line 476, in _quarter_cache
+    self.assertIsNone(code)
+AssertionError: <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> is not None
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.205s
+
+FAILED (failures=3)
+Receipt: /tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-parent-checks/20261008T190747394461Z/targeted/C12-20261008T190747421130Z/receipt.json

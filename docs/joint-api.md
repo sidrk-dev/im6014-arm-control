@@ -77,7 +77,7 @@ from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
 clock_time = [0.0]
-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
+core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, 1.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 owner = core.claim_owner("example-client")
@@ -103,7 +103,7 @@ This example performs no serial operations. A station adapter must validate its 
 
 ## Core and ownership limits
 
-The injected core clock must be finite and monotonic. Invalid or regressing time rejects operations that need a fresh gate; snapshots also require that clock contract. If a complete write receipt arrives after its end clock becomes invalid, the core preserves that known write and claim timestamp, then latches `CommunicationFailure.CLOCK_FAILURE` and withdraws motion until acknowledged recovery. The default clock is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering.
+The injected core clock must be finite and monotonic. Invalid or regressing time rejects operations that need a fresh gate; snapshots also require that clock contract. If the clock callback raises or returns invalid or regressing time at the final write gate, the core stops and revokes motion authority before granting the claim, then propagates the clock error. Repairing the clock does not restore the owner, goal, or prepared plan. If a complete write receipt arrives after its end clock becomes invalid, the core preserves that known write and claim timestamp, then latches `CommunicationFailure.CLOCK_FAILURE` and withdraws motion until acknowledged recovery. The default clock is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering.
 
 ### Owner generations
 
@@ -136,3 +136,13 @@ The selected endpoint is projected inward to a representable point on the canoni
 Immediately before a positive-cadence write claim, the core recomputes the position-step derivative from the proposed and confirmed decoded endpoint positions and requires exact equality with the stored rational derivative. A mismatch latches an attributed constraint fault and Stops before claiming the write. At $h=0$, the existing exact cached-reference, decoded-target, and packet comparison remains the replay rule.
 
 An exactly zero objective asks for no net position correction after combining position error and velocity feedforward. The controller still projects zero into the feasible interval, so a nonzero previous derivative can require continued bounded motion while decelerating; a stationary reference is possible only when zero is feasible. For a nonzero objective, if no representable position step satisfies the closed bounds, the controller produces no mode-1 write and Stops with `DecisionCode.CONSTRAINT_VIOLATION`, attributed to each joint whose shaping failed. It does not carry hidden fractional motion or relax a bound. These are samplewise software reference limits; they do not promise a continuous motor trajectory, physical acceleration, or certified braking.
+
+## Measured position lead bound
+
+Every `JointSpec` requires an explicit, finite positive `max_lead_rad`. This software bound limits how far any requested goal or emitted trajectory reference can lead the latest fresh measured joint position.
+
+At target admission, the controller checks each joint request against the closed interval $[q_{\text{meas}} - \text{lead}, q_{\text{meas}} + \text{lead}]$ using the latest fresh observation. Admission and zero-cadence replay compare the exact rational values of the normalized finite binary floats; endpoints are inclusive, with no tolerance or rounded float interval arithmetic. A requested position outside this bound is rejected with `DecisionCode.LEAD_OUT_OF_BOUNDS`, preserving any still-valid admitted goal and sequence watermark. If observation feedback is stale or missing, target submission is rejected with `DecisionCode.STALE_FEEDBACK`.
+
+During reference shaping ($h>0$), the lead bound interval $[(q_{\text{meas}} - \text{lead} - q_{\text{prev}})/h, (q_{\text{meas}} + \text{lead} - q_{\text{prev}})/h]$ is intersected with the speed, acceleration, and position intervals. An empty intersection produces an attributed constraint fault and Stops motion. At $h=0$, refresh is permitted only if the previously emitted reference remains inside all bounds, including the fresh lead interval.
+
+Immediately before a write claim, `verify_dispatch_claim` rechecks the current fresh measured position against the proposed decoded endpoint and confirmed reference. If feedback drifted after plan preparation such that the endpoint exceeds the lead bound, the write gate denies dispatch, latches an attributed constraint fault, and stops the controller.

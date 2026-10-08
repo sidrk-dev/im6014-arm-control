@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 2,
+  "lane": "interrogate reviewers#3",
+  "attempt": "antigravity:gemini-3.8-flash-high@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "complete",
+    "processStarted": true,
+    "execution": {
+      "id": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-review-gemini-receipt.json",
+      "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-review-gemini-output.md",
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-review-gemini-receipt.json",
+      "workspacePath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench",
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "apiSpend": "deny",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-review-gemini-receipt.json"
+  }
+}

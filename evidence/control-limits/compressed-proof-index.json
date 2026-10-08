@@ -1,0 +1,26 @@
+{
+  "format": "gzip with exact decompressed SHA256",
+  "entries": [
+    {
+      "originalPath": "evidence/control-limits/units/C10/C10-clock-exact-oracle.json",
+      "archivePath": "evidence/control-limits/units/C10/C10-clock-exact-oracle.json.gz",
+      "originalBytes": 326115,
+      "compressedBytes": 14522,
+      "sha256": "5dffc50232dfb0ec96b5a49579f69e9436a1dae95c647707cc5bfd0e0aa2295e"
+    },
+    {
+      "originalPath": "evidence/control-limits/units/C10/C10-fix-exact-oracle.json",
+      "archivePath": "evidence/control-limits/units/C10/C10-fix-exact-oracle.json.gz",
+      "originalBytes": 326115,
+      "compressedBytes": 14522,
+      "sha256": "5dffc50232dfb0ec96b5a49579f69e9436a1dae95c647707cc5bfd0e0aa2295e"
+    },
+    {
+      "originalPath": "evidence/control-limits/units/C11/C11-original-exact-oracle.json",
+      "archivePath": "evidence/control-limits/units/C11/C11-original-exact-oracle.json.gz",
+      "originalBytes": 504621,
+      "compressedBytes": 20165,
+      "sha256": "c4e931dd64d3d677a19d2270699846e26e215088eac4cc74baa587d97fca6e32"
+    }
+  ]
+}

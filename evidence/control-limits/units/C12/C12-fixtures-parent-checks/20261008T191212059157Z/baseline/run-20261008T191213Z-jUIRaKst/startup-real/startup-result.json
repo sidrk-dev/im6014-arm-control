@@ -1,0 +1,185 @@
+{
+  "created_at": "2026-10-08T19:12:59.362158+00:00",
+  "source": "real",
+  "argv": [
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fixtures-parent-checks/20261008T191212059157Z/baseline/run-20261008T191213Z-jUIRaKst/.source-ZXa6LSaF/motor_dashboard.py"
+  ],
+  "python": {
+    "executable": "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "version": "3.12.14 (main, Aug 13 2026, 00:00:00) [GCC 15.3.1 20260722 (Red Hat 15.3.1-1)]"
+  },
+  "packages": {
+    "PySide6": "6.11.1",
+    "pyserial": "3.5"
+  },
+  "source_fingerprint": {
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 24391,
+      "sha256": "b52f5e53db9ebd9131587b7a94f2d2e78184aba70869b3347d734591c88d9492"
+    },
+    "spin_5rpm.py": {
+      "bytes": 9371,
+      "sha256": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789"
+    },
+    "im6014_codec.py": {
+      "bytes": 13296,
+      "sha256": "82aed0838cc0a9d8d63ab2065aea786893ade405f55e5a0b7c895eacf2197af9"
+    },
+    "im6014_serial.py": {
+      "bytes": 16116,
+      "sha256": "395599d9aea6c737fd15e7722ec5f346616af08207f0c5aa04019db9afec37d2"
+    },
+    "fake_serial.py": {
+      "bytes": 6862,
+      "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_dashboard.py": {
+      "bytes": 20603,
+      "sha256": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f"
+    },
+    "test_startup.py": {
+      "bytes": 13687,
+      "sha256": "261041a1f375e42e975e06e6547f7d4932889b2050d83ca15ec2e2ec7a07df56"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    },
+    "test_protocol.py": {
+      "bytes": 16673,
+      "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+    },
+    "test_serial_deadline.py": {
+      "bytes": 10995,
+      "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+    },
+    "evidence/boundary/vendor-crc-vectors.json": {
+      "bytes": 25235,
+      "sha256": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+    },
+    "joint_mapping.py": {
+      "bytes": 5279,
+      "sha256": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b"
+    },
+    "test_joint_mapping.py": {
+      "bytes": 8099,
+      "sha256": "e2e57a3ed14a5c3a38cf14501aebb825088950c0493c726d6fabe6cd0d5bdaad"
+    },
+    "test_numerical_inputs.py": {
+      "bytes": 11362,
+      "sha256": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e"
+    },
+    "im6014_port.py": {
+      "bytes": 16626,
+      "sha256": "fecc6f7252e04a4894df7c166ec3c08ff04fe72decc16ebd5f155363d67ca7f5"
+    },
+    "test_port_config.py": {
+      "bytes": 6285,
+      "sha256": "c25c385600e77d5795647b82ca2bbba7aea171d85291e76d8a14789b7dd66208"
+    },
+    "test_diagnostic_capture.py": {
+      "bytes": 15228,
+      "sha256": "f9ba4f1e7628dca60197876c207853a94c39c7824836dec93afd832b07de0cb8"
+    },
+    "test_bus_owner.py": {
+      "bytes": 19281,
+      "sha256": "d24e552fb3e8e3dca88be14364a9918161e2be391dcc3fc5dd7b35e89935e26d"
+    },
+    "joint_contract.py": {
+      "bytes": 30817,
+      "sha256": "93008e1311e12324de8e18486aecf0f7d85ba7e3aa2c80378bcdbcb6914c0dc7"
+    },
+    "joint_reference.py": {
+      "bytes": 27514,
+      "sha256": "2f67280d8bceeebd5c50c9ac7e47e7e11215b2f7bd447b149566063c80053b64"
+    },
+    "joint_controller.py": {
+      "bytes": 36372,
+      "sha256": "c82f1b6369834afb864e47d13f73f55f85e14f7caf9ce840a3592497d86f948f"
+    },
+    "test_controller.py": {
+      "bytes": 40449,
+      "sha256": "cd3e36070141ee0df00ac7546f37950f96372174910a7be70ab0fa8a2f7b7018"
+    },
+    "test_controller_targets.py": {
+      "bytes": 37450,
+      "sha256": "55b3642c2d3636ae151366b9b5bf5ca363c5b901848ddd8448c7061d7ab40928"
+    },
+    "test_controller_expiry.py": {
+      "bytes": 40270,
+      "sha256": "0480fb96bfa945f27796ca5e2468784764b4fcd671c94b0a8c85eac3b0157c49"
+    },
+    "test_controller_owner.py": {
+      "bytes": 16990,
+      "sha256": "05da6991c325df0928b946db27b5e8379f883c86ca503cfd96d1a778553835c0"
+    },
+    "test_controller_limits.py": {
+      "bytes": 105436,
+      "sha256": "26edbb46b4bd2b4c17459d0b01d7eb49f87ff2773b4972fa634d52b2e0ed2879"
+    },
+    "test_controller_lead.py": {
+      "bytes": 36267,
+      "sha256": "58c564ffbbeea7df3a2a8c3cf673ad4d84b98e4f40fbe2846f4163eae0bb95f1"
+    }
+  },
+  "system_exit": true,
+  "exit_code": 0,
+  "main_exception": null,
+  "argv_restored": true,
+  "window_captured": true,
+  "callback_ran": true,
+  "callback_completed": true,
+  "callback_errors": [],
+  "pre": {
+    "bus_is_none": true,
+    "state": "Disconnected",
+    "connected": false,
+    "armed": false,
+    "tx": 0,
+    "rx": 0,
+    "source_selected_demo": false,
+    "window_visible": true,
+    "timer_active": true,
+    "worker_alive": true,
+    "event_loop_tick_seen": true
+  },
+  "post": {
+    "bus_is_none": true,
+    "state": "Disconnected",
+    "connected": false,
+    "armed": false,
+    "tx": 0,
+    "rx": 0,
+    "source_selected_demo": false,
+    "window_visible": false,
+    "timer_active": false,
+    "worker_alive": false,
+    "event_loop_tick_seen": false
+  },
+  "close_returned": true,
+  "sentinel_counts": {
+    "serial_open": 0,
+    "demo_open": 0,
+    "exchange": 0
+  },
+  "screenshot": {
+    "path": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fixtures-parent-checks/20261008T191212059157Z/baseline/run-20261008T191213Z-jUIRaKst/startup-real/dashboard.png",
+    "saved": true,
+    "width": 1200,
+    "height": 970,
+    "bytes": 113583,
+    "sha256": "ea8a1331cc4420295049fc0492b7cfe5616426559f0c4e2a9d897d3cfd2619df"
+  }
+}

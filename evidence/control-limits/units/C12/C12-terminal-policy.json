@@ -1,0 +1,11 @@
+{
+  "status": "decision",
+  "role": "feature, refactoring",
+  "header": "feature, refactoring",
+  "laneIndex": 0,
+  "lane": "feature, refactoring#1",
+  "decision": {
+    "kind": "stop",
+    "reason": "not-eligible"
+  }
+}

@@ -1,0 +1,23 @@
+test_rounded_admission_boundary_cannot_accept_outside_requested_goal (__main__.ExactLeadBoundary.test_rounded_admission_boundary_cannot_accept_outside_requested_goal) ... FAIL
+test_zero_cadence_replay_cannot_use_rounded_lead_interval (__main__.ExactLeadBoundary.test_zero_cadence_replay_cannot_use_rounded_lead_interval) ... FAIL
+
+======================================================================
+FAIL: test_rounded_admission_boundary_cannot_accept_outside_requested_goal (__main__.ExactLeadBoundary.test_rounded_admission_boundary_cannot_accept_outside_requested_goal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-lead-exact.py", line 38, in test_rounded_admission_boundary_cannot_accept_outside_requested_goal
+    self.assertFalse(decision, 'Rounded lead boundary admitted an exactly outside goal')
+AssertionError: Decision(accepted=True, code=<DecisionCode.ACCEPTED: 'accepted'>) is not false : Rounded lead boundary admitted an exactly outside goal
+
+======================================================================
+FAIL: test_zero_cadence_replay_cannot_use_rounded_lead_interval (__main__.ExactLeadBoundary.test_zero_cadence_replay_cannot_use_rounded_lead_interval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-lead-exact.py", line 56, in test_zero_cadence_replay_cannot_use_rounded_lead_interval
+    self.assertEqual(repeated[0], DecisionCode.CONSTRAINT_VIOLATION,
+AssertionError: None != <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> : Zero-cadence cached packet exceeded the exact fresh lead bound
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (failures=2)

@@ -1,0 +1,24 @@
+test_rounded_admission_boundary_cannot_accept_outside_requested_goal (__main__.ExactLeadBoundary.test_rounded_admission_boundary_cannot_accept_outside_requested_goal) ... ERROR
+test_zero_cadence_replay_cannot_use_rounded_lead_interval (__main__.ExactLeadBoundary.test_zero_cadence_replay_cannot_use_rounded_lead_interval) ... FAIL
+
+======================================================================
+ERROR: test_rounded_admission_boundary_cannot_accept_outside_requested_goal (__main__.ExactLeadBoundary.test_rounded_admission_boundary_cannot_accept_outside_requested_goal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-lead-repro.py", line 22, in test_rounded_admission_boundary_cannot_accept_outside_requested_goal
+    core = JointCore((spec,), clock=clock)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: JointCore.__init__() missing 1 required keyword-only argument: 'max_reference_gap_s'
+
+======================================================================
+FAIL: test_zero_cadence_replay_cannot_use_rounded_lead_interval (__main__.ExactLeadBoundary.test_zero_cadence_replay_cannot_use_rounded_lead_interval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-lead-repro.py", line 53, in test_zero_cadence_replay_cannot_use_rounded_lead_interval
+    self.assertGreater(Fraction(actual.q_rad) - Fraction(.1), Fraction(spec.max_lead_rad))
+AssertionError: Fraction(5404319552844595, 36028797018963968) not greater than Fraction(5404319552844595, 36028797018963968)
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=1, errors=1)

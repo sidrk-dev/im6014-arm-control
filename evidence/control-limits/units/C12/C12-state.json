@@ -1,0 +1,41 @@
+{
+  "events": [
+    {
+      "attemptIndex": 0,
+      "status": "needs-parent-operation",
+      "processStarted": true,
+      "handoff": {
+        "operation": "run-checks",
+        "taskId": "C12",
+        "checkpointId": "C12-lead-bound",
+        "ref": "Parent verification of C12 reference lead bound checks and offline baseline"
+      },
+      "execution": {
+        "id": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-receipt.json",
+        "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-output.md",
+        "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-receipt.json",
+        "workspacePath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-workbench",
+        "descriptor": "antigravity:gemini-3.8-flash-high@default",
+        "apiSpend": "deny",
+        "access": "isolated-write",
+        "contract": "legacy"
+      },
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-receipt.json",
+      "inspection": {
+        "state": "clear",
+        "evidenceRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-inspection.json"
+      }
+    },
+    {
+      "attemptIndex": 0,
+      "status": "failed",
+      "parentOperation": {
+        "kind": "run-checks",
+        "taskId": "C12",
+        "checkpointId": "C12-lead-bound"
+      }
+    }
+  ],
+  "exhaustedGroups": [],
+  "access": "isolated-write"
+}

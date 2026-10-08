@@ -25,6 +25,7 @@ __all__ = (
     "shape_reference_joint",
     "prepare_complete_reference",
     "validate_target_vector",
+    "verify_dispatch_claim",
     "ReferenceFailure",
     "ReferenceBatchResult",
 )
@@ -176,17 +177,46 @@ def prepare_reference_joint(
 
 
 def validate_target_vector(
-    specs: tuple[JointSpec, ...], target: Target
+    specs: tuple[JointSpec, ...],
+    target: Target,
+    measured_positions: tuple[float, ...],
 ) -> tuple[ReferenceFailure, ...]:
     """Validate every admitted joint request before replacing the current goal."""
-    if not isinstance(target, Target) or len(target.joints) != len(specs):
+    if (
+        not isinstance(target, Target)
+        or len(target.joints) != len(specs)
+        or len(measured_positions) != len(specs)
+    ):
         return (ReferenceFailure(DecisionCode.INVALID_ARGUMENT, None),)
 
     failures: list[ReferenceFailure] = []
-    for index, (spec, joint_target) in enumerate(zip(specs, target.joints)):
+    for index, (spec, joint_target, q_meas) in enumerate(
+        zip(specs, target.joints, measured_positions)
+    ):
         code, _, _ = prepare_reference_joint(spec, joint_target)
         if code is not None:
             failures.append(ReferenceFailure(code, index))
+            continue
+        if isinstance(q_meas, bool) or not isinstance(q_meas, (int, float)):
+            failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
+            continue
+        try:
+            q_meas_float = float(q_meas)
+        except (OverflowError, TypeError, ValueError):
+            failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
+            continue
+        if not math.isfinite(q_meas_float):
+            failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
+            continue
+        q_meas_exact = Fraction(q_meas_float)
+        lead_exact = Fraction(spec.max_lead_rad)
+        requested_q_exact = Fraction(joint_target.q_rad)
+        if not (
+            q_meas_exact - lead_exact
+            <= requested_q_exact
+            <= q_meas_exact + lead_exact
+        ):
+            failures.append(ReferenceFailure(DecisionCode.LEAD_OUT_OF_BOUNDS, index))
     return tuple(failures)
 
 
@@ -194,6 +224,7 @@ def shape_reference_joint(
     spec: JointSpec,
     target: JointTarget,
     confirmed_ref: JointTrajectoryReference,
+    q_meas: float,
     now: float,
     max_reference_gap_s: float,
 ) -> tuple[
@@ -217,6 +248,7 @@ def shape_reference_joint(
         target.tau_nm,
         target.kp,
         target.kd,
+        q_meas,
         now,
         max_reference_gap_s,
     ):
@@ -235,6 +267,7 @@ def shape_reference_joint(
         goal_tau,
         goal_kp,
         goal_kd,
+        q_meas_val,
         now,
         max_reference_gap_s,
     ) = normalized
@@ -262,6 +295,24 @@ def shape_reference_joint(
             or confirmed_ref.packet is None
         ):
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+        if (
+            confirmed_ref.q_rad < spec.q_min_rad
+            or confirmed_ref.q_rad > spec.q_max_rad
+        ):
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+        q_ref_exact = Fraction(confirmed_ref.q_rad)
+        q_meas_exact = Fraction(q_meas_val)
+        lead_exact = Fraction(spec.max_lead_rad)
+        if not (
+            q_meas_exact - lead_exact
+            <= q_ref_exact
+            <= q_meas_exact + lead_exact
+        ):
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+        if abs(confirmed_ref.encoded_velocity_rad_s) > spec.v_max_rad_s:
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+        if abs(confirmed_ref.position_step_velocity_rad_s) > Fraction(spec.v_max_rad_s):
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
         return (
             None,
             confirmed_ref.emitted_target,
@@ -281,14 +332,18 @@ def shape_reference_joint(
         q_max_exact = Fraction(spec.q_max_rad)
         v_max_exact = Fraction(spec.v_max_rad_s)
         a_max_exact = Fraction(spec.a_max_rad_s2)
+        lead_exact = Fraction(spec.max_lead_rad)
+        q_meas_exact = Fraction(q_meas_val)
 
         v_pos_lo = (q_min_exact - q_prev_exact) / h_exact
         v_pos_hi = (q_max_exact - q_prev_exact) / h_exact
         v_acc_lo = v_prev_pos_exact - a_max_exact * h_exact
         v_acc_hi = v_prev_pos_exact + a_max_exact * h_exact
+        v_lead_lo = (q_meas_exact - lead_exact - q_prev_exact) / h_exact
+        v_lead_hi = (q_meas_exact + lead_exact - q_prev_exact) / h_exact
 
-        v_lo = max(-v_max_exact, v_pos_lo, v_acc_lo)
-        v_hi = min(v_max_exact, v_pos_hi, v_acc_hi)
+        v_lo = max(-v_max_exact, v_pos_lo, v_acc_lo, v_lead_lo)
+        v_hi = min(v_max_exact, v_pos_hi, v_acc_hi, v_lead_hi)
         if v_lo > v_hi:
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
@@ -360,6 +415,7 @@ def shape_reference_joint(
         position_step_velocity = (q_emitted_exact - q_prev_exact) / h_exact
         safe_position = (
             q_min_exact <= q_emitted_exact <= q_max_exact
+            and (q_meas_exact - lead_exact) <= q_emitted_exact <= (q_meas_exact + lead_exact)
             and q_next_lo <= q_emitted_exact <= q_next_hi
         )
         safe_step = (
@@ -379,6 +435,7 @@ def shape_reference_joint(
             candidate_velocity = (candidate_q_exact - q_prev_exact) / h_exact
             if not (
                 q_min_exact <= candidate_q_exact <= q_max_exact
+                and (q_meas_exact - lead_exact) <= candidate_q_exact <= (q_meas_exact + lead_exact)
                 and q_next_lo <= candidate_q_exact <= q_next_hi
                 and abs(candidate_velocity) <= v_max_exact
                 and abs(candidate_velocity - v_prev_pos_exact) <= a_max_exact * h_exact
@@ -469,6 +526,8 @@ def shape_reference_joint(
     actual_v_enc_exact = Fraction(actual_target.dq_rad_s)
     if not q_min_exact <= actual_q_exact <= q_max_exact:
         return DecisionCode.POSITION_OUT_OF_BOUNDS, None, None, None
+    if not (q_meas_exact - lead_exact <= actual_q_exact <= q_meas_exact + lead_exact):
+        return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
     if not q_next_lo <= actual_q_exact <= q_next_hi:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
     if v_desired != 0 and actual_target.q_rad == confirmed_ref.q_rad:
@@ -499,6 +558,7 @@ def prepare_complete_reference(
     specs: tuple[JointSpec, ...],
     target: Target,
     confirmed_references: tuple[JointTrajectoryReference, ...],
+    measured_positions: tuple[float, ...],
     now: float,
     max_reference_gap_s: float,
 ) -> ReferenceBatchResult:
@@ -511,6 +571,8 @@ def prepare_complete_reference(
         or len(target.joints) != len(specs)
         or type(confirmed_references) is not tuple
         or len(confirmed_references) != len(specs)
+        or type(measured_positions) is not tuple
+        or len(measured_positions) != len(specs)
     ):
         return ReferenceBatchResult(
             None, None, None, (ReferenceFailure(DecisionCode.INVALID_ARGUMENT, None),)
@@ -521,11 +583,11 @@ def prepare_complete_reference(
     proposed_references: list[JointTrajectoryReference] = []
     failures: list[ReferenceFailure] = []
 
-    for index, (spec, joint_target, conf_ref) in enumerate(
-        zip(specs, target.joints, confirmed_references)
+    for index, (spec, joint_target, conf_ref, q_meas) in enumerate(
+        zip(specs, target.joints, confirmed_references, measured_positions)
     ):
         code, actual_target, prop_ref, packet = shape_reference_joint(
-            spec, joint_target, conf_ref, now, max_reference_gap_s
+            spec, joint_target, conf_ref, q_meas, now, max_reference_gap_s
         )
         if code is not None or actual_target is None or prop_ref is None or packet is None:
             failures.append(
@@ -541,3 +603,93 @@ def prepare_complete_reference(
     return ReferenceBatchResult(
         tuple(actual_targets), tuple(packets), tuple(proposed_references), ()
     )
+
+
+def verify_dispatch_claim(
+    spec: JointSpec,
+    prop_ref: JointTrajectoryReference,
+    conf_ref: JointTrajectoryReference,
+    plan_joint: JointTarget,
+    packet: bytes,
+    goal: JointTarget,
+    q_meas: float,
+    prepared_at_s: float,
+) -> DecisionCode | None:
+    """Validate one proposed joint reference against all closed constraints at the write gate."""
+    if (
+        not isinstance(spec, JointSpec)
+        or not isinstance(prop_ref, JointTrajectoryReference)
+        or not isinstance(conf_ref, JointTrajectoryReference)
+        or not isinstance(plan_joint, JointTarget)
+        or type(packet) is not bytes
+        or not isinstance(goal, JointTarget)
+    ):
+        return DecisionCode.CONSTRAINT_VIOLATION
+
+    if (
+        prop_ref.requested_goal != goal
+        or prop_ref.emitted_target != plan_joint
+        or prop_ref.packet != packet
+        or prop_ref.sample_time_s > prepared_at_s
+    ):
+        return DecisionCode.CONSTRAINT_VIOLATION
+
+    if prop_ref.sample_time_s == conf_ref.sample_time_s:
+        if prop_ref != conf_ref:
+            return DecisionCode.CONSTRAINT_VIOLATION
+    elif (
+        prop_ref.sample_time_s != prepared_at_s
+        or prop_ref.sample_time_s <= conf_ref.sample_time_s
+    ):
+        return DecisionCode.CONSTRAINT_VIOLATION
+
+    try:
+        h_ref = prop_ref.sample_time_s - conf_ref.sample_time_s
+        h_ref_exact = Fraction(h_ref)
+        a_max_exact = Fraction(spec.a_max_rad_s2)
+        v_max_exact = Fraction(spec.v_max_rad_s)
+        v_prev_pos = Fraction(conf_ref.position_step_velocity_rad_s)
+        v_prev_enc = Fraction(conf_ref.encoded_velocity_rad_s)
+        q_min_exact = Fraction(spec.q_min_rad)
+        q_max_exact = Fraction(spec.q_max_rad)
+        lead_exact = Fraction(spec.max_lead_rad)
+        q_meas_exact = Fraction(q_meas)
+        prop_q_exact = Fraction(prop_ref.q_rad)
+        plan_q_exact = Fraction(plan_joint.q_rad)
+
+        if h_ref > 0.0:
+            actual_pos_vel = (prop_q_exact - Fraction(conf_ref.q_rad)) / h_ref_exact
+            if prop_ref.position_step_velocity_rad_s != actual_pos_vel:
+                return DecisionCode.CONSTRAINT_VIOLATION
+
+        if (
+            not q_min_exact <= prop_q_exact <= q_max_exact
+            or not q_min_exact <= plan_q_exact <= q_max_exact
+        ):
+            return DecisionCode.POSITION_OUT_OF_BOUNDS
+
+        if (
+            abs(prop_ref.position_step_velocity_rad_s) > v_max_exact
+            or abs(Fraction(prop_ref.encoded_velocity_rad_s)) > v_max_exact
+            or abs(Fraction(plan_joint.dq_rad_s)) > v_max_exact
+        ):
+            return DecisionCode.SPEED_OUT_OF_BOUNDS
+
+        if prop_ref.sample_time_s > conf_ref.sample_time_s:
+            if (
+                abs(prop_ref.position_step_velocity_rad_s - v_prev_pos) > a_max_exact * h_ref_exact
+                or abs(Fraction(prop_ref.encoded_velocity_rad_s) - v_prev_enc) > a_max_exact * h_ref_exact
+            ):
+                return DecisionCode.CONSTRAINT_VIOLATION
+
+        if (
+            prop_q_exact < q_meas_exact - lead_exact
+            or prop_q_exact > q_meas_exact + lead_exact
+            or plan_q_exact < q_meas_exact - lead_exact
+            or plan_q_exact > q_meas_exact + lead_exact
+        ):
+            return DecisionCode.CONSTRAINT_VIOLATION
+    except (ArithmeticError, TypeError, ValueError):
+        return DecisionCode.CONSTRAINT_VIOLATION
+
+    return None

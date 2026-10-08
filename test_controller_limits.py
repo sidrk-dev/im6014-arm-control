@@ -65,8 +65,8 @@ class PositionLimitTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(0.0)
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1.0, 2.0, 100.0, 500.0, "fixture: software position limits J1"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -0.5, 0.5, 100.0, 500.0, "fixture: software position limits J2"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1.0, 2.0, 100.0, 500.0, 100.0, "fixture: software position limits J1"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -0.5, 0.5, 100.0, 500.0, 100.0, "fixture: software position limits J2"),
         )
         self.valid_sample_j1 = JointSample(0.1, 0.0, 0.0)
         self.valid_sample_j2 = JointSample(0.0, 0.0, 0.0)
@@ -194,6 +194,7 @@ class PositionLimitTests(unittest.TestCase):
                 1.0,
                 100.0,
                 500.0,
+                100.0,
                 "fixture: software limits negative direction",
             ),
             JointSpec(
@@ -204,6 +205,7 @@ class PositionLimitTests(unittest.TestCase):
                 0.5,
                 100.0,
                 500.0,
+                100.0,
                 "fixture: software limits positive direction",
             ),
         )
@@ -270,6 +272,7 @@ class PositionLimitTests(unittest.TestCase):
             grid_pos,
             10.0,
             100.0,
+            100.0,
             "fixture: exact grid point interval",
         )
         found_code = self._project(spec_zero_width, grid_pos)
@@ -289,6 +292,7 @@ class PositionLimitTests(unittest.TestCase):
             mid - 1e-9,
             mid + 1e-9,
             10.0,
+            100.0,
             100.0,
             "fixture: empty grid interval",
         )
@@ -316,63 +320,77 @@ class PositionLimitTests(unittest.TestCase):
 
         # q_min_rad > q_max_rad
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 1.0, 0.0, 10.0, 100.0, "fixture: invalid min max")
+            JointSpec("J1", 0, mapping, 1.0, 0.0, 10.0, 100.0, 1.0, "fixture: invalid min max")
 
         # non-numeric / bool types
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, True, 1.0, 10.0, 100.0, "fixture: bool min")
+            JointSpec("J1", 0, mapping, True, 1.0, 10.0, 100.0, 1.0, "fixture: bool min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0.0, False, 10.0, 100.0, "fixture: bool max")
+            JointSpec("J1", 0, mapping, 0.0, False, 10.0, 100.0, 1.0, "fixture: bool max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, "0.0", 1.0, 10.0, 100.0, "fixture: str min")
+            JointSpec("J1", 0, mapping, "0.0", 1.0, 10.0, 100.0, 1.0, "fixture: str min")
 
         # infinite / NaN
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, float("-inf"), 1.0, 10.0, 100.0, "fixture: neg inf min")
+            JointSpec("J1", 0, mapping, float("-inf"), 1.0, 10.0, 100.0, 1.0, "fixture: neg inf min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0.0, float("inf"), 10.0, 100.0, "fixture: inf max")
+            JointSpec("J1", 0, mapping, 0.0, float("inf"), 10.0, 100.0, 1.0, "fixture: inf max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, float("nan"), 1.0, 10.0, 100.0, "fixture: nan min")
+            JointSpec("J1", 0, mapping, float("nan"), 1.0, 10.0, 100.0, 1.0, "fixture: nan min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0, 10**400, 10.0, 100.0, "fixture: overflowing max")
+            JointSpec("J1", 0, mapping, 0, 10**400, 10.0, 100.0, 1.0, "fixture: overflowing max")
 
         # v_max_rad_s <= 0 or not finite
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 0.0, 100.0, "fixture: zero v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 0.0, 100.0, 1.0, "fixture: zero v_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, -10.0, 100.0, "fixture: negative v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, -10.0, 100.0, 1.0, "fixture: negative v_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, float("inf"), 100.0, "fixture: inf v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, float("inf"), 100.0, 1.0, "fixture: inf v_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, float("nan"), 100.0, "fixture: nan v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, float("nan"), 100.0, 1.0, "fixture: nan v_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, "10.0", 100.0, "fixture: str v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, "10.0", 100.0, 1.0, "fixture: str v_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, True, 100.0, "fixture: bool v_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, True, 100.0, 1.0, "fixture: bool v_max")
 
         # a_max_rad_s2 <= 0 or not finite
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 0.0, "fixture: zero a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 0.0, 1.0, "fixture: zero a_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, -10.0, "fixture: negative a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, -10.0, 1.0, "fixture: negative a_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, float("inf"), "fixture: inf a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, float("inf"), 1.0, "fixture: inf a_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, float("nan"), "fixture: nan a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, float("nan"), 1.0, "fixture: nan a_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, "10.0", "fixture: str a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, "10.0", 1.0, "fixture: str a_max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, True, "fixture: bool a_max")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, True, 1.0, "fixture: bool a_max")
+
+        # max_lead_rad <= 0 or not finite
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 0.0, "fixture: zero max_lead")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, -10.0, "fixture: negative max_lead")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, float("inf"), "fixture: inf max_lead")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, float("nan"), "fixture: nan max_lead")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, "10.0", "fixture: str max_lead")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, True, "fixture: bool max_lead")
 
         # invalid provenance
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, "")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0, "")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, "   ")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0, "   ")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 123)
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0, 123)
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, "x" * 257)
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0, "x" * 257)
 
         with self.assertRaises(TypeError):
             JointSpec("J1", 0, mapping, -1.0, 1.0)
@@ -381,7 +399,11 @@ class PositionLimitTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0)
         with self.assertRaises(TypeError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0)
+        with self.assertRaises(TypeError):
             JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, provenance="legacy alias")
+        with self.assertRaises(TypeError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 100.0, 1.0, provenance="legacy alias")
 
         # JointFault position_limit type validation
         with self.assertRaises(ValueError):
@@ -530,7 +552,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertFalse(core.snapshot().fault_latched)
 
     def test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint(self):
-        spec = JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -0.1, 0.1, 10.0, 100.0, "fixture: rounding overshoot test")
+        spec = JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -0.1, 0.1, 10.0, 100.0, 100.0, "fixture: rounding overshoot test")
         target = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
 
         requested_output = spec.mapping.to_output(target)
@@ -717,7 +739,7 @@ class PositionLimitTests(unittest.TestCase):
     def test_actual_reference_matches_every_canonical_wire_field(self):
         mapping = JointMap(3.0, -1, 0.25)
         spec = JointSpec(
-            "J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, "fixture: canonical reference test"
+            "J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 100.0, "fixture: canonical reference test"
         )
         requested = JointTarget(0.321, 0.123, 0.321, 1.234, 0.123)
 
@@ -737,7 +759,7 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_unencodable_mapped_request_is_invalid_not_projected_into_range(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8,
+            "J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8,
             "fixture: wide software position limits",
         )
         code, actual, packet = prepare_reference_joint(
@@ -749,7 +771,7 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_mapping_overflow_is_invalid_argument(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1e-308, 1, 0.0), -1.0, 1.0, 10.0, 100.0,
+            "J1", 0, JointMap(1e-308, 1, 0.0), -1.0, 1.0, 10.0, 100.0, 100.0,
             "fixture: mapping overflow limits",
         )
         code, actual, packet = prepare_reference_joint(
@@ -898,7 +920,7 @@ class PositionLimitTests(unittest.TestCase):
             with self.subTest(result=result):
                 clock = DeterministicClock(0.0)
                 spec = JointSpec(
-                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0,
+                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 100.0,
                     "fixture: late receipt limits",
                 )
                 core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
@@ -963,7 +985,7 @@ class PositionLimitTests(unittest.TestCase):
 
         clock = EndClock(0.0)
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0,
+            "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 100.0,
             "fixture: late complete limits",
         )
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
@@ -1018,6 +1040,7 @@ class PositionLimitTests(unittest.TestCase):
                 JointMap(reduction, direction, zero),
                 q - half_width,
                 q + half_width,
+                1e8,
                 1e8,
                 1e8,
                 "fixture: seeded software limits",
@@ -1080,6 +1103,7 @@ class ReferenceSpeedTests(unittest.TestCase):
             2.0,
             1.0,  # v_max_rad_s = 1.0 rad/s
             1000.0,  # a_max_rad_s2 = 1000.0 rad/s2
+            100.0,  # max_lead_rad
             "fixture: speed limit test J1",
         )
         self.spec2 = JointSpec(
@@ -1090,6 +1114,7 @@ class ReferenceSpeedTests(unittest.TestCase):
             1.0,
             2.0,  # v_max_rad_s = 2.0 rad/s
             1000.0,  # a_max_rad_s2 = 1000.0 rad/s2
+            100.0,  # max_lead_rad
             "fixture: speed limit test J2",
         )
         self.specs = (self.spec1, self.spec2)
@@ -1528,14 +1553,14 @@ class ReferenceSpeedTests(unittest.TestCase):
 
     def test_zero_objective_cancellation_is_not_quantization_stall(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 100.0,
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 100.0, 100.0,
             "fixture: zero-objective cancellation test",
         )
         anchor = JointTrajectoryReference(0.0, Fraction(0), 0.0, 0.0, False)
         target = JointTarget(0.1, -1.0, 0.0, 1.0, 0.1)
 
         code, emitted, reference, packet = shape_reference_joint(
-            spec, target, anchor, 0.1, 1.0
+            spec, target, anchor, anchor.q_rad, 0.1, 1.0
         )
 
         self.assertIsNone(code)
@@ -1547,14 +1572,14 @@ class ReferenceSpeedTests(unittest.TestCase):
 
     def test_finite_extreme_objective_stops_when_grid_cannot_meet_acceleration(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.5e308, 1.5e308,
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.5e308, 1.5e308, 100.0,
             "fixture: finite extreme objective",
         )
         anchor = JointTrajectoryReference(-1.0, Fraction(0), 0.0, 0.0, False)
         target = JointTarget(1.0, 0.0, 0.0, 1.0, 0.1)
 
         code, emitted, reference, packet = shape_reference_joint(
-            spec, target, anchor, 1e-308, 1.0
+            spec, target, anchor, anchor.q_rad, 1e-308, 1.0
         )
 
         self.assertIs(code, DecisionCode.CONSTRAINT_VIOLATION)
@@ -1585,7 +1610,7 @@ class ReferenceSpeedTests(unittest.TestCase):
 
     def test_oversized_integer_time_inputs_fail_closed_without_raising(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 100.0,
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 100.0, 100.0,
             "fixture: oversized integer time",
         )
         anchor = JointTrajectoryReference(0.0, Fraction(0), 0.0, 0.0, False)
@@ -1593,7 +1618,7 @@ class ReferenceSpeedTests(unittest.TestCase):
 
         for now, gap in ((10**400, 1.0), (1.0, 10**400)):
             code, emitted, reference, packet = shape_reference_joint(
-                spec, target, anchor, now, gap
+                spec, target, anchor, 0.0, now, gap
             )
             self.assertIs(code, DecisionCode.INVALID_ARGUMENT)
             self.assertIsNone(emitted)
@@ -1604,11 +1629,11 @@ class ReferenceSpeedTests(unittest.TestCase):
         clock = DeterministicClock(0.0)
         specs = (
             JointSpec(
-                "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001, 10.0,
+                "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001, 10.0, 100.0,
                 "fixture: tiny-cadence stall J1",
             ),
             JointSpec(
-                "J2", 1, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001, 10.0,
+                "J2", 1, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001, 10.0, 100.0,
                 "fixture: tiny-cadence hold J2",
             ),
         )
@@ -1673,6 +1698,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
             2.0,
             2.0,  # v_max = 2.0 rad/s
             4.0,  # a_max = 4.0 rad/s2
+            100.0,  # max_lead_rad
             "fixture: acceleration test J1",
         )
         self.spec2 = JointSpec(
@@ -1683,6 +1709,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
             2.0,
             3.0,  # v_max = 3.0 rad/s
             6.0,  # a_max = 6.0 rad/s2
+            100.0,  # max_lead_rad
             "fixture: acceleration test J2",
         )
         self.specs = (self.spec1, self.spec2)
@@ -1759,7 +1786,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
         anchor = JointTrajectoryReference(0.0, Fraction(0), 0.0, 0.0, False)
         first_goal = JointTarget(0.5, 1.0, 0.0, 1.0, 0.1)
         code, _, moving, _ = shape_reference_joint(
-            spec, first_goal, anchor, 0.125, 1.0
+            spec, first_goal, anchor, anchor.q_rad, 0.125, 1.0
         )
         self.assertIsNone(code)
         self.assertIsNotNone(moving)
@@ -1768,7 +1795,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
         hold_goal = JointTarget(moving.q_rad, 0.0, 0.0, 1.0, 0.1)
         now = moving.sample_time_s + 0.0625
         code, _, decelerating, _ = shape_reference_joint(
-            spec, hold_goal, moving, now, 1.0
+            spec, hold_goal, moving, moving.q_rad, now, 1.0
         )
         self.assertIsNone(code)
         self.assertIsNotNone(decelerating)
@@ -1791,6 +1818,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
                     2.0,
                     2.0,
                     value,
+                    100.0,
                     "fixture: invalid acceleration limit input",
                 )
 
@@ -1805,6 +1833,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
             2.0,
             2.0,
             4.0,
+            100.0,
             "fixture: exact binary-grid acceleration equality",
         )
         self.specs = (self.spec1, self.spec2)
@@ -2014,7 +2043,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
 
     def test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -10.0, 2.0, 10.0, 10.0,
+            "J1", 0, JointMap(1.0, 1, 0.0), -10.0, 2.0, 10.0, 10.0, 100.0,
             "fixture: incompatible limits",
         )
         clock = DeterministicClock(10.0)
@@ -2067,7 +2096,7 @@ class ReferenceAccelerationTests(unittest.TestCase):
         )
         self.assertLess(position_velocity_hi, acceleration_velocity_lo)
         code, emitted, ref, packet = shape_reference_joint(
-            spec, target, anchor, blocked_at, 1.0
+            spec, target, anchor, anchor.q_rad, blocked_at, 1.0
         )
         self.assertIs(code, DecisionCode.CONSTRAINT_VIOLATION)
         self.assertIsNone(emitted)
@@ -2515,6 +2544,8 @@ class ReferenceAccelerationTests(unittest.TestCase):
         self.assertTrue(after.faults[0].constraint_fault)
         self.assertEqual(after.confirmed_references, before.confirmed_references)
         self.assertEqual(after.dispatch_attempts, before.dispatch_attempts)
+
+
 
 
 if __name__ == "__main__":

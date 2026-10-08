@@ -29,8 +29,8 @@ SOURCE = SourceIdentity("fixture", "expiry-test", 1)
 class ControllerExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, "fixture: software position limits"),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -844,7 +844,7 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(station.writes, [])
         self.assertIsNone(core.prepare_refresh())
 
-        # A bad final-gate clock still raises without mutating the prepared plan.
+        # A bad final-gate clock fails closed and withdraws the prepared authority.
         core2, station2, clock2 = self._armed_core()
         w2 = station2.issue_window(1.0)
         target2 = Target(1, self.valid_joints, window=w2, owner=station2.owner)
@@ -852,15 +852,31 @@ class ControllerExpiryTests(unittest.TestCase):
         clock2.value = 0.1
         plan = core2.prepare_refresh()
         self.assertIsNotNone(plan)
+        before = core2.snapshot()
         station2.writes.clear()
+        writes_before = tuple(station2.writes)
 
         clock2.value = 0.05  # Regressed!
         with self.assertRaises(ValueError):
             core2.claim_dispatch(plan.plan_id, 0)
         clock2.value = 0.1
-        self.assertIs(core2.snapshot().prepared_plan, plan)
-        self.assertIs(core2.snapshot().admitted_target, target2)
-        self.assertEqual(station2.writes, [])
+        after = core2.snapshot()
+        self.assertIs(after.state, State.STOPPED)
+        self.assertIsNone(after.current_owner)
+        self.assertIsNone(after.admitted_target)
+        self.assertIsNone(after.prepared_plan)
+        self.assertIsNone(core2._dispatch_claim)
+        self.assertEqual(after.last_sequence, before.last_sequence)
+        self.assertEqual(after.confirmed_references, before.confirmed_references)
+        self.assertEqual(after.dispatched_records, before.dispatched_records)
+        self.assertEqual(after.dispatch_attempts, before.dispatch_attempts)
+        self.assertEqual(after.joints, before.joints)
+        self.assertEqual(after.feedback_ages_s, before.feedback_ages_s)
+        self.assertEqual(writes_before, ())
+        self.assertEqual(tuple(station2.writes), writes_before)
+        self.assertFalse(core2.claim_dispatch(plan.plan_id, 0))
+        self.assertIs(core2.snapshot().state, State.STOPPED)
+        self.assertEqual(tuple(station2.writes), writes_before)
 
         # Stop still works even if clock fails or raises
         clock2.value = math.nan

@@ -1,0 +1,10 @@
+{
+  "sourceInspected": true,
+  "fullSourceContext": "Original draft full diffs inspected; changed runtime math/gate delta and every modified/new test method inspected via AST preservation record",
+  "structureEvidence": "C12-fix-test-structure.json",
+  "originalTestNamesRetained": true,
+  "result": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fix-parent-checks/20261008T190747394461Z/result.json",
+  "actual": "16 focused3failures;216milestone4failures; all4parentreprocommands pass including768exactleadVA+768cache; no acceptance",
+  "remaining": "quarter_cache unencodable mapped gains; negative decimal lead equality false; old clock test expects retained plan after now-fixed gate withdrawal",
+  "physicalIO": "none"
+}

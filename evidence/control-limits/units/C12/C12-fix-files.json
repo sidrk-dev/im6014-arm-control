@@ -1,0 +1,86 @@
+{
+  "baseHead": "81dae29f79209f08f1b410c912ae536410ae0e06",
+  "files": [
+    {
+      "path": "docs/joint-api.md",
+      "exists": true,
+      "bytes": 22582,
+      "sha256": "11cce175b21a50048e8bffcb64b5a6ce33a3b14ac97d77680ed61318f0d87e54"
+    },
+    {
+      "path": "joint_contract.py",
+      "exists": true,
+      "bytes": 30817,
+      "sha256": "93008e1311e12324de8e18486aecf0f7d85ba7e3aa2c80378bcdbcb6914c0dc7"
+    },
+    {
+      "path": "joint_controller.py",
+      "exists": true,
+      "bytes": 36372,
+      "sha256": "c82f1b6369834afb864e47d13f73f55f85e14f7caf9ce840a3592497d86f948f"
+    },
+    {
+      "path": "joint_reference.py",
+      "exists": true,
+      "bytes": 27514,
+      "sha256": "2f67280d8bceeebd5c50c9ac7e47e7e11215b2f7bd447b149566063c80053b64"
+    },
+    {
+      "path": "scripts/check_milestone.py",
+      "exists": true,
+      "bytes": 3221,
+      "sha256": "6161b19d4132325f358e29b337b533a00daf68851e0060761f3a6d3eba08fb55"
+    },
+    {
+      "path": "scripts/check_offline_baseline.sh",
+      "exists": true,
+      "bytes": 4968,
+      "sha256": "6949b33ea2382f4a664d4bb4c86aefbb997ae9533a554c18a31f2e0aae7e7e3a"
+    },
+    {
+      "path": "test_controller.py",
+      "exists": true,
+      "bytes": 40449,
+      "sha256": "cd3e36070141ee0df00ac7546f37950f96372174910a7be70ab0fa8a2f7b7018"
+    },
+    {
+      "path": "test_controller_expiry.py",
+      "exists": true,
+      "bytes": 39356,
+      "sha256": "e6f0dbfb3f9b1597a90d09cd2526efdf1e110888f7929a1ef5ae332bf2453750"
+    },
+    {
+      "path": "test_controller_lead.py",
+      "exists": true,
+      "bytes": 36245,
+      "sha256": "f95d9f8a2b11324b9401d2850b3b3238b6d4d58d79484b8eae33824c99d469c0"
+    },
+    {
+      "path": "test_controller_limits.py",
+      "exists": true,
+      "bytes": 105436,
+      "sha256": "26edbb46b4bd2b4c17459d0b01d7eb49f87ff2773b4972fa634d52b2e0ed2879"
+    },
+    {
+      "path": "test_controller_owner.py",
+      "exists": true,
+      "bytes": 16990,
+      "sha256": "05da6991c325df0928b946db27b5e8379f883c86ca503cfd96d1a778553835c0"
+    },
+    {
+      "path": "test_controller_targets.py",
+      "exists": true,
+      "bytes": 37450,
+      "sha256": "55b3642c2d3636ae151366b9b5bf5ca363c5b901848ddd8448c7061d7ab40928"
+    },
+    {
+      "path": "test_startup.py",
+      "exists": true,
+      "bytes": 13687,
+      "sha256": "261041a1f375e42e975e06e6547f7d4932889b2050d83ca15ec2e2ec7a07df56"
+    }
+  ],
+  "parentMetadataOverridesExcluded": [
+    "docs/resume-c07-c16.md"
+  ]
+}

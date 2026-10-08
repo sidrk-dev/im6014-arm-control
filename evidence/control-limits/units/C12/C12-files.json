@@ -1,0 +1,66 @@
+{
+  "baseHead": "81dae29f79209f08f1b410c912ae536410ae0e06",
+  "files": [
+    {
+      "path": "docs/joint-api.md",
+      "exists": true,
+      "bytes": 22125,
+      "sha256": "859028a076b11677494044de2f05674a7542e6bdcebf38324d55d8e41b403556"
+    },
+    {
+      "path": "joint_contract.py",
+      "exists": true,
+      "bytes": 30817,
+      "sha256": "93008e1311e12324de8e18486aecf0f7d85ba7e3aa2c80378bcdbcb6914c0dc7"
+    },
+    {
+      "path": "joint_controller.py",
+      "exists": true,
+      "bytes": 36359,
+      "sha256": "7f98e1ff9c500741cce9a7d1db8a233aaddcff9154fa15926e1cae7bc0020220"
+    },
+    {
+      "path": "joint_reference.py",
+      "exists": true,
+      "bytes": 27259,
+      "sha256": "cf70feeeecd26fa6f1db6ad287439be83ba8ab2189b3aed275e65588b4fdb9cb"
+    },
+    {
+      "path": "scripts/check_milestone.py",
+      "exists": true,
+      "bytes": 3223,
+      "sha256": "ffe4747eb32c81919626af1a2e4059d057f109a2f04162138aebe8d965bf2c46"
+    },
+    {
+      "path": "test_controller.py",
+      "exists": true,
+      "bytes": 40449,
+      "sha256": "cd3e36070141ee0df00ac7546f37950f96372174910a7be70ab0fa8a2f7b7018"
+    },
+    {
+      "path": "test_controller_expiry.py",
+      "exists": true,
+      "bytes": 39356,
+      "sha256": "e6f0dbfb3f9b1597a90d09cd2526efdf1e110888f7929a1ef5ae332bf2453750"
+    },
+    {
+      "path": "test_controller_limits.py",
+      "exists": true,
+      "bytes": 129472,
+      "sha256": "3da5409a68bdfeeba33cd3e2741f96bb16e85188ea0383c065352275aa994b97"
+    },
+    {
+      "path": "test_controller_owner.py",
+      "exists": true,
+      "bytes": 16990,
+      "sha256": "05da6991c325df0928b946db27b5e8379f883c86ca503cfd96d1a778553835c0"
+    },
+    {
+      "path": "test_controller_targets.py",
+      "exists": true,
+      "bytes": 37450,
+      "sha256": "55b3642c2d3636ae151366b9b5bf5ca363c5b901848ddd8448c7061d7ab40928"
+    }
+  ],
+  "parentMetadataOverridesExcluded": []
+}

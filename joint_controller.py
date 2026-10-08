@@ -6,7 +6,6 @@ transport and all externally visible records are immutable snapshots.
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from fractions import Fraction
 import math
 import secrets
 import time
@@ -33,7 +32,11 @@ from joint_contract import (
     owner_tokens_match,
 )
 from joint_mapping import JointSample
-from joint_reference import prepare_complete_reference, validate_target_vector
+from joint_reference import (
+    prepare_complete_reference,
+    validate_target_vector,
+    verify_dispatch_claim,
+)
 
 __all__ = ("JointCore",)
 
@@ -604,7 +607,16 @@ class JointCore:
         if now >= target.window.expires_at_s:
             return self._rejected(DecisionCode.EXPIRED)
 
-        validation_failures = validate_target_vector(self._specs, target)
+        if not self._all_fresh(now) or any(
+            not joint.valid for joint in self._observations
+        ):
+            return self._rejected(DecisionCode.STALE_FEEDBACK)
+
+        validation_failures = validate_target_vector(
+            self._specs,
+            target,
+            tuple(joint.sample.q_rad for joint in self._observations),
+        )
         if validation_failures:
             return self._rejected(validation_failures[0].code)
 
@@ -638,7 +650,7 @@ class JointCore:
             return None
 
         for spec, joint in zip(self._specs, self._observations):
-            if not joint.valid or joint.sample is None:
+            if not joint.valid:
                 return None
             pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
             speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
@@ -663,6 +675,7 @@ class JointCore:
             self._specs,
             self._admitted_target,
             tuple(self._confirmed_references),
+            tuple(joint.sample.q_rad for joint in self._observations),
             now,
             self._max_reference_gap_s,
         )
@@ -722,7 +735,11 @@ class JointCore:
         if index != self._next_dispatch_index:
             return False
 
-        now = self._now()
+        try:
+            now = self._now()
+        except Exception:
+            self.stop()
+            raise
         if self._housekeeping(now) is not None:
             return False
         if self._admitted_target is None or self._prepared_plan is None:
@@ -735,7 +752,7 @@ class JointCore:
         if not self._all_fresh(now):
             return False
         for spec, joint in zip(self._specs, self._observations):
-            if not joint.valid or joint.sample is None:
+            if not joint.valid:
                 return False
             pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
             speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
@@ -753,73 +770,26 @@ class JointCore:
 
         plan_joint = self._prepared_plan.joint_targets[index]
         spec = self._specs[index]
-        if plan_joint.q_rad < spec.q_min_rad or plan_joint.q_rad > spec.q_max_rad:
-            self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
-            self.stop()
-            return False
-        if abs(plan_joint.dq_rad_s) > spec.v_max_rad_s:
-            self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
-            self.stop()
-            return False
-
         prop_ref = self._prepared_plan.proposed_references[index]
-        if (
-            prop_ref.requested_goal != self._prepared_plan.target.joints[index]
-            or prop_ref.emitted_target != plan_joint
-            or prop_ref.packet != self._prepared_plan.packets[index]
-            or prop_ref.sample_time_s > self._prepared_plan.prepared_at_s
-        ):
-            self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
-            self.stop()
-            return False
-        if conf_ref is None:
-            self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
-            self.stop()
-            return False
-        if prop_ref.sample_time_s == conf_ref.sample_time_s:
-            if prop_ref != conf_ref:
+        failure_code = verify_dispatch_claim(
+            spec=spec,
+            prop_ref=prop_ref,
+            conf_ref=conf_ref,
+            plan_joint=plan_joint,
+            packet=self._prepared_plan.packets[index],
+            goal=self._prepared_plan.target.joints[index],
+            q_meas=self._observations[index].sample.q_rad,
+            prepared_at_s=self._prepared_plan.prepared_at_s,
+        )
+        if failure_code is not None:
+            if failure_code is DecisionCode.POSITION_OUT_OF_BOUNDS:
+                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+            elif failure_code is DecisionCode.SPEED_OUT_OF_BOUNDS:
+                self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
+            else:
                 self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
-                self.stop()
-                return False
-        elif (
-            prop_ref.sample_time_s != self._prepared_plan.prepared_at_s
-            or prop_ref.sample_time_s <= conf_ref.sample_time_s
-        ):
-            self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
             self.stop()
             return False
-        h_ref = prop_ref.sample_time_s - conf_ref.sample_time_s
-        h_ref_exact = Fraction(h_ref)
-        a_max_exact = Fraction(spec.a_max_rad_s2)
-        v_max_exact = Fraction(spec.v_max_rad_s)
-        v_prev_pos = Fraction(conf_ref.position_step_velocity_rad_s)
-        v_prev_enc = Fraction(conf_ref.encoded_velocity_rad_s)
-
-        if h_ref > 0.0:
-            actual_position_step_velocity = (
-                Fraction(prop_ref.q_rad) - Fraction(conf_ref.q_rad)
-            ) / h_ref_exact
-            if prop_ref.position_step_velocity_rad_s != actual_position_step_velocity:
-                self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
-                self.stop()
-                return False
-
-        if (
-            abs(prop_ref.position_step_velocity_rad_s) > v_max_exact
-            or abs(Fraction(prop_ref.encoded_velocity_rad_s)) > v_max_exact
-        ):
-            self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
-            self.stop()
-            return False
-
-        if prop_ref.sample_time_s > conf_ref.sample_time_s:
-            if (
-                abs(prop_ref.position_step_velocity_rad_s - v_prev_pos) > a_max_exact * h_ref_exact
-                or abs(Fraction(prop_ref.encoded_velocity_rad_s) - v_prev_enc) > a_max_exact * h_ref_exact
-            ):
-                self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
-                self.stop()
-                return False
 
         self._dispatch_claim = _DispatchClaim(self._prepared_plan, index, now)
         return True

@@ -1,0 +1,7 @@
+test_invalid_gate_clock_permanently_withdraws_prepared_authority (__main__.WriteGateClock.test_invalid_gate_clock_permanently_withdraws_prepared_authority) ... ok
+test_throwing_end_clock_keeps_complete_write_and_latches_cause (__main__.WriteGateClock.test_throwing_end_clock_keeps_complete_write_and_latches_cause) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.014s
+
+OK

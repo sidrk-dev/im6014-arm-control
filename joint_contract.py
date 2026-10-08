@@ -43,6 +43,7 @@ class DecisionCode(str, Enum):
     EXPIRED = "expired"
     POSITION_OUT_OF_BOUNDS = "position_out_of_bounds"
     SPEED_OUT_OF_BOUNDS = "speed_out_of_bounds"
+    LEAD_OUT_OF_BOUNDS = "lead_out_of_bounds"
     REFERENCE_GAP_EXCEEDED = "reference_gap_exceeded"
     CONSTRAINT_VIOLATION = "constraint_violation"
 
@@ -88,6 +89,7 @@ class JointSpec:
     q_max_rad: float
     v_max_rad_s: float
     a_max_rad_s2: float
+    max_lead_rad: float
     limits_provenance: str
 
     def __post_init__(self) -> None:
@@ -130,6 +132,15 @@ class JointSpec:
         if not math.isfinite(a_max_val) or a_max_val <= 0.0:
             raise ValueError("a_max_rad_s2 must be finite and positive")
 
+        if isinstance(self.max_lead_rad, bool) or not isinstance(self.max_lead_rad, (int, float)):
+            raise ValueError("max_lead_rad must be a finite positive real number")
+        try:
+            max_lead_val = float(self.max_lead_rad)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_lead_rad must be finite") from exc
+        if not math.isfinite(max_lead_val) or max_lead_val <= 0.0:
+            raise ValueError("max_lead_rad must be finite and positive")
+
         if (
             type(self.limits_provenance) is not str
             or not self.limits_provenance.strip()
@@ -141,6 +152,7 @@ class JointSpec:
         object.__setattr__(self, "q_max_rad", max_val)
         object.__setattr__(self, "v_max_rad_s", v_max_val)
         object.__setattr__(self, "a_max_rad_s2", a_max_val)
+        object.__setattr__(self, "max_lead_rad", max_lead_val)
 
 @dataclass(frozen=True)
 class JointFault:

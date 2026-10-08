@@ -1,0 +1,11 @@
+{
+  "status": "decision",
+  "role": "bug-fix",
+  "header": "bug-fix",
+  "laneIndex": 0,
+  "lane": "bug-fix#1",
+  "decision": {
+    "kind": "stop",
+    "reason": "complete"
+  }
+}

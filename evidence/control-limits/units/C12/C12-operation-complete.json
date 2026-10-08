@@ -1,0 +1,40 @@
+{
+  "kind": "transitioned",
+  "operation": {
+    "id": "C12-checks-1",
+    "task": "C12",
+    "checkpoint": "C12-lead-bound",
+    "kind": "run-checks",
+    "state": "complete",
+    "expected": {
+      "kind": "validated",
+      "operation": "run-checks",
+      "head": "81dae29f79209f08f1b410c912ae536410ae0e06",
+      "digest": "25638c09945ccbbad466663c03ab7d6f4c13132fa740a3c3cb9eea3c9e380018",
+      "files": [
+        "joint_contract.py",
+        "joint_reference.py",
+        "joint_controller.py",
+        "test_controller.py",
+        "test_controller_expiry.py",
+        "test_controller_owner.py",
+        "test_controller_targets.py",
+        "test_controller_limits.py",
+        "scripts/check_milestone.py",
+        "docs/joint-api.md"
+      ],
+      "checks": [
+        "C12",
+        "milestone-tests",
+        "scripts/check_offline_baseline.sh"
+      ]
+    },
+    "result": {
+      "passed": false,
+      "checksRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-checks/20261008T185148207098Z/result.json",
+      "correctedParentRepro": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-original-exact-lead.log"
+    },
+    "recordedAt": "2026-10-08T18:51:45.150Z",
+    "completedAt": "2026-10-08T18:53:29.669Z"
+  }
+}

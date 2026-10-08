@@ -1,0 +1,13 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-fixtures-parent-checks/20261008T191212059157Z/result.json",
+  "manifestSha256": "3d9eae49256b9d1ecad8e55c7471f802176dfa121249f330c1f0f0b83685f3d0",
+  "sourceInspection": "Original10pathdiff, fullnewmethods/unchangedASTnames and narrowfinal2fixturedelta inspected",
+  "review": "C12 panel closed: Museclockfindingfixed/reproduced; Gemini validcomplete nofindings; MiMoHTTP502dropout retained; finalwholebranchpanelpending",
+  "tests": "16focused/5parenttests/768speedaccelerationlead+768h0cache/216milestone/9groups/18dashboard/hashesmatch",
+  "visual": "DEMO speed+position tests, REALdisconnected0replies, DEMOdisconnected0replies",
+  "physicalIO": "none"
+}
