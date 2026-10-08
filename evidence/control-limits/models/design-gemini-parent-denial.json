@@ -1,0 +1,8 @@
+{
+  "kind": "parent-tool-auto-review-denial",
+  "processStarted": false,
+  "action": "Gemini architect design-1 launch",
+  "reason": "Private repository and derived design material transfer requires explicit repository-and-destination approval",
+  "correction": "User approved sending private im6014-workbench source, diffs and design/review prompts to Google Antigravity Gemini 3.8 Flash for C07-C16 implementation and review.",
+  "inspection": "No runner receipt/output/progress exists; launch rejected before process creation. No external process started or repository effects occurred."
+}

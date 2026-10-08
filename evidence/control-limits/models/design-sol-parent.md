@@ -1,0 +1,10 @@
+# Parent reading of Sol candidate
+Complete artifact read after native FINAL. Native requested model/effort were explicit in dispatch; no backend identity claim.
+
+Provisional criterion scores: 5,4,3,4,5,4. No final base chosen before judge terminal.
+
+Strengths: station-issued absolute intent windows; one core authority and final gate directly beside serial write; distinct prepared versus complete/partial dispatch receipts; explicit expiry/revocation and retained global sequence; truthful PTY-only station; actual timing and separate measured state; pure feasibility helper. Immutable reducer alternative is a structurally distinct architecture, while both main candidates converge on core-owned references.
+
+Simplification candidates requiring explicit synthesis: fixed binary 2048-byte IPC adds a large taxonomy/packing surface with no existing contract; bounded nonblocking JSON can provide the boundary more simply. Trapezoidal virtual trajectory, analytic interval extrema and braking viability exceed the milestone's samplewise reference bounds; a clearly documented discrete q_next=q_previous+v_next*dt with velocity/acceleration/position/lead intersection is smaller, provided empty intersections Stop and no continuous physical claim is made. Mandatory revisions/config/observation metadata needs staged scope to avoid D01 profiles early. Move domain records only if it materially shrinks core rather than merely re-exporting aliases.
+
+Risks: serial multi-joint writes cannot be atomic; late gate/feedback failure must retain each actually written joint and reject remaining modes. Accepted goal plus one prepared batch must remain bounded and replacement cannot leave a superseded plan dispatchable. Full codec validation before any write and quantization scrutiny must preserve all motion bounds. Stop has priority but cannot interrupt synchronous I/O. Issuing a newer intent window must not inadvertently erase a still-valid admitted goal; stored admitted window deadline remains authoritative.

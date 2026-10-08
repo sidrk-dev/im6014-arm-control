@@ -1,0 +1,8 @@
+{
+  "requestedModel": "gpt-6.1-sol",
+  "requestedEffort": "xhigh",
+  "task": "/root/c07_design_sol",
+  "completion": "ordinary FINAL observed",
+  "modelIdentity": "requested native dispatch; no independent backend identity claim",
+  "outputSha256": "88b6132269cbecbb2f704d051ffa64ec160026cc31de5b2232c016e40c0279da"
+}

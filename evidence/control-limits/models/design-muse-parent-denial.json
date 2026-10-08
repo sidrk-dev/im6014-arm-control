@@ -1,0 +1,9 @@
+{
+  "kind": "parent-tool-auto-review-denial",
+  "processStarted": false,
+  "modelSubmissions": 0,
+  "reason": "Private workbench-derived payload and OpenCode destination require explicit approval",
+  "correction": "User explicitly approved private im6014-workbench source, diffs and design/review material to OpenCode Zen Muse Spark 1.3 and MiMo v2.6 Flash for C07-C16",
+  "inspection": "No launcher or backend submission started, no source effects or output/receipt. The wrapper cannot accept a prepared execution ID; preserve this parent-tool denial separately from model receipt/events. The next launch is the first backend execution, no provider tool denial or model retry.",
+  "at": "2026-10-08T06:38:23.277066+00:00"
+}

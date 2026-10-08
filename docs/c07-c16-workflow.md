@@ -2,9 +2,9 @@
 
 ## Feature
 
-- [ ] `how` over the affected subsystem.
+- [x] `how` over the affected subsystem.
 - [ ] `architect` for parallel design exploration.
-- [ ] Write the throughput checkpoint as four todo items.
+- [x] Write the throughput checkpoint as four todo items.
 - [ ] Delegate code-writing through provider dispatch.
 - [ ] Verify on the matching surface.
 - [ ] Rebase into small, ordered commits. Stack follow-ups.
@@ -13,27 +13,27 @@
 
 ## Architect
 
-- [ ] Ground.
-- [ ] Sketch.
-- [ ] Agree.
+- [x] Ground.
+- [x] Sketch.
+- [x] Agree.
 - [ ] Implement.
 - [ ] Scrap, only if the selected shape repeatedly fails.
 
 ## Arena
 
-- [ ] Frame.
-- [ ] Fan out.
-- [ ] Cross-judge.
-- [ ] Pick.
-- [ ] Graft.
-- [ ] Verify.
+- [x] Frame.
+- [x] Fan out.
+- [x] Cross-judge.
+- [x] Pick.
+- [x] Graft.
+- [x] Verify.
 
 ## Throughput checkpoint
 
-- [ ] Blocking first steps. Read current source/plan, verify merged baseline, trace core and serial/session, choose typed design before code.
-- [ ] Independent workstreams. Two grounding slices, independent design alternatives, and later reviewers each own separate artifacts.
-- [ ] Shared mutable state. Core API and its callers change together, so implementation units serialize and each writer gets a fresh isolated worktree.
-- [ ] Smallest safe decomposition. One Gemini writer per milestone. Parent owns tests/Git/hardware and accepts each unit before next; no overlapping core writes.
+- [x] Blocking first steps. Read current source/plan, verify merged baseline, trace core and serial/session, choose typed design before code.
+- [x] Independent workstreams. Two grounding slices, independent design alternatives, and later reviewers each own separate artifacts.
+- [x] Shared mutable state. Core API and its callers change together, so implementation units serialize and each writer gets a fresh isolated worktree.
+- [x] Smallest safe decomposition. One Gemini writer per milestone. Parent owns tests/Git/hardware and accepts each unit before next; no overlapping core writes.
 
 ## Units
 
