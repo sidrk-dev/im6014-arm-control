@@ -1,0 +1,37 @@
+{
+  "sourceSha256": "2877842fd34ff9ba18360e42adf123f70d3466ffa50a96664591ee3447bb16ad",
+  "stage": "live read; verify again after terminal",
+  "findings": [
+    {
+      "priority": 1,
+      "symbol": "exchange",
+      "issue": "Post-write _remaining(deadline) runs before classifying/reporting on_write. If the write completes at/beyond deadline, a complete or partial actual write gets no receipt. Report actual write result immediately after bus.write returns, then enforce remaining deadline before feedback. Preserve no-repeat behavior.",
+      "requiredTest": "FakeSerial write consumes remaining deadline; callback must still observe COMPLETE/PARTIAL/FAILED while exchange fails deadline and actual one write is counted."
+    },
+    {
+      "priority": 2,
+      "symbol": "Snapshot.pending_target and JointCore.pending_target",
+      "issue": "Read aliases for admitted_target preserve legacy names even though prompt requested no compatibility wrappers; migrate callers to admitted_target and delete alias properties unless a concrete justified consumer remains."
+    },
+    {
+      "priority": 1,
+      "symbol": "JointCore.submit_target",
+      "issue": "Incoming submission checks new deadline but does not tick/withdraw a previously admitted expired goal. A new fresh window/target can replace expired active goal while still MOVING without mandatory Stop/check/arm. Run required housekeeping before accepting replacement.",
+      "requiredTest": "Admit and dispatch goal, advance to exact expiry, issue new window, submit fresh replacement without tick; must withdraw/disarm and reject motion until explicit check/arm."
+    },
+    {
+      "priority": 1,
+      "symbol": "JointCore.dispatch_result",
+      "issue": "Calls _now before recording a known actual COMPLETE write. Invalid/regressing clock after successful bus.write can erase actual write evidence and keep logical ARMED. Retain claim timestamp and report actual completion independently of a later invalid clock, fault/Stop without fabricated timestamps.",
+      "requiredTest": "Prewrite core claim at valid time, bus.write completes but changes core clock to invalid/regressed value; actual full write must remain recorded while no further mode-1 dispatch is permitted."
+    },
+    {
+      "priority": 2,
+      "symbol": "JointCore.prepare_refresh/claim_dispatch",
+      "issue": "prepare can replace an in-flight plan and forget its outcome; claim advances next index before dispatch_result so next joint may be claimed while prior result is unresolved. Require one in-flight ordered write and avoid losing it during invalidation.",
+      "requiredTest": "After claim index0 before result, reject another prepare and index1 claim; resolving full index0 then permits index1. Keep fixed bounded state."
+    }
+  ],
+  "note": "No active worker files were edited.",
+  "coreSha256": "a62cc8df99e1938d7f1a56cc9327f922326a0507cc3f2beb95671f1e3691678c"
+}

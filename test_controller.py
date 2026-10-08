@@ -3,17 +3,23 @@ from dataclasses import FrozenInstanceError
 import math
 
 from im6014_codec import command
-from joint_controller import (
+from joint_contract import (
     CommunicationFailure,
     DecisionCode,
-    JointCore,
+    IntentWindow,
+    JointDispatchedRecord,
     JointFault,
     JointSpec,
+    JointStatus,
     MotorHealth,
+    RefreshPlan,
+    Snapshot,
     SourceIdentity,
     State,
     Target,
+    WriteResult,
 )
+from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
 
@@ -53,27 +59,37 @@ class FakeStation:
     def arm(self):
         return self.core.arm()
 
+    def issue_window(self, valid_for_s=0.2):
+        return self.core.issue_window(valid_for_s)
+
     def submit(self, target):
         return self.core.submit_target(target)
 
-    def consume(self):
-        target = self.core.consume_target()
-        if target is not None:
-            for spec, joint_target in zip(self.core.joint_specs, target.joints):
-                output = spec.mapping.to_output(joint_target)
-                self.writes.append(
-                    command(
-                        spec.motor_id,
-                        mode=1,
-                        rpm=output.rpm,
-                        kd=output.kd,
-                        torque=output.tau_nm,
-                        watchdog=True,
-                        position=output.q_rad,
-                        kp=output.kp,
-                    )
+    def refresh(self):
+        plan = self.core.prepare_refresh()
+        if plan is None:
+            return None
+        packets = []
+        for spec, joint_target in zip(self.core.joint_specs, plan.joint_targets):
+            output = spec.mapping.to_output(joint_target)
+            packets.append(
+                command(
+                    spec.motor_id,
+                    mode=1,
+                    rpm=output.rpm,
+                    kd=output.kd,
+                    torque=output.tau_nm,
+                    watchdog=True,
+                    position=output.q_rad,
+                    kp=output.kp,
                 )
-        return target
+            )
+        for index, packet in enumerate(packets):
+            if not self.core.claim_dispatch(plan.plan_id, index):
+                break
+            self.writes.append(packet)
+            self.core.dispatch_result(plan.plan_id, index, WriteResult.COMPLETE)
+        return plan
 
     def stop(self):
         decision = self.core.stop()
@@ -268,12 +284,17 @@ def core_at(test, state, clock=None):
         return core
     if state is State.MOVING:
         test.assertTrue(station.arm().accepted)
-        target = Target(0, (
-            JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
-            JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
-        ))
+        window = station.issue_window(1.0)
+        target = Target(
+            0,
+            (
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+        )
         test.assertTrue(core.submit_target(target).accepted)
-        test.assertIsNotNone(core.consume_target())
+        test.assertIsNotNone(station.refresh())
         return core
     if state is State.STOPPED:
         test.assertTrue(station.stop().accepted)
@@ -463,6 +484,10 @@ class ControllerStateTests(unittest.TestCase):
         before = core.snapshot()
         self.assertIsInstance(before.joints, tuple)
         self.assertIsInstance(before.joint_names, tuple)
+        self.assertIsInstance(before.dispatch_attempts, tuple)
+        self.assertEqual(before.dispatch_attempts, (None, None))
+        self.assertFalse(hasattr(core, "pending_target"))
+        self.assertFalse(hasattr(before, "pending_target"))
 
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
         after = core.snapshot()
@@ -474,6 +499,8 @@ class ControllerStateTests(unittest.TestCase):
             after.joints[0].health = HEALTHY_STOP
         with self.assertRaises(TypeError):
             after.joints[0] = before.joints[0]
+        with self.assertRaises(TypeError):
+            after.dispatch_attempts[0] = before.dispatch_attempts[0]
 
     def test_invalid_transition_matrix_preserves_snapshot(self):
         rejected = {

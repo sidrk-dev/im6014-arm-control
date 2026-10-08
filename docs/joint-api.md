@@ -59,18 +59,21 @@ Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, dis
 
 ## Attributed faults
 
-`Snapshot.faults` holds immutable `JointFault` records in configured joint order. `affected_joints` derives their names. Error and warning masks accumulate by bitwise OR, and watchdog timeout and stale flags latch. Communication codes are fixed `CommunicationFailure` enum values; they do not imply an actuator watchdog timeout. Current healthy feedback clears the current communication observation while the cause remains latched. Stop and reconnect retain causes. Only an explicitly acknowledged, complete, fresh, healthy Stop check clears them. Each core stores at most one record per configured joint and a unique union of at most three fixed communication codes per record. `communication_error` is the most recent cause; `communication_errors` is a first-occurrence union, not a chronological event history. A supplied most-recent code must belong to that union.
+`Snapshot.faults` holds immutable `JointFault` records in configured joint order. `affected_joints` derives their names. Error and warning masks accumulate by bitwise OR, and watchdog timeout and stale flags latch. Communication codes are fixed `CommunicationFailure` enum values; they do not imply an actuator watchdog timeout. Current healthy feedback clears the current communication observation while the cause remains latched. Stop and reconnect retain causes. Only an explicitly acknowledged, complete, fresh, healthy Stop check clears them. Each core stores at most one record per configured joint and a unique first-occurrence union of fixed communication codes; its size is bounded by the finite enum. `communication_error` is the most recent cause; `communication_errors` is not a chronological event history. A supplied most-recent code must belong to that union.
 
 When opening fails and cleanup cannot confirm closure, `open_managed_port` raises `PortCloseError` with `managed_port` for retry and the original error as `__cause__`. Context exit uses the same exception when closure fails, retaining any body exception as its cause. If cleanup succeeds, the original exception propagates normally.
 
-## Latest target
+## Latest target and command expiry
 
-`Target(sequence, joints)` contains an immutable complete tuple of `JointTarget` values in configured order. `submit_target` validates every mapped output through the existing codec before replacing the single pending slot; invalid replacement preserves it. `consume_target` returns the pending target once only in ARMED or MOVING with fresh healthy feedback, then sets logical MOVING. Stop, disconnect and every fault clear pending. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Its exact integer sequence is in 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; invalid payloads return `INVALID_ARGUMENT` first. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark.
+`Target(sequence, joints, window)` contains an immutable complete tuple of `JointTarget` values in configured order and a required station-issued `IntentWindow(id, created_at_s, expires_at_s)`. `JointCore.issue_window(valid_for_s)` issues the latest offered window with a monotonic ID and bounded duration (`max_window_s`, default 1.0s). `submit_target` first expires or faults an existing goal as needed, then validates the incoming window against the latest offered window, checks expiry (exact equality with expiry is expired), checks mapped output codec representability, and enforces monotonic command sequence ordering before admitting the goal. A rejected replacement keeps an existing goal only while that goal remains valid.
+
+`consume_target` is deleted in favor of explicit refresh lifecycle: `prepare_refresh()`, `claim_dispatch(plan_id, index)`, and `dispatch_result(plan_id, index, result)`. An admitted goal is refreshed repeatedly until its window expires. Preparing a plan proposes a refresh vector without dispatching. `claim_dispatch` verifies freshness, health, goal expiry, and ordered joint index immediately before each write. Only one claim may await an outcome; the core blocks another joint claim and plan preparation until it arrives. Stop, expiry, target replacement, or fault can invalidate the plan without discarding that in-flight receipt. `exchange` reports the write result once after the driver outcome; successful returns are deadline-checked before feedback. If the deadline expires after the pre-write hook grants a claim but before `bus.write`, it reports `WriteResult.PREWRITE_DEADLINE`: the software made no write call for that claim. This does not establish motor state or physical protection. `WriteResult.PARTIAL` means the driver returned a positive short count. `WriteResult.FAILED` means the driver raised or returned an invalid count, so byte delivery may be unknown. `Snapshot.dispatch_attempts` holds the latest outcome per joint. `dispatch_result` commits a dispatched record only for a complete write. A dispatched record's `dispatched_at_s` is the valid claim/write start time, not a fabricated completion timestamp. A complete write followed by invalid or regressing core time preserves the complete record and attempt, then faults with `CommunicationFailure.CLOCK_FAILURE` without restoring motion. `WriteResult.PREWRITE_DEADLINE` faults with `CommunicationFailure.PREWRITE_DEADLINE`; `PARTIAL` and `FAILED` fault with `DRIVER_FAILURE`, preserving any prior complete record. A late receipt for an invalidated plan is recorded but cannot restore motion. When an admitted goal expires, housekeeping withdraws it, invalidates pending plans, and disarms the core to `STOPPED` (latched fault preserved), requiring a new check and arm cycle. Sequence watermarks survive consumption, stop, fault, and disconnect.
 
 ### Offline controller example
 
 ```python
-from joint_controller import JointCore, JointSpec, MotorHealth, SourceIdentity, Target, State
+from joint_contract import IntentWindow, JointSpec, MotorHealth, SourceIdentity, State, Target, WriteResult
+from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
 core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25)),), clock=lambda: 0.0)
@@ -80,11 +83,15 @@ assert core.begin_check()
 assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
 assert core.checked()
 assert core.arm()
-target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),))
+window = core.issue_window(0.5)
+target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), window=window)
 assert core.submit_target(target)
-assert core.consume_target() == target
+plan = core.prepare_refresh()
+assert plan is not None
+assert core.claim_dispatch(plan.plan_id, 0)
+assert core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE)
 assert core.snapshot().state is State.MOVING
-assert core.consume_target() is None
+assert core.snapshot().dispatched_records[0].sequence == 6
 assert core.stop()
 assert core.snapshot().last_sequence == 6
 ```
@@ -93,6 +100,6 @@ This example performs no serial operations. A station adapter must validate its 
 
 ## Core and ownership limits
 
-The injected core clock must be finite and monotonic. Invalid or regressing time raises before a target can be released; snapshots also require that clock contract. The default is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Owner generations remain C08.
+The injected core clock must be finite and monotonic. Invalid or regressing time rejects operations that need a fresh gate; snapshots also require that clock contract. If a complete write receipt arrives after its end clock becomes invalid, the core preserves that known write and claim timestamp, then latches a driver failure and withdraws motion until acknowledged recovery. The default clock is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Owner generations remain C08.
 
 The fixed per-user lock namespace under `/tmp` coordinates cooperating processes. A hostile local user can pre-create the name and deny access; validation fails closed. An administrator must remove a foreign-owned obstruction. Lockfiles persist to preserve flock inode identity, including after device-number reuse. Do not delete them while clients may be running. No automatic pruning or hostile-local-user availability guarantee is supplied.

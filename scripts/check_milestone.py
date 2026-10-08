@@ -18,6 +18,7 @@ CHECKS = {
     'C04': 'test_controller.JointFaultTests',
     'C05': 'test_controller_targets.LatestTargetTests',
     'C06': 'test_controller_targets.CommandSequenceTests',
+    'C07': 'test_controller_expiry',
 }
 
 

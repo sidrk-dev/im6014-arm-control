@@ -16,9 +16,10 @@ Inspect external foundations at exact revisions and record the revision in evide
 | `motor_dashboard.py` | Controls, display, plots, exports, UI heartbeat | `MotorSession`; codec constants; Qt; passive serial enumeration |
 | `motor_session.py` | One GUI serial-owner worker, requests, demo transport, bench lifecycle | Bench aliases in `spin_5rpm.py`; pyserial |
 | `im6014_codec.py` | Pure packet encoding, strict feedback decoding, CRC and internal reduction | Python standard library |
-| `im6014_serial.py` | One request, bounded stream scan, timeout budgets, restoration and optional bounded capture | Pure feedback decoder; Python standard library |
+| `im6014_serial.py` | One request, bounded stream scan, timeout budgets, restoration, write hooks and optional bounded capture | Pure feedback decoder; write outcome contract; Python standard library |
 | `im6014_port.py` | Passive configuration and cooperating device lease | OS metadata; injected serial factory |
-| `joint_controller.py` | Transport-free lifecycle, per-joint freshness and faults, one latest target and a sequence watermark | Frozen mapping records; pure codec validation; Python standard library |
+| `joint_contract.py` | Frozen domain records, intent windows, targets, plans, dispatched records, status and decision codes | Pure mapping records; Python standard library |
+| `joint_controller.py` | Transport-free lifecycle, clock high-water mark, window authority, refresh plans and dispatch records | Frozen contract records; pure codec validation; Python standard library |
 | `joint_mapping.py` | Pure external joint units and gain conversion | Python standard library |
 | `spin_5rpm.py` | Bench aliases, health checks and standalone bounded CLI | Codec and serial boundary; pyserial |
 | `fake_serial.py` | Scripted replies and deterministic clock for offline checks | Python standard library; never imported by production |

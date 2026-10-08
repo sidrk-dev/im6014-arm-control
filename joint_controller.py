@@ -6,286 +6,38 @@ transport and all externally visible records are immutable snapshots.
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum
 import math
 import time
-from typing import Literal
 
 from im6014_codec import command
-from joint_mapping import JointMap, JointSample, JointTarget
+from joint_contract import (
+    CommunicationFailure,
+    Decision,
+    DecisionCode,
+    IntentWindow,
+    JointDispatchAttempt,
+    JointDispatchedRecord,
+    JointFault,
+    JointSpec,
+    JointStatus,
+    MotorHealth,
+    RefreshPlan,
+    Snapshot,
+    SourceIdentity,
+    State,
+    Target,
+    WriteResult,
+)
+from joint_mapping import JointSample
 
-
-class State(Enum):
-    DISCONNECTED = "disconnected"
-    CONNECTING = "connecting"
-    CONNECTED = "connected"
-    CHECKING = "checking"
-    READY = "ready"
-    ARMED = "armed"
-    MOVING = "moving"
-    STOPPED = "stopped"
-    FAULT = "fault"
-
-
-class DecisionCode(str, Enum):
-    ACCEPTED = "accepted"
-    INVALID_STATE = "invalid_state"
-    INVALID_ARGUMENT = "invalid_argument"
-    INVALID_SOURCE = "invalid_source"
-    UNKNOWN_JOINT = "unknown_joint"
-    INVALID_OBSERVATION = "invalid_observation"
-    FAULT_ACK_REQUIRED = "fault_ack_required"
-    FAULT_LATCHED = "fault_latched"
-    OBSERVATIONS_INCOMPLETE = "observations_incomplete"
-    STALE_FEEDBACK = "stale_feedback"
-    UNHEALTHY = "unhealthy"
-    NOT_STOPPED = "not_stopped"
-    DUPLICATE_OR_OLDER = "duplicate_or_older"
-
-
-class CommunicationFailure(str, Enum):
-    TIMEOUT = "timeout"
-    INVALID_FEEDBACK = "invalid_feedback"
-    DRIVER_FAILURE = "driver_failure"
+__all__ = ("JointCore",)
 
 
 @dataclass(frozen=True)
-class Decision:
-    accepted: bool
-    code: DecisionCode
-
-    def __post_init__(self) -> None:
-        if type(self.accepted) is not bool:
-            raise ValueError("accepted must be a bool")
-        if not isinstance(self.code, DecisionCode):
-            raise ValueError("code must be a DecisionCode")
-        if self.accepted != (self.code is DecisionCode.ACCEPTED):
-            raise ValueError("accepted must match the decision code")
-
-    def __bool__(self) -> bool:
-        return self.accepted
-
-
-@dataclass(frozen=True)
-class JointSpec:
-    name: str
-    motor_id: int
-    mapping: JointMap
-
-    def __post_init__(self) -> None:
-        if type(self.name) is not str or not self.name.strip():
-            raise ValueError("joint name must be a non-empty string")
-        if type(self.motor_id) is not int or not 0 <= self.motor_id <= 14:
-            raise ValueError("motor_id must be an integer from 0 to 14")
-        if not isinstance(self.mapping, JointMap):
-            raise ValueError("mapping must be a JointMap")
-
-
-@dataclass(frozen=True)
-class JointFault:
-    name: str
-    motor_id: int
-    errors: int = 0
-    warnings: int = 0
-    timeout: bool = False
-    communication_error: CommunicationFailure | None = None
-    stale: bool = False
-    communication_errors: tuple[CommunicationFailure, ...] = ()
-
-    def __post_init__(self) -> None:
-        if type(self.name) is not str or not self.name.strip():
-            raise ValueError("joint name must be a non-empty string")
-        if type(self.motor_id) is not int or not (0 <= self.motor_id <= 14):
-            raise ValueError("motor_id must be an integer from 0 to 14")
-        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
-            raise ValueError("errors must be a uint32 integer")
-        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
-            raise ValueError("warnings must be a uint3 integer")
-        if type(self.timeout) is not bool:
-            raise ValueError("timeout must be a bool")
-        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
-            raise ValueError("communication_error must be a CommunicationFailure or None")
-        if type(self.stale) is not bool:
-            raise ValueError("stale must be a bool")
-        if type(self.communication_errors) is not tuple or any(
-            not isinstance(c, CommunicationFailure) for c in self.communication_errors
-        ):
-            raise ValueError("communication_errors must be a tuple of CommunicationFailure")
-
-        if len(self.communication_errors) != len(set(self.communication_errors)):
-            raise ValueError("communication_errors must contain unique codes")
-        if self.communication_error is not None and self.communication_errors and (
-            self.communication_error not in self.communication_errors
-        ):
-            raise ValueError("communication_error must belong to communication_errors")
-
-        if self.communication_error is not None and not self.communication_errors:
-            object.__setattr__(self, "communication_errors", (self.communication_error,))
-        elif self.communication_errors and self.communication_error is None:
-            object.__setattr__(self, "communication_error", self.communication_errors[-1])
-
-
-@dataclass(frozen=True)
-class MotorHealth:
-    mode: int
-    errors: int
-    warnings: int
-    timeout: bool
-
-    def __post_init__(self) -> None:
-        if type(self.mode) is not int or self.mode not in (0, 1):
-            raise ValueError("mode must be the integer 0 or 1")
-        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
-            raise ValueError("errors must be a uint32 integer")
-        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
-            raise ValueError("warnings must be a uint3 integer")
-        if type(self.timeout) is not bool:
-            raise ValueError("timeout must be a bool")
-
-    @property
-    def healthy(self) -> bool:
-        return self.errors == 0 and self.warnings == 0 and not self.timeout
-
-
-@dataclass(frozen=True)
-class SourceIdentity:
-    backend: Literal["physical", "demo", "fixture"]
-    identity: str
-    connection: int
-
-    def __post_init__(self) -> None:
-        if type(self.backend) is not str or self.backend not in ("physical", "demo", "fixture"):
-            raise ValueError("backend must be physical, demo, or fixture")
-        if type(self.identity) is not str or not self.identity.strip():
-            raise ValueError("identity must be a non-empty string")
-        if type(self.connection) is not int or self.connection < 0:
-            raise ValueError("connection must be a nonnegative integer")
-
-
-@dataclass(frozen=True)
-class JointStatus:
-    sample: JointSample | None = None
-    health: MotorHealth | None = None
-    received_at: float | None = None
-    communication_error: CommunicationFailure | None = None
-
-    def __post_init__(self) -> None:
-        if (self.sample is None) != (self.health is None):
-            raise ValueError("sample and health must both be present or both be absent")
-        if self.sample is not None and not isinstance(self.sample, JointSample):
-            raise ValueError("sample must be a JointSample")
-        if self.health is not None and not isinstance(self.health, MotorHealth):
-            raise ValueError("health must be MotorHealth")
-        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
-            raise ValueError("communication_error must be a CommunicationFailure or None")
-        if self.valid and self.received_at is None:
-            raise ValueError("a valid observation requires received_at")
-        if self.received_at is not None:
-            if isinstance(self.received_at, bool) or not isinstance(self.received_at, (int, float)):
-                raise ValueError("received_at must be a finite real number or None")
-            try:
-                received_at = float(self.received_at)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError("received_at must be finite") from exc
-            if not math.isfinite(received_at):
-                raise ValueError("received_at must be finite")
-            if not self.valid:
-                raise ValueError("received_at requires a valid observation")
-            object.__setattr__(self, "received_at", received_at)
-
-    @property
-    def valid(self) -> bool:
-        return self.sample is not None and self.health is not None
-
-    @property
-    def healthy(self) -> bool:
-        return self.valid and self.health.healthy and self.communication_error is None
-
-    @property
-    def errors(self) -> int:
-        return self.health.errors if self.health is not None else 0
-
-    @property
-    def warnings(self) -> int:
-        return self.health.warnings if self.health is not None else 0
-
-    @property
-    def timeout(self) -> bool:
-        return self.health.timeout if self.health is not None else False
-
-
-@dataclass(frozen=True)
-class Target:
-    sequence: int
-    joints: tuple[JointTarget, ...]
-
-    def __post_init__(self) -> None:
-        if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
-            raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
-        if type(self.joints) is not tuple:
-            raise ValueError("joints must be a tuple of JointTarget")
-        if not self.joints:
-            raise ValueError("joints must be a non-empty tuple")
-        if any(not isinstance(joint, JointTarget) for joint in self.joints):
-            raise ValueError("every joint target must be a JointTarget")
-
-
-@dataclass(frozen=True)
-class Snapshot:
-    state: State
-    joint_names: tuple[str, ...]
-    joints: tuple[JointStatus, ...]
-    source: SourceIdentity | None
-    fault_latched: bool
-    feedback_ages_s: tuple[float | None, ...]
-    faults: tuple[JointFault, ...] = ()
-    pending_target: Target | None = None
-    last_sequence: int = -1
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.state, State):
-            raise ValueError("state must be a State")
-        if type(self.joint_names) is not tuple or any(type(name) is not str for name in self.joint_names):
-            raise ValueError("joint_names must be a tuple of strings")
-        if type(self.joints) is not tuple or any(not isinstance(joint, JointStatus) for joint in self.joints):
-            raise ValueError("joints must be a tuple of JointStatus")
-        if type(self.feedback_ages_s) is not tuple:
-            raise ValueError("feedback_ages_s must be a tuple")
-        if len(self.joint_names) != len(self.joints):
-            raise ValueError("joint names and statuses must have equal lengths")
-        if len(self.feedback_ages_s) != len(self.joints):
-            raise ValueError("feedback ages and joint statuses must have equal lengths")
-        normalized_ages: list[float | None] = []
-        for joint, age in zip(self.joints, self.feedback_ages_s):
-            if joint.received_at is None:
-                if age is not None:
-                    raise ValueError("feedback age must be None before a joint is received")
-                normalized_ages.append(None)
-                continue
-            if isinstance(age, bool) or not isinstance(age, (int, float)):
-                raise ValueError("feedback age must be a finite nonnegative number")
-            try:
-                age_value = float(age)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError("feedback age must be finite") from exc
-            if not math.isfinite(age_value) or age_value < 0.0:
-                raise ValueError("feedback age must be finite and nonnegative")
-            normalized_ages.append(age_value)
-        object.__setattr__(self, "feedback_ages_s", tuple(normalized_ages))
-        if self.source is not None and not isinstance(self.source, SourceIdentity):
-            raise ValueError("source must be a SourceIdentity or None")
-        if type(self.fault_latched) is not bool:
-            raise ValueError("fault_latched must be a bool")
-        if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
-            raise ValueError("faults must be a tuple of JointFault")
-        if self.pending_target is not None and not isinstance(self.pending_target, Target):
-            raise ValueError("pending_target must be a Target or None")
-        if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
-            raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
-
-    @property
-    def affected_joints(self) -> tuple[str, ...]:
-        return tuple(fault.name for fault in self.faults)
+class _DispatchClaim:
+    plan: RefreshPlan
+    index: int
+    started_at_s: float
 
 
 class JointCore:
@@ -296,6 +48,7 @@ class JointCore:
         joints: Iterable[JointSpec],
         *,
         feedback_max_age_s: float = 0.5,
+        max_window_s: float = 1.0,
         clock=None,
     ):
         if isinstance(feedback_max_age_s, bool) or not isinstance(feedback_max_age_s, (int, float)):
@@ -306,6 +59,16 @@ class JointCore:
             raise ValueError("feedback_max_age_s must be finite") from exc
         if not math.isfinite(feedback_max_age_s) or feedback_max_age_s <= 0.0:
             raise ValueError("feedback_max_age_s must be finite and positive")
+
+        if isinstance(max_window_s, bool) or not isinstance(max_window_s, (int, float)):
+            raise ValueError("max_window_s must be a finite positive real number")
+        try:
+            max_window_s = float(max_window_s)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_window_s must be finite") from exc
+        if not math.isfinite(max_window_s) or max_window_s <= 0.0:
+            raise ValueError("max_window_s must be finite and positive")
+
         if clock is None:
             clock = time.monotonic
         if not callable(clock):
@@ -332,14 +95,28 @@ class JointCore:
         self._observations: list[JointStatus] = [JointStatus() for _ in specs]
         self._source: SourceIdentity | None = None
         self._feedback_max_age_s = feedback_max_age_s
+        self._max_window_s = max_window_s
         self._clock = clock
+        self._now_high_water_s: float | None = None
+        self._next_window_id: int = 0
+        self._offered_window: IntentWindow | None = None
+        self._admitted_target: Target | None = None
+        self._prepared_plan: RefreshPlan | None = None
+        self._next_plan_id: int = 0
+        self._next_dispatch_index: int = 0
+        self._dispatch_claim: _DispatchClaim | None = None
+        self._dispatched_records: list[JointDispatchedRecord | None] = [None for _ in specs]
+        self._dispatch_attempts: list[JointDispatchAttempt | None] = [None for _ in specs]
         self._faults: dict[str, JointFault] = {}
-        self._pending_target: Target | None = None
         self._last_sequence: int = -1
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
         return self._specs
+
+    @property
+    def admitted_target(self) -> Target | None:
+        return self._admitted_target
 
     @staticmethod
     def _accepted() -> Decision:
@@ -351,6 +128,31 @@ class JointCore:
 
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
+
+    def _invalidate_plan(self) -> None:
+        self._prepared_plan = None
+        self._next_dispatch_index = 0
+
+    def _withdraw_motion(self) -> None:
+        self._admitted_target = None
+        self._invalidate_plan()
+
+    def _record_dispatch_failure(
+        self, index: int, cause: CommunicationFailure
+    ) -> None:
+        spec = self._specs[index]
+        self._latch_joint_fault(
+            spec.name,
+            spec.motor_id,
+            communication_error=cause,
+        )
+        joint = self._observations[index]
+        self._observations[index] = JointStatus(
+            joint.sample,
+            joint.health,
+            joint.received_at,
+            cause,
+        )
 
     def _latch_joint_fault(
         self,
@@ -378,7 +180,14 @@ class JointCore:
         )
         self._faults[name] = fault
         self._state = State.FAULT
-        self._pending_target = None
+        self._withdraw_motion()
+
+    def _withdraw_expired_goal(self) -> None:
+        self._withdraw_motion()
+        if self._faults:
+            self._state = State.FAULT
+        elif self._state in (State.ARMED, State.MOVING):
+            self._state = State.STOPPED
 
     def _now(self) -> float:
         value = self._clock()
@@ -390,6 +199,11 @@ class JointCore:
             raise ValueError("clock must return a finite real number") from exc
         if not math.isfinite(result):
             raise ValueError("clock must return a finite real number")
+        if self._now_high_water_s is not None and result < self._now_high_water_s:
+            raise ValueError(
+                f"clock regressed from {self._now_high_water_s} to {result}"
+            )
+        self._now_high_water_s = result
         return result
 
     @staticmethod
@@ -407,8 +221,57 @@ class JointCore:
             for joint in self._observations
         )
 
+    def _housekeeping(self, now: float) -> DecisionCode | None:
+        if self._state in (State.READY, State.ARMED, State.MOVING):
+            stale_specs = [
+                spec
+                for spec, joint in zip(self._specs, self._observations)
+                if (
+                    not joint.valid
+                    or joint.received_at is None
+                    or self._age(joint.received_at, now) > self._feedback_max_age_s
+                )
+            ]
+            if stale_specs:
+                for spec in stale_specs:
+                    self._latch_joint_fault(spec.name, spec.motor_id, stale=True)
+                return DecisionCode.STALE_FEEDBACK
+        if (
+            self._admitted_target is not None
+            and now >= self._admitted_target.window.expires_at_s
+        ):
+            self._withdraw_expired_goal()
+            return DecisionCode.EXPIRED
+        return None
+
+    def issue_window(self, valid_for_s: float) -> IntentWindow:
+        if isinstance(valid_for_s, bool) or not isinstance(valid_for_s, (int, float)):
+            raise ValueError("valid_for_s must be a finite positive real number")
+        try:
+            valid_for_s = float(valid_for_s)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("valid_for_s must be finite") from exc
+        if not math.isfinite(valid_for_s) or valid_for_s <= 0.0:
+            raise ValueError("valid_for_s must be finite and positive")
+        if valid_for_s > self._max_window_s:
+            raise ValueError(
+                f"valid_for_s ({valid_for_s}) exceeds configured maximum window ({self._max_window_s})"
+            )
+        now = self._now()
+        window_id = self._next_window_id
+        if window_id > (1 << 64) - 1:
+            raise OverflowError("window ID sequence exhausted")
+        self._next_window_id += 1
+        window = IntentWindow(
+            id=window_id,
+            created_at_s=now,
+            expires_at_s=now + valid_for_s,
+        )
+        self._offered_window = window
+        return window
+
     def begin_connect(self) -> Decision:
-        if self._state is not State.DISCONNECTED:
+        if self._state is not State.DISCONNECTED or self._dispatch_claim is not None:
             return self._rejected(DecisionCode.INVALID_STATE)
         self._state = State.CONNECTING
         return self._accepted()
@@ -426,12 +289,12 @@ class JointCore:
     def begin_check(self, *, acknowledge_fault: bool = False) -> Decision:
         if type(acknowledge_fault) is not bool:
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
-        if self._state not in (State.CONNECTED, State.STOPPED, State.FAULT):
+        if self._state not in (State.CONNECTED, State.STOPPED, State.FAULT) or self._dispatch_claim is not None:
             return self._rejected(DecisionCode.INVALID_STATE)
         if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
-        self._pending_target = None
+        self._withdraw_motion()
         self._state = State.CHECKING
         return self._accepted()
 
@@ -456,7 +319,8 @@ class JointCore:
         if not isinstance(sample, JointSample) or not isinstance(status, MotorHealth):
             return self._rejected(DecisionCode.INVALID_OBSERVATION)
 
-        self._observations[index] = JointStatus(sample, status, self._now())
+        now = self._now()
+        self._observations[index] = JointStatus(sample, status, now)
         if not status.healthy:
             self._latch_joint_fault(
                 self._specs[index].name,
@@ -490,7 +354,8 @@ class JointCore:
         )
         joint = self._observations[index]
         self._observations[index] = JointStatus(
-            joint.sample, joint.health, joint.received_at, failure_code)
+            joint.sample, joint.health, joint.received_at, failure_code
+        )
         return self._accepted()
 
     def checked(self) -> Decision:
@@ -529,42 +394,40 @@ class JointCore:
     def tick(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
-        if self._state in (State.READY, State.ARMED, State.MOVING):
-            now = self._now()
-            stale_specs = []
-            for index, spec in enumerate(self._specs):
-                joint = self._observations[index]
-                if (
-                    not joint.valid
-                    or joint.received_at is None
-                    or self._age(joint.received_at, now) > self._feedback_max_age_s
-                ):
-                    stale_specs.append(spec)
-            if stale_specs:
-                for spec in stale_specs:
-                    self._latch_joint_fault(
-                        spec.name,
-                        spec.motor_id,
-                        stale=True,
-                    )
+        now = self._now()
+        self._housekeeping(now)
         return self._accepted()
 
     def submit_target(self, target: Target) -> Decision:
         if self._state not in (State.ARMED, State.MOVING):
             return self._rejected(DecisionCode.INVALID_STATE)
-        if any(not joint.valid for joint in self._observations):
-            return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
         now = self._now()
-        if not self._all_fresh(now):
-            return self._rejected(DecisionCode.STALE_FEEDBACK)
+        housekeeping = self._housekeeping(now)
+        if housekeeping is not None:
+            return self._rejected(housekeeping)
+        if self._state not in (State.ARMED, State.MOVING):
+            return self._rejected(DecisionCode.INVALID_STATE)
         if any(not joint.healthy for joint in self._observations):
             return self._rejected(DecisionCode.UNHEALTHY)
 
+        if not isinstance(target, Target) or len(target.joints) != len(self._specs):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+
+        if not isinstance(target.window, IntentWindow):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if self._offered_window is None:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if target.window.id < self._offered_window.id:
+            return self._rejected(DecisionCode.EXPIRED)
+        if target.window.id != self._offered_window.id:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
         if (
-            not isinstance(target, Target)
-            or len(target.joints) != len(self._specs)
+            target.window.created_at_s != self._offered_window.created_at_s
+            or target.window.expires_at_s != self._offered_window.expires_at_s
         ):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if now >= target.window.expires_at_s:
+            return self._rejected(DecisionCode.EXPIRED)
 
         try:
             for spec, joint_target in zip(self._specs, target.joints):
@@ -585,26 +448,150 @@ class JointCore:
         if target.sequence <= self._last_sequence:
             return self._rejected(DecisionCode.DUPLICATE_OR_OLDER)
 
-        self._pending_target = target
+        self._admitted_target = target
         self._last_sequence = target.sequence
+        self._invalidate_plan()
         return self._accepted()
 
-    def consume_target(self) -> Target | None:
+    def prepare_refresh(self) -> RefreshPlan | None:
+        if self._dispatch_claim is not None:
+            return None
         if self._state not in (State.ARMED, State.MOVING):
             return None
-        self.tick()
-        if self._state is State.FAULT or any(not joint.healthy for joint in self._observations):
+        if self._state is State.FAULT or bool(self._faults):
             return None
-        target = self._pending_target
-        self._pending_target = None
-        if target is not None:
-            self._state = State.MOVING
-        return target
+        now = self._now()
+        if self._housekeeping(now) is not None:
+            return None
+        if any(not joint.healthy for joint in self._observations):
+            return None
+        if self._admitted_target is None:
+            return None
+
+        try:
+            for spec, joint_target in zip(self._specs, self._admitted_target.joints):
+                output = spec.mapping.to_output(joint_target)
+                command(
+                    spec.motor_id,
+                    mode=1,
+                    rpm=output.rpm,
+                    kd=output.kd,
+                    torque=output.tau_nm,
+                    watchdog=True,
+                    position=output.q_rad,
+                    kp=output.kp,
+                )
+        except ValueError:
+            return None
+
+        plan_id = self._next_plan_id
+        if plan_id > (1 << 64) - 1:
+            raise OverflowError("plan ID sequence exhausted")
+        self._next_plan_id += 1
+
+        plan = RefreshPlan(
+            plan_id=plan_id,
+            target=self._admitted_target,
+            prepared_at_s=now,
+            joint_targets=self._admitted_target.joints,
+        )
+        self._prepared_plan = plan
+        self._next_dispatch_index = 0
+        return plan
+
+    def claim_dispatch(self, plan_id: int, index: int) -> bool:
+        if (
+            type(plan_id) is not int
+            or type(index) is not int
+        ):
+            return False
+        if self._dispatch_claim is not None:
+            return False
+        if self._prepared_plan is None or self._prepared_plan.plan_id != plan_id:
+            return False
+        if self._state not in (State.ARMED, State.MOVING):
+            return False
+        if self._state is State.FAULT or bool(self._faults):
+            return False
+        if index < 0 or index >= len(self._specs):
+            return False
+        if index != self._next_dispatch_index:
+            return False
+
+        now = self._now()
+        if self._housekeeping(now) is not None:
+            return False
+        if self._admitted_target is None or self._prepared_plan is None:
+            return False
+        if any(not joint.healthy for joint in self._observations):
+            return False
+
+        self._dispatch_claim = _DispatchClaim(self._prepared_plan, index, now)
+        return True
+
+    def dispatch_result(
+        self, plan_id: int, index: int, result: WriteResult
+    ) -> Decision:
+        if (
+            type(plan_id) is not int
+            or type(index) is not int
+        ):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if not isinstance(result, WriteResult):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        claim = self._dispatch_claim
+        if claim is None or claim.plan.plan_id != plan_id or claim.index != index:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if index < 0 or index >= len(self._specs):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+
+        self._dispatch_claim = None
+        plan = claim.plan
+        joint_target = plan.joint_targets[index]
+        self._dispatch_attempts[index] = JointDispatchAttempt(
+            plan_id=plan.plan_id,
+            sequence=plan.target.sequence,
+            target=joint_target,
+            result=result,
+            started_at_s=claim.started_at_s,
+        )
+        if result is WriteResult.COMPLETE:
+            record = JointDispatchedRecord(
+                sequence=plan.target.sequence,
+                target=joint_target,
+                dispatched_at_s=claim.started_at_s,
+            )
+            self._dispatched_records[index] = record
+            try:
+                now = self._now()
+            except Exception:
+                self._record_dispatch_failure(index, CommunicationFailure.CLOCK_FAILURE)
+                return self._rejected(DecisionCode.FAULT_LATCHED)
+
+            housekeeping = self._housekeeping(now)
+            still_current = (
+                self._prepared_plan is plan
+                and self._admitted_target is plan.target
+                and self._state in (State.ARMED, State.MOVING)
+                and not self._faults
+            )
+            if still_current and housekeeping is None:
+                self._next_dispatch_index = index + 1
+                self._state = State.MOVING
+            return self._accepted()
+
+        cause = (
+            CommunicationFailure.PREWRITE_DEADLINE
+            if result is WriteResult.PREWRITE_DEADLINE
+            else CommunicationFailure.DRIVER_FAILURE
+        )
+        self._record_dispatch_failure(index, cause)
+        return self._rejected(DecisionCode.FAULT_LATCHED)
 
     def stop(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
-        self._pending_target = None
+        self._withdraw_motion()
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
@@ -615,7 +602,7 @@ class JointCore:
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
-        self._pending_target = None
+        self._withdraw_motion()
         return self._accepted()
 
     def snapshot(self) -> Snapshot:
@@ -635,6 +622,9 @@ class JointCore:
             fault_latched=bool(self._faults),
             feedback_ages_s=ages,
             faults=faults,
-            pending_target=self._pending_target,
+            admitted_target=self._admitted_target,
+            prepared_plan=self._prepared_plan,
+            dispatched_records=tuple(self._dispatched_records),
+            dispatch_attempts=tuple(self._dispatch_attempts),
             last_sequence=self._last_sequence,
         )

@@ -1,0 +1,48 @@
+test_complete_write_survives_invalid_core_end_clock (__main__.Reproductions.test_complete_write_survives_invalid_core_end_clock) ... FAIL
+test_fresh_target_cannot_revive_expired_moving_goal (__main__.Reproductions.test_fresh_target_cannot_revive_expired_moving_goal) ... FAIL
+test_one_inflight_write_blocks_next_claim_and_reprepare (__main__.Reproductions.test_one_inflight_write_blocks_next_claim_and_reprepare) ... FAIL
+test_write_at_deadline_still_reports_actual_completion (__main__.Reproductions.test_write_at_deadline_still_reports_actual_completion) ... FAIL
+
+======================================================================
+FAIL: test_complete_write_survives_invalid_core_end_clock (__main__.Reproductions.test_complete_write_survives_invalid_core_end_clock)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C07-parent-repro.py", line 46, in test_complete_write_survives_invalid_core_end_clock
+    self.assertIsNotNone(core.snapshot().dispatched_records[0],'actual write evidence was lost')
+AssertionError: unexpectedly None : actual write evidence was lost
+
+======================================================================
+FAIL: test_fresh_target_cannot_revive_expired_moving_goal (__main__.Reproductions.test_fresh_target_cannot_revive_expired_moving_goal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C07-parent-repro.py", line 22, in test_fresh_target_cannot_revive_expired_moving_goal
+    self.assertFalse(decision.accepted,'expired motion revived without Stop/check/arm')
+AssertionError: True is not false : expired motion revived without Stop/check/arm
+
+======================================================================
+FAIL: test_one_inflight_write_blocks_next_claim_and_reprepare (__main__.Reproductions.test_one_inflight_write_blocks_next_claim_and_reprepare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C07-parent-repro.py", line 51, in test_one_inflight_write_blocks_next_claim_and_reprepare
+    self.assertFalse(core.claim_dispatch(plan.plan_id,1),'next claim allowed with prior outcome unresolved')
+AssertionError: True is not false : next claim allowed with prior outcome unresolved
+
+======================================================================
+FAIL: test_write_at_deadline_still_reports_actual_completion (__main__.Reproductions.test_write_at_deadline_still_reports_actual_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C07-parent-repro.py", line 34, in test_write_at_deadline_still_reports_actual_completion
+    self.assertEqual(results,[WriteResult.COMPLETE])
+AssertionError: Lists differ: [] != [<WriteResult.COMPLETE: 'complete'>]
+
+Second list contains 1 additional elements.
+First extra element 0:
+<WriteResult.COMPLETE: 'complete'>
+
+- []
++ [<WriteResult.COMPLETE: 'complete'>]
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+FAILED (failures=4)

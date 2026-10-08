@@ -37,7 +37,7 @@
 
 ## Units
 
-- [ ] C07.
+- [x] C07. Parent software checks accepted; final branch review remains pending.
 - [ ] C08.
 - [ ] C09.
 - [ ] C10.

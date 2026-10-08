@@ -1,0 +1,9 @@
+test_complete_write_survives_invalid_core_end_clock (__main__.Reproductions.test_complete_write_survives_invalid_core_end_clock) ... ok
+test_fresh_target_cannot_revive_expired_moving_goal (__main__.Reproductions.test_fresh_target_cannot_revive_expired_moving_goal) ... ok
+test_one_inflight_write_blocks_next_claim_and_reprepare (__main__.Reproductions.test_one_inflight_write_blocks_next_claim_and_reprepare) ... ok
+test_write_at_deadline_still_reports_actual_completion (__main__.Reproductions.test_write_at_deadline_still_reports_actual_completion) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK
