@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_dashboard.py", line 86, in <module>
+    fails(lambda: validate_test(dict(base, **change)))
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_dashboard.py", line 64, in fails
+    call()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_dashboard.py", line 86, in <lambda>
+    fails(lambda: validate_test(dict(base, **change)))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/motor_session.py", line 58, in validate_test
+    packet = command(0, 1, rpm=v['rpm'], kd=v['kd'], kp=v['kp'], position=math.radians(v['position_deg']))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?

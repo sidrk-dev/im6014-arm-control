@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "operations": [
+    {
+      "id": "C08-checks-1",
+      "task": "C08",
+      "checkpoint": "C08",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "ac84fc279a6b532433234df6717041db50c78bcc",
+        "digest": "beec47b9c8cf3cbca3982c9b202b26cd404b3ad5d944f378ce0bfbb40e54f084",
+        "files": [
+          "docs/joint-api.md",
+          "joint_contract.py",
+          "joint_controller.py",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "test_controller.py",
+          "test_controller_expiry.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_startup.py"
+        ],
+        "checks": [
+          "scripts/check_milestone.py C08",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "baselineExit": 1,
+        "evidence": [
+          "C08-targeted/C08-20261008T082114001360Z/receipt.json",
+          "C08-draft-baseline/run-20261008T082238Z-ZW1Q98k8/checks.tsv"
+        ],
+        "acceptance": "rejected draft; fresh Luna bug-fix C08-fix"
+      },
+      "recordedAt": "2026-10-08T08:21:44.251Z",
+      "completedAt": "2026-10-08T08:24:41.448Z"
+    },
+    {
+      "id": "C09-checks-1",
+      "task": "C09",
+      "checkpoint": "C09-inclusive-joint-position-bounds",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "83b15785d7c065bc6144bbf569e27ed4bbee43a7",
+        "digest": "69d3161cb3cd060caa92d5a01a13e58ccabd4beb8b34bade7b0771c97b40c04d",
+        "files": [
+          "joint_contract.py",
+          "im6014_codec.py",
+          "joint_reference.py",
+          "joint_controller.py",
+          "test_controller.py",
+          "test_controller_owner.py",
+          "test_controller_expiry.py",
+          "test_controller_targets.py",
+          "test_controller_limits.py",
+          "docs/joint-api.md",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "test_startup.py"
+        ],
+        "checks": [
+          "C09",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "milestoneExit": 1,
+        "baselineExit": 1,
+        "evidence": [
+          "C09-original-checks",
+          "C09-original-targeted",
+          "C09-original-baseline"
+        ],
+        "acceptance": "Rejected original; fresh native Luna bug-fix C09-fix active"
+      },
+      "recordedAt": "2026-10-08T13:32:49.159Z",
+      "completedAt": "2026-10-08T13:35:47.057Z"
+    }
+  ]
+}

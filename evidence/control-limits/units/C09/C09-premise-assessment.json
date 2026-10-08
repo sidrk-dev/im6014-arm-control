@@ -1,0 +1,10 @@
+{
+  "premise": "The inherited 1-radian fixture is a codec rounding overshoot with rawcode208608; decoded bench endpoints must equal input floatbounds",
+  "observed": "False. Canonical38/3 scale givesraw66059anddecoded0.9999990480289892. q0.1reallyovershoots. commandkd6acceptsraw1915butdecodeincorrectlyrejectsroundedgain.",
+  "evidence": [
+    "C09-parent-grid-census.json",
+    "C09-codec-endpoint-repro.log",
+    "C09-parent-codec-targeted.log"
+  ],
+  "decision": "Use actual rawgrid-derived overshoot fixture and distinguish canonical input representability from decoded joint safety values"
+}

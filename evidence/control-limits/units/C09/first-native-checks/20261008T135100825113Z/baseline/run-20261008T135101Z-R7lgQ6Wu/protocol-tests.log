@@ -1,0 +1,1242 @@
+test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) ... 
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 14}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0, 'watchdog': False}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0, 'mode': 1, 'rpm': 5, 'kd': 6}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 3, 'mode': 1, 'rpm': -5, 'kd': 1, 'torque': -0.2, 'position': -1.5707963267948966, 'kp': 3}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 1, 'mode': 1, 'rpm': 60}) ... ERROR
+  test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 1, 'mode': 1, 'rpm': -60}) ... ERROR
+test_single_pure_codec_implementation (test_protocol.B01Encoder.test_single_pure_codec_implementation) ... FAIL
+test_captured_physical_stop_fields (test_protocol.B02Decoder.test_captured_physical_stop_fields) ... ok
+test_generated_signed_and_unsigned_fields (test_protocol.B02Decoder.test_generated_signed_and_unsigned_fields) ... ok
+test_256_independent_vendor_vectors (test_protocol.B03Checksum.test_256_independent_vendor_vectors) ... ok
+test_each_payload_and_checksum_bit_rejected (test_protocol.B03Checksum.test_each_payload_and_checksum_bit_rejected) ... ok
+test_incomplete_checksum_words_rejected (test_protocol.B03Checksum.test_incomplete_checksum_words_rejected) ... ok
+test_every_unrelated_header_byte_rejected (test_protocol.B04Framing.test_every_unrelated_header_byte_rejected) ... ok
+test_short_oversized_and_coalesced_decoder_inputs (test_protocol.B04Framing.test_short_oversized_and_coalesced_decoder_inputs) ... ok
+test_unsupported_modes_with_valid_vendor_crc_rejected (test_protocol.B04Framing.test_unsupported_modes_with_valid_vendor_crc_rejected) ... ok
+test_delays_timeouts_and_write_controls (test_protocol.B05Fake.test_delays_timeouts_and_write_controls) ... ok
+test_empty_nonblocking_read_advances_fake_clock (test_protocol.B05Fake.test_empty_nonblocking_read_advances_fake_clock) ... ok
+test_partial_write_preserves_next_successful_reply (test_protocol.B05Fake.test_partial_write_preserves_next_successful_reply) ... ok
+test_record_reset_and_chunk_remainder (test_protocol.B05Fake.test_record_reset_and_chunk_remainder) ... ok
+test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) ... 
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'', b'', b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc', b'', b'\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee', b'', b'\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80', b'', b'\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d', b'', b'\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1b', b'', b'H\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH', b'', b'\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00', b'', b'\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00', b'', b'\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00', b'', b'\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00', b'', b'l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l', b'', b'\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4', b'', b'\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb', b'', b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00', b'', b'\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00', b'', b'\x00\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00', b'', b'\x00\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00', b'', b'\x00\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00', b'', b'\x00\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00', b'', b'\x00\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00', b'', b'\x00\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00', b'', b'\x00\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00', b'', b'\xf1yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1', b'', b'yE}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y', b'', b'E}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE', b'', b'}')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}', b'', b'')) ... ERROR
+  test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc', b'\xee', b'\x80', b'\x1d', b'\x1b', b'H', b'\x00', b'\x00', b'\x00', b'\x00', b'l', b'\xc4', b'\xdb', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\xf1', b'y', b'E', b'}')) ... ERROR
+test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) ... 
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=0) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=1) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=2) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=3) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=4) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=5) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=6) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=7) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=8) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=9) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=10) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=11) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=12) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=13) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=14) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=15) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=16) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=17) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=18) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=19) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=20) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=21) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=22) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=23) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=24) ... ERROR
+  test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=25) ... ERROR
+test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic) ... ERROR
+test_earlier_crc_rejection_remains_visible_after_foreign_frame (test_protocol.B07Recovery.test_earlier_crc_rejection_remains_visible_after_foreign_frame) ... ERROR
+test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) ... 
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'noise\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xeejunk\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE|\xfc\xee\x80\x1d') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xa0\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00?i\xa1\x8e\xfc\xee\x80\x1d') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee') ... ERROR
+  test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}\xfc\xee\x80\x1d') ... ERROR
+test_decoder_and_stream_reject_other_identity (test_protocol.B08Identity.test_decoder_and_stream_reject_other_identity) ... ERROR
+test_foreign_feedback_never_refreshes_session (test_protocol.B08Identity.test_foreign_feedback_never_refreshes_session) ... ERROR
+test_independent_command_fields (test_protocol.B10Units.test_independent_command_fields) ... ERROR
+test_independent_feedback_output_units (test_protocol.B10Units.test_independent_feedback_output_units) ... ok
+test_representable_endpoints_and_half_lsb_error (test_protocol.B10Units.test_representable_endpoints_and_half_lsb_error) ... ERROR
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 14})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0, 'watchdog': False})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 0, 'mode': 1, 'rpm': 5, 'kd': 6})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 3, 'mode': 1, 'rpm': -5, 'kd': 1, 'torque': -0.2, 'position': -1.5707963267948966, 'kp': 3})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 1, 'mode': 1, 'rpm': 60})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) (values={'motor_id': 1, 'mode': 1, 'rpm': -60})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 28, in test_pre_extraction_golden_commands
+    self.assertEqual(s.command(**values).hex(), expected)
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'', b'', b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc', b'', b'\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee', b'', b'\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80', b'', b'\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d', b'', b'\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1b', b'', b'H\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH', b'', b'\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00', b'', b'\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00', b'', b'\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00', b'', b'\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00', b'', b'l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l', b'', b'\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4', b'', b'\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb', b'', b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00', b'', b'\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00', b'', b'\x00\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00', b'', b'\x00\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00', b'', b'\x00\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00', b'', b'\x00\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00', b'', b'\x00\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00', b'', b'\x00\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00', b'', b'\x00\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00', b'', b'\xf1yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1', b'', b'yE}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y', b'', b'E}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE', b'', b'}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}', b'', b''))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) (chunks=(b'\xfc', b'\xee', b'\x80', b'\x1d', b'\x1b', b'H', b'\x00', b'\x00', b'\x00', b'\x00', b'l', b'\xc4', b'\xdb', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\x00', b'\xf1', b'y', b'E', b'}'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 200, in test_each_split_and_byte_at_a_time
+    result = s.exchange(bus, s.command(0), 0)
+                             ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=6)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=7)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=9)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=10)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=11)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=12)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=13)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=14)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=15)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=16)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=17)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=18)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=19)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=21)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=22)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=23)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=24)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) (size=25)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 212, in test_each_truncated_prefix_expires
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 241, in test_corrupt_only_expires_with_bounded_crc_diagnostic
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_earlier_crc_rejection_remains_visible_after_foreign_frame (test_protocol.B07Recovery.test_earlier_crc_rejection_remains_visible_after_foreign_frame)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 255, in test_earlier_crc_rejection_remains_visible_after_foreign_frame
+    s.exchange(bus, s.command(0), 0, .002)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'noise\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xeejunk\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1y')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE|\xfc\xee\x80\x1d')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xa0\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00?i\xa1\x8e\xfc\xee\x80\x1d')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee\xfc\xee')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) (prefix=b'\xfc\xee\x80\x1d\x1bH\x00\x00\x00\x00l\xc4\xdb\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf1yE}\xfc\xee\x80\x1d')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 230, in test_noise_corrupt_and_overlapping_candidates_recover
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_decoder_and_stream_reject_other_identity (test_protocol.B08Identity.test_decoder_and_stream_reject_other_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 275, in test_decoder_and_stream_reject_other_identity
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["id"], 0)
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_foreign_feedback_never_refreshes_session (test_protocol.B08Identity.test_foreign_feedback_never_refreshes_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 294, in test_foreign_feedback_never_refreshes_session
+    session._transact()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/motor_session.py", line 207, in _transact
+    packet = command(motor_id, mode, rpm, kd, torque, watchdog, position, kp)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_independent_command_fields (test_protocol.B10Units.test_independent_command_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 307, in test_independent_command_fields
+    packet = s.command(0, 1, rpm=sign * 5, torque=sign * .1,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_representable_endpoints_and_half_lsb_error (test_protocol.B10Units.test_representable_endpoints_and_half_lsb_error)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 327, in test_representable_endpoints_and_half_lsb_error
+    packet = s.command(0, 1, rpm=value)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+FAIL: test_single_pure_codec_implementation (test_protocol.B01Encoder.test_single_pure_codec_implementation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_protocol.py", line 44, in test_single_pure_codec_implementation
+    self.assertEqual(result.returncode, 0, result.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.100s
+
+FAILED (failures=1, errors=75)

@@ -29,8 +29,8 @@ SOURCE = SourceIdentity("fixture", "expiry-test", 1)
 class ControllerExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -196,7 +196,7 @@ class ControllerExpiryTests(unittest.TestCase):
         records_after_j0 = core.snapshot().dispatched_records
         self.assertIsNotNone(records_after_j0[0])
         self.assertEqual(records_after_j0[0].sequence, 1)
-        self.assertEqual(records_after_j0[0].target, self.valid_joints[0])
+        self.assertEqual(records_after_j0[0].target, plan.joint_targets[0])
         self.assertIsNone(records_after_j0[1])
 
         # Expiry occurs before Joint 1 write

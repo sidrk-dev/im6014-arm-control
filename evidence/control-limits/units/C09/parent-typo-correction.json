@@ -1,0 +1,8 @@
+{
+  "reason": "Actual NameError at command_with_raw_position line115; all writes failed beforeexecution",
+  "sourceCopy": "C09-parent-codec-workbench; original first-native copy untouched",
+  "old": "struct.pack torque_raw,rpm_raw,position_raw,kp_raw,kd_raw",
+  "new": "struct.pack torque_raw,rpm_raw,raw_position,kp_raw,kd_raw",
+  "checks": "22targeted2failures3fixtureerrors; all3separateparentreprofilespass",
+  "next": "Fresh narrow endpoint/fixturebugfix from inspected copy"
+}

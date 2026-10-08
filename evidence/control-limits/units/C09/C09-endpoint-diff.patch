@@ -1,0 +1,996 @@
+diff --git a/docs/controller-limits-design.md b/docs/controller-limits-design.md
+index 9c2cb59..f8c382a 100644
+--- a/docs/controller-limits-design.md
++++ b/docs/controller-limits-design.md
+@@ -103,7 +103,7 @@ Then q_next=q_prev+position_step_velocity*h, where position_step_velocity is der
+ 
+ These are samplewise software reference constraints. They establish no continuous motor trajectory, physical acceleration or certified braking. Timing and actual write records remain separate.
+ 
+-Before any write, validate every shaped mapped packet through the canonical codec. Codec quantization can cross a strict boundary. Keep codec scales in the codec; expose decoded encoded-command values there if necessary, map back once and check actual encoded endpoints/effort. Choose an inward representable value when possible, otherwise withdraw motion. Do not disguise a quantization overshoot with an arbitrary safety tolerance or copy codec scales into the limiter. Recheck fresh measurement, expiry, owner and limits at final gate. No source caller can bypass constraints via the deleted consume API.
++Before any write, validate every shaped mapped packet through the canonical codec. Codec quantization can cross a closed position or effort bound. Keep codec scales in the codec; expose decoded encoded-command values there if necessary, map back once and check actual encoded endpoints/effort against inclusive limits. Choose an inward representable value when possible, otherwise withdraw motion. Do not disguise a quantization overshoot with an arbitrary safety tolerance or copy codec scales into the limiter. Recheck fresh measurement, expiry, owner and limits at final gate. No source caller can bypass constraints via the deleted consume API.
+ 
+ Predict tau_ff+kp*(q_ref-q_measured)+kd*(dq_ref-dq_measured), including gains after encoded-command quantization. Preserve requested/admitted, shaped accepted, confirmed dispatched and measured records distinctly. Monitor measured joint effort independently. C13 trips configured peak effort; C14 adds continuous-effort dwell, explicit driver/winding temperature trip/reset bounds and attributed fault union. No defaults claim physical protection. Recovery requires explicit acknowledgment followed by complete fresh healthy Stop telemetry below recovery thresholds for the configured dwell; new targets, reconnect and healthy packets alone cannot clear latches. Missing temperature telemetry never proves healthy recovery.
+ 
+diff --git a/docs/joint-api.md b/docs/joint-api.md
+index 81550dd..5b3bd51 100644
+--- a/docs/joint-api.md
++++ b/docs/joint-api.md
+@@ -67,7 +67,7 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
+ 
+ `Target(sequence, joints, window, owner)` contains an immutable complete tuple of `JointTarget` values in configured order, a required station-issued `IntentWindow(id, created_at_s, expires_at_s)`, and the current `OwnerToken`. `JointCore.issue_window(valid_for_s)` issues the latest offered window with a monotonic ID and bounded duration (`max_window_s`, default 1.0s). `submit_target` first expires or faults an existing goal as needed, then checks the full owner token, validates the incoming window against the latest offered window, checks expiry (exact equality with expiry is expired), checks mapped output codec representability, and enforces monotonic command sequence ordering before admitting the goal. A rejected replacement keeps an existing goal only while that goal remains valid.
+ 
+-`consume_target` is deleted in favor of explicit refresh lifecycle: `prepare_refresh()`, `claim_dispatch(plan_id, index)`, and `dispatch_result(plan_id, index, result)`. An admitted goal is refreshed repeatedly until its window expires. Preparing a plan proposes a refresh vector without dispatching. `claim_dispatch` verifies freshness, health, goal expiry, and ordered joint index immediately before each write. Only one claim may await an outcome; the core blocks another joint claim and plan preparation until it arrives. Stop, expiry, target replacement, or fault can invalidate the plan without discarding that in-flight receipt. `exchange` reports the write result once after the driver outcome; successful returns are deadline-checked before feedback. If the deadline expires after the pre-write hook grants a claim but before `bus.write`, it reports `WriteResult.PREWRITE_DEADLINE`: the software made no write call for that claim. This does not establish motor state or physical protection. `WriteResult.PARTIAL` means the driver returned a positive short count. `WriteResult.FAILED` means the driver raised or returned an invalid count, so byte delivery may be unknown. `Snapshot.dispatch_attempts` holds the latest outcome per joint. `dispatch_result` commits a dispatched record only for a complete write. A dispatched record's `dispatched_at_s` is the valid claim/write start time, not a fabricated completion timestamp. A complete write followed by invalid or regressing core time preserves the complete record and attempt, then faults with `CommunicationFailure.CLOCK_FAILURE` without restoring motion. `WriteResult.PREWRITE_DEADLINE` faults with `CommunicationFailure.PREWRITE_DEADLINE`; `PARTIAL` and `FAILED` fault with `DRIVER_FAILURE`, preserving any prior complete record. A late receipt for an invalidated plan is recorded but cannot restore motion. When an admitted goal expires, housekeeping withdraws it, invalidates pending plans, and disarms the core to `STOPPED` (latched fault preserved), requiring a new check and arm cycle. Sequence watermarks survive consumption, stop, fault, and disconnect.
++`consume_target` is deleted in favor of explicit refresh lifecycle: `prepare_refresh()`, `claim_dispatch(plan_id, index)`, and `dispatch_result(plan_id, index, result)`. An admitted goal is refreshed repeatedly until its window expires. Preparing a plan proposes a refresh vector without dispatching. Each `RefreshPlan` contains an exact-count tuple of immutable, validated canonical packet bytes; the adapter writes those bytes unchanged. `joint_targets` records the actual full joint reference decoded from those packets, while `target` preserves the admitted request. `claim_dispatch` verifies freshness, health, goal expiry, and ordered joint index immediately before each write. Only one claim may await an outcome; the core blocks another joint claim, plan preparation, and reconnect until the station reports that claim's actual transport result. Stop, expiry, target replacement, disconnect, or fault can invalidate the plan without discarding that in-flight receipt. `exchange` reports the write result once after the driver outcome; successful returns are deadline-checked before feedback. If the deadline expires after the pre-write hook grants a claim but before `bus.write`, it reports `WriteResult.PREWRITE_DEADLINE`: the software made no write call for that claim. This does not establish motor state or physical protection. `WriteResult.PARTIAL` means the driver returned a positive short count. `WriteResult.FAILED` means the driver raised or returned an invalid count, so byte delivery may be unknown. `Snapshot.dispatch_attempts` holds the latest outcome per joint. `dispatch_result` commits a dispatched record only for a complete write. A dispatched record's `dispatched_at_s` is the valid claim/write start time, not a fabricated completion timestamp. A complete write followed by invalid or regressing core time preserves the complete record and attempt, then faults with `CommunicationFailure.CLOCK_FAILURE` without restoring motion. `WriteResult.PREWRITE_DEADLINE` faults with `CommunicationFailure.PREWRITE_DEADLINE`; `PARTIAL` and `FAILED` fault with `DRIVER_FAILURE`, preserving any prior complete record. A late receipt for an invalidated plan is recorded but cannot restore motion or change `DISCONNECTED`; once it settles, an explicit reconnect is allowed. Reconnect still requires a new owner, acknowledged fresh healthy Stop check, and explicit arm. When an admitted goal expires, housekeeping withdraws it, invalidates pending plans, and disarms the core to `STOPPED` (latched fault preserved), requiring a new check and arm cycle. Sequence watermarks survive consumption, stop, fault, and disconnect.
+ 
+ ### Offline controller example
+ 
+@@ -76,7 +76,7 @@ from joint_contract import IntentWindow, JointSpec, MotorHealth, OwnerToken, Sou
+ from joint_controller import JointCore
+ from joint_mapping import JointMap, JointSample, JointTarget
+ 
+-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25)),), clock=lambda: 0.0)
++core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, "fixture: software position limits"),), clock=lambda: 0.0)
+ assert core.begin_connect()
+ assert core.connected(SourceIdentity("fixture", "example", 1))
+ owner = core.claim_owner("example-client")
+@@ -107,8 +107,12 @@ The injected core clock must be finite and monotonic. Invalid or regressing time
+ 
+ `JointCore` generates a fresh unpredictable random 16-byte hex epoch per instance/process via `secrets.token_hex(16)` with no persisted global state. A monotonic generation counter starts at 1 and ranges through uint64. `claim_owner(connection_id)` returns a frozen `OwnerToken(epoch, generation, connection_id)`. `connection_id` is an immutable non-empty string bounded to 64 characters and identifies the client connection; `SourceIdentity` separately identifies the motor connection. The core assumes trusted station callers; the station/server binds its actual client connection identity rather than trusting unverified JSON payload attributes, with no authentication claims beyond that boundary.
+ 
+-`arm(owner)` and `Target` require the exact matching `OwnerToken`; the core-issued full token prevents client-supplied epoch or generation values from creating authority. An owner mismatch returns `DecisionCode.INVALID_OWNER` after lifecycle state checks. Stop, any latched joint fault, disconnect, expired goals, and explicit takeover revoke active authority (`current_owner` becomes `None`), withdraw pending goals/plans and offered windows, and never auto-rearm. A claim during checking, ready, armed, or moving state, or a takeover of an existing owner on a connected core, places the core in `STOPPED` (while preserving `FAULT` and `DISCONNECTED`), requiring a fresh stop check and explicit arm call with the new token. Reconnecting requires claiming a fresh generation. Fault recovery also requires a new claim before checking and arming.
++`arm(owner)` and `Target` require an exact `OwnerToken` class and matching immutable epoch, generation, and connection ID fields. Token-bearing boundary records reject subclasses. An owner mismatch returns `DecisionCode.INVALID_OWNER` after lifecycle state checks. Stop, any latched joint fault, disconnect, expired goals, and explicit takeover revoke active authority (`current_owner` becomes `None`), withdraw pending goals/plans and offered windows, and never auto-rearm. A claim during checking, ready, armed, or moving state, or a takeover of an existing owner on a connected core, places the core in `STOPPED` (while preserving `FAULT` and `DISCONNECTED`), requiring a fresh stop check and explicit arm call with the new token. Reconnecting requires claiming a fresh generation. Fault recovery also requires a new claim before checking and arming.
+ 
+ Durable attempt and dispatched records retain the original `OwnerToken` stamped at plan creation; an in-flight receipt completing after authority revocation preserves the actual write record with its original owner attribution without transitioning the core to `MOVING`. `Snapshot.latest_owner` retains the most recently issued token after revocation, while `Snapshot.current_owner` is `None` unless that token currently has authority. Bounded O(1) storage retains only these two tokens. When the uint64 generation space is exhausted, a new claim revokes authority, stops the core (or preserves `FAULT`/`DISCONNECTED`), and raises `OverflowError` without wrapping; start a fresh core to obtain a new epoch.
+ 
+ The fixed per-user lock namespace under `/tmp` coordinates cooperating processes. A hostile local user can pre-create the name and deny access; validation fails closed. An administrator must remove a foreign-owned obstruction. Lockfiles persist to preserve flock inode identity, including after device-number reuse. Do not delete them while clients may be running. No automatic pruning or hostile-local-user availability guarantee is supplied.
++
++## Joint Position Limits
++
++Every `JointSpec` requires explicit, immutable, finite position bounds `q_min_rad <= q_max_rad` and non-empty `limits_provenance` documenting the software threshold origin. These are fixture software limits, not physical calibration. Position requests are evaluated against inclusive bounds: exact lower and upper endpoints are accepted. Requests outside them return `DecisionCode.POSITION_OUT_OF_BOUNDS` and preserve any still-valid admitted goal, sequence watermark, owner, and window. Mapped requests must first pass the ordinary canonical codec; an unencodable mapped request returns `INVALID_ARGUMENT` and is never clamped into range. A fresh measured position outside the bounds, including during `CHECKING`, latches the attributed `JointFault.position_limit` cause and faults the core before motion. Simultaneous motor-health causes remain in the same joint fault record. `claim_dispatch` rechecks every fresh measured position and the actual prepared reference before each write. Recovery requires a new owner and an explicitly acknowledged fresh healthy Stop check with every measured position within the inclusive bounds; incoming targets cannot clear a fault. The codec owns the bounded raw position grid search through a monotonic decoded-domain callback and direction. It selects an inward representable endpoint, serializes that exact raw integer without float re-encoding, and decodes the complete canonical packet to populate actual position, velocity, feedforward, and gain reference fields. Stop packets are valid decoder inputs; mode, ID, watchdog, reserved byte, header, and CRC are checked. Repeated refreshes write the cached packet bytes unchanged.
+diff --git a/im6014_codec.py b/im6014_codec.py
+index dd68c33..48cd106 100644
+--- a/im6014_codec.py
++++ b/im6014_codec.py
+@@ -1,11 +1,26 @@
+ import math
+ import struct
++from collections.abc import Callable
+ 
+ RATIO = 38 / 3
+ RPM_MIN = -32768 / 64 / RATIO * 60
+ RPM_MAX = 32767 / 64 / RATIO * 60
+ POSITION_MIN = -2147483648 / 32768 / RATIO * math.tau
+ POSITION_MAX = 2147483647 / 32768 / RATIO * math.tau
++RAW_POSITION_MIN = -2147483648
++RAW_POSITION_MAX = 2147483647
++
++
++def raw_to_position(raw_position):
++    if type(raw_position) is not int or not RAW_POSITION_MIN <= raw_position <= RAW_POSITION_MAX:
++        raise ValueError('raw_position must be a signed 32-bit integer')
++    return raw_position / 32768 / RATIO * math.tau
++
++
++def position_to_raw(position):
++    position = _finite_control(position, 'Position')
++    return _signed_raw(position / math.tau * RATIO * 32768,
++                       RAW_POSITION_MIN, RAW_POSITION_MAX, 'Position')
+ 
+ 
+ def _motor_id(value, name='Individual ID'):
+@@ -33,6 +48,24 @@ def _signed_raw(value, minimum, maximum, name):
+     return raw
+ 
+ 
++def _torque_raw(value):
++    return _signed_raw(value / RATIO * 2560, -32768, 32767, 'Feedforward torque')
++
++
++def _kp_raw(value):
++    return _signed_raw(value / RATIO ** 2 * 12800, -32768, 32767, 'Kp')
++
++
++def _kd_raw(value):
++    return _signed_raw(value / RATIO ** 2 * 51200, -32768, 32767, 'Kd')
++
++
++def _raw_position(value):
++    if type(value) is not int or not RAW_POSITION_MIN <= value <= RAW_POSITION_MAX:
++        raise ValueError('raw_position must be a signed 32-bit integer')
++    return value
++
++
+ def crc32(data):
+     if len(data) % 4:
+         raise ValueError('CRC input must contain complete four-byte words')
+@@ -46,35 +79,121 @@ def crc32(data):
+ 
+ 
+ def command(motor_id, mode=0, rpm=0, kd=0, torque=0, watchdog=True, position=0, kp=0):
++    position = _finite_control(position, 'Position')
++    if not POSITION_MIN <= position <= POSITION_MAX:
++        raise ValueError('Position cannot be encoded in the motor protocol')
++    if mode == 0 and position != 0.0:
++        raise ValueError('Stop must have zero targets; FOC requires watchdog')
++    position_raw = _signed_raw(position / math.tau * RATIO * 32768,
++                               RAW_POSITION_MIN, RAW_POSITION_MAX, 'Position')
++    return command_with_raw_position(
++        motor_id,
++        position_raw,
++        mode=mode,
++        rpm=rpm,
++        kd=kd,
++        torque=torque,
++        watchdog=watchdog,
++        kp=kp,
++    )
++
++
++def command_with_raw_position(
++    motor_id, raw_position, mode=0, rpm=0, kd=0, torque=0, watchdog=True, kp=0
++):
++    """Encode a command while preserving an already selected position grid code."""
+     motor_id = _motor_id(motor_id)
++    raw_position = _raw_position(raw_position)
+     if type(mode) is not int or mode not in (0, 1):
+         raise ValueError('Individual ID 0–14 and Stop/FOC modes only')
+     if type(watchdog) is not bool:
+         raise ValueError('Watchdog must be a bool')
+-    rpm, kd, torque, position, kp = (
++    rpm, kd, torque, kp = (
+         _finite_control(value, name) for value, name in
+         ((rpm, 'Speed'), (kd, 'Kd'), (torque, 'Feedforward torque'),
+-         (position, 'Position'), (kp, 'Kp'))
++         (kp, 'Kp'))
+     )
+     if not RPM_MIN <= rpm <= RPM_MAX:
+         raise ValueError('Speed cannot be encoded in the motor protocol; this is not a rated-speed limit')
+     if not 0 <= kd <= 6 or not 0 <= kp <= 30 or not -3.5 <= torque <= 3.5:
+         raise ValueError('Bench limits: Kd 0–6, Kp 0–30, feedforward torque ±3.5 Nm')
+-    if not POSITION_MIN <= position <= POSITION_MAX:
+-        raise ValueError('Position cannot be encoded in the motor protocol')
+-    torque_raw = _signed_raw(torque / RATIO * 2560, -32768, 32767, 'Feedforward torque')
++    torque_raw = _torque_raw(torque)
+     rpm_raw = _signed_raw(rpm / 60 * RATIO * 64, -32768, 32767, 'Speed')
+-    position_raw = _signed_raw(position / math.tau * RATIO * 32768,
+-                               -2147483648, 2147483647, 'Position')
+-    kp_raw = _signed_raw(kp / RATIO ** 2 * 12800, -32768, 32767, 'Kp')
+-    kd_raw = _signed_raw(kd / RATIO ** 2 * 51200, -32768, 32767, 'Kd')
+-    if mode == 0 and (rpm or kd or torque or position or kp) or mode == 1 and not watchdog:
++    kp_raw = _kp_raw(kp)
++    kd_raw = _kd_raw(kd)
++    if mode == 0 and (rpm or kd or torque or raw_position or kp) or mode == 1 and not watchdog:
+         raise ValueError('Stop must have zero targets; FOC requires watchdog')
+     raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
+-    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
++    raw += struct.pack('<hhihh', torque_raw, rpm_raw, raw_position, kp_raw, kd_raw)
+     return raw + struct.pack('<I', crc32(raw))
+ 
+ 
++def project_position_raw(
++    wanted_q,
++    q_min,
++    q_max,
++    map_decoded_position: Callable[[float], float],
++    direction: int,
++) -> int | None:
++    """Choose the nearest raw position whose mapped decoded value is in bounds.
++
++    ``map_decoded_position`` maps decoded actuator radians to the caller's
++    position domain. ``direction`` declares whether that mapping increases or
++    decreases as the raw position code increases. Bounds are closed.
++    """
++    wanted_q = _finite_control(wanted_q, 'Wanted position')
++    q_min = _finite_control(q_min, 'Minimum position')
++    q_max = _finite_control(q_max, 'Maximum position')
++    if q_min > q_max:
++        raise ValueError('Minimum position must not exceed maximum position')
++    if not callable(map_decoded_position):
++        raise ValueError('Position mapping must be callable')
++    if type(direction) is not int or direction not in (-1, 1):
++        raise ValueError('Position mapping direction must be -1 or 1')
++
++    ordered_min = direction * (q_min if direction == 1 else q_max)
++    ordered_max = direction * (q_max if direction == 1 else q_min)
++    ordered_wanted = direction * wanted_q
++
++    def mapped(raw_position):
++        decoded = raw_to_position(raw_position)
++        try:
++            result = map_decoded_position(decoded)
++        except (ArithmeticError, TypeError, ValueError) as error:
++            raise ValueError('Position mapping is not representable') from error
++        return direction * _finite_control(result, 'Mapped position')
++
++    def first_raw_satisfying(bound, *, strict):
++        left = RAW_POSITION_MIN
++        right = RAW_POSITION_MAX + 1
++        while left < right:
++            mid = (left + right) // 2
++            value = mapped(mid)
++            matches = value > bound if strict else value >= bound
++            if matches:
++                right = mid
++            else:
++                left = mid + 1
++        return left
++
++    first = first_raw_satisfying(ordered_min, strict=False)
++    last = first_raw_satisfying(ordered_max, strict=True) - 1
++    if first > RAW_POSITION_MAX or last < first:
++        return None
++
++    candidate = first_raw_satisfying(ordered_wanted, strict=False)
++    if candidate < first:
++        return first
++    if candidate > last:
++        return last
++    if candidate == first:
++        return candidate
++
++    current_delta = abs(mapped(candidate) - ordered_wanted)
++    prior_delta = abs(mapped(candidate - 1) - ordered_wanted)
++    return candidate - 1 if prior_delta <= current_delta else candidate
++
++
+ def feedback(raw, motor_id):
+     motor_id = _motor_id(motor_id, 'Expected motor ID')
+     if not isinstance(raw, (bytes, bytearray, memoryview)):
+@@ -95,3 +214,48 @@ def feedback(raw, motor_id):
+                 torque_nm=tq / 2560 * RATIO, rpm=sp / 64 / RATIO * 60,
+                 position_rad=pos / 32768 / RATIO * math.tau,
+                 errors=err, warnings=(flags >> 13) & 7, raw=raw.hex())
++
++
++def decode_command(raw):
++    if not isinstance(raw, (bytes, bytearray, memoryview)):
++        raise ValueError('Command frame must be a bytes-like buffer')
++    try:
++        raw = bytes(raw)
++    except (TypeError, ValueError) as error:
++        raise ValueError('Command frame must be a bytes-like buffer') from error
++    if len(raw) != 20 or raw[:2] != b'\xfe\xee':
++        raise ValueError('Invalid command length/header')
++    if struct.unpack('<I', raw[16:])[0] != crc32(raw[:16]):
++        raise ValueError('Command CRC mismatch')
++    m = raw[2]
++    motor_id = m & 0x0F
++    mode = (m >> 4) & 0x07
++    watchdog = bool(m & 0x80)
++    if motor_id > 14 or mode not in (0, 1) or raw[3] != 0:
++        raise ValueError('Invalid command ID, mode, or reserved byte')
++    if mode == 1 and not watchdog:
++        raise ValueError('FOC command requires watchdog')
++    tq, sp, pos, kp, kd = struct.unpack('<hhihh', raw[4:16])
++    if mode == 0 and (tq or sp or pos or kp or kd):
++        raise ValueError('Stop command must have zero targets')
++    decoded = dict(
++        motor_id=motor_id,
++        mode=mode,
++        watchdog=watchdog,
++        raw_torque=tq,
++        raw_rpm=sp,
++        raw_position=pos,
++        raw_kp=kp,
++        raw_kd=kd,
++        torque_nm=tq / 2560 * RATIO,
++        rpm=sp / 64 / RATIO * 60,
++        position_rad=pos / 32768 / RATIO * math.tau,
++        kp=kp * (RATIO ** 2) / 12800,
++        kd=kd * (RATIO ** 2) / 51200,
++        raw=raw.hex(),
++    )
++    if not _torque_raw(-3.5) <= tq <= _torque_raw(3.5):
++        raise ValueError('Feedforward torque is outside the canonical command range')
++    if not 0 <= kp <= _kp_raw(30.0) or not 0 <= kd <= _kd_raw(6.0):
++        raise ValueError('Gain is outside the canonical command range')
++    return decoded
+diff --git a/joint_contract.py b/joint_contract.py
+index 888c7db..6efe225 100644
+--- a/joint_contract.py
++++ b/joint_contract.py
+@@ -8,6 +8,7 @@ from enum import Enum
+ import math
+ from typing import Literal
+ 
++from im6014_codec import decode_command
+ from joint_mapping import JointMap, JointSample, JointTarget
+ 
+ 
+@@ -39,6 +40,7 @@ class DecisionCode(str, Enum):
+     NOT_STOPPED = "not_stopped"
+     DUPLICATE_OR_OLDER = "duplicate_or_older"
+     EXPIRED = "expired"
++    POSITION_OUT_OF_BOUNDS = "position_out_of_bounds"
+ 
+ 
+ class CommunicationFailure(str, Enum):
+@@ -78,6 +80,9 @@ class JointSpec:
+     name: str
+     motor_id: int
+     mapping: JointMap
++    q_min_rad: float
++    q_max_rad: float
++    limits_provenance: str
+ 
+     def __post_init__(self) -> None:
+         if type(self.name) is not str or not self.name.strip():
+@@ -87,6 +92,30 @@ class JointSpec:
+         if not isinstance(self.mapping, JointMap):
+             raise ValueError("mapping must be a JointMap")
+ 
++        if isinstance(self.q_min_rad, bool) or not isinstance(self.q_min_rad, (int, float)):
++            raise ValueError("q_min_rad must be a finite real number")
++        if isinstance(self.q_max_rad, bool) or not isinstance(self.q_max_rad, (int, float)):
++            raise ValueError("q_max_rad must be a finite real number")
++        try:
++            min_val = float(self.q_min_rad)
++            max_val = float(self.q_max_rad)
++        except (OverflowError, TypeError, ValueError) as exc:
++            raise ValueError("position limits must be finite") from exc
++        if not math.isfinite(min_val) or not math.isfinite(max_val):
++            raise ValueError("position limits must be finite")
++        if min_val > max_val:
++            raise ValueError("q_min_rad must be less than or equal to q_max_rad")
++
++        if (
++            type(self.limits_provenance) is not str
++            or not self.limits_provenance.strip()
++            or len(self.limits_provenance) > 256
++        ):
++            raise ValueError("limits_provenance must be a bounded non-empty string")
++
++        object.__setattr__(self, "q_min_rad", min_val)
++        object.__setattr__(self, "q_max_rad", max_val)
++
+ 
+ @dataclass(frozen=True)
+ class JointFault:
+@@ -98,6 +127,7 @@ class JointFault:
+     communication_error: CommunicationFailure | None = None
+     stale: bool = False
+     communication_errors: tuple[CommunicationFailure, ...] = ()
++    position_limit: bool = False
+ 
+     def __post_init__(self) -> None:
+         if type(self.name) is not str or not self.name.strip():
+@@ -118,6 +148,8 @@ class JointFault:
+             not isinstance(c, CommunicationFailure) for c in self.communication_errors
+         ):
+             raise ValueError("communication_errors must be a tuple of CommunicationFailure")
++        if type(self.position_limit) is not bool:
++            raise ValueError("position_limit must be a bool")
+ 
+         if len(self.communication_errors) != len(set(self.communication_errors)):
+             raise ValueError("communication_errors must contain unique codes")
+@@ -236,6 +268,16 @@ class OwnerToken:
+             raise ValueError("connection_id must be a bounded non-empty string")
+ 
+ 
++def owner_tokens_match(candidate: object, current: object) -> bool:
++    return (
++        type(candidate) is OwnerToken
++        and type(current) is OwnerToken
++        and candidate.epoch == current.epoch
++        and candidate.generation == current.generation
++        and candidate.connection_id == current.connection_id
++    )
++
++
+ @dataclass(frozen=True)
+ class IntentWindow:
+     id: int
+@@ -280,7 +322,7 @@ class Target:
+             raise ValueError("every joint target must be a JointTarget")
+         if not isinstance(self.window, IntentWindow):
+             raise ValueError("window must be an IntentWindow")
+-        if not isinstance(self.owner, OwnerToken):
++        if type(self.owner) is not OwnerToken:
+             raise ValueError("owner must be an OwnerToken")
+ 
+ 
+@@ -290,6 +332,7 @@ class RefreshPlan:
+     target: Target
+     prepared_at_s: float
+     joint_targets: tuple[JointTarget, ...]
++    packets: tuple[bytes, ...]
+ 
+     def __post_init__(self) -> None:
+         if type(self.plan_id) is not int or not (0 <= self.plan_id <= (1 << 64) - 1):
+@@ -309,6 +352,17 @@ class RefreshPlan:
+             raise ValueError("joint_targets must be a non-empty tuple")
+         if any(not isinstance(jt, JointTarget) for jt in self.joint_targets):
+             raise ValueError("every joint target must be a JointTarget")
++        if type(self.packets) is not tuple or len(self.packets) != len(self.joint_targets):
++            raise ValueError("packets must be a tuple matching joint_targets")
++        for packet in self.packets:
++            if type(packet) is not bytes:
++                raise ValueError("packets must contain immutable bytes")
++            try:
++                decoded = decode_command(packet)
++            except ValueError as exc:
++                raise ValueError("packets must contain canonical commands") from exc
++            if decoded["mode"] != 1 or not decoded["watchdog"]:
++                raise ValueError("refresh packets must be watchdog-enabled FOC commands")
+ 
+     @property
+     def window(self) -> IntentWindow:
+@@ -331,7 +385,7 @@ class JointDispatchedRecord:
+             raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
+         if not isinstance(self.target, JointTarget):
+             raise ValueError("target must be a JointTarget")
+-        if not isinstance(self.owner, OwnerToken):
++        if type(self.owner) is not OwnerToken:
+             raise ValueError("owner must be an OwnerToken")
+         if isinstance(self.dispatched_at_s, bool) or not isinstance(self.dispatched_at_s, (int, float)):
+             raise ValueError("dispatched_at_s must be a finite real number")
+@@ -362,7 +416,7 @@ class JointDispatchAttempt:
+             raise ValueError("target must be a JointTarget")
+         if not isinstance(self.result, WriteResult):
+             raise ValueError("result must be a WriteResult")
+-        if not isinstance(self.owner, OwnerToken):
++        if type(self.owner) is not OwnerToken:
+             raise ValueError("owner must be an OwnerToken")
+         if isinstance(self.started_at_s, bool) or not isinstance(self.started_at_s, (int, float)):
+             raise ValueError("started_at_s must be a finite real number")
+@@ -448,9 +502,9 @@ class Snapshot:
+                 raise ValueError("every dispatch attempt must be a JointDispatchAttempt or None")
+         if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
+             raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
+-        if self.latest_owner is not None and not isinstance(self.latest_owner, OwnerToken):
++        if self.latest_owner is not None and type(self.latest_owner) is not OwnerToken:
+             raise ValueError("latest_owner must be an OwnerToken or None")
+-        if self.current_owner is not None and not isinstance(self.current_owner, OwnerToken):
++        if self.current_owner is not None and type(self.current_owner) is not OwnerToken:
+             raise ValueError("current_owner must be an OwnerToken or None")
+ 
+     @property
+diff --git a/joint_controller.py b/joint_controller.py
+index fb73c82..e57f570 100644
+--- a/joint_controller.py
++++ b/joint_controller.py
+@@ -10,7 +10,6 @@ import math
+ import secrets
+ import time
+ 
+-from im6014_codec import command
+ from joint_contract import (
+     CommunicationFailure,
+     Decision,
+@@ -29,8 +28,10 @@ from joint_contract import (
+     State,
+     Target,
+     WriteResult,
++    owner_tokens_match,
+ )
+ from joint_mapping import JointSample
++from joint_reference import prepare_complete_reference, prepare_reference_joint
+ 
+ __all__ = ("JointCore",)
+ 
+@@ -220,6 +221,7 @@ class JointCore:
+         timeout: bool = False,
+         communication_error: CommunicationFailure | None = None,
+         stale: bool = False,
++        position_limit: bool = False,
+     ) -> None:
+         existing = self._faults.get(name) or JointFault(name, motor_id)
+         communication_errors = existing.communication_errors
+@@ -233,9 +235,11 @@ class JointCore:
+             stale=existing.stale or stale,
+             communication_error=communication_error or existing.communication_error,
+             communication_errors=communication_errors,
++            position_limit=existing.position_limit or position_limit,
+         )
+         self._faults[name] = fault
+-        self._state = State.FAULT
++        if self._state is not State.DISCONNECTED:
++            self._state = State.FAULT
+         self._revoke_authority()
+ 
+     def _withdraw_expired_goal(self) -> None:
+@@ -279,19 +283,31 @@ class JointCore:
+ 
+     def _housekeeping(self, now: float) -> DecisionCode | None:
+         if self._state in (State.READY, State.ARMED, State.MOVING):
+-            stale_specs = [
+-                spec
+-                for spec, joint in zip(self._specs, self._observations)
+-                if (
++            stale_by_joint: list[bool] = []
++            outside_by_joint: list[bool] = []
++            for spec, joint in zip(self._specs, self._observations):
++                stale_by_joint.append(
+                     not joint.valid
+                     or joint.received_at is None
+                     or self._age(joint.received_at, now) > self._feedback_max_age_s
+                 )
+-            ]
+-            if stale_specs:
+-                for spec in stale_specs:
+-                    self._latch_joint_fault(spec.name, spec.motor_id, stale=True)
++                outside_by_joint.append(
++                    joint.valid
++                    and joint.sample is not None
++                    and (joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad)
++                )
++            for spec, stale, outside in zip(self._specs, stale_by_joint, outside_by_joint):
++                if stale or outside:
++                    self._latch_joint_fault(
++                        spec.name,
++                        spec.motor_id,
++                        stale=stale,
++                        position_limit=outside,
++                    )
++            if any(stale_by_joint):
+                 return DecisionCode.STALE_FEEDBACK
++            if any(outside_by_joint):
++                return DecisionCode.POSITION_OUT_OF_BOUNDS
+         if (
+             self._admitted_target is not None
+             and now >= self._admitted_target.window.expires_at_s
+@@ -378,14 +394,21 @@ class JointCore:
+ 
+         now = self._now()
+         self._observations[index] = JointStatus(sample, status, now)
+-        if not status.healthy:
++        spec = self._specs[index]
++        position_limit = (
++            sample.q_rad < spec.q_min_rad or sample.q_rad > spec.q_max_rad
++        )
++        if not status.healthy or position_limit:
+             self._latch_joint_fault(
+-                self._specs[index].name,
++                spec.name,
+                 motor_id,
+                 errors=status.errors,
+                 warnings=status.warnings,
+                 timeout=status.timeout,
++                position_limit=position_limit,
+             )
++        if position_limit:
++            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
+         return self._accepted()
+ 
+     def communication_failed(
+@@ -427,6 +450,17 @@ class JointCore:
+             return self._rejected(DecisionCode.UNHEALTHY)
+         if any(joint.health.mode != 0 for joint in self._observations):
+             return self._rejected(DecisionCode.NOT_STOPPED)
++
++        out_of_bounds = [
++            spec
++            for spec, joint in zip(self._specs, self._observations)
++            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
++        ]
++        if out_of_bounds:
++            for spec in out_of_bounds:
++                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
++            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
++
+         self._state = State.READY
+         self._faults.clear()
+         return self._accepted()
+@@ -434,11 +468,7 @@ class JointCore:
+     def arm(self, owner: OwnerToken) -> Decision:
+         if self._state is not State.READY:
+             return self._rejected(DecisionCode.INVALID_STATE)
+-        if (
+-            not isinstance(owner, OwnerToken)
+-            or self._current_owner is None
+-            or owner != self._current_owner
+-        ):
++        if not owner_tokens_match(owner, self._current_owner):
+             return self._rejected(DecisionCode.INVALID_OWNER)
+         if bool(self._faults):
+             return self._rejected(DecisionCode.FAULT_LATCHED)
+@@ -451,6 +481,17 @@ class JointCore:
+             return self._rejected(DecisionCode.UNHEALTHY)
+         if any(joint.health.mode != 0 for joint in self._observations):
+             return self._rejected(DecisionCode.NOT_STOPPED)
++
++        out_of_bounds = [
++            spec
++            for spec, joint in zip(self._specs, self._observations)
++            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
++        ]
++        if out_of_bounds:
++            for spec in out_of_bounds:
++                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
++            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
++
+         self._state = State.ARMED
+         return self._accepted()
+ 
+@@ -476,11 +517,7 @@ class JointCore:
+         if not isinstance(target, Target) or len(target.joints) != len(self._specs):
+             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+ 
+-        if (
+-            not isinstance(target.owner, OwnerToken)
+-            or self._current_owner is None
+-            or target.owner != self._current_owner
+-        ):
++        if not owner_tokens_match(target.owner, self._current_owner):
+             return self._rejected(DecisionCode.INVALID_OWNER)
+ 
+         if not isinstance(target.window, IntentWindow):
+@@ -499,21 +536,9 @@ class JointCore:
+         if now >= target.window.expires_at_s:
+             return self._rejected(DecisionCode.EXPIRED)
+ 
+-        try:
+-            for spec, joint_target in zip(self._specs, target.joints):
+-                output = spec.mapping.to_output(joint_target)
+-                command(
+-                    spec.motor_id,
+-                    mode=1,
+-                    rpm=output.rpm,
+-                    kd=output.kd,
+-                    torque=output.tau_nm,
+-                    watchdog=True,
+-                    position=output.q_rad,
+-                    kp=output.kp,
+-                )
+-        except ValueError:
+-            return self._rejected(DecisionCode.INVALID_ARGUMENT)
++        code, _, _ = prepare_complete_reference(self._specs, target)
++        if code is not None:
++            return self._rejected(code)
+ 
+         if target.sequence <= self._last_sequence:
+             return self._rejected(DecisionCode.DUPLICATE_OR_OLDER)
+@@ -537,23 +562,29 @@ class JointCore:
+             return None
+         if self._admitted_target is None:
+             return None
+-        if self._current_owner is None or self._admitted_target.owner != self._current_owner:
++        if not owner_tokens_match(self._admitted_target.owner, self._current_owner):
+             return None
+ 
+-        try:
+-            for spec, joint_target in zip(self._specs, self._admitted_target.joints):
+-                output = spec.mapping.to_output(joint_target)
+-                command(
+-                    spec.motor_id,
+-                    mode=1,
+-                    rpm=output.rpm,
+-                    kd=output.kd,
+-                    torque=output.tau_nm,
+-                    watchdog=True,
+-                    position=output.q_rad,
+-                    kp=output.kp,
+-                )
+-        except ValueError:
++        for spec, joint in zip(self._specs, self._observations):
++            if not joint.valid or joint.sample is None or (
++                joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
++            ):
++                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
++                self.stop()
++                return None
++
++        code, actual_joint_targets, packets = prepare_complete_reference(
++            self._specs, self._admitted_target
++        )
++        if code is not None or actual_joint_targets is None or packets is None:
++            if code is DecisionCode.POSITION_OUT_OF_BOUNDS:
++                for spec, target_joint in zip(self._specs, self._admitted_target.joints):
++                    joint_code, _, _ = prepare_reference_joint(spec, target_joint)
++                    if joint_code is DecisionCode.POSITION_OUT_OF_BOUNDS:
++                        self._latch_joint_fault(
++                            spec.name, spec.motor_id, position_limit=True
++                        )
++            self.stop()
+             return None
+ 
+         plan_id = self._next_plan_id
+@@ -565,7 +596,8 @@ class JointCore:
+             plan_id=plan_id,
+             target=self._admitted_target,
+             prepared_at_s=now,
+-            joint_targets=self._admitted_target.joints,
++            joint_targets=actual_joint_targets,
++            packets=packets,
+         )
+         self._prepared_plan = plan
+         self._next_dispatch_index = 0
+@@ -595,11 +627,28 @@ class JointCore:
+             return False
+         if self._admitted_target is None or self._prepared_plan is None:
+             return False
+-        if self._current_owner is None or self._prepared_plan.target.owner != self._current_owner:
++        if not owner_tokens_match(self._prepared_plan.target.owner, self._current_owner):
+             return False
+         if any(not joint.healthy for joint in self._observations):
+             return False
+ 
++        if not self._all_fresh(now):
++            return False
++        for spec, joint in zip(self._specs, self._observations):
++            if not joint.valid or joint.sample is None or (
++                joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
++            ):
++                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
++                self.stop()
++                return False
++
++        plan_joint = self._prepared_plan.joint_targets[index]
++        spec = self._specs[index]
++        if plan_joint.q_rad < spec.q_min_rad or plan_joint.q_rad > spec.q_max_rad:
++            self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
++            self.stop()
++            return False
++
+         self._dispatch_claim = _DispatchClaim(self._prepared_plan, index, now)
+         return True
+ 
+@@ -619,7 +668,6 @@ class JointCore:
+         if index < 0 or index >= len(self._specs):
+             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+ 
+-        self._dispatch_claim = None
+         plan = claim.plan
+         joint_target = plan.joint_targets[index]
+         self._dispatch_attempts[index] = JointDispatchAttempt(
+@@ -642,6 +690,7 @@ class JointCore:
+                 now = self._now()
+             except Exception:
+                 self._record_dispatch_failure(index, CommunicationFailure.CLOCK_FAILURE)
++                self._dispatch_claim = None
+                 return self._rejected(DecisionCode.FAULT_LATCHED)
+ 
+             housekeeping = self._housekeeping(now)
+@@ -650,12 +699,12 @@ class JointCore:
+                 and self._admitted_target is plan.target
+                 and self._state in (State.ARMED, State.MOVING)
+                 and not self._faults
+-                and self._current_owner is not None
+-                and self._current_owner == plan.target.owner
++                and owner_tokens_match(self._current_owner, plan.target.owner)
+             )
+             if still_current and housekeeping is None:
+                 self._next_dispatch_index = index + 1
+                 self._state = State.MOVING
++            self._dispatch_claim = None
+             return self._accepted()
+ 
+         cause = (
+@@ -664,6 +713,7 @@ class JointCore:
+             else CommunicationFailure.DRIVER_FAILURE
+         )
+         self._record_dispatch_failure(index, cause)
++        self._dispatch_claim = None
+         return self._rejected(DecisionCode.FAULT_LATCHED)
+ 
+     def stop(self) -> Decision:
+diff --git a/scripts/check_milestone.py b/scripts/check_milestone.py
+index 6c00554..bd2668e 100644
+--- a/scripts/check_milestone.py
++++ b/scripts/check_milestone.py
+@@ -20,6 +20,7 @@ CHECKS = {
+     'C06': 'test_controller_targets.CommandSequenceTests',
+     'C07': 'test_controller_expiry',
+     'C08': 'test_controller_owner',
++    'C09': 'test_controller_limits.PositionLimitTests',
+ }
+ 
+ 
+diff --git a/scripts/check_offline_baseline.sh b/scripts/check_offline_baseline.sh
+index 520cdbe..f57ff9a 100755
+--- a/scripts/check_offline_baseline.sh
++++ b/scripts/check_offline_baseline.sh
+@@ -78,7 +78,7 @@ run_logged() {
+     return 0
+ }
+ 
+-files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py im6014_serial.py fake_serial.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py test_serial_deadline.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md joint_mapping.py test_joint_mapping.py test_numerical_inputs.py im6014_port.py test_port_config.py test_diagnostic_capture.py test_bus_owner.py joint_contract.py joint_controller.py test_controller.py test_controller_targets.py test_controller_expiry.py test_controller_owner.py)
++files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py im6014_serial.py fake_serial.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py test_serial_deadline.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md joint_mapping.py test_joint_mapping.py test_numerical_inputs.py im6014_port.py test_port_config.py test_diagnostic_capture.py test_bus_owner.py joint_contract.py joint_reference.py joint_controller.py test_controller.py test_controller_targets.py test_controller_expiry.py test_controller_owner.py test_controller_limits.py)
+ for name in "${files[@]}"; do
+     mkdir -p -- "$scratch/$(dirname -- "$name")" || exit 2
+     if ! cp -- "$repo_dir/$name" "$scratch/$name" || ! cmp -s -- "$repo_dir/$name" "$scratch/$name"; then
+@@ -98,7 +98,7 @@ cd -- "$scratch" || exit 2
+ run_logged packet-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" test_spin_5rpm.py
+ run_logged protocol-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_protocol
+ run_logged serial-deadline-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_serial_deadline
+-run_logged milestone-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_joint_mapping test_numerical_inputs test_port_config test_diagnostic_capture test_bus_owner test_controller test_controller_targets test_controller_expiry test_controller_owner
++run_logged milestone-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_joint_mapping test_numerical_inputs test_port_config test_diagnostic_capture test_bus_owner test_controller test_controller_targets test_controller_expiry test_controller_owner test_controller_limits
+ run_logged dashboard-tests env QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 "$python_path" test_dashboard.py
+ for name in dashboard_preview.png dashboard_dark_preview.png dashboard_test_results.json; do
+     if [[ -f "$scratch/$name" ]]; then
+diff --git a/test_controller.py b/test_controller.py
+index 88b425f..6694c18 100644
+--- a/test_controller.py
++++ b/test_controller.py
+@@ -78,22 +78,7 @@ class FakeStation:
+         plan = self.core.prepare_refresh()
+         if plan is None:
+             return None
+-        packets = []
+-        for spec, joint_target in zip(self.core.joint_specs, plan.joint_targets):
+-            output = spec.mapping.to_output(joint_target)
+-            packets.append(
+-                command(
+-                    spec.motor_id,
+-                    mode=1,
+-                    rpm=output.rpm,
+-                    kd=output.kd,
+-                    torque=output.tau_nm,
+-                    watchdog=True,
+-                    position=output.q_rad,
+-                    kp=output.kp,
+-                )
+-            )
+-        for index, packet in enumerate(packets):
++        for index, packet in enumerate(plan.packets):
+             if not self.core.claim_dispatch(plan.plan_id, index):
+                 break
+             self.writes.append(packet)
+@@ -123,8 +108,8 @@ class DeterministicClock:
+ class FeedbackAgeTests(unittest.TestCase):
+     def setUp(self):
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+ 
+     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
+@@ -327,8 +312,8 @@ class ControllerStateTests(unittest.TestCase):
+     def setUp(self):
+         self.clock = lambda: 0.0
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+ 
+ 
+@@ -337,13 +322,19 @@ class ControllerStateTests(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             JointCore(())
+         with self.assertRaises(ValueError):
+-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J1", 1, mapping)))
++            JointCore((
++                JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
++                JointSpec("J1", 1, mapping, -2.0, 2.0, "fixture: software position limits"),
++            ))
+         with self.assertRaises(ValueError):
+-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J2", 0, mapping)))
++            JointCore((
++                JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
++                JointSpec("J2", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
++            ))
+         with self.assertRaises(ValueError):
+-            JointSpec("J1", True, mapping)
++            JointSpec("J1", True, mapping, -2.0, 2.0, "fixture: software position limits")
+ 
+-        supplied = [JointSpec("J1", 0, mapping)]
++        supplied = [JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits")]
+         core = JointCore(supplied, clock=self.clock)
+         supplied.clear()
+         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
+@@ -559,8 +550,8 @@ class ControllerStateTests(unittest.TestCase):
+ class JointFaultTests(unittest.TestCase):
+     def setUp(self):
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+ 
+     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
+@@ -880,8 +871,8 @@ class JointFaultTests(unittest.TestCase):
+ 
+     def test_independent_second_core_unchanged_by_fault(self):
+         specs2 = (
+-            JointSpec("J3", 2, JointMap(1, 1, 0.0)),
+-            JointSpec("J4", 3, JointMap(1, 1, 0.0)),
++            JointSpec("J3", 2, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J4", 3, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+         clock = DeterministicClock(0.0)
+         core1 = JointCore(self.specs, clock=clock)
+diff --git a/test_controller_expiry.py b/test_controller_expiry.py
+index b572584..e05570e 100644
+--- a/test_controller_expiry.py
++++ b/test_controller_expiry.py
+@@ -29,8 +29,8 @@ SOURCE = SourceIdentity("fixture", "expiry-test", 1)
+ class ControllerExpiryTests(unittest.TestCase):
+     def setUp(self):
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+         self.valid_joints = (
+             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+@@ -196,7 +196,7 @@ class ControllerExpiryTests(unittest.TestCase):
+         records_after_j0 = core.snapshot().dispatched_records
+         self.assertIsNotNone(records_after_j0[0])
+         self.assertEqual(records_after_j0[0].sequence, 1)
+-        self.assertEqual(records_after_j0[0].target, self.valid_joints[0])
++        self.assertEqual(records_after_j0[0].target, plan.joint_targets[0])
+         self.assertIsNone(records_after_j0[1])
+ 
+         # Expiry occurs before Joint 1 write
+diff --git a/test_controller_owner.py b/test_controller_owner.py
+index f40addb..d036fab 100644
+--- a/test_controller_owner.py
++++ b/test_controller_owner.py
+@@ -27,8 +27,8 @@ class ControllerOwnerTests(unittest.TestCase):
+     def setUp(self):
+         self.clock = DeterministicClock(0.0)
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
++            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+         )
+         self.valid_joints = (
+             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+diff --git a/test_controller_targets.py b/test_controller_targets.py
+index b7dc8e6..2b99b68 100644
+--- a/test_controller_targets.py
++++ b/test_controller_targets.py
+@@ -21,8 +21,8 @@ from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STO
+ class LatestTargetTests(unittest.TestCase):
+     def setUp(self):
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, "fixture: wide test limits"),
++            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, "fixture: wide test limits"),
+         )
+ 
+     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_repeated_refresh(self):
+@@ -272,8 +272,8 @@ class LatestTargetTests(unittest.TestCase):
+         self.assertEqual(core.snapshot().last_sequence, 1)
+ 
+         specs_ratio = (
+-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0)),
+-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0)),
++            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), -1e8, 1e8, "fixture: wide test limits"),
++            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), -1e8, 1e8, "fixture: wide test limits"),
+         )
+         core_ratio = JointCore(specs_ratio, clock=clock)
+         station_ratio = FakeStation(core_ratio)
+@@ -294,8 +294,8 @@ class LatestTargetTests(unittest.TestCase):
+     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
+         clock = DeterministicClock(0.0)
+         specs = (
+-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25)),
+-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1)),
++            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), -1e8, 1e8, "fixture: wide test limits"),
++            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), -1e8, 1e8, "fixture: wide test limits"),
+         )
+         core = JointCore(specs, clock=clock)
+         station = FakeStation(core)
+@@ -524,8 +524,8 @@ class LatestTargetTests(unittest.TestCase):
+ class CommandSequenceTests(unittest.TestCase):
+     def setUp(self):
+         self.specs = (
+-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
+-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
++            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, "fixture: wide test limits"),
++            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, "fixture: wide test limits"),
+         )
+         self.valid_joints = (
+             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+diff --git a/test_startup.py b/test_startup.py
+index b444222..b176d7a 100644
+--- a/test_startup.py
++++ b/test_startup.py
+@@ -111,7 +111,7 @@ def _cleanup_after_main(window, state):
+ 
+ def _fingerprint(root):
+     names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "im6014_codec.py", "im6014_serial.py", "fake_serial.py", "USER_MANUAL.md",
+-             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_contract.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py", "test_controller_expiry.py", "test_controller_owner.py")
++             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_contract.py", "joint_reference.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py", "test_controller_expiry.py", "test_controller_owner.py", "test_controller_limits.py")
+     files = {}
+     for name in names:
+         path = root / name

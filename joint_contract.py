@@ -8,6 +8,7 @@ from enum import Enum
 import math
 from typing import Literal
 
+from im6014_codec import decode_command
 from joint_mapping import JointMap, JointSample, JointTarget
 
 
@@ -39,6 +40,7 @@ class DecisionCode(str, Enum):
     NOT_STOPPED = "not_stopped"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
     EXPIRED = "expired"
+    POSITION_OUT_OF_BOUNDS = "position_out_of_bounds"
 
 
 class CommunicationFailure(str, Enum):
@@ -78,6 +80,9 @@ class JointSpec:
     name: str
     motor_id: int
     mapping: JointMap
+    q_min_rad: float
+    q_max_rad: float
+    limits_provenance: str
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -86,6 +91,30 @@ class JointSpec:
             raise ValueError("motor_id must be an integer from 0 to 14")
         if not isinstance(self.mapping, JointMap):
             raise ValueError("mapping must be a JointMap")
+
+        if isinstance(self.q_min_rad, bool) or not isinstance(self.q_min_rad, (int, float)):
+            raise ValueError("q_min_rad must be a finite real number")
+        if isinstance(self.q_max_rad, bool) or not isinstance(self.q_max_rad, (int, float)):
+            raise ValueError("q_max_rad must be a finite real number")
+        try:
+            min_val = float(self.q_min_rad)
+            max_val = float(self.q_max_rad)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("position limits must be finite") from exc
+        if not math.isfinite(min_val) or not math.isfinite(max_val):
+            raise ValueError("position limits must be finite")
+        if min_val > max_val:
+            raise ValueError("q_min_rad must be less than or equal to q_max_rad")
+
+        if (
+            type(self.limits_provenance) is not str
+            or not self.limits_provenance.strip()
+            or len(self.limits_provenance) > 256
+        ):
+            raise ValueError("limits_provenance must be a bounded non-empty string")
+
+        object.__setattr__(self, "q_min_rad", min_val)
+        object.__setattr__(self, "q_max_rad", max_val)
 
 
 @dataclass(frozen=True)
@@ -98,6 +127,7 @@ class JointFault:
     communication_error: CommunicationFailure | None = None
     stale: bool = False
     communication_errors: tuple[CommunicationFailure, ...] = ()
+    position_limit: bool = False
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -118,6 +148,8 @@ class JointFault:
             not isinstance(c, CommunicationFailure) for c in self.communication_errors
         ):
             raise ValueError("communication_errors must be a tuple of CommunicationFailure")
+        if type(self.position_limit) is not bool:
+            raise ValueError("position_limit must be a bool")
 
         if len(self.communication_errors) != len(set(self.communication_errors)):
             raise ValueError("communication_errors must contain unique codes")
@@ -236,6 +268,16 @@ class OwnerToken:
             raise ValueError("connection_id must be a bounded non-empty string")
 
 
+def owner_tokens_match(candidate: object, current: object) -> bool:
+    return (
+        type(candidate) is OwnerToken
+        and type(current) is OwnerToken
+        and candidate.epoch == current.epoch
+        and candidate.generation == current.generation
+        and candidate.connection_id == current.connection_id
+    )
+
+
 @dataclass(frozen=True)
 class IntentWindow:
     id: int
@@ -280,7 +322,7 @@ class Target:
             raise ValueError("every joint target must be a JointTarget")
         if not isinstance(self.window, IntentWindow):
             raise ValueError("window must be an IntentWindow")
-        if not isinstance(self.owner, OwnerToken):
+        if type(self.owner) is not OwnerToken:
             raise ValueError("owner must be an OwnerToken")
 
 
@@ -290,6 +332,7 @@ class RefreshPlan:
     target: Target
     prepared_at_s: float
     joint_targets: tuple[JointTarget, ...]
+    packets: tuple[bytes, ...]
 
     def __post_init__(self) -> None:
         if type(self.plan_id) is not int or not (0 <= self.plan_id <= (1 << 64) - 1):
@@ -309,6 +352,17 @@ class RefreshPlan:
             raise ValueError("joint_targets must be a non-empty tuple")
         if any(not isinstance(jt, JointTarget) for jt in self.joint_targets):
             raise ValueError("every joint target must be a JointTarget")
+        if type(self.packets) is not tuple or len(self.packets) != len(self.joint_targets):
+            raise ValueError("packets must be a tuple matching joint_targets")
+        for packet in self.packets:
+            if type(packet) is not bytes:
+                raise ValueError("packets must contain immutable bytes")
+            try:
+                decoded = decode_command(packet)
+            except ValueError as exc:
+                raise ValueError("packets must contain canonical commands") from exc
+            if decoded["mode"] != 1 or not decoded["watchdog"]:
+                raise ValueError("refresh packets must be watchdog-enabled FOC commands")
 
     @property
     def window(self) -> IntentWindow:
@@ -331,7 +385,7 @@ class JointDispatchedRecord:
             raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
         if not isinstance(self.target, JointTarget):
             raise ValueError("target must be a JointTarget")
-        if not isinstance(self.owner, OwnerToken):
+        if type(self.owner) is not OwnerToken:
             raise ValueError("owner must be an OwnerToken")
         if isinstance(self.dispatched_at_s, bool) or not isinstance(self.dispatched_at_s, (int, float)):
             raise ValueError("dispatched_at_s must be a finite real number")
@@ -362,7 +416,7 @@ class JointDispatchAttempt:
             raise ValueError("target must be a JointTarget")
         if not isinstance(self.result, WriteResult):
             raise ValueError("result must be a WriteResult")
-        if not isinstance(self.owner, OwnerToken):
+        if type(self.owner) is not OwnerToken:
             raise ValueError("owner must be an OwnerToken")
         if isinstance(self.started_at_s, bool) or not isinstance(self.started_at_s, (int, float)):
             raise ValueError("started_at_s must be a finite real number")
@@ -448,9 +502,9 @@ class Snapshot:
                 raise ValueError("every dispatch attempt must be a JointDispatchAttempt or None")
         if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
             raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
-        if self.latest_owner is not None and not isinstance(self.latest_owner, OwnerToken):
+        if self.latest_owner is not None and type(self.latest_owner) is not OwnerToken:
             raise ValueError("latest_owner must be an OwnerToken or None")
-        if self.current_owner is not None and not isinstance(self.current_owner, OwnerToken):
+        if self.current_owner is not None and type(self.current_owner) is not OwnerToken:
             raise ValueError("current_owner must be an OwnerToken or None")
 
     @property

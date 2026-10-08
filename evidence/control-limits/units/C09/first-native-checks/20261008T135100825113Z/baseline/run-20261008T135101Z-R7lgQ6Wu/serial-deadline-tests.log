@@ -1,0 +1,579 @@
+test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) ... 
+  test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='read') ... ERROR
+  test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='write') ... ERROR
+  test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='reset') ... ERROR
+  test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='partial') ... ERROR
+  test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='success') ... ERROR
+test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success) ... ERROR
+test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) ... 
+  test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) (timeout=None) ... ERROR
+test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) ... FAIL
+test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget) ... ERROR
+test_restoration_and_decode_time_cannot_return_late_success (test_serial_deadline.B09Deadline.test_restoration_and_decode_time_cannot_return_late_success) ... ERROR
+test_restore_failure_preserves_primary_fault_and_no_result (test_serial_deadline.B09Deadline.test_restore_failure_preserves_primary_fault_and_no_result) ... ERROR
+test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) ... 
+  test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) (restore_failure=False) ... ERROR
+test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) ... FAIL
+test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) ... 
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=None) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=0) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=0.5) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=0) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=-0.1) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=nan) ... ERROR
+  test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=inf) ... ERROR
+test_real_fragmented_reply_after_exact_request (test_serial_deadline.B09PseudoTerminal.test_real_fragmented_reply_after_exact_request) ... ERROR
+test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) ... 
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=0) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=1) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=2) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=3) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=4) ... ERROR
+PTY missing reply timeout=None: elapsed seconds []
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=0) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=1) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=2) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=3) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=4) ... ERROR
+PTY missing reply timeout=0: elapsed seconds []
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=0) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=1) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=2) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=3) ... ERROR
+  test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=4) ... ERROR
+PTY missing reply timeout=0.5: elapsed seconds []
+test_real_saturated_write_has_positive_deadline (test_serial_deadline.B09PseudoTerminal.test_real_saturated_write_has_positive_deadline) ... PTY saturated write timeout=None: elapsed seconds 0.020847028001298895
+PTY saturated write timeout=0: elapsed seconds 0.020842560999881243
+PTY saturated write timeout=0.5: elapsed seconds 0.020812877999560442
+ok
+
+======================================================================
+ERROR: test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='read')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 72, in test_errors_partial_write_and_success_restore_settings
+    s.exchange(bus, s.command(0), 0)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 72, in test_errors_partial_write_and_success_restore_settings
+    s.exchange(bus, s.command(0), 0)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='reset')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 72, in test_errors_partial_write_and_success_restore_settings
+    s.exchange(bus, s.command(0), 0)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='partial')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 72, in test_errors_partial_write_and_success_restore_settings
+    s.exchange(bus, s.command(0), 0)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) (operation='success')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 69, in test_errors_partial_write_and_success_restore_settings
+    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 54, in test_late_frame_is_not_success
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) (timeout=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 23, in test_read_timeout_cannot_overrun_budget_and_restores
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 34, in test_reset_and_write_share_entry_budget
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_restoration_and_decode_time_cannot_return_late_success (test_serial_deadline.B09Deadline.test_restoration_and_decode_time_cannot_return_late_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 122, in test_restoration_and_decode_time_cannot_return_late_success
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_restore_failure_preserves_primary_fault_and_no_result (test_serial_deadline.B09Deadline.test_restore_failure_preserves_primary_fault_and_no_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 108, in test_restore_failure_preserves_primary_fault_and_no_result
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) (restore_failure=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 92, in test_settings_failure_is_transport_fault_and_restores_both
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 145, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 145, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (original=0.5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 145, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 150, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, deadline)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=-0.1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 150, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, deadline)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=nan)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 150, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, deadline)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) (deadline=inf)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 150, in test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io
+    s.exchange(bus, s.command(0), 0, deadline)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_fragmented_reply_after_exact_request (test_serial_deadline.B09PseudoTerminal.test_real_fragmented_reply_after_exact_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 202, in test_real_fragmented_reply_after_exact_request
+    self.assertEqual(s.exchange(bus, s.command(0), 0, .1)["raw"], CAPTURED.hex())
+                                     ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=None, repeat=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0, repeat=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) (timeout=0.5, repeat=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 172, in test_real_missing_reply_five_runs_per_timeout
+    s.exchange(bus, s.command(0), 0, .02)
+                    ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+FAIL: test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 26, in test_read_timeout_cannot_overrun_budget_and_restores
+    self.assertEqual(len(bus.writes), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_serial_deadline.py", line 93, in test_settings_failure_is_transport_fault_and_restores_both
+    self.assertIn(("timeout", .5), bus.attempts)
+AssertionError: ('timeout', 0.5) not found in []
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.296s
+
+FAILED (failures=2, errors=34)

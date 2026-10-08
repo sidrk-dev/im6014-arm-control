@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/test_spin_5rpm.py", line 21, in <module>
+    assert s.command(0).hex() == 'feee80000000000000000000000000001d99fb6e'
+           ^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-parent-checks/20261008T135100825113Z/baseline/run-20261008T135101Z-R7lgQ6Wu/.source-tXbFUECl/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?

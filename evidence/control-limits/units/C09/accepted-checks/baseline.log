@@ -1,0 +1,11 @@
+Evidence: /tmp/pstack-c07-c16-20261008-smgcfm_v/C09-endpoint-parent-checks/20261008T135742383493Z/baseline/run-20261008T135742Z-G3lQ9WbX
+check	exit_code
+interpreter	0
+packet-tests	0
+protocol-tests	0
+serial-deadline-tests	0
+milestone-tests	0
+dashboard-tests	0
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0

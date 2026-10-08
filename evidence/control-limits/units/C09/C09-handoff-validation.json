@@ -1,0 +1,26 @@
+{
+  "kind": "validated",
+  "operation": "run-checks",
+  "head": "83b15785d7c065bc6144bbf569e27ed4bbee43a7",
+  "digest": "69d3161cb3cd060caa92d5a01a13e58ccabd4beb8b34bade7b0771c97b40c04d",
+  "files": [
+    "joint_contract.py",
+    "im6014_codec.py",
+    "joint_reference.py",
+    "joint_controller.py",
+    "test_controller.py",
+    "test_controller_owner.py",
+    "test_controller_expiry.py",
+    "test_controller_targets.py",
+    "test_controller_limits.py",
+    "docs/joint-api.md",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "test_startup.py"
+  ],
+  "checks": [
+    "C09",
+    "milestone-tests",
+    "scripts/check_offline_baseline.sh"
+  ]
+}

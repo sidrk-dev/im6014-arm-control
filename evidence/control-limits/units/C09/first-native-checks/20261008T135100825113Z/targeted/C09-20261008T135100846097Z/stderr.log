@@ -1,0 +1,489 @@
+test_actual_reference_matches_every_canonical_wire_field (test_controller_limits.PositionLimitTests.test_actual_reference_matches_every_canonical_wire_field) ... ERROR
+test_attributed_fault_and_recovery (test_controller_limits.PositionLimitTests.test_attributed_fault_and_recovery) ... ERROR
+test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint (test_controller_limits.PositionLimitTests.test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint) ... ERROR
+test_complete_write_with_bad_end_clock_after_disconnect_keeps_full_record (test_controller_limits.PositionLimitTests.test_complete_write_with_bad_end_clock_after_disconnect_keeps_full_record) ... ERROR
+test_exact_lower_and_upper_requests_accepted (test_controller_limits.PositionLimitTests.test_exact_lower_and_upper_requests_accepted) ... ERROR
+test_generic_prepare_failure_does_not_mislabel_every_joint_position_limited (test_controller_limits.PositionLimitTests.test_generic_prepare_failure_does_not_mislabel_every_joint_position_limited) ... ERROR
+test_im6014_codec_decode_command_and_helpers (test_controller_limits.PositionLimitTests.test_im6014_codec_decode_command_and_helpers) ... ERROR
+test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) ... 
+  test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.FAILED: 'failed'>) ... ERROR
+  test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.PARTIAL: 'partial'>) ... ERROR
+  test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.PREWRITE_DEADLINE: 'prewrite_deadline'>) ... ERROR
+test_malformed_spec_and_fault_config_rejected (test_controller_limits.PositionLimitTests.test_malformed_spec_and_fault_config_rejected) ... ok
+test_mapping_overflow_is_invalid_argument (test_controller_limits.PositionLimitTests.test_mapping_overflow_is_invalid_argument) ... ERROR
+test_measured_outside_bounds_at_admission_and_final_write_gate (test_controller_limits.PositionLimitTests.test_measured_outside_bounds_at_admission_and_final_write_gate) ... ERROR
+test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark (test_controller_limits.PositionLimitTests.test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark) ... ERROR
+test_negative_direction_and_nonzero_zero_reduction_map (test_controller_limits.PositionLimitTests.test_negative_direction_and_nonzero_zero_reduction_map) ... ERROR
+test_one_representable_step_outside_bounds_rejected (test_controller_limits.PositionLimitTests.test_one_representable_step_outside_bounds_rejected) ... ERROR
+test_owner_matching_uses_exact_type_and_boundary_records_reject_subclasses (test_controller_limits.PositionLimitTests.test_owner_matching_uses_exact_type_and_boundary_records_reject_subclasses) ... ERROR
+test_prepare_failure_only_attributes_the_joint_with_position_failure (test_controller_limits.PositionLimitTests.test_prepare_failure_only_attributes_the_joint_with_position_failure) ... ERROR
+test_refresh_plan_requires_exact_count_canonical_packet_bytes (test_controller_limits.PositionLimitTests.test_refresh_plan_requires_exact_count_canonical_packet_bytes) ... ERROR
+test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference (test_controller_limits.PositionLimitTests.test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference) ... ERROR
+test_seeded_extreme_mappings_keep_reference_and_packet_congruent (test_controller_limits.PositionLimitTests.test_seeded_extreme_mappings_keep_reference_and_packet_congruent) ... ERROR
+test_unencodable_mapped_request_is_invalid_not_projected_into_range (test_controller_limits.PositionLimitTests.test_unencodable_mapped_request_is_invalid_not_projected_into_range) ... ok
+test_unhealthy_outside_feedback_preserves_both_fault_causes (test_controller_limits.PositionLimitTests.test_unhealthy_outside_feedback_preserves_both_fault_causes) ... ok
+test_zero_width_interval_and_no_representable_safe_command (test_controller_limits.PositionLimitTests.test_zero_width_interval_and_no_representable_safe_command) ... ERROR
+
+======================================================================
+ERROR: test_actual_reference_matches_every_canonical_wire_field (test_controller_limits.PositionLimitTests.test_actual_reference_matches_every_canonical_wire_field)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 601, in test_actual_reference_matches_every_canonical_wire_field
+    code, actual, packet = prepare_reference_joint(spec, requested)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/joint_reference.py", line 23, in prepare_reference_joint
+    command(
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_attributed_fault_and_recovery (test_controller_limits.PositionLimitTests.test_attributed_fault_and_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 430, in test_attributed_fault_and_recovery
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint (test_controller_limits.PositionLimitTests.test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 474, in test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint
+    code, actual_target, packet = prepare_reference_joint(spec, target)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/joint_reference.py", line 23, in prepare_reference_joint
+    command(
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_complete_write_with_bad_end_clock_after_disconnect_keeps_full_record (test_controller_limits.PositionLimitTests.test_complete_write_with_bad_end_clock_after_disconnect_keeps_full_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 841, in test_complete_write_with_bad_end_clock_after_disconnect_keeps_full_record
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_exact_lower_and_upper_requests_accepted (test_controller_limits.PositionLimitTests.test_exact_lower_and_upper_requests_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 88, in test_exact_lower_and_upper_requests_accepted
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_generic_prepare_failure_does_not_mislabel_every_joint_position_limited (test_controller_limits.PositionLimitTests.test_generic_prepare_failure_does_not_mislabel_every_joint_position_limited)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 698, in test_generic_prepare_failure_does_not_mislabel_every_joint_position_limited
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_im6014_codec_decode_command_and_helpers (test_controller_limits.PositionLimitTests.test_im6014_codec_decode_command_and_helpers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 528, in test_im6014_codec_decode_command_and_helpers
+    pkt = command(
+          ^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.FAILED: 'failed'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 778, in test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.PARTIAL: 'partial'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 778, in test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check (test_controller_limits.PositionLimitTests.test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check) (result=<WriteResult.PREWRITE_DEADLINE: 'prewrite_deadline'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 778, in test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_mapping_overflow_is_invalid_argument (test_controller_limits.PositionLimitTests.test_mapping_overflow_is_invalid_argument)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 632, in test_mapping_overflow_is_invalid_argument
+    code, actual, packet = prepare_reference_joint(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/joint_reference.py", line 23, in prepare_reference_joint
+    command(
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_measured_outside_bounds_at_admission_and_final_write_gate (test_controller_limits.PositionLimitTests.test_measured_outside_bounds_at_admission_and_final_write_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 387, in test_measured_outside_bounds_at_admission_and_final_write_gate
+    core2, station2, owner2 = self._armed_station("gate-client")
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark (test_controller_limits.PositionLimitTests.test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 340, in test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_negative_direction_and_nonzero_zero_reduction_map (test_controller_limits.PositionLimitTests.test_negative_direction_and_nonzero_zero_reduction_map)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 195, in test_negative_direction_and_nonzero_zero_reduction_map
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_one_representable_step_outside_bounds_rejected (test_controller_limits.PositionLimitTests.test_one_representable_step_outside_bounds_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 127, in test_one_representable_step_outside_bounds_rejected
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_owner_matching_uses_exact_type_and_boundary_records_reject_subclasses (test_controller_limits.PositionLimitTests.test_owner_matching_uses_exact_type_and_boundary_records_reject_subclasses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 727, in test_owner_matching_uses_exact_type_and_boundary_records_reject_subclasses
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_prepare_failure_only_attributes_the_joint_with_position_failure (test_controller_limits.PositionLimitTests.test_prepare_failure_only_attributes_the_joint_with_position_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 669, in test_prepare_failure_only_attributes_the_joint_with_position_failure
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_refresh_plan_requires_exact_count_canonical_packet_bytes (test_controller_limits.PositionLimitTests.test_refresh_plan_requires_exact_count_canonical_packet_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 640, in test_refresh_plan_requires_exact_count_canonical_packet_bytes
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference (test_controller_limits.PositionLimitTests.test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 503, in test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference
+    core, station, owner = self._armed_station()
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 65, in _armed_station
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_seeded_extreme_mappings_keep_reference_and_packet_congruent (test_controller_limits.PositionLimitTests.test_seeded_extreme_mappings_keep_reference_and_packet_congruent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 902, in test_seeded_extreme_mappings_keep_reference_and_packet_congruent
+    code, actual, packet = prepare_reference_joint(spec, requested)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/joint_reference.py", line 23, in prepare_reference_joint
+    command(
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_zero_width_interval_and_no_representable_safe_command (test_controller_limits.PositionLimitTests.test_zero_width_interval_and_no_representable_safe_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller_limits.py", line 279, in test_zero_width_interval_and_no_representable_safe_command
+    self.assertTrue(station.connect().accepted)
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.020s
+
+FAILED (errors=21)

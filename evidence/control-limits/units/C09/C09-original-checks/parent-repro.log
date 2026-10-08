@@ -1,0 +1,31 @@
+FEE
+======================================================================
+ERROR: test_combined_valid_feedback_causes_union (__main__.CanonicalAndFaults.test_combined_valid_feedback_causes_union)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 22, in test_combined_valid_feedback_causes_union
+    f=c.snapshot().faults[0];self.assertTrue(f.motor_errors);self.assertTrue(f.position_limit)
+                                             ^^^^^^^^^^^^^^
+AttributeError: 'JointFault' object has no attribute 'motor_errors'
+
+======================================================================
+ERROR: test_valid_outside_observation_during_check_latches_position (__main__.CanonicalAndFaults.test_valid_outside_observation_during_check_latches_position)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 27, in test_valid_outside_observation_during_check_latches_position
+    self.assertTrue(c.snapshot().faults[0].position_limit)
+                    ~~~~~~~~~~~~~~~~~~~^^^
+IndexError: tuple index out of range
+
+======================================================================
+FAIL: test_actual_reference_matches_all_wire_fields (__main__.CanonicalAndFaults.test_actual_reference_matches_all_wire_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 14, in test_actual_reference_matches_all_wire_fields
+    self.assertEqual(t.dq_rad_s,m.direction*d['rpm']*math.tau/60/m.reduction)
+AssertionError: 0.123 != 0.12401023632591289
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+FAILED (failures=1, errors=2)

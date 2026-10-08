@@ -1,0 +1,6 @@
+Original accepted endpoint encoded feee9000000000000000000000007b07641e52cf
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-codec-workbench/im6014_codec.py", line 248, in decode_command
+    raise ValueError('Gain is outside the canonical command range')
+ValueError: Gain is outside the canonical command range

@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-08T13:14:16.947917+00:00",
+  "reviewer": "opencode/muse-spark-1.3-contributor-free",
+  "findings": [
+    {
+      "id": 1,
+      "category": "Noted",
+      "reason": "Pending physical write outcome intentionally blocks recheck/reconnect. Adapter must report every granted claim; clearing or timeout-forgetting an unknown write would lose truthful receipt and allow unsafe overlap. Document all blocked lifecycle calls; C16 bounded transport owns outcome, never client."
+    },
+    {
+      "id": 2,
+      "category": "Dismissed",
+      "reason": "Slot is latest known actual bus write, not current admitted goal. No later actual write can precede old receipt because outstanding claim blocks dispatch. Sequence1 beside goal2 is required truthful distinction."
+    },
+    {
+      "id": 3,
+      "category": "Noted",
+      "reason": "issue_window is trusted station input, as already documented. C16 protocol must bind actual connection and owner at issuance."
+    },
+    {
+      "id": 4,
+      "category": "Act on",
+      "reason": "Parent reproduced different OwnerToken subclass with overridden equality arming despite wrong epoch/connection. Narrow exact-type value gate warranted for stated exact matching contract; no claim about hostile arbitrary Python execution."
+    },
+    {
+      "id": 5,
+      "category": "Consider",
+      "reason": "Reuse one exact-token matcher when fixing reproduced type/equality issue; preserve separate state/plan/receipt gates."
+    },
+    {
+      "id": 6,
+      "category": "Dismissed",
+      "reason": "Exhausted takeover deliberately withdraws old authority. Parent reproduced prior dangerous continued motion; moving check before revoke would reintroduce it."
+    },
+    {
+      "id": 7,
+      "category": "Noted",
+      "reason": "Nine finite states are explicit and tested. Document CONNECTING preservation; no transition table needed for existing expression."
+    },
+    {
+      "id": 8,
+      "category": "Noted",
+      "reason": "Test name checks do not measure allocation; code holds exactly two latest/current references and fixed per-joint records. Avoid claiming heap benchmark; tidy assertions in final test-quality pass."
+    },
+    {
+      "id": 9,
+      "category": "Consider",
+      "reason": "Drop unused imports and duplicated docs in final deslop. Whitespace IDs are opaque exact server-bound strings; consuming random bytes on invalid construction is harmless."
+    }
+  ],
+  "others": "MiMo/Gemini still running, no panel consensus",
+  "fix": "Queue narrow exact-owner repair after C09 writer settles; original failed reproduction retained; no shared core writes"
+}

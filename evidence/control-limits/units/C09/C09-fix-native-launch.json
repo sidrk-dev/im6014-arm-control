@@ -1,0 +1,18 @@
+{
+  "task": "/root/c09_contract_repair",
+  "assignedDescriptor": "codex:gpt-6-luna@max",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench",
+  "preparedContract": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-contract.json",
+  "authority": "file authoring only; parent checks/Git/hardware/packages/accounts",
+  "scope": "C09 canonical packet/required types/position faults plus2reproduced C08 owner/lifecycle repairs",
+  "reproductionEvidence": [
+    "C09-original-checks/parent-repro-corrected.log",
+    "C09-original-checks/milestone.log",
+    "C09-owner-subclass-repro.py",
+    "C09-late-failure-repro.py",
+    "queued-owner-fix.md"
+  ],
+  "at": "2026-10-08T13:39:47.264669+00:00",
+  "providerIdentity": "native task assignment; no independent provider model attestation"
+}

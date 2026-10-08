@@ -1,0 +1,90 @@
+test_attributed_fault_and_recovery (test_controller_limits.PositionLimitTests.test_attributed_fault_and_recovery) ... ERROR
+test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint (test_controller_limits.PositionLimitTests.test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint) ... ERROR
+test_exact_lower_and_upper_requests_accepted (test_controller_limits.PositionLimitTests.test_exact_lower_and_upper_requests_accepted) ... FAIL
+test_im6014_codec_decode_command_and_helpers (test_controller_limits.PositionLimitTests.test_im6014_codec_decode_command_and_helpers) ... ERROR
+test_malformed_spec_and_fault_config_rejected (test_controller_limits.PositionLimitTests.test_malformed_spec_and_fault_config_rejected) ... ERROR
+test_measured_outside_bounds_at_admission_and_final_write_gate (test_controller_limits.PositionLimitTests.test_measured_outside_bounds_at_admission_and_final_write_gate) ... FAIL
+test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark (test_controller_limits.PositionLimitTests.test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark) ... ok
+test_negative_direction_and_nonzero_zero_reduction_map (test_controller_limits.PositionLimitTests.test_negative_direction_and_nonzero_zero_reduction_map) ... FAIL
+test_one_representable_step_outside_bounds_rejected (test_controller_limits.PositionLimitTests.test_one_representable_step_outside_bounds_rejected) ... ok
+test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference (test_controller_limits.PositionLimitTests.test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference) ... ERROR
+test_zero_width_interval_and_no_representable_safe_command (test_controller_limits.PositionLimitTests.test_zero_width_interval_and_no_representable_safe_command) ... ok
+
+======================================================================
+ERROR: test_attributed_fault_and_recovery (test_controller_limits.PositionLimitTests.test_attributed_fault_and_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 376, in test_attributed_fault_and_recovery
+    self.assertTrue(core.snapshot().faults[0].position_limit)
+                    ~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: tuple index out of range
+
+======================================================================
+ERROR: test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint (test_controller_limits.PositionLimitTests.test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 424, in test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint
+    self.assertEqual(dec["raw_position"], 208607)
+                     ~~~^^^^^^^^^^^^^^^^
+KeyError: 'raw_position'
+
+======================================================================
+ERROR: test_im6014_codec_decode_command_and_helpers (test_controller_limits.PositionLimitTests.test_im6014_codec_decode_command_and_helpers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 464, in test_im6014_codec_decode_command_and_helpers
+    self.assertEqual(dec["motor_id"], 2)
+                     ~~~^^^^^^^^^^^^
+KeyError: 'motor_id'
+
+======================================================================
+ERROR: test_malformed_spec_and_fault_config_rejected (test_controller_limits.PositionLimitTests.test_malformed_spec_and_fault_config_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 292, in test_malformed_spec_and_fault_config_rejected
+    JointFault(position_limit="bad")
+TypeError: JointFault.__init__() missing 2 required positional arguments: 'name' and 'motor_id'
+
+======================================================================
+ERROR: test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference (test_controller_limits.PositionLimitTests.test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 429, in test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/joint_controller.py", line 329, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+FAIL: test_exact_lower_and_upper_requests_accepted (test_controller_limits.PositionLimitTests.test_exact_lower_and_upper_requests_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 76, in test_exact_lower_and_upper_requests_accepted
+    self.assertEqual(len(station.writes), 2)
+AssertionError: 4 != 2
+
+======================================================================
+FAIL: test_measured_outside_bounds_at_admission_and_final_write_gate (test_controller_limits.PositionLimitTests.test_measured_outside_bounds_at_admission_and_final_write_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 339, in test_measured_outside_bounds_at_admission_and_final_write_gate
+    self.assertFalse(rej.accepted)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_negative_direction_and_nonzero_zero_reduction_map (test_controller_limits.PositionLimitTests.test_negative_direction_and_nonzero_zero_reduction_map)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/test_controller_limits.py", line 184, in test_negative_direction_and_nonzero_zero_reduction_map
+    self.assertEqual(len(station.writes), 2)
+AssertionError: 4 != 2
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.013s
+
+FAILED (failures=3, errors=5)
+Receipt: /tmp/pstack-c07-c16-20261008-smgcfm_v/C09-original-targeted/C09-20261008T133312510048Z/receipt.json

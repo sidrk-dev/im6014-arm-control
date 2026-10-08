@@ -1,0 +1,19 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-endpoint-parent-checks/20261008T135742383493Z/result.json",
+  "manifestSha256": "0ba29d1fb9d63247068a813e04ed8e0fff0cf92b8d159915fa98d52e14b2c4ea",
+  "checks": "23focused5parentrepro168milestone9groups18dashboard; exactsourcehashes",
+  "decisions": [
+    "Requiredinclusivepositionlimits/provenance",
+    "Canonicalcodecrawprojectionandimmutablebytes",
+    "Actualfullreferencefromdecodedpacket",
+    "ExactOwnerTokenfieldsclassandlateDISCONNECTEDoutcomes",
+    "Real0.1radovershootfixture; false1radproofpreservedandcorrected",
+    "Canonicalencoderinputimagegainendpoints; postdecodejointlimitsremainindependent"
+  ],
+  "hardware": "Fake I/O and PTYs only; no protection/physical claim",
+  "at": "2026-10-08T13:59:53.569884+00:00"
+}

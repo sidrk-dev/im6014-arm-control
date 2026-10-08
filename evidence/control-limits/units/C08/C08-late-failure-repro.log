@@ -1,0 +1,32 @@
+FFF
+======================================================================
+FAIL: test_late_failure_retains_disconnected_and_fault_attribution (__main__.LateFailureLifecycle.test_late_failure_retains_disconnected_and_fault_attribution) (result=<WriteResult.FAILED: 'failed'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-late-failure-repro.py", line 16, in test_late_failure_retains_disconnected_and_fault_attribution
+    snap=c.snapshot();self.assertEqual(snap.state,State.DISCONNECTED);self.assertTrue(snap.fault_latched);self.assertEqual(snap.dispatch_attempts[0].result,result);self.assertIsNone(snap.current_owner)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: <State.FAULT: 'fault'> != <State.DISCONNECTED: 'disconnected'>
+
+======================================================================
+FAIL: test_late_failure_retains_disconnected_and_fault_attribution (__main__.LateFailureLifecycle.test_late_failure_retains_disconnected_and_fault_attribution) (result=<WriteResult.PARTIAL: 'partial'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-late-failure-repro.py", line 16, in test_late_failure_retains_disconnected_and_fault_attribution
+    snap=c.snapshot();self.assertEqual(snap.state,State.DISCONNECTED);self.assertTrue(snap.fault_latched);self.assertEqual(snap.dispatch_attempts[0].result,result);self.assertIsNone(snap.current_owner)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: <State.FAULT: 'fault'> != <State.DISCONNECTED: 'disconnected'>
+
+======================================================================
+FAIL: test_late_failure_retains_disconnected_and_fault_attribution (__main__.LateFailureLifecycle.test_late_failure_retains_disconnected_and_fault_attribution) (result=<WriteResult.PREWRITE_DEADLINE: 'prewrite_deadline'>)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-late-failure-repro.py", line 16, in test_late_failure_retains_disconnected_and_fault_attribution
+    snap=c.snapshot();self.assertEqual(snap.state,State.DISCONNECTED);self.assertTrue(snap.fault_latched);self.assertEqual(snap.dispatch_attempts[0].result,result);self.assertIsNone(snap.current_owner)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: <State.FAULT: 'fault'> != <State.DISCONNECTED: 'disconnected'>
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=3)

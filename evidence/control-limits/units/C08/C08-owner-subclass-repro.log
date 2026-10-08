@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_mismatched_token_subclass_cannot_arm (__main__.ExactOwner.test_mismatched_token_subclass_cannot_arm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-owner-subclass-repro.py", line 13, in test_mismatched_token_subclass_cannot_arm
+    self.assertFalse(c.arm(different),'Owner fields differ despite overridden equality')
+AssertionError: Decision(accepted=True, code=<DecisionCode.ACCEPTED: 'accepted'>) is not false : Owner fields differ despite overridden equality
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

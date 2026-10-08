@@ -1,0 +1,27 @@
+E
+======================================================================
+ERROR: test_mismatched_token_subclass_cannot_arm (__main__.ExactOwner.test_mismatched_token_subclass_cannot_arm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-owner-subclass-repro.py", line 11, in test_mismatched_token_subclass_cannot_arm
+    c=JointCore((JointSpec('J1',0,JointMap(1,1,0),-2,2,'fixture: parent software limits'),),clock=DeterministicClock(0));s=FakeStation(c);self.assertTrue(s.connect());owner=s.claim('real');self.assertTrue(s.check())
+                                                                                                                                                          ^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (errors=1)

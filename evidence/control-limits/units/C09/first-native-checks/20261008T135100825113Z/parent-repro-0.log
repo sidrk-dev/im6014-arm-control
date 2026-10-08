@@ -1,0 +1,66 @@
+EEE
+======================================================================
+ERROR: test_actual_reference_matches_all_wire_fields (__main__.CanonicalAndFaults.test_actual_reference_matches_all_wire_fields)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 12, in test_actual_reference_matches_all_wire_fields
+    code,t,p=prepare_reference_joint(s,JointTarget(.321,.123,.321,1.234,.123))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/joint_reference.py", line 23, in prepare_reference_joint
+    command(
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_combined_valid_feedback_causes_union (__main__.CanonicalAndFaults.test_combined_valid_feedback_causes_union)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 20, in test_combined_valid_feedback_causes_union
+    self.assertTrue(s.connect());s.claim('real');self.assertTrue(s.check())
+                    ^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+======================================================================
+ERROR: test_valid_outside_observation_during_check_latches_position (__main__.CanonicalAndFaults.test_valid_outside_observation_during_check_latches_position)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-parent-repro.py", line 25, in test_valid_outside_observation_during_check_latches_position
+    self.assertTrue(s.connect());s.claim('real');self.assertTrue(c.begin_check())
+                    ^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 47, in connect
+    self._write_stops()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in _write_stops
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/test_controller.py", line 39, in <genexpr>
+    self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 77, in command
+    return command_with_raw_position(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-fix-workbench/im6014_codec.py", line 115, in command_with_raw_position
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
+                                                      ^^^^^^^^^^^^
+NameError: name 'position_raw' is not defined. Did you mean: 'position_to_raw'?
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+FAILED (errors=3)

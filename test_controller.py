@@ -78,22 +78,7 @@ class FakeStation:
         plan = self.core.prepare_refresh()
         if plan is None:
             return None
-        packets = []
-        for spec, joint_target in zip(self.core.joint_specs, plan.joint_targets):
-            output = spec.mapping.to_output(joint_target)
-            packets.append(
-                command(
-                    spec.motor_id,
-                    mode=1,
-                    rpm=output.rpm,
-                    kd=output.kd,
-                    torque=output.tau_nm,
-                    watchdog=True,
-                    position=output.q_rad,
-                    kp=output.kp,
-                )
-            )
-        for index, packet in enumerate(packets):
+        for index, packet in enumerate(plan.packets):
             if not self.core.claim_dispatch(plan.plan_id, index):
                 break
             self.writes.append(packet)
@@ -123,8 +108,8 @@ class DeterministicClock:
 class FeedbackAgeTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
         )
 
     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
@@ -327,8 +312,8 @@ class ControllerStateTests(unittest.TestCase):
     def setUp(self):
         self.clock = lambda: 0.0
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
         )
 
 
@@ -337,13 +322,19 @@ class ControllerStateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             JointCore(())
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J1", 1, mapping)))
+            JointCore((
+                JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
+                JointSpec("J1", 1, mapping, -2.0, 2.0, "fixture: software position limits"),
+            ))
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J2", 0, mapping)))
+            JointCore((
+                JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
+                JointSpec("J2", 0, mapping, -2.0, 2.0, "fixture: software position limits"),
+            ))
         with self.assertRaises(ValueError):
-            JointSpec("J1", True, mapping)
+            JointSpec("J1", True, mapping, -2.0, 2.0, "fixture: software position limits")
 
-        supplied = [JointSpec("J1", 0, mapping)]
+        supplied = [JointSpec("J1", 0, mapping, -2.0, 2.0, "fixture: software position limits")]
         core = JointCore(supplied, clock=self.clock)
         supplied.clear()
         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
@@ -559,8 +550,8 @@ class ControllerStateTests(unittest.TestCase):
 class JointFaultTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
         )
 
     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
@@ -880,8 +871,8 @@ class JointFaultTests(unittest.TestCase):
 
     def test_independent_second_core_unchanged_by_fault(self):
         specs2 = (
-            JointSpec("J3", 2, JointMap(1, 1, 0.0)),
-            JointSpec("J4", 3, JointMap(1, 1, 0.0)),
+            JointSpec("J3", 2, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
         )
         clock = DeterministicClock(0.0)
         core1 = JointCore(self.specs, clock=clock)

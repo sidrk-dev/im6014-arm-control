@@ -3,7 +3,7 @@
 ## Feature
 
 - [x] `how` over the affected subsystem.
-- [ ] `architect` for parallel design exploration.
+- [x] `architect` for parallel design exploration.
 - [x] Write the throughput checkpoint as four todo items.
 - [ ] Delegate code-writing through provider dispatch.
 - [ ] Verify on the matching surface.
@@ -39,7 +39,7 @@
 
 - [x] C07. Parent software checks accepted; final branch review remains pending.
 - [x] C08. Parent software checks accepted; final branch review remains pending.
-- [ ] C09.
+- [x] C09. Parent software checks accepted; final branch review remains pending.
 - [ ] C10.
 - [ ] C11.
 - [ ] C12.

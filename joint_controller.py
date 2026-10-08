@@ -10,7 +10,6 @@ import math
 import secrets
 import time
 
-from im6014_codec import command
 from joint_contract import (
     CommunicationFailure,
     Decision,
@@ -29,8 +28,10 @@ from joint_contract import (
     State,
     Target,
     WriteResult,
+    owner_tokens_match,
 )
 from joint_mapping import JointSample
+from joint_reference import prepare_complete_reference, prepare_reference_joint
 
 __all__ = ("JointCore",)
 
@@ -220,6 +221,7 @@ class JointCore:
         timeout: bool = False,
         communication_error: CommunicationFailure | None = None,
         stale: bool = False,
+        position_limit: bool = False,
     ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
         communication_errors = existing.communication_errors
@@ -233,9 +235,11 @@ class JointCore:
             stale=existing.stale or stale,
             communication_error=communication_error or existing.communication_error,
             communication_errors=communication_errors,
+            position_limit=existing.position_limit or position_limit,
         )
         self._faults[name] = fault
-        self._state = State.FAULT
+        if self._state is not State.DISCONNECTED:
+            self._state = State.FAULT
         self._revoke_authority()
 
     def _withdraw_expired_goal(self) -> None:
@@ -279,19 +283,31 @@ class JointCore:
 
     def _housekeeping(self, now: float) -> DecisionCode | None:
         if self._state in (State.READY, State.ARMED, State.MOVING):
-            stale_specs = [
-                spec
-                for spec, joint in zip(self._specs, self._observations)
-                if (
+            stale_by_joint: list[bool] = []
+            outside_by_joint: list[bool] = []
+            for spec, joint in zip(self._specs, self._observations):
+                stale_by_joint.append(
                     not joint.valid
                     or joint.received_at is None
                     or self._age(joint.received_at, now) > self._feedback_max_age_s
                 )
-            ]
-            if stale_specs:
-                for spec in stale_specs:
-                    self._latch_joint_fault(spec.name, spec.motor_id, stale=True)
+                outside_by_joint.append(
+                    joint.valid
+                    and joint.sample is not None
+                    and (joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad)
+                )
+            for spec, stale, outside in zip(self._specs, stale_by_joint, outside_by_joint):
+                if stale or outside:
+                    self._latch_joint_fault(
+                        spec.name,
+                        spec.motor_id,
+                        stale=stale,
+                        position_limit=outside,
+                    )
+            if any(stale_by_joint):
                 return DecisionCode.STALE_FEEDBACK
+            if any(outside_by_joint):
+                return DecisionCode.POSITION_OUT_OF_BOUNDS
         if (
             self._admitted_target is not None
             and now >= self._admitted_target.window.expires_at_s
@@ -378,14 +394,21 @@ class JointCore:
 
         now = self._now()
         self._observations[index] = JointStatus(sample, status, now)
-        if not status.healthy:
+        spec = self._specs[index]
+        position_limit = (
+            sample.q_rad < spec.q_min_rad or sample.q_rad > spec.q_max_rad
+        )
+        if not status.healthy or position_limit:
             self._latch_joint_fault(
-                self._specs[index].name,
+                spec.name,
                 motor_id,
                 errors=status.errors,
                 warnings=status.warnings,
                 timeout=status.timeout,
+                position_limit=position_limit,
             )
+        if position_limit:
+            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
         return self._accepted()
 
     def communication_failed(
@@ -427,6 +450,17 @@ class JointCore:
             return self._rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
+
+        out_of_bounds = [
+            spec
+            for spec, joint in zip(self._specs, self._observations)
+            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
+        ]
+        if out_of_bounds:
+            for spec in out_of_bounds:
+                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
+
         self._state = State.READY
         self._faults.clear()
         return self._accepted()
@@ -434,11 +468,7 @@ class JointCore:
     def arm(self, owner: OwnerToken) -> Decision:
         if self._state is not State.READY:
             return self._rejected(DecisionCode.INVALID_STATE)
-        if (
-            not isinstance(owner, OwnerToken)
-            or self._current_owner is None
-            or owner != self._current_owner
-        ):
+        if not owner_tokens_match(owner, self._current_owner):
             return self._rejected(DecisionCode.INVALID_OWNER)
         if bool(self._faults):
             return self._rejected(DecisionCode.FAULT_LATCHED)
@@ -451,6 +481,17 @@ class JointCore:
             return self._rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
+
+        out_of_bounds = [
+            spec
+            for spec, joint in zip(self._specs, self._observations)
+            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
+        ]
+        if out_of_bounds:
+            for spec in out_of_bounds:
+                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
+
         self._state = State.ARMED
         return self._accepted()
 
@@ -476,11 +517,7 @@ class JointCore:
         if not isinstance(target, Target) or len(target.joints) != len(self._specs):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
 
-        if (
-            not isinstance(target.owner, OwnerToken)
-            or self._current_owner is None
-            or target.owner != self._current_owner
-        ):
+        if not owner_tokens_match(target.owner, self._current_owner):
             return self._rejected(DecisionCode.INVALID_OWNER)
 
         if not isinstance(target.window, IntentWindow):
@@ -499,21 +536,9 @@ class JointCore:
         if now >= target.window.expires_at_s:
             return self._rejected(DecisionCode.EXPIRED)
 
-        try:
-            for spec, joint_target in zip(self._specs, target.joints):
-                output = spec.mapping.to_output(joint_target)
-                command(
-                    spec.motor_id,
-                    mode=1,
-                    rpm=output.rpm,
-                    kd=output.kd,
-                    torque=output.tau_nm,
-                    watchdog=True,
-                    position=output.q_rad,
-                    kp=output.kp,
-                )
-        except ValueError:
-            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        code, _, _ = prepare_complete_reference(self._specs, target)
+        if code is not None:
+            return self._rejected(code)
 
         if target.sequence <= self._last_sequence:
             return self._rejected(DecisionCode.DUPLICATE_OR_OLDER)
@@ -537,23 +562,29 @@ class JointCore:
             return None
         if self._admitted_target is None:
             return None
-        if self._current_owner is None or self._admitted_target.owner != self._current_owner:
+        if not owner_tokens_match(self._admitted_target.owner, self._current_owner):
             return None
 
-        try:
-            for spec, joint_target in zip(self._specs, self._admitted_target.joints):
-                output = spec.mapping.to_output(joint_target)
-                command(
-                    spec.motor_id,
-                    mode=1,
-                    rpm=output.rpm,
-                    kd=output.kd,
-                    torque=output.tau_nm,
-                    watchdog=True,
-                    position=output.q_rad,
-                    kp=output.kp,
-                )
-        except ValueError:
+        for spec, joint in zip(self._specs, self._observations):
+            if not joint.valid or joint.sample is None or (
+                joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
+            ):
+                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+                self.stop()
+                return None
+
+        code, actual_joint_targets, packets = prepare_complete_reference(
+            self._specs, self._admitted_target
+        )
+        if code is not None or actual_joint_targets is None or packets is None:
+            if code is DecisionCode.POSITION_OUT_OF_BOUNDS:
+                for spec, target_joint in zip(self._specs, self._admitted_target.joints):
+                    joint_code, _, _ = prepare_reference_joint(spec, target_joint)
+                    if joint_code is DecisionCode.POSITION_OUT_OF_BOUNDS:
+                        self._latch_joint_fault(
+                            spec.name, spec.motor_id, position_limit=True
+                        )
+            self.stop()
             return None
 
         plan_id = self._next_plan_id
@@ -565,7 +596,8 @@ class JointCore:
             plan_id=plan_id,
             target=self._admitted_target,
             prepared_at_s=now,
-            joint_targets=self._admitted_target.joints,
+            joint_targets=actual_joint_targets,
+            packets=packets,
         )
         self._prepared_plan = plan
         self._next_dispatch_index = 0
@@ -595,9 +627,26 @@ class JointCore:
             return False
         if self._admitted_target is None or self._prepared_plan is None:
             return False
-        if self._current_owner is None or self._prepared_plan.target.owner != self._current_owner:
+        if not owner_tokens_match(self._prepared_plan.target.owner, self._current_owner):
             return False
         if any(not joint.healthy for joint in self._observations):
+            return False
+
+        if not self._all_fresh(now):
+            return False
+        for spec, joint in zip(self._specs, self._observations):
+            if not joint.valid or joint.sample is None or (
+                joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
+            ):
+                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+                self.stop()
+                return False
+
+        plan_joint = self._prepared_plan.joint_targets[index]
+        spec = self._specs[index]
+        if plan_joint.q_rad < spec.q_min_rad or plan_joint.q_rad > spec.q_max_rad:
+            self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
+            self.stop()
             return False
 
         self._dispatch_claim = _DispatchClaim(self._prepared_plan, index, now)
@@ -619,7 +668,6 @@ class JointCore:
         if index < 0 or index >= len(self._specs):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
 
-        self._dispatch_claim = None
         plan = claim.plan
         joint_target = plan.joint_targets[index]
         self._dispatch_attempts[index] = JointDispatchAttempt(
@@ -642,6 +690,7 @@ class JointCore:
                 now = self._now()
             except Exception:
                 self._record_dispatch_failure(index, CommunicationFailure.CLOCK_FAILURE)
+                self._dispatch_claim = None
                 return self._rejected(DecisionCode.FAULT_LATCHED)
 
             housekeeping = self._housekeeping(now)
@@ -650,12 +699,12 @@ class JointCore:
                 and self._admitted_target is plan.target
                 and self._state in (State.ARMED, State.MOVING)
                 and not self._faults
-                and self._current_owner is not None
-                and self._current_owner == plan.target.owner
+                and owner_tokens_match(self._current_owner, plan.target.owner)
             )
             if still_current and housekeeping is None:
                 self._next_dispatch_index = index + 1
                 self._state = State.MOVING
+            self._dispatch_claim = None
             return self._accepted()
 
         cause = (
@@ -664,6 +713,7 @@ class JointCore:
             else CommunicationFailure.DRIVER_FAILURE
         )
         self._record_dispatch_failure(index, cause)
+        self._dispatch_claim = None
         return self._rejected(DecisionCode.FAULT_LATCHED)
 
     def stop(self) -> Decision:

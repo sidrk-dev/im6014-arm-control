@@ -20,6 +20,7 @@ CHECKS = {
     'C06': 'test_controller_targets.CommandSequenceTests',
     'C07': 'test_controller_expiry',
     'C08': 'test_controller_owner',
+    'C09': 'test_controller_limits.PositionLimitTests',
 }
 
 

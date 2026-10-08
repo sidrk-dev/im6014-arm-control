@@ -1,0 +1,100 @@
+{
+  "at": "2026-10-08T13:26:01.916207+00:00",
+  "reviewer": "opencode/muse-spark-1.3-contributor-free",
+  "findings": [
+    {
+      "id": 1,
+      "category": "Noted",
+      "reason": "Pending physical write outcome intentionally blocks recheck/reconnect. Adapter must report every granted claim; clearing or timeout-forgetting an unknown write would lose truthful receipt and allow unsafe overlap. Document all blocked lifecycle calls; C16 bounded transport owns outcome, never client."
+    },
+    {
+      "id": 2,
+      "category": "Dismissed",
+      "reason": "Slot is latest known actual bus write, not current admitted goal. No later actual write can precede old receipt because outstanding claim blocks dispatch. Sequence1 beside goal2 is required truthful distinction."
+    },
+    {
+      "id": 3,
+      "category": "Noted",
+      "reason": "issue_window is trusted station input, as already documented. C16 protocol must bind actual connection and owner at issuance."
+    },
+    {
+      "id": 4,
+      "category": "Act on",
+      "reason": "Parent reproduced different OwnerToken subclass with overridden equality arming despite wrong epoch/connection. Narrow exact-type value gate warranted for stated exact matching contract; no claim about hostile arbitrary Python execution."
+    },
+    {
+      "id": 5,
+      "category": "Consider",
+      "reason": "Reuse one exact-token matcher when fixing reproduced type/equality issue; preserve separate state/plan/receipt gates."
+    },
+    {
+      "id": 6,
+      "category": "Dismissed",
+      "reason": "Exhausted takeover deliberately withdraws old authority. Parent reproduced prior dangerous continued motion; moving check before revoke would reintroduce it."
+    },
+    {
+      "id": 7,
+      "category": "Noted",
+      "reason": "Nine finite states are explicit and tested. Document CONNECTING preservation; no transition table needed for existing expression."
+    },
+    {
+      "id": 8,
+      "category": "Noted",
+      "reason": "Test name checks do not measure allocation; code holds exactly two latest/current references and fixed per-joint records. Avoid claiming heap benchmark; tidy assertions in final test-quality pass."
+    },
+    {
+      "id": 9,
+      "category": "Consider",
+      "reason": "Drop unused imports and duplicated docs in final deslop. Whitespace IDs are opaque exact server-bound strings; consuming random bytes on invalid construction is harmless."
+    }
+  ],
+  "others": "MiMo/Gemini still running, no panel consensus",
+  "fix": "Exact owner matcher plus late failed receipt preserves disconnected state, queued native repair after C09",
+  "reviewers": {
+    "Muse": "complete9findings",
+    "MiMo": "HTTP502,nooutput,noretry",
+    "Gemini": "complete8findings"
+  },
+  "geminiFindings": [
+    {
+      "id": 1,
+      "category": "Dismissed",
+      "reason": "ACCEPTED acknowledges processed COMPLETE outcome, not healthy or moving. receive/communication_failed likewise accept reports that latch faults; snapshot/state and next gate prevent motion. Document semantics explicitly, no claim of successful motion."
+    },
+    {
+      "id": 2,
+      "category": "Act on",
+      "reason": "Parent reproduced FAILED/PARTIAL/PREWRITE_DEADLINE outcomes after disconnect changing state to FAULT despite no connected source, forcing redundant disconnect before reconnect. Preserve disconnect and fault attribution, not cancel unknown claim."
+    },
+    {
+      "id": 3,
+      "category": "Dismissed",
+      "reason": "A fresh preconnection token does not cross a disconnect; disconnect revokes it and any new token has fresh generation. Fresh connect/check/explicit arm remain required. Client owner and motor SourceIdentity are intentionally distinct."
+    },
+    {
+      "id": 4,
+      "category": "Noted",
+      "reason": "Core always constructs current None or latest; Snapshot is a view, not authority. Enforce network parser requirements in C16 rather than broaden this unit with unused deserialization policy."
+    },
+    {
+      "id": 5,
+      "category": "Consider",
+      "reason": "New plan creation fails at uint64 exhaustion; remaining old plan is still deadline/owner/freshness gated. Adapter must stop on preparation exception. Prefer explicit fail-closed counter handling and regression in final safety pass, preserve incoming invalid-target policy."
+    },
+    {
+      "id": 6,
+      "category": "Dismissed",
+      "reason": "Connection identifiers are opaque exact server-bound values, not trimmed display labels. C16 generates the actual ID and never trusts a client string."
+    },
+    {
+      "id": 7,
+      "category": "Consider",
+      "reason": "C09 already assigned canonical prepared bytes/decoded values to consolidate repeated encode pathways. Assess actual implementation when completed."
+    },
+    {
+      "id": 8,
+      "category": "Noted",
+      "reason": "Negative name assertions do not measure memory growth. Source bounds retained references and snapshots are fixed per-joint; do not claim heap measurement. Tidy test assertions in final pass."
+    }
+  ]
+}

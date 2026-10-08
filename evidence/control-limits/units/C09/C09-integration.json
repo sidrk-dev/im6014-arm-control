@@ -1,0 +1,21 @@
+{
+  "integrated": "C09-endpoint",
+  "baseHead": "83b15785d7c065bc6144bbf569e27ed4bbee43a7",
+  "files": [
+    "docs/controller-limits-design.md",
+    "docs/joint-api.md",
+    "im6014_codec.py",
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_reference.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "test_controller.py",
+    "test_controller_expiry.py",
+    "test_controller_limits.py",
+    "test_controller_owner.py",
+    "test_controller_targets.py",
+    "test_startup.py"
+  ],
+  "sourceMatchesCheckedCopy": true
+}

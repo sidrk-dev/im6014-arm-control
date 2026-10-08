@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-08T13:44:47.318725+00:00",
+  "checks": [
+    {
+      "file": "verify-unit.py",
+      "syntax": "parsed",
+      "execution": "not run; needs settled authored unit and explicit parent acceptance"
+    },
+    {
+      "file": "integrate-checked-unit.py",
+      "syntax": "parsed",
+      "execution": "not run; needs settled authored unit and explicit parent acceptance"
+    }
+  ]
+}

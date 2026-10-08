@@ -1,0 +1,11 @@
+{
+  "accepted": false,
+  "reason": "Failed direct checks and3 corrected parent reproductions",
+  "targeted": "11tests3failures5errors",
+  "milestone": "156tests4failures5errors",
+  "baseline": "8othergroupsgreen",
+  "fixedScopeHandoff": "C09-checks-1 fulfilled with actual failures",
+  "writerContinuation": "not-eligible; no replay",
+  "repairTask": "Fresh Luna Max bug-fix from inspected draft; C08 actualbugs included",
+  "at": "2026-10-08T13:38:00.698381+00:00"
+}

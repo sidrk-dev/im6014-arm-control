@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T13:04:30.305Z",
+  "completedAt": "2026-10-08T13:27:26.329Z",
+  "elapsedMs": 1376024,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-b0424b9bdd399e74",
+    "--sandbox",
+    "--mode",
+    "accept-edits"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "needs-parent-operation",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "8e584845-0c07-4b27-a97c-93dc1f620256",
+  "usage": {
+    "inputTokens": 967930,
+    "cachedInputTokens": 15258477,
+    "outputTokens": 129724,
+    "reasoningTokens": 89786,
+    "totalTokens": 1097654
+  },
+  "costUsd": null,
+  "handoff": {
+    "task": "C09",
+    "checkpoint": "C09-inclusive-joint-position-bounds",
+    "operation": "run-checks",
+    "files": [
+      "joint_contract.py",
+      "im6014_codec.py",
+      "joint_reference.py",
+      "joint_controller.py",
+      "test_controller.py",
+      "test_controller_owner.py",
+      "test_controller_expiry.py",
+      "test_controller_targets.py",
+      "test_controller_limits.py",
+      "docs/joint-api.md",
+      "scripts/check_milestone.py",
+      "scripts/check_offline_baseline.sh",
+      "test_startup.py"
+    ],
+    "checks": [
+      "C09",
+      "milestone-tests",
+      "scripts/check_offline_baseline.sh"
+    ],
+    "summary": "Run milestone C09 PositionLimitTests check and offline baseline regression suite for inclusive position limits, inward projection, and attributed fault recovery."
+  },
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

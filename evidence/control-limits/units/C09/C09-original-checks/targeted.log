@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/scripts/check_milestone.py", line 71, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/scripts/check_milestone.py", line 53, in main
+    result = subprocess.run(command, cwd=repo, capture_output=True, text=True,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib64/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pstack-c07-c16-20261008-smgcfm_v/C09-workbench/.venv/bin/python'

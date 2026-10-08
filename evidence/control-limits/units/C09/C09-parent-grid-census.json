@@ -1,0 +1,48 @@
+{
+  "positionCensus": [
+    {
+      "requested": 1.0,
+      "roundedRaw": 66059,
+      "decoded": 0.9999990480289892,
+      "overshootsUpper": false
+    },
+    {
+      "requested": 0.1,
+      "roundedRaw": 6606,
+      "decoded": 0.10000141859972908,
+      "overshootsUpper": true
+    },
+    {
+      "requested": 0.2,
+      "roundedRaw": 13212,
+      "decoded": 0.20000283719945816,
+      "overshootsUpper": true
+    },
+    {
+      "requested": 0.3,
+      "roundedRaw": 19818,
+      "decoded": 0.3000042557991872,
+      "overshootsUpper": true
+    },
+    {
+      "requested": 0.5,
+      "roundedRaw": 33030,
+      "decoded": 0.5000070929986453,
+      "overshootsUpper": true
+    },
+    {
+      "requested": 1.1,
+      "roundedRaw": 72665,
+      "decoded": 1.1000004666287184,
+      "overshootsUpper": true
+    },
+    {
+      "requested": 0.9,
+      "roundedRaw": 59453,
+      "decoded": 0.8999976294292602,
+      "overshootsUpper": false
+    }
+  ],
+  "gainEndpoint": "command(kd=6) creates1915raw; actualdecode slightlyabove6; encoderinputbounds and joint reference constraints are distinct",
+  "firstParentCorrection": "exact typo position_raw to raw_position only; original native source retained"
+}
