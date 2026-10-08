@@ -1,0 +1,1 @@
+{"exitCode": 1, "log": "C14-original-exact-dwell-confirmed.log", "note": "First compound command ended with cat; separate confirmed run records the actual unittest exit without masking it."}

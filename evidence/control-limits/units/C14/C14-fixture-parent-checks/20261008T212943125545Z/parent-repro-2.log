@@ -1,0 +1,7 @@
+test_overload_duration_stays_finite_after_fault (__main__.FiniteDwellChecks.test_overload_duration_stays_finite_after_fault) ... ok
+test_recovery_duration_stays_finite_before_final_check (__main__.FiniteDwellChecks.test_recovery_duration_stays_finite_before_final_check) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK

@@ -84,6 +84,27 @@
       "originalBytes": 651474,
       "compressedBytes": 34336,
       "sha256": "78e3194dc01dd1e25f246bc25b2bd22caa70129dbd5e45888c0783b6aaaf9632"
+    },
+    {
+      "originalPath": "evidence/control-limits/units/C14/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-5.log",
+      "archivePath": "evidence/control-limits/units/C14/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-5.log.gz",
+      "originalBytes": 651474,
+      "compressedBytes": 34336,
+      "sha256": "78e3194dc01dd1e25f246bc25b2bd22caa70129dbd5e45888c0783b6aaaf9632"
+    },
+    {
+      "originalPath": "evidence/control-limits/units/C14/C14-fixture-parent-checks/20261008T212943125545Z/parent-repro-5.log",
+      "archivePath": "evidence/control-limits/units/C14/C14-fixture-parent-checks/20261008T212943125545Z/parent-repro-5.log.gz",
+      "originalBytes": 651474,
+      "compressedBytes": 34336,
+      "sha256": "78e3194dc01dd1e25f246bc25b2bd22caa70129dbd5e45888c0783b6aaaf9632"
+    },
+    {
+      "originalPath": "evidence/control-limits/units/C14/C14-original-exact-oracle.json",
+      "archivePath": "evidence/control-limits/units/C14/C14-original-exact-oracle.json.gz",
+      "originalBytes": 651474,
+      "compressedBytes": 34336,
+      "sha256": "78e3194dc01dd1e25f246bc25b2bd22caa70129dbd5e45888c0783b6aaaf9632"
     }
   ]
 }

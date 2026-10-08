@@ -1,0 +1,10 @@
+{
+  "status": "dropout",
+  "actualExitCode": 1,
+  "reason": "HTTP502",
+  "receipt": "C14-review-mimo-receipt.json",
+  "policy": "stop/not-eligible",
+  "retry": false,
+  "substitution": false,
+  "findings": null
+}

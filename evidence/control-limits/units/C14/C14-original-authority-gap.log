@@ -1,0 +1,29 @@
+test_initial_check_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_initial_check_preserves_time_without_gap_credit) ... FAIL
+test_takeover_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_takeover_preserves_time_without_gap_credit) ... FAIL
+
+======================================================================
+FAIL: test_initial_check_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_initial_check_preserves_time_without_gap_credit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-authority-gap.py", line 26, in test_initial_check_preserves_time_without_gap_credit
+    def test_initial_check_preserves_time_without_gap_credit(self):self.run_gap('check')
+                                                                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-authority-gap.py", line 22, in run_gap
+    self.assertFalse(core.snapshot().fault_latched,kind+' bridged its explicit observation/authority reset')
+AssertionError: True is not false : check bridged its explicit observation/authority reset
+
+======================================================================
+FAIL: test_takeover_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_takeover_preserves_time_without_gap_credit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-authority-gap.py", line 25, in test_takeover_preserves_time_without_gap_credit
+    def test_takeover_preserves_time_without_gap_credit(self):self.run_gap('takeover')
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-authority-gap.py", line 22, in run_gap
+    self.assertFalse(core.snapshot().fault_latched,kind+' bridged its explicit observation/authority reset')
+AssertionError: True is not false : takeover bridged its explicit observation/authority reset
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=2)

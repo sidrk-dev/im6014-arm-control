@@ -11,6 +11,7 @@ from typing import Literal
 
 from im6014_codec import decode_command
 from joint_mapping import JointMap, JointSample, JointTarget
+from joint_protection import ProtectionPolicy
 
 
 class State(Enum):
@@ -45,6 +46,7 @@ class DecisionCode(str, Enum):
     SPEED_OUT_OF_BOUNDS = "speed_out_of_bounds"
     LEAD_OUT_OF_BOUNDS = "lead_out_of_bounds"
     EFFORT_OUT_OF_BOUNDS = "effort_out_of_bounds"
+    TEMPERATURE_OUT_OF_BOUNDS = "temperature_out_of_bounds"
     REFERENCE_GAP_EXCEEDED = "reference_gap_exceeded"
     CONSTRAINT_VIOLATION = "constraint_violation"
 
@@ -93,6 +95,7 @@ class JointSpec:
     max_lead_rad: float
     max_effort_nm: float
     limits_provenance: str
+    protection: ProtectionPolicy
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -152,6 +155,11 @@ class JointSpec:
         if not math.isfinite(max_effort_val) or max_effort_val <= 0.0:
             raise ValueError("max_effort_nm must be finite and positive")
 
+        if not isinstance(self.protection, ProtectionPolicy):
+            raise ValueError("protection must be a ProtectionPolicy")
+        if self.protection.continuous_effort_nm > max_effort_val:
+            raise ValueError("continuous_effort_nm must be less than or equal to max_effort_nm")
+
         if (
             type(self.limits_provenance) is not str
             or not self.limits_provenance.strip()
@@ -165,6 +173,7 @@ class JointSpec:
         object.__setattr__(self, "a_max_rad_s2", a_max_val)
         object.__setattr__(self, "max_lead_rad", max_lead_val)
         object.__setattr__(self, "max_effort_nm", max_effort_val)
+
 
 @dataclass(frozen=True)
 class JointFault:
@@ -180,6 +189,9 @@ class JointFault:
     speed_limit: bool = False
     effort_limit: bool = False
     constraint_fault: bool = False
+    driver_temperature_limit: bool = False
+    winding_temperature_limit: bool = False
+    continuous_effort_limit: bool = False
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -208,6 +220,12 @@ class JointFault:
             raise ValueError("effort_limit must be a bool")
         if type(self.constraint_fault) is not bool:
             raise ValueError("constraint_fault must be a bool")
+        if type(self.driver_temperature_limit) is not bool:
+            raise ValueError("driver_temperature_limit must be a bool")
+        if type(self.winding_temperature_limit) is not bool:
+            raise ValueError("winding_temperature_limit must be a bool")
+        if type(self.continuous_effort_limit) is not bool:
+            raise ValueError("continuous_effort_limit must be a bool")
 
         if len(self.communication_errors) != len(set(self.communication_errors)):
             raise ValueError("communication_errors must contain unique codes")
@@ -221,13 +239,14 @@ class JointFault:
         elif self.communication_errors and self.communication_error is None:
             object.__setattr__(self, "communication_error", self.communication_errors[-1])
 
-
 @dataclass(frozen=True)
 class MotorHealth:
     mode: int
     errors: int
     warnings: int
     timeout: bool
+    driver_c: float
+    winding_c: float
 
     def __post_init__(self) -> None:
         if type(self.mode) is not int or self.mode not in (0, 1):
@@ -238,6 +257,27 @@ class MotorHealth:
             raise ValueError("warnings must be a uint3 integer")
         if type(self.timeout) is not bool:
             raise ValueError("timeout must be a bool")
+
+        if isinstance(self.driver_c, bool) or not isinstance(self.driver_c, (int, float)):
+            raise ValueError("driver_c must be a finite real number")
+        try:
+            driver_c_val = float(self.driver_c)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("driver_c must be finite") from exc
+        if not math.isfinite(driver_c_val):
+            raise ValueError("driver_c must be finite")
+
+        if isinstance(self.winding_c, bool) or not isinstance(self.winding_c, (int, float)):
+            raise ValueError("winding_c must be a finite real number")
+        try:
+            winding_c_val = float(self.winding_c)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("winding_c must be finite") from exc
+        if not math.isfinite(winding_c_val):
+            raise ValueError("winding_c must be finite")
+
+        object.__setattr__(self, "driver_c", driver_c_val)
+        object.__setattr__(self, "winding_c", winding_c_val)
 
     @property
     def healthy(self) -> bool:

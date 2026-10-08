@@ -1,0 +1,9 @@
+test_known_communication_gap_cannot_credit_overload_time (__main__.ThermalHistoryChecks.test_known_communication_gap_cannot_credit_overload_time) ... ok
+test_new_ack_recovery_needs_full_binary_exact_interval (__main__.ThermalHistoryChecks.test_new_ack_recovery_needs_full_binary_exact_interval) ... ok
+test_stop_check_cannot_erase_confirmed_overload_history (__main__.ThermalHistoryChecks.test_stop_check_cannot_erase_confirmed_overload_history) ... ok
+test_unobserved_long_gap_does_not_count_but_preserves_prior_time (__main__.ThermalHistoryChecks.test_unobserved_long_gap_does_not_count_but_preserves_prior_time) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

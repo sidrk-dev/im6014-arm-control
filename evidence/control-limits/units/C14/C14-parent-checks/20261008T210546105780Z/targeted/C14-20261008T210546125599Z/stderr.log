@@ -1,0 +1,67 @@
+test_bad_or_regressed_clock_cannot_complete_recovery (test_controller_thermal.ThermalPersistentEffortTests.test_bad_or_regressed_clock_cannot_complete_recovery) ... ERROR
+test_continuous_effort_exact_dwell_equality (test_controller_thermal.ThermalPersistentEffortTests.test_continuous_effort_exact_dwell_equality) ... FAIL
+test_driver_temperature_exact_trip_boundary (test_controller_thermal.ThermalPersistentEffortTests.test_driver_temperature_exact_trip_boundary) ... ok
+test_fault_persists_through_stop_reconnect_healthy_and_new_targets (test_controller_thermal.ThermalPersistentEffortTests.test_fault_persists_through_stop_reconnect_healthy_and_new_targets) ... FAIL
+test_fluctuating_effort_resets_overload_timer (test_controller_thermal.ThermalPersistentEffortTests.test_fluctuating_effort_resets_overload_timer) ... ok
+test_interrupted_observations_do_not_credit_dwell (test_controller_thermal.ThermalPersistentEffortTests.test_interrupted_observations_do_not_credit_dwell) ... ok
+test_joint_spec_rejects_continuous_effort_exceeding_max (test_controller_thermal.ThermalPersistentEffortTests.test_joint_spec_rejects_continuous_effort_exceeding_max) ... ok
+test_motor_health_temperature_validation (test_controller_thermal.ThermalPersistentEffortTests.test_motor_health_temperature_validation) ... ok
+test_peak_effort_immediate_trip (test_controller_thermal.ThermalPersistentEffortTests.test_peak_effort_immediate_trip) ... ok
+test_protection_policy_field_validation (test_controller_thermal.ThermalPersistentEffortTests.test_protection_policy_field_validation) ... ok
+test_recovery_exact_reset_temperature_equality (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_exact_reset_temperature_equality) ... FAIL
+test_recovery_rejected_if_above_reset_temperature (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_rejected_if_above_reset_temperature) ... ok
+test_recovery_requires_both_joints_fresh_simultaneously (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_requires_both_joints_fresh_simultaneously) ... ok
+test_recovery_requires_explicit_acknowledgment_and_full_dwell (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_requires_explicit_acknowledgment_and_full_dwell) ... FAIL
+test_simultaneous_causes_union_on_single_and_multiple_joints (test_controller_thermal.ThermalPersistentEffortTests.test_simultaneous_causes_union_on_single_and_multiple_joints) ... ok
+test_winding_temperature_exact_trip_boundary (test_controller_thermal.ThermalPersistentEffortTests.test_winding_temperature_exact_trip_boundary) ... ok
+
+======================================================================
+ERROR: test_bad_or_regressed_clock_cannot_complete_recovery (test_controller_thermal.ThermalPersistentEffortTests.test_bad_or_regressed_clock_cannot_complete_recovery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/test_controller_thermal.py", line 622, in test_bad_or_regressed_clock_cannot_complete_recovery
+    dec = core.receive(0, self.sample1, HEALTHY_STOP)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/joint_controller.py", line 452, in receive
+    now = self._now()
+          ^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/joint_controller.py", line 320, in _now
+    raise ValueError(
+ValueError: clock regressed from 60.0 to 59.9
+
+======================================================================
+FAIL: test_continuous_effort_exact_dwell_equality (test_controller_thermal.ThermalPersistentEffortTests.test_continuous_effort_exact_dwell_equality)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/test_controller_thermal.py", line 305, in test_continuous_effort_exact_dwell_equality
+    self.assertFalse(snap.faults[0].effort_limit)
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_fault_persists_through_stop_reconnect_healthy_and_new_targets (test_controller_thermal.ThermalPersistentEffortTests.test_fault_persists_through_stop_reconnect_healthy_and_new_targets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/test_controller_thermal.py", line 459, in test_fault_persists_through_stop_reconnect_healthy_and_new_targets
+    self.assertIs(dec.code, DecisionCode.FAULT_LATCHED)
+AssertionError: <DecisionCode.INVALID_STATE: 'invalid_state'> is not <DecisionCode.FAULT_LATCHED: 'fault_latched'>
+
+======================================================================
+FAIL: test_recovery_exact_reset_temperature_equality (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_exact_reset_temperature_equality)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/test_controller_thermal.py", line 551, in test_recovery_exact_reset_temperature_equality
+    self.assertTrue(core.checked().accepted)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_recovery_requires_explicit_acknowledgment_and_full_dwell (test_controller_thermal.ThermalPersistentEffortTests.test_recovery_requires_explicit_acknowledgment_and_full_dwell)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-workbench/test_controller_thermal.py", line 524, in test_recovery_requires_explicit_acknowledgment_and_full_dwell
+    self.assertTrue(core.checked().accepted)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.004s
+
+FAILED (failures=4, errors=1)

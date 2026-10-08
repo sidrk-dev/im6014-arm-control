@@ -1,4 +1,3 @@
-"""Acceptance and unit tests for C13 combined effort prediction and measured monitoring."""
 
 from fractions import Fraction
 import math
@@ -22,7 +21,8 @@ from joint_reference import (
     prepare_reference_joint,
     verify_dispatch_claim,
 )
-from test_controller import DeterministicClock, FakeStation, HEALTHY_STOP, SOURCE
+from test_controller import DEFAULT_PROTECTION, DeterministicClock, FakeStation, HEALTHY_STOP, SOURCE
+from joint_protection import ProtectionPolicy
 
 
 _ROUNDED_CANONICAL_EFFORT = 0.33977850723047515
@@ -41,29 +41,49 @@ def _exact_effort(target, sample):
 class EffortLimitTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(10.0)
+        prot1 = ProtectionPolicy(
+            driver_trip_c=85.0,
+            driver_reset_c=70.0,
+            winding_trip_c=105.0,
+            winding_reset_c=90.0,
+            continuous_effort_nm=10.0,
+            continuous_dwell_s=1.0,
+            recovery_dwell_s=0.5,
+        )
+        prot2 = ProtectionPolicy(
+            driver_trip_c=85.0,
+            driver_reset_c=70.0,
+            winding_trip_c=105.0,
+            winding_reset_c=90.0,
+            continuous_effort_nm=15.0,
+            continuous_dwell_s=1.0,
+            recovery_dwell_s=0.5,
+        )
         self.spec1 = JointSpec(
-            "J1",
-            0,
-            JointMap(1.0, 1, 0.0),
-            -2.0,
-            2.0,
-            5.0,     # v_max_rad_s
-            50.0,    # a_max_rad_s2
-            1.0,     # max_lead_rad
-            10.0,    # max_effort_nm
-            "fixture: effort test J1",
+            name="J1",
+            motor_id=0,
+            mapping=JointMap(1.0, 1, 0.0),
+            q_min_rad=-2.0,
+            q_max_rad=2.0,
+            v_max_rad_s=5.0,
+            a_max_rad_s2=50.0,
+            max_lead_rad=1.0,
+            max_effort_nm=10.0,
+            limits_provenance="fixture: effort test J1",
+            protection=prot1,
         )
         self.spec2 = JointSpec(
-            "J2",
-            1,
-            JointMap(1.0, 1, 0.0),
-            -2.0,
-            2.0,
-            5.0,
-            50.0,
-            1.0,
-            15.0,    # max_effort_nm
-            "fixture: effort test J2",
+            name="J2",
+            motor_id=1,
+            mapping=JointMap(1.0, 1, 0.0),
+            q_min_rad=-2.0,
+            q_max_rad=2.0,
+            v_max_rad_s=5.0,
+            a_max_rad_s2=50.0,
+            max_lead_rad=1.0,
+            max_effort_nm=15.0,
+            limits_provenance="fixture: effort test J2",
+            protection=prot2,
         )
         self.specs = (self.spec1, self.spec2)
         self.sample1 = JointSample(0.0, 0.0, 0.0)
@@ -93,6 +113,15 @@ class EffortLimitTests(unittest.TestCase):
             1.0,
             max_effort_nm,
             "fixture: exact effort boundary",
+            ProtectionPolicy(
+                driver_trip_c=85.0,
+                driver_reset_c=70.0,
+                winding_trip_c=105.0,
+                winding_reset_c=90.0,
+                continuous_effort_nm=min(0.1, float(max_effort_nm)),
+                continuous_dwell_s=1.0,
+                recovery_dwell_s=0.5,
+            ),
         )
 
     def _armed_single_joint(self, spec, sample):
@@ -130,7 +159,7 @@ class EffortLimitTests(unittest.TestCase):
         return core.receive(
             0,
             sample,
-            MotorHealth(mode=1, errors=0, warnings=0, timeout=False),
+            MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
         )
 
     def test_effort_limit_requires_finite_positive_real_value(self):
@@ -140,9 +169,10 @@ class EffortLimitTests(unittest.TestCase):
                 JointSpec(
                     "J1", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, val,
                     "fixture: invalid effort limit input",
+                    DEFAULT_PROTECTION,
                 )
 
-        spec = JointSpec("J1", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 12.5, "fixture: effort limit")
+        spec = JointSpec("J1", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 12.5, "fixture: effort limit", DEFAULT_PROTECTION)
         self.assertEqual(spec.max_effort_nm, 12.5)
 
     def test_combined_sum_trips_when_each_term_individually_under_peak(self):
@@ -222,14 +252,12 @@ class EffortLimitTests(unittest.TestCase):
         self.assertIs(decision2.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
 
     def test_negative_mapping_and_units(self):
-        # reduction=3.0, direction=-1, zero_output_rad=0.25
         mapping = JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25)
         spec = JointSpec(
-            "J_neg", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 10.0, "fixture: neg mapping effort"
+            "J_neg", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 10.0, "fixture: neg mapping effort", DEFAULT_PROTECTION
         )
         jt = JointTarget(q_rad=0.1, dq_rad_s=0.2, tau_nm=3.0, kp=9.0, kd=0.9)
 
-        # encode and map back
         code, actual, packet = prepare_reference_joint(spec, jt)
         self.assertIsNone(code)
         self.assertIsNotNone(actual)
@@ -241,10 +269,8 @@ class EffortLimitTests(unittest.TestCase):
         self.assertLessEqual(abs(pred_effort), spec.max_effort_nm)
 
     def test_encoded_gains_boundary_uses_quantized_wire_values(self):
-        # Test that predict_joint_effort uses actual quantized wire gains,
-        # not the raw float gains before encoding.
         mapping = JointMap(1.0, 1, 0.0)
-        spec = JointSpec("J", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 20.0, "fixture: quant test")
+        spec = JointSpec("J", 0, mapping, -2.0, 2.0, 5.0, 50.0, 1.0, 20.0, "fixture: quant test", DEFAULT_PROTECTION)
 
         kp_continuous = 1.234567
         jt = JointTarget(q_rad=0.1, dq_rad_s=0.0, tau_nm=0.0, kp=kp_continuous, kd=0.0)
@@ -390,7 +416,6 @@ class EffortLimitTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
         self.assertEqual(core.snapshot().admitted_target, valid_target)
 
-        # Rejected target 2 due to effort violation
         invalid_target = Target(
             2,
             (
@@ -411,7 +436,6 @@ class EffortLimitTests(unittest.TestCase):
         self.assertFalse(decision.accepted)
         self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
 
-        # Sequence watermark and admitted target intact; state remains ARMED
         snap = core.snapshot()
         self.assertEqual(snap.last_sequence, 1)
         self.assertEqual(snap.admitted_target, valid_target)
@@ -448,15 +472,13 @@ class EffortLimitTests(unittest.TestCase):
             core.receive(
                 0,
                 drifted_sample,
-                MotorHealth(mode=1, errors=0, warnings=0, timeout=False),
+                MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
             ).accepted
         )
 
-        # claim_dispatch re-evaluates effort with the fresh feedback and rejects
         claimed = core.claim_dispatch(plan.plan_id, 0)
         self.assertFalse(claimed)
 
-        # Rejection latches effort_limit and faults controller
         snap = core.snapshot()
         self.assertIs(snap.state, State.FAULT)
         self.assertTrue(snap.fault_latched)
@@ -497,14 +519,12 @@ class EffortLimitTests(unittest.TestCase):
         self.assertIsNone(verify_dispatch_claim(**claim, prepared_at_s=0.0))
 
     def test_independent_measured_effort_monitoring_trips_immediately(self):
-        # 1. receive() trips when abs(tau_nm) > max_effort_nm
         core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("measured-tester")
         self.assertTrue(core.begin_check().accepted)
 
-        # J1 receives tau_nm = 10.5 > 10.0
         decision = core.receive(0, JointSample(0.0, 0.0, 10.5), HEALTHY_STOP)
         self.assertFalse(decision.accepted)
         self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
@@ -515,18 +535,18 @@ class EffortLimitTests(unittest.TestCase):
         self.assertTrue(snap.faults[0].effort_limit)
         self.assertEqual(snap.faults[0].name, "J1")
 
-        # 2. Measured effort exact equality is allowed
         self.assertTrue(station.stop().accepted)
         owner2 = station.claim("recovery-tester")
         self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
-        # J1 receives exact limit tau_nm = 10.0 -> accepted
+        self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 10.0), HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, JointSample(0.0, 0.0, -15.0), HEALTHY_STOP).accepted)
+        self.clock.value += 0.5
         self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 10.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.receive(1, JointSample(0.0, 0.0, -15.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.checked().accepted)
         self.assertTrue(station.arm(owner2).accepted)
         self.assertIs(core.snapshot().state, State.ARMED)
 
-        # 3. receive() with negative effort exceeding limit trips
         decision_neg = core.receive(0, JointSample(0.0, 0.0, -10.1), HEALTHY_STOP)
         self.assertFalse(decision_neg.accepted)
         self.assertIs(decision_neg.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
@@ -556,7 +576,6 @@ class EffortLimitTests(unittest.TestCase):
     def test_per_joint_attribution(self):
         core, _, _ = self._armed_station()
 
-        # J1 is within limit (5.0 <= 10.0), J2 exceeds limit (20.0 > 15.0)
         decision = core.receive(1, JointSample(0.0, 0.0, 20.0), HEALTHY_STOP)
         self.assertFalse(decision.accepted)
         self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
@@ -569,7 +588,6 @@ class EffortLimitTests(unittest.TestCase):
         self.assertEqual(snap.affected_joints, ("J2",))
 
     def test_invalid_arithmetic_overflow_fails_closed(self):
-        # Huge numbers that overflow float arithmetic
         target = JointTarget(q_rad=0.0, dq_rad_s=0.0, tau_nm=1e308, kp=1e308, kd=1e308)
         sample = JointSample(q_rad=1e308, dq_rad_s=1e308, tau_nm=0.0)
 
@@ -579,7 +597,6 @@ class EffortLimitTests(unittest.TestCase):
     def test_cause_union_and_fresh_healthy_stop_recovery(self):
         core, station, _ = self._armed_station()
 
-        # Trip position limit AND effort limit on J1
         decision = core.receive(
             0,
             JointSample(3.0, 0.0, 11.0),
@@ -592,20 +609,20 @@ class EffortLimitTests(unittest.TestCase):
         self.assertTrue(snap.faults[0].position_limit)
         self.assertTrue(snap.faults[0].effort_limit)
 
-        # Disconnect and reconnect does not clear the fault
         self.assertTrue(core.disconnect().accepted)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertIs(core.snapshot().state, State.CONNECTED)
         self.assertTrue(core.snapshot().fault_latched)
 
-        # begin_check without acknowledge_fault fails
         dec_check = core.begin_check()
         self.assertFalse(dec_check.accepted)
         self.assertIs(dec_check.code, DecisionCode.FAULT_ACK_REQUIRED)
 
-        # Proper recovery with acknowledged stop check inside bounds
         self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
+        self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.clock.value += 0.5
         self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.receive(1, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.checked().accepted)

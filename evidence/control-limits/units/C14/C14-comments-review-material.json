@@ -1,0 +1,31 @@
+{
+  "bytes": 411267,
+  "sha256": "68f63d02c0f10ca57b079eedd51e90c5b4e6e65be839cab417ec80f55df2073c",
+  "scope": "settled immutable C14-comments",
+  "samePromptAllSeats": true,
+  "completeFiles": {
+    "docs/joint-api.md": "84949a7b79f42023ac05953c88d070427f53893157577f2580397fc1f455f23c",
+    "im6014_codec.py": "82aed0838cc0a9d8d63ab2065aea786893ade405f55e5a0b7c895eacf2197af9",
+    "im6014_port.py": "fecc6f7252e04a4894df7c166ec3c08ff04fe72decc16ebd5f155363d67ca7f5",
+    "im6014_serial.py": "395599d9aea6c737fd15e7722ec5f346616af08207f0c5aa04019db9afec37d2",
+    "joint_contract.py": "59fc508c2a38c4cbe0d4295bd950636e2a52afbe52a207a1d39186c5ee4766bb",
+    "joint_controller.py": "249ebc0225f0b54ae5e2d3e8c4534666f685051682af3cfbc3c341080b9d8539",
+    "joint_mapping.py": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b",
+    "joint_protection.py": "3c5167baf46173d3eee3e22144859c4079da988ca54cdae0fa39d29f9d6351ca",
+    "joint_reference.py": "8345707f9c585d9c8e3358219692092a1061e6a0a9a586a2d4f14b9ca33e68f4",
+    "test_controller_thermal.py": "5202e0d168eb75fd8143927b7e441606e842f66542ace3f31771b5b0073bcfce"
+  },
+  "fullAuthoredPatch": true,
+  "sharedFakeFixtureComplete": true,
+  "parentEvidence": [
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-parent-thermal-repro.py",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-original-parent-thermal.log",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-parent-exact-dwell.py",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-original-exact-dwell-confirmed.log",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-parent-finite-dwell.py",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-original-finite-dwell.log",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-original-targeted.log",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-parent-check-matrix.md"
+  ],
+  "sourceManifest": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-files.json"
+}

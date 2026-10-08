@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-10-08T21:28:32.244371+00:00",
+  "task": "/root/c14_protection_repair",
+  "actualFinalObserved": true,
+  "model": "codex:gpt-6-luna@max",
+  "checksRunByWorker": false,
+  "summary": "Exact capped dwell authority, known-gap resets preserving overload history, checked history retention, cause alias removal, fixture corrections and public regressions authored. Parent complete check failed fixtures; actual11parentmethods+referenceoracle passed.",
+  "parentChecks": "C14-fix-parent-checks/20261008T212510136838Z/result.json",
+  "verificationClaim": "Parent results only; no inferred worker checks"
+}

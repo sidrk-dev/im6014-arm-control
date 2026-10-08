@@ -1,4 +1,3 @@
-"""Acceptance tests for C12 measured-position lead bounds."""
 
 from fractions import Fraction
 import math
@@ -17,35 +16,37 @@ from joint_contract import (
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget, OutputSample
 from joint_reference import shape_reference_joint
-from test_controller import DeterministicClock, FakeStation, HEALTHY_STOP
+from test_controller import DEFAULT_PROTECTION, DeterministicClock, FakeStation, HEALTHY_STOP
 
 
 class ReferenceLeadTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(10.0)
         self.spec1 = JointSpec(
-            "J1",
-            0,
-            JointMap(1.0, 1, 0.0),
-            -2.0,
-            2.0,
-            2.0,   # v_max = 2.0 rad/s
-            10.0,  # a_max = 10.0 rad/s2
-            0.5,   # max_lead_rad = 0.5 rad
-            50.0,  # max_effort_nm = 50.0 Nm
-            "fixture: lead test J1",
+            name="J1",
+            motor_id=0,
+            mapping=JointMap(1.0, 1, 0.0),
+            q_min_rad=-2.0,
+            q_max_rad=2.0,
+            v_max_rad_s=2.0,
+            a_max_rad_s2=10.0,
+            max_lead_rad=0.5,
+            max_effort_nm=50.0,
+            limits_provenance="fixture: lead test J1",
+            protection=DEFAULT_PROTECTION,
         )
         self.spec2 = JointSpec(
-            "J2",
-            1,
-            JointMap(1.0, 1, 0.0),
-            -2.0,
-            2.0,
-            2.0,   # v_max = 2.0 rad/s
-            10.0,  # a_max = 10.0 rad/s2
-            0.5,   # max_lead_rad = 0.5 rad
-            50.0,  # max_effort_nm = 50.0 Nm
-            "fixture: lead test J2",
+            name="J2",
+            motor_id=1,
+            mapping=JointMap(1.0, 1, 0.0),
+            q_min_rad=-2.0,
+            q_max_rad=2.0,
+            v_max_rad_s=2.0,
+            a_max_rad_s2=10.0,
+            max_lead_rad=0.5,
+            max_effort_nm=50.0,
+            limits_provenance="fixture: lead test J2",
+            protection=DEFAULT_PROTECTION,
         )
         self.specs = (self.spec1, self.spec2)
         self.sample1 = JointSample(0.0, 0.0, 0.0)
@@ -66,14 +67,11 @@ class ReferenceLeadTests(unittest.TestCase):
     def assert_all_constraints_certificate(self, previous, current, spec, q_meas):
         h = current.sample_time_s - previous.sample_time_s
         h_exact = Fraction(h)
-        # Position bounds
         self.assertGreaterEqual(current.q_rad, spec.q_min_rad)
         self.assertLessEqual(current.q_rad, spec.q_max_rad)
-        # Speed bounds
         v_max = Fraction(spec.v_max_rad_s)
         self.assertLessEqual(abs(current.position_step_velocity_rad_s), v_max)
         self.assertLessEqual(abs(Fraction(current.encoded_velocity_rad_s)), v_max)
-        # Accel bounds (if h > 0)
         if h > 0.0:
             a_max = Fraction(spec.a_max_rad_s2)
             prev_v_pos = Fraction(previous.position_step_velocity_rad_s)
@@ -87,7 +85,6 @@ class ReferenceLeadTests(unittest.TestCase):
                 abs(curr_v_enc - prev_v_enc),
                 a_max * h_exact,
             )
-        # Lead bound
         lead_exact = Fraction(spec.max_lead_rad)
         q_meas_exact = Fraction(q_meas)
         curr_q_exact = Fraction(current.q_rad)
@@ -110,7 +107,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertEqual(decoded_joint.q_rad, emitted.q_rad)
         self.assertEqual(decoded_joint.dq_rad_s, emitted.dq_rad_s)
 
-        # Certify against the actual float timestamp subtraction used by the shaper.
         h = reference.sample_time_s - previous.sample_time_s
         h_exact = Fraction(h)
         self.assertGreater(h_exact, 0)
@@ -144,14 +140,13 @@ class ReferenceLeadTests(unittest.TestCase):
                 JointSpec(
                     "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 2.0, 10.0, val, 50.0,
                     "fixture: invalid lead limit input",
+                    DEFAULT_PROTECTION,
                 )
 
     def test_exact_lead_equality_and_outside_bounds(self):
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
 
-        # q_meas is 0.0, max_lead_rad is 0.5. Bounds are [-0.5, 0.5].
-        # Exact upper equality: q = 0.5 is accepted
         target_exact_upper = Target(
             1,
             (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1), JointTarget(0.0, 0.0, 0.0, 1.0, 0.1)),
@@ -160,7 +155,6 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(target_exact_upper).accepted)
 
-        # Exact lower equality: q = -0.5 is accepted
         target_exact_lower = Target(
             2,
             (JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1), JointTarget(0.0, 0.0, 0.0, 1.0, 0.1)),
@@ -169,7 +163,6 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(target_exact_lower).accepted)
 
-        # Outside upper bound: q = 0.5001 is rejected with LEAD_OUT_OF_BOUNDS
         target_outside_upper = Target(
             3,
             (JointTarget(0.5001, 0.0, 0.0, 1.0, 0.1), JointTarget(0.0, 0.0, 0.0, 1.0, 0.1)),
@@ -180,7 +173,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertFalse(dec_upper.accepted)
         self.assertIs(dec_upper.code, DecisionCode.LEAD_OUT_OF_BOUNDS)
 
-        # Outside lower bound: q = -0.5001 is rejected with LEAD_OUT_OF_BOUNDS
         target_outside_lower = Target(
             4,
             (JointTarget(-0.5001, 0.0, 0.0, 1.0, 0.1), JointTarget(0.0, 0.0, 0.0, 1.0, 0.1)),
@@ -196,6 +188,7 @@ class ReferenceLeadTests(unittest.TestCase):
         spec = JointSpec(
             "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.2, 50.0,
             "fixture: exact lead admission regression",
+            DEFAULT_PROTECTION,
         )
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
@@ -227,6 +220,7 @@ class ReferenceLeadTests(unittest.TestCase):
         spec = JointSpec(
             "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.25, 50.0,
             "fixture: exact binary lead equality",
+            DEFAULT_PROTECTION,
         )
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
@@ -249,7 +243,6 @@ class ReferenceLeadTests(unittest.TestCase):
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
 
-        # Submit valid target 1
         t1 = Target(
             1,
             (JointTarget(0.2, 0.0, 0.0, 1.0, 0.1), JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)),
@@ -261,7 +254,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertEqual(snap1.admitted_target, t1)
         self.assertEqual(snap1.last_sequence, 1)
 
-        # Submit invalid target 2 exceeding lead limit
         t2 = Target(
             2,
             (JointTarget(0.8, 0.0, 0.0, 1.0, 0.1), JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)),
@@ -272,12 +264,10 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertFalse(rej.accepted)
         self.assertIs(rej.code, DecisionCode.LEAD_OUT_OF_BOUNDS)
 
-        # Snapshot still preserves t1 and sequence 1
         snap2 = core.snapshot()
         self.assertEqual(snap2.admitted_target, t1)
         self.assertEqual(snap2.last_sequence, 1)
 
-        # Refresh prepares plan for t1
         self.clock.value += 0.05
         plan = station.refresh()
         self.assertIsNotNone(plan)
@@ -285,8 +275,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertIs(core.snapshot().state, State.MOVING)
 
     def test_measured_drift_between_admit_prepare_claim(self):
-        # Case A: Drift between admission and prepare:
-        # Goal admitted when q_meas = 0.0. Then q_meas drifts to -0.2 before prepare.
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
         t = Target(
@@ -297,19 +285,17 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(t).accepted)
 
-        # Drift observation to -0.2. Lead interval is [-0.7, 0.3].
         self.clock.value += 0.05
         self.assertTrue(
-            core.receive(0, JointSample(-0.2, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(0, JointSample(-0.2, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
         self.assertTrue(
-            core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
 
         plan = station.refresh()
         self.assertIsNotNone(plan)
         ref = core.snapshot().confirmed_references[0]
-        # Reference endpoint must stay <= -0.2 + 0.5 = 0.3 rad
         self.assertLessEqual(ref.q_rad, 0.3)
         self.assertGreaterEqual(ref.q_rad, -0.7)
         self.assert_all_constraints_certificate(
@@ -319,8 +305,6 @@ class ReferenceLeadTests(unittest.TestCase):
             -0.2,
         )
 
-        # Case B: Drift between prepare and claim (write gate):
-        # Reset and prepare a fresh plan
         self.clock.value += 0.05
         t2 = Target(
             2,
@@ -332,12 +316,9 @@ class ReferenceLeadTests(unittest.TestCase):
         plan2 = core.prepare_refresh()
         self.assertIsNotNone(plan2)
 
-        # Before claim_dispatch, observation drifts to 0.9 rad (lead bound [0.4, 1.4])
-        # Proposed plan has endpoint ~ 0.2 < 0.4, so it violates fresh lead bound
         self.assertTrue(
-            core.receive(0, JointSample(0.9, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(0, JointSample(0.9, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
-        # Gate must reject claim!
         self.assertFalse(core.claim_dispatch(plan2.plan_id, 0))
         snap = core.snapshot()
         self.assertIs(snap.state, State.FAULT)
@@ -345,7 +326,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertTrue(snap.faults[0].constraint_fault)
 
     def test_simultaneous_speed_accel_position_lead_satisfiable_and_infeasible(self):
-        # Satisfiable case: all 4 constraints overlap
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
         t_sat = Target(
@@ -366,8 +346,6 @@ class ReferenceLeadTests(unittest.TestCase):
             0.0,
         )
 
-        # Infeasible case starts from a complete reference actually emitted by
-        # the production shaper and decoded canonical packet path.
         anchor_goal = JointTarget(0.3, 1.0, 0.0, 1.0, 0.1)
         stop_anchor = JointTrajectoryReference(
             0.0, Fraction(0), 0.0, self.clock.value, False
@@ -422,15 +400,16 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(target).accepted)
 
-        # Fresh stop anchor at h = 0 cannot dispatch write
         self.assertIsNone(core.prepare_refresh())
         self.assertIs(core.snapshot().state, State.FAULT)
 
-        # Clear fault and advance time to emit first reference
         self.assertTrue(station.stop().accepted)
         owner2 = station.claim("h0-tester")
         self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
         self.clock.value += 0.1
+        self.assertTrue(core.receive(0, self.sample1, HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, self.sample2, HEALTHY_STOP).accepted)
+        self.clock.value += 0.5
         self.assertTrue(core.receive(0, self.sample1, HEALTHY_STOP).accepted)
         self.assertTrue(core.receive(1, self.sample2, HEALTHY_STOP).accepted)
         self.assertTrue(core.checked().accepted)
@@ -448,16 +427,12 @@ class ReferenceLeadTests(unittest.TestCase):
         plan1 = station.refresh()
         self.assertIsNotNone(plan1)
 
-        # Case A: At h = 0 (clock unchanged), goal unchanged, observation inside lead:
-        # prepare_refresh reuses previous reference safely
         plan_h0 = core.prepare_refresh()
         self.assertIsNotNone(plan_h0)
         self.assertEqual(plan_h0.joint_targets[0].q_rad, plan1.joint_targets[0].q_rad)
 
-        # Case B: At h = 0, observation drifts outside lead:
-        # e.g. q_meas jumps to 0.8 rad, while previous emitted q is ~ 0.05 rad (outside [0.3, 1.3])
         self.assertTrue(
-            core.receive(0, JointSample(0.8, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(0, JointSample(0.8, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
         self.assertIsNone(core.prepare_refresh())
         snap = core.snapshot()
@@ -469,6 +444,7 @@ class ReferenceLeadTests(unittest.TestCase):
         spec = JointSpec(
             "J", 0, mapping, -1.0, 1.0, 1.0, 4.0, max_lead, 50.0,
             "fixture: exact cached lead reference",
+            DEFAULT_PROTECTION,
         )
         goal = JointTarget(0.25, 0.0, 0.0, 0.0, 0.0)
         anchor = JointTrajectoryReference(0.25, Fraction(0), 0.0, 0.0, False)
@@ -521,7 +497,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertTrue(core.checked().accepted)
         self.assertTrue(station.arm(owner).accepted)
 
-        # Before feedback ages out, submission is accepted
         w = station.issue_window(1.0)
         t1 = Target(
             1,
@@ -531,7 +506,6 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(t1).accepted)
 
-        # Advance clock past feedback_max_age_s (default 0.5s)
         self.clock.value += 0.6
         t2 = Target(
             2,
@@ -542,7 +516,6 @@ class ReferenceLeadTests(unittest.TestCase):
         rej = station.submit(t2)
         self.assertFalse(rej.accepted)
         self.assertIs(rej.code, DecisionCode.STALE_FEEDBACK)
-        # Stale housekeeping withdraws the unsafe old goal and revokes motion.
         stale = core.snapshot()
         self.assertIs(stale.state, State.FAULT)
         self.assertTrue(stale.faults[0].stale)
@@ -623,9 +596,10 @@ class ReferenceLeadTests(unittest.TestCase):
             2.0,
             2.0,
             10.0,
-            0.25,  # lead = 0.25 rad
-            50.0,  # max_effort_nm = 50.0 Nm
+            0.25,
+            50.0,
             "fixture: negative direction lead test",
+            DEFAULT_PROTECTION,
         )
         clock = DeterministicClock(10.0)
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
@@ -637,8 +611,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertTrue(core.checked().accepted)
         self.assertTrue(station.arm(owner).accepted)
 
-        # q_meas = 0.125, lead = 0.25 -> [ -0.125, 0.375 ]
-        # Exactly on the upper bound: 0.375 is accepted
         w = station.issue_window(1.0)
         t_bound = Target(1, (JointTarget(0.375, 0.0, 0.0, 1.0, 0.1),), window=w, owner=owner)
         self.assertTrue(station.submit(t_bound).accepted)
@@ -647,10 +619,8 @@ class ReferenceLeadTests(unittest.TestCase):
         plan = station.refresh()
         self.assertIsNotNone(plan)
         ref = core.snapshot().confirmed_references[0]
-        # Inward projection stays inside [ -0.125, 0.375 ]
         self.assertGreaterEqual(ref.q_rad, -0.125)
         self.assertLessEqual(ref.q_rad, 0.375)
-        # Decoded canonical wire bytes match emitted target exactly
         decoded = decode_command(plan.packets[0])
         mapped_back = mapping.from_output(OutputSample(
             decoded["position_rad"], decoded["rpm"], decoded["torque_nm"]
@@ -668,17 +638,15 @@ class ReferenceLeadTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(target).accepted)
 
-        # Multi-step progression
         for step in range(5):
             self.clock.value += 0.05
             previous = core.snapshot().confirmed_references[0]
             prev_q = previous.q_rad
-            # Update feedback tracking previous reference
             self.assertTrue(
-                core.receive(0, JointSample(prev_q, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+                core.receive(0, JointSample(prev_q, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
             )
             self.assertTrue(
-                core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+                core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
             )
             next_window = station.issue_window(1.0)
             next_target = Target(
@@ -694,7 +662,6 @@ class ReferenceLeadTests(unittest.TestCase):
             self.assert_all_constraints_certificate(previous, current, self.spec1, prev_q)
             self.assertGreater(current.q_rad, prev_q)
 
-        # Conservative stop on too-small cadence
         self.clock.value += 1e-10
         self.assertIsNone(core.prepare_refresh())
         snap = core.snapshot()
@@ -704,7 +671,6 @@ class ReferenceLeadTests(unittest.TestCase):
     def test_attributed_fault_union_and_recovery(self):
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
-        # J1 requests goal outside lead (0.8 > 0.5), J2 requests valid goal (0.1)
         t_bad = Target(
             1,
             (JointTarget(0.8, 0.0, 0.0, 1.0, 0.1), JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)),
@@ -715,7 +681,6 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertFalse(dec.accepted)
         self.assertIs(dec.code, DecisionCode.LEAD_OUT_OF_BOUNDS)
 
-        # Now submit valid target, then cause J1 lead fault during refresh via feedback drift
         t_good = Target(
             1,
             (JointTarget(0.4, 0.0, 0.0, 1.0, 0.1), JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)),
@@ -725,13 +690,11 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertTrue(station.submit(t_good).accepted)
         self.clock.value += 0.01
 
-        # Drift J1 feedback so lead bound is empty relative to acceleration
-        # J1 jumps to -1.0 rad: impossible to satisfy in 0.01s
         self.assertTrue(
-            core.receive(0, JointSample(-1.0, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(0, JointSample(-1.0, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
         self.assertTrue(
-            core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False)).accepted
+            core.receive(1, JointSample(0.0, 0.0, 0.0), MotorHealth(1, 0, 0, False, 25.0, 30.0)).accepted
         )
 
         self.assertIsNone(core.prepare_refresh())
@@ -740,11 +703,13 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertEqual(snap.affected_joints, ("J1",))
         self.assertTrue(snap.faults[0].constraint_fault)
 
-        # Recovery requires stop, claim new owner, acknowledged fresh check, re-arm
         self.assertTrue(station.stop().accepted)
         new_owner = station.claim("recovery-client")
         self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
         self.clock.value += 0.1
+        self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.clock.value += 0.5
         self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.receive(1, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
         self.assertTrue(core.checked().accepted)
@@ -777,6 +742,7 @@ class ReferenceLeadTests(unittest.TestCase):
             spec = JointSpec(
                 "J_fuzz", 0, mapping, q_min, q_max, v_max, a_max, lead, 100.0,
                 "fixture: seeded emitted-reference certificate",
+                DEFAULT_PROTECTION,
             )
             cadence = rng.choice(cadences)
             goal_sign = rng.choice((-1, 1))

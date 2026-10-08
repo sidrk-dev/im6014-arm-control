@@ -1,0 +1,99 @@
+{
+  "baseHead": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "files": [
+    {
+      "path": "docs/joint-api.md",
+      "exists": true,
+      "bytes": 29202,
+      "sha256": "4ed2b86eddff34e0c2571ffd170595a19507fe4d9b1661a1ffa4f26869896abb"
+    },
+    {
+      "path": "joint_contract.py",
+      "exists": true,
+      "bytes": 33658,
+      "sha256": "bbf32e7f45c9ee6a6af75a70122928e4517d22e366bd6e193915fc48da44fff1"
+    },
+    {
+      "path": "joint_controller.py",
+      "exists": true,
+      "bytes": 38123,
+      "sha256": "83e64336f79f2dcabd979bf42aeeec4d3ec9232ba3add6660eb88e6f83000258"
+    },
+    {
+      "path": "joint_protection.py",
+      "exists": true,
+      "bytes": 9300,
+      "sha256": "22361348443b6e2124e2f8d92d56e3f5801d08aa7031e8f00f7871f8889c2325"
+    },
+    {
+      "path": "scripts/check_milestone.py",
+      "exists": true,
+      "bytes": 3342,
+      "sha256": "70bb86e02eb7d8ed89f7d7ee515888b586d81db4ecf5d3a4ceb3b698e6ffc2b9"
+    },
+    {
+      "path": "scripts/check_offline_baseline.sh",
+      "exists": true,
+      "bytes": 5088,
+      "sha256": "5a58acde7ce7e09245e7307105bc136ca80cc500d3327a9a6157fb6afba07604"
+    },
+    {
+      "path": "test_controller.py",
+      "exists": true,
+      "bytes": 42789,
+      "sha256": "8321b21b23ea1929e9f2e8d124dea2fd9cacbf15eaf13b37042ff277106f0033"
+    },
+    {
+      "path": "test_controller_effort.py",
+      "exists": true,
+      "bytes": 25927,
+      "sha256": "537fd081e3400511eb2cf280393a1eef19d92f9e25a28e4973f3505bf2cd0fe8"
+    },
+    {
+      "path": "test_controller_expiry.py",
+      "exists": true,
+      "bytes": 36584,
+      "sha256": "446e795fb39a7f998cc31affdbc7b280f98b08637688c65d490bd0abe46694e4"
+    },
+    {
+      "path": "test_controller_lead.py",
+      "exists": true,
+      "bytes": 34455,
+      "sha256": "854841df1048d0a1d3eddb5cc7d693e3bd140ac795b555cc4421210182497f04"
+    },
+    {
+      "path": "test_controller_limits.py",
+      "exists": true,
+      "bytes": 105921,
+      "sha256": "895dcbddc06be0fb90617cef0d358de082286588fde5afa0627eb9a8f0bbecf5"
+    },
+    {
+      "path": "test_controller_owner.py",
+      "exists": true,
+      "bytes": 16920,
+      "sha256": "47556b9161f3125d9f7402dc20c8d9c41fa037758fa111345979e171ac354e4c"
+    },
+    {
+      "path": "test_controller_targets.py",
+      "exists": true,
+      "bytes": 37724,
+      "sha256": "ee726b9b881efcd89846d7405d66e3da9debc8d9a5760658bbc00e09d2478b94"
+    },
+    {
+      "path": "test_controller_thermal.py",
+      "exists": true,
+      "bytes": 36693,
+      "sha256": "42c57675d9cb86baa930bdfe721c4c7a0d99719e6cfe3d7cc8c740528517b5b4"
+    },
+    {
+      "path": "test_startup.py",
+      "exists": true,
+      "bytes": 13688,
+      "sha256": "7d7dfa5fd6ccb9384b0cac8f8d9e01d6306384463ec3acb707d910979225be45"
+    }
+  ],
+  "parentMetadataOverridesExcluded": [
+    "docs/c07-c16-workflow.md",
+    "docs/resume-c07-c16.md"
+  ]
+}

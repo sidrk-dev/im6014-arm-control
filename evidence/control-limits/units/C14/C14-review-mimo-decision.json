@@ -1,0 +1,28 @@
+{
+  "status": "decision",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 1,
+  "lane": "interrogate reviewers#2",
+  "decision": {
+    "kind": "launch",
+    "attemptIndex": 0,
+    "attempt": {
+      "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+      "attempt": {
+        "kind": "descriptor",
+        "provider": "opencode",
+        "model": "opencode/mimo-v2.6-flash-free",
+        "effort": "default"
+      },
+      "exhaustionGroup": "opencode",
+      "funding": "included",
+      "apiSpend": "approved",
+      "route": "external",
+      "authorization": {
+        "state": "allowed"
+      }
+    },
+    "execution": 1
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "source": "C13-exact-oracle.py",
+  "oldSha256": "bd7e534391f8f2c90d7b272f1775fb7441a96b0e2d3c42df808cc9c4f39c0c28",
+  "new": "C14-exact-oracle.py",
+  "newSha256": "a8904545e0a320757a76734459d4b9adc6760cb50cf5599604700cffcb633365",
+  "changes": "Import and explicit required ProtectionPolicy fixture only; every existing certificate/cache/progress/combined-effort assertion unchanged",
+  "observedOriginalExit": 0,
+  "certificates": 768,
+  "h0Cache": 768,
+  "physicalIO": "none"
+}

@@ -1,4 +1,3 @@
-"""Targeted unit and acceptance tests for C08 controller owner generations."""
 
 from dataclasses import FrozenInstanceError
 import unittest
@@ -17,7 +16,7 @@ from joint_contract import (
 )
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointTarget
-from test_controller import DeterministicClock, FakeStation, HEALTHY_STOP, SAMPLE
+from test_controller import DEFAULT_PROTECTION, DeterministicClock, FakeStation, HEALTHY_STOP, SAMPLE
 
 
 SOURCE = SourceIdentity("fixture", "owner-test", 1)
@@ -27,8 +26,8 @@ class ControllerOwnerTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(0.0)
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -376,7 +375,6 @@ class ControllerOwnerTests(unittest.TestCase):
         self.assertEqual(snap.latest_owner.generation, 10_000)
         self.assertEqual(snap.current_owner.generation, 10_000)
 
-        # Inspect internal object state to verify O(1) storage
         self.assertFalse(hasattr(core, "_owner_history"))
         self.assertFalse(hasattr(core, "_owners"))
         self.assertFalse(hasattr(core, "claim"))

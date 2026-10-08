@@ -1,0 +1,28 @@
+{
+  "kind": "validated",
+  "operation": "run-checks",
+  "head": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "digest": "76bdf62d07ad935786a996af6ca9c6b39e4fc401914cf26d9933ca71082fa2fd",
+  "files": [
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_protection.py",
+    "test_controller.py",
+    "test_controller_effort.py",
+    "test_controller_expiry.py",
+    "test_controller_lead.py",
+    "test_controller_limits.py",
+    "test_controller_owner.py",
+    "test_controller_targets.py",
+    "test_controller_thermal.py",
+    "test_startup.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "docs/joint-api.md"
+  ],
+  "checks": [
+    "C14",
+    "milestone-tests",
+    "scripts/check_offline_baseline.sh"
+  ]
+}

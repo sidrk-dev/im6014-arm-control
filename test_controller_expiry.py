@@ -1,4 +1,3 @@
-"""Acceptance tests for C07 command expiry, window authority, and refresh dispatch."""
 
 import math
 import unittest
@@ -20,7 +19,7 @@ from joint_contract import (
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 from im6014_serial import TransactionTimeoutError, WriteCancelledError, exchange
-from test_controller import DeterministicClock, FakeStation, HEALTHY_STOP
+from test_controller import DEFAULT_PROTECTION, DeterministicClock, FakeStation, HEALTHY_STOP
 
 
 SOURCE = SourceIdentity("fixture", "expiry-test", 1)
@@ -29,8 +28,8 @@ SOURCE = SourceIdentity("fixture", "expiry-test", 1)
 class ControllerExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -58,29 +57,24 @@ class ControllerExpiryTests(unittest.TestCase):
         core, station, clock = self._armed_core()
         self.assertEqual(core.snapshot().last_sequence, -1)
 
-        # Submit valid initial target to establish watermark at 5
         w0 = station.issue_window(0.5)
         t0 = Target(5, self.valid_joints, window=w0, owner=station.owner)
         self.assertTrue(station.submit(t0).accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t0)
 
-        # Issue window valid for 0.4s (expires at 0.4s)
         w1 = station.issue_window(0.4)
         self.assertEqual(w1.created_at_s, 0.0)
         self.assertEqual(w1.expires_at_s, 0.4)
 
-        # Exact equality boundary: now == expires_at_s is expired
         clock.value = 0.4
         t_boundary = Target(6, self.valid_joints, window=w1, owner=station.owner)
         d_boundary = station.submit(t_boundary)
         self.assertFalse(d_boundary.accepted)
         self.assertEqual(d_boundary.code, DecisionCode.EXPIRED)
-        # Watermark and valid goal preserved
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t0)
 
-        # Strictly past expiry: now > expires_at_s is expired
         clock.value = 0.40001
         t_past = Target(7, self.valid_joints, window=w1, owner=station.owner)
         d_past = station.submit(t_past)
@@ -91,21 +85,17 @@ class ControllerExpiryTests(unittest.TestCase):
 
     def test_delayed_computation_cannot_get_new_arrival_ttl(self):
         core, station, clock = self._armed_core()
-        # Client requests window at time 0.0 valid for 0.2s
         w1 = station.issue_window(0.2)
         self.assertEqual(w1.expires_at_s, 0.2)
 
-        # Client computation takes 0.3s (now is 0.3)
         clock.value = 0.3
         target1 = Target(1, self.valid_joints, window=w1, owner=station.owner)
-        # Arrival at core does NOT grant new TTL; rejects as EXPIRED
         decision = station.submit(target1)
         self.assertFalse(decision.accepted)
         self.assertEqual(decision.code, DecisionCode.EXPIRED)
         self.assertEqual(core.snapshot().last_sequence, -1)
         self.assertIsNone(core.snapshot().admitted_target)
 
-        # Client cannot forge a window with extended expiry
         forged_window = IntentWindow(w1.id, w1.created_at_s, 0.9)
         forged_target = Target(1, self.valid_joints, window=forged_window, owner=station.owner)
         d_forged = station.submit(forged_target)
@@ -113,7 +103,6 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(d_forged.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().last_sequence, -1)
 
-        # If station issues a new window w2, client cannot submit old computation with w1
         w2 = station.issue_window(0.2)
         d_old = station.submit(target1)
         self.assertFalse(d_old.accepted)
@@ -169,11 +158,9 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertTrue(station.submit(target).accepted)
         self.assertEqual(core.snapshot().admitted_target, target)
 
-        # Goal expires after admission: clock moves to 0.55 before prepare_refresh
         clock.value = 0.55
         plan = core.prepare_refresh()
         self.assertIsNone(plan)
-        # Goal is withdrawn and core disarms to STOPPED
         snap = core.snapshot()
         self.assertIsNone(snap.admitted_target)
         self.assertIsNone(snap.prepared_plan)
@@ -189,25 +176,20 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # Joint 0 claim and complete write
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         d0 = core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE)
         self.assertTrue(d0.accepted)
         self.assertIs(core.snapshot().state, State.MOVING)
 
-        # Check J0 record is stored, J1 is still None
         records_after_j0 = core.snapshot().dispatched_records
         self.assertIsNotNone(records_after_j0[0])
         self.assertEqual(records_after_j0[0].sequence, 1)
         self.assertEqual(records_after_j0[0].target, plan.joint_targets[0])
         self.assertIsNone(records_after_j0[1])
 
-        # Expiry occurs before Joint 1 write
         clock.value = 0.55
-        # Joint 1 claim fails due to expiry
         self.assertFalse(core.claim_dispatch(plan.plan_id, 1))
 
-        # Core disarms to STOPPED, goal withdrawn, J0 record preserved, J1 remained unwritten
         snap = core.snapshot()
         self.assertIs(snap.state, State.STOPPED)
         self.assertIsNone(snap.admitted_target)
@@ -225,7 +207,6 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # Fake bus where reset_input_buffer takes enough time to advance the clock past expiry
         written_packets = []
 
         class TimeAdvancingBus:
@@ -234,7 +215,7 @@ class ControllerExpiryTests(unittest.TestCase):
                 self.in_waiting = 0
 
             def reset_input_buffer(self):
-                clock.value = 0.6  # Past window expiry of 0.5s!
+                clock.value = 0.6
 
             def write(self, packet):
                 written_packets.append(packet)
@@ -256,9 +237,7 @@ class ControllerExpiryTests(unittest.TestCase):
                 on_write=lambda res: core.dispatch_result(plan.plan_id, 0, res),
             )
 
-        # Zero mode-1 packets were written to the bus!
         self.assertEqual(written_packets, [])
-        # Final gate cancellation disarmed core to STOPPED and withdrew goal
         self.assertIs(core.snapshot().state, State.STOPPED)
         self.assertIsNone(core.snapshot().admitted_target)
 
@@ -272,16 +251,12 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # First joint writes successfully
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         self.assertTrue(core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE).accepted)
 
-        # Feedback wait takes long time, crossing expiry
         clock.value = 0.55
 
-        # Attempting second joint write: claim fails because goal has expired
         self.assertFalse(core.claim_dispatch(plan.plan_id, 1))
-        # Core is disarmed to STOPPED
         self.assertIs(core.snapshot().state, State.STOPPED)
 
     def test_repeated_refresh_bounded_until_expiry(self):
@@ -294,25 +269,21 @@ class ControllerExpiryTests(unittest.TestCase):
         target = Target(1, stable_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
-        # At t=0.1, refresh succeeds
         clock.value = 0.1
         plan1 = station.refresh()
         self.assertIsNotNone(plan1)
         self.assertEqual(plan1.target, target)
         self.assertIs(core.snapshot().state, State.MOVING)
 
-        # At t=0.2, second refresh succeeds with the same admitted goal
         clock.value = 0.2
         plan2 = station.refresh()
         self.assertIsNotNone(plan2)
         self.assertEqual(plan2.target, target)
 
-        # At t=0.4, third refresh succeeds
         clock.value = 0.4
         plan3 = station.refresh()
         self.assertIsNotNone(plan3)
 
-        # At t=0.5, window expires: refresh returns None and disarms to STOPPED
         clock.value = 0.5
         plan_expired = station.refresh()
         self.assertIsNone(plan_expired)
@@ -327,17 +298,14 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t5)
 
-        # High sequence with invalid joint target count
         bad_high = Target(100, (self.valid_joints[0],), window=w, owner=station.owner)
         d_bad = station.submit(bad_high)
         self.assertFalse(d_bad.accepted)
         self.assertEqual(d_bad.code, DecisionCode.INVALID_ARGUMENT)
 
-        # Watermark is still 5, admitted goal is still t5
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t5)
 
-        # High sequence with out-of-range torque
         bad_torque = Target(100, (JointTarget(0, 0, 10.0, 1, .1), self.valid_joints[1]), window=w, owner=station.owner)
         d_torque = station.submit(bad_torque)
         self.assertFalse(d_torque.accepted)
@@ -357,14 +325,12 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertIsNotNone(plan)
         self.assertEqual(core.snapshot().prepared_plan, plan)
 
-        # Stop invalidates plan and goal, retains sequence watermark
         self.assertTrue(station.stop().accepted)
         self.assertIs(core.snapshot().state, State.STOPPED)
         self.assertIsNone(core.snapshot().admitted_target)
         self.assertIsNone(core.snapshot().prepared_plan)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
-        # Re-arm and set up new target
         owner2 = station.claim("fixture-2")
         self.assertTrue(station.check().accepted)
         self.assertTrue(station.arm(owner2).accepted)
@@ -375,14 +341,12 @@ class ControllerExpiryTests(unittest.TestCase):
         plan2 = core.prepare_refresh()
         self.assertIsNotNone(plan2)
 
-        # Fault invalidates plan and goal, retains sequence
         self.assertTrue(core.communication_failed(0, CommunicationFailure.TIMEOUT).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertIsNone(core.snapshot().admitted_target)
         self.assertIsNone(core.snapshot().prepared_plan)
         self.assertEqual(core.snapshot().last_sequence, 12)
 
-        # Disconnect invalidates plan and goal, retains sequence
         self.assertTrue(station.disconnect().accepted)
         self.assertIs(core.snapshot().state, State.DISCONNECTED)
         self.assertIsNone(core.snapshot().admitted_target)
@@ -399,23 +363,17 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # Wrong plan ID rejects
         self.assertFalse(core.claim_dispatch(plan.plan_id + 99, 0))
 
-        # Out-of-order joint index rejects (index 1 before index 0)
         self.assertFalse(core.claim_dispatch(plan.plan_id, 1))
 
-        # Correct claim of index 0
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
 
-        # Duplicate claim of index 0 rejects
         self.assertFalse(core.claim_dispatch(plan.plan_id, 0))
 
-        # Out-of-bounds index rejects
         self.assertFalse(core.claim_dispatch(plan.plan_id, 5))
         self.assertFalse(core.claim_dispatch(plan.plan_id, -1))
 
-        # One unresolved write blocks both reprepare and the next joint.
         self.assertIsNone(core.prepare_refresh())
         self.assertFalse(core.claim_dispatch(plan.plan_id, 1))
         self.assertFalse(core.dispatch_result(plan.plan_id + 99, 0, WriteResult.COMPLETE).accepted)
@@ -423,7 +381,6 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertFalse(core.dispatch_result(plan.plan_id, 0, None).accepted)
         self.assertTrue(core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE).accepted)
 
-        # Joint 1 is claimable only after joint 0's outcome arrives.
         self.assertTrue(core.claim_dispatch(plan.plan_id, 1))
         self.assertTrue(core.dispatch_result(plan.plan_id, 1, WriteResult.COMPLETE).accepted)
 
@@ -515,21 +472,17 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # Joint 0 claims and writes successfully
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         d_res = core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE)
         self.assertTrue(d_res.accepted)
 
-        # Dispatched record is committed
         snap_after_write = core.snapshot()
         self.assertIsNotNone(snap_after_write.dispatched_records[0])
         self.assertEqual(snap_after_write.dispatched_records[0].sequence, 1)
 
-        # Feedback from serial communication times out
         self.assertTrue(core.communication_failed(0, CommunicationFailure.TIMEOUT).accepted)
         snap_after_failure = core.snapshot()
         self.assertIs(snap_after_failure.state, State.FAULT)
-        # Dispatched record is STILL preserved despite communication failure!
         self.assertIsNotNone(snap_after_failure.dispatched_records[0])
         self.assertEqual(snap_after_failure.dispatched_records[0].sequence, 1)
 
@@ -543,22 +496,18 @@ class ControllerExpiryTests(unittest.TestCase):
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
-        # J0 claims, but write fails
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         d_fail = core.dispatch_result(plan.plan_id, 0, WriteResult.FAILED)
         self.assertFalse(d_fail.accepted)
         self.assertEqual(d_fail.code, DecisionCode.FAULT_LATCHED)
 
-        # Latches fault on joint 0
         snap = core.snapshot()
         self.assertIs(snap.state, State.FAULT)
         self.assertTrue(snap.fault_latched)
         self.assertEqual(snap.affected_joints, ("J1",))
         self.assertEqual(snap.faults[0].communication_error, CommunicationFailure.DRIVER_FAILURE)
-        # Motion withdrawn, plan invalidated
         self.assertIsNone(snap.admitted_target)
         self.assertIsNone(snap.prepared_plan)
-        # J0 was not completely written so dispatched record is None
         self.assertIsNone(snap.dispatched_records[0])
         self.assertEqual(snap.dispatch_attempts[0].result, WriteResult.FAILED)
 
@@ -804,22 +753,18 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
 
-        # Valid receive at t=10.0
         sample_initial = JointSample(0.5, 0.0, 0.0)
         self.assertTrue(core.receive(0, sample_initial, HEALTHY_STOP).accepted)
         snap_initial = core.snapshot()
         self.assertEqual(snap_initial.joints[0].received_at, 10.0)
         self.assertEqual(snap_initial.joints[0].sample.q_rad, 0.5)
 
-        # Clock regresses to 5.0
         clock.value = 5.0
         corrupt_sample = JointSample(9.9, 0.0, 0.0)
         with self.assertRaises(ValueError):
             core.receive(0, corrupt_sample, HEALTHY_STOP)
 
-        # High-water mark check threw BEFORE overwriting observation
-        # Previous observation remains uncorrupted
-        clock.value = 10.0  # restore to valid non-regressing time for snapshot
+        clock.value = 10.0
         snap_after = core.snapshot()
         self.assertEqual(snap_after.joints[0].received_at, 10.0)
         self.assertEqual(snap_after.joints[0].sample.q_rad, 0.5)
@@ -830,7 +775,6 @@ class ControllerExpiryTests(unittest.TestCase):
         target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
-        # A bad preparation clock revokes the old goal and pending authority.
         station.writes.clear()
         clock.value = math.nan
         with self.assertRaises(ValueError):
@@ -844,7 +788,6 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(station.writes, [])
         self.assertIsNone(core.prepare_refresh())
 
-        # A bad final-gate clock fails closed and withdraws the prepared authority.
         core2, station2, clock2 = self._armed_core()
         w2 = station2.issue_window(1.0)
         target2 = Target(1, self.valid_joints, window=w2, owner=station2.owner)
@@ -856,7 +799,7 @@ class ControllerExpiryTests(unittest.TestCase):
         station2.writes.clear()
         writes_before = tuple(station2.writes)
 
-        clock2.value = 0.05  # Regressed!
+        clock2.value = 0.05
         with self.assertRaises(ValueError):
             core2.claim_dispatch(plan.plan_id, 0)
         clock2.value = 0.1
@@ -878,7 +821,6 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertIs(core2.snapshot().state, State.STOPPED)
         self.assertEqual(tuple(station2.writes), writes_before)
 
-        # Stop still works even if clock fails or raises
         clock2.value = math.nan
         stop_decision = station2.stop()
         self.assertTrue(stop_decision.accepted)
@@ -887,18 +829,15 @@ class ControllerExpiryTests(unittest.TestCase):
         clock = DeterministicClock(0.0)
         core = JointCore(self.specs, clock=clock, max_window_s=0.5, max_reference_gap_s=1.0)
 
-        # Window exceeding max_window_s rejects
         with self.assertRaises(ValueError):
             core.issue_window(0.6)
 
-        # Establish station authority before offering windows; claiming invalidates prior offers.
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("fixture")
         self.assertTrue(station.check().accepted)
         self.assertTrue(station.arm(owner).accepted)
 
-        # Monotonically increasing window IDs without wrap
         w0 = core.issue_window(0.2)
         w1 = core.issue_window(0.2)
         w2 = core.issue_window(0.5)
@@ -907,13 +846,11 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(w2.id, 2)
         self.assertTrue(w0.id < w1.id < w2.id)
 
-        # Older window w0 is rejected
         t_old = Target(1, self.valid_joints, window=w0, owner=owner)
         d_old = station.submit(t_old)
         self.assertFalse(d_old.accepted)
         self.assertEqual(d_old.code, DecisionCode.EXPIRED)
 
-        # Latest window w2 is accepted
         t_latest = Target(1, self.valid_joints, window=w2, owner=owner)
         d_latest = station.submit(t_latest)
         self.assertTrue(d_latest.accepted)

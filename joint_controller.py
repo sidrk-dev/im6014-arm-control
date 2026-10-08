@@ -32,6 +32,12 @@ from joint_contract import (
     owner_tokens_match,
 )
 from joint_mapping import JointSample
+from joint_protection import (
+    JointProtectionState,
+    MeasuredViolation,
+    check_joint_limits,
+    transition_protection,
+)
 from joint_reference import (
     prepare_complete_reference,
     validate_target_vector,
@@ -139,6 +145,10 @@ class JointCore:
         self._confirmed_references: list[JointTrajectoryReference | None] = [None for _ in specs]
         self._faults: dict[str, JointFault] = {}
         self._last_sequence: int = -1
+        self._protection_states: list[JointProtectionState] = [
+            JointProtectionState() for _ in specs
+        ]
+        self._recovery_authorized: bool = False
 
     @property
     def max_reference_gap_s(self) -> float:
@@ -194,6 +204,10 @@ class JointCore:
             State.MOVING,
         ) or (was_owned and self._state not in (State.DISCONNECTED, State.CONNECTING))
         self._revoke_authority()
+        self._recovery_authorized = False
+        self._protection_states = [
+            state.reset_timing_gap() for state in self._protection_states
+        ]
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             pass
         elif self._state is State.FAULT or self._faults:
@@ -219,6 +233,9 @@ class JointCore:
         self, index: int, cause: CommunicationFailure
     ) -> None:
         spec = self._specs[index]
+        self._protection_states[index] = self._protection_states[
+            index
+        ].reset_timing_gap()
         self._latch_joint_fault(
             spec.name,
             spec.motor_id,
@@ -246,6 +263,9 @@ class JointCore:
         speed_limit: bool = False,
         effort_limit: bool = False,
         constraint_fault: bool = False,
+        driver_temperature_limit: bool = False,
+        winding_temperature_limit: bool = False,
+        continuous_effort_limit: bool = False,
     ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
         communication_errors = existing.communication_errors
@@ -261,13 +281,28 @@ class JointCore:
             communication_errors=communication_errors,
             position_limit=existing.position_limit or position_limit,
             speed_limit=existing.speed_limit or speed_limit,
-            effort_limit=existing.effort_limit or effort_limit,
+            effort_limit=existing.effort_limit or effort_limit or continuous_effort_limit,
             constraint_fault=existing.constraint_fault or constraint_fault,
+            driver_temperature_limit=existing.driver_temperature_limit or driver_temperature_limit,
+            winding_temperature_limit=existing.winding_temperature_limit or winding_temperature_limit,
+            continuous_effort_limit=existing.continuous_effort_limit or continuous_effort_limit,
         )
         self._faults[name] = fault
         if self._state is not State.DISCONNECTED:
             self._state = State.FAULT
         self._revoke_authority()
+
+    def _latch_measured_violation(self, spec: JointSpec, v: MeasuredViolation) -> None:
+        self._latch_joint_fault(
+            spec.name,
+            spec.motor_id,
+            position_limit=v.position_limit,
+            speed_limit=v.speed_limit,
+            effort_limit=v.effort_limit,
+            driver_temperature_limit=v.driver_temperature_limit,
+            winding_temperature_limit=v.winding_temperature_limit,
+            continuous_effort_limit=v.continuous_effort_limit,
+        )
 
     def _withdraw_expired_goal(self) -> None:
         self._revoke_authority()
@@ -311,50 +346,27 @@ class JointCore:
     def _housekeeping(self, now: float) -> DecisionCode | None:
         if self._state in (State.READY, State.ARMED, State.MOVING):
             stale_by_joint: list[bool] = []
-            pos_outside_by_joint: list[bool] = []
-            speed_outside_by_joint: list[bool] = []
-            effort_outside_by_joint: list[bool] = []
+            violations: list[MeasuredViolation] = []
             for spec, joint in zip(self._specs, self._observations):
                 stale_by_joint.append(
                     not joint.valid
                     or joint.received_at is None
                     or self._age(joint.received_at, now) > self._feedback_max_age_s
                 )
-                pos_outside_by_joint.append(
-                    joint.valid
-                    and joint.sample is not None
-                    and (joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad)
-                )
-                speed_outside_by_joint.append(
-                    joint.valid
-                    and joint.sample is not None
-                    and (abs(joint.sample.dq_rad_s) > spec.v_max_rad_s)
-                )
-                effort_outside_by_joint.append(
-                    joint.valid
-                    and joint.sample is not None
-                    and (abs(joint.sample.tau_nm) > spec.max_effort_nm)
-                )
-            for spec, stale, pos_out, speed_out, effort_out in zip(
-                self._specs, stale_by_joint, pos_outside_by_joint, speed_outside_by_joint, effort_outside_by_joint
-            ):
-                if stale or pos_out or speed_out or effort_out:
-                    self._latch_joint_fault(
-                        spec.name,
-                        spec.motor_id,
-                        stale=stale,
-                        position_limit=pos_out,
-                        speed_limit=speed_out,
-                        effort_limit=effort_out,
-                    )
+                if joint.valid and joint.sample is not None and joint.health is not None:
+                    violations.append(check_joint_limits(spec, joint.sample, joint.health))
+                else:
+                    violations.append(MeasuredViolation())
+            for spec, stale, v in zip(self._specs, stale_by_joint, violations):
+                if stale:
+                    self._latch_joint_fault(spec.name, spec.motor_id, stale=True)
+                if v.has_violation:
+                    self._latch_measured_violation(spec, v)
             if any(stale_by_joint):
                 return DecisionCode.STALE_FEEDBACK
-            if any(pos_outside_by_joint):
-                return DecisionCode.POSITION_OUT_OF_BOUNDS
-            if any(speed_outside_by_joint):
-                return DecisionCode.SPEED_OUT_OF_BOUNDS
-            if any(effort_outside_by_joint):
-                return DecisionCode.EFFORT_OUT_OF_BOUNDS
+            for v in violations:
+                if v.primary_decision_code is not None:
+                    return v.primary_decision_code
         if (
             self._admitted_target is not None
             and now >= self._admitted_target.window.expires_at_s
@@ -417,6 +429,10 @@ class JointCore:
         self._confirmed_references = [None for _ in self._specs]
         self._invalidate_plan()
         self._state = State.CHECKING
+        self._recovery_authorized = acknowledge_fault
+        self._protection_states = [
+            state.reset_timing_gap() for state in self._protection_states
+        ]
         return self._accepted()
 
     def receive(
@@ -443,32 +459,27 @@ class JointCore:
         now = self._now()
         self._observations[index] = JointStatus(sample, status, now)
         spec = self._specs[index]
-        position_limit = (
-            sample.q_rad < spec.q_min_rad or sample.q_rad > spec.q_max_rad
+        v, next_pstate, _ = transition_protection(
+            spec,
+            sample,
+            status,
+            self._protection_states[index],
+            now,
+            self._feedback_max_age_s,
+            self._recovery_authorized,
         )
-        speed_limit = (
-            abs(sample.dq_rad_s) > spec.v_max_rad_s
-        )
-        effort_limit = (
-            abs(sample.tau_nm) > spec.max_effort_nm
-        )
-        if not status.healthy or position_limit or speed_limit or effort_limit:
+        self._protection_states[index] = next_pstate
+        if not status.healthy:
             self._latch_joint_fault(
                 spec.name,
                 motor_id,
                 errors=status.errors,
                 warnings=status.warnings,
                 timeout=status.timeout,
-                position_limit=position_limit,
-                speed_limit=speed_limit,
-                effort_limit=effort_limit,
             )
-        if position_limit:
-            return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
-        if speed_limit:
-            return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
-        if effort_limit:
-            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
+        if v.has_violation:
+            self._latch_measured_violation(spec, v)
+            return self._rejected(v.primary_decision_code)
         return self._accepted()
 
     def communication_failed(
@@ -486,6 +497,7 @@ class JointCore:
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
         failure_code = code
 
+        self._protection_states[index] = self._protection_states[index].reset_timing_gap()
         spec = self._specs[index]
         self._latch_joint_fault(
             spec.name,
@@ -511,36 +523,35 @@ class JointCore:
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
 
-        pos_out_of_bounds = [
-            spec
+        violations = [
+            check_joint_limits(spec, joint.sample, joint.health)
             for spec, joint in zip(self._specs, self._observations)
-            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
         ]
-        speed_out_of_bounds = [
-            spec
-            for spec, joint in zip(self._specs, self._observations)
-            if abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-        ]
-        effort_out_of_bounds = [
-            spec
-            for spec, joint in zip(self._specs, self._observations)
-            if abs(joint.sample.tau_nm) > spec.max_effort_nm
-        ]
-        if pos_out_of_bounds or speed_out_of_bounds or effort_out_of_bounds:
-            for spec in pos_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
-            for spec in speed_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
-            for spec in effort_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, effort_limit=True)
-            if pos_out_of_bounds:
-                return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
-            if speed_out_of_bounds:
-                return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
-            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
+        if any(v.has_violation for v in violations):
+            for spec, v in zip(self._specs, violations):
+                if v.has_violation:
+                    self._latch_measured_violation(spec, v)
+            for v in violations:
+                if v.primary_decision_code is not None:
+                    return self._rejected(v.primary_decision_code)
+
+        if bool(self._faults):
+            below_recovery = all(
+                joint.health.driver_c <= spec.protection.driver_reset_c
+                and joint.health.winding_c <= spec.protection.winding_reset_c
+                and abs(joint.sample.tau_nm) <= spec.protection.continuous_effort_nm
+                for spec, joint in zip(self._specs, self._observations)
+            )
+            dwell_satisfied = all(
+                pstate.recovery_satisfies(spec.protection.recovery_dwell_s)
+                for spec, pstate in zip(self._specs, self._protection_states)
+            )
+            if not (self._recovery_authorized and below_recovery and dwell_satisfied):
+                return self._rejected(DecisionCode.FAULT_LATCHED)
 
         self._state = State.READY
         self._faults.clear()
+        self._recovery_authorized = False
         self._confirmed_references = [
             JointTrajectoryReference(
                 q_rad=joint.sample.q_rad,
@@ -570,33 +581,17 @@ class JointCore:
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
 
-        pos_out_of_bounds = [
-            spec
+        violations = [
+            check_joint_limits(spec, joint.sample, joint.health)
             for spec, joint in zip(self._specs, self._observations)
-            if joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
         ]
-        speed_out_of_bounds = [
-            spec
-            for spec, joint in zip(self._specs, self._observations)
-            if abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-        ]
-        effort_out_of_bounds = [
-            spec
-            for spec, joint in zip(self._specs, self._observations)
-            if abs(joint.sample.tau_nm) > spec.max_effort_nm
-        ]
-        if pos_out_of_bounds or speed_out_of_bounds or effort_out_of_bounds:
-            for spec in pos_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
-            for spec in speed_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
-            for spec in effort_out_of_bounds:
-                self._latch_joint_fault(spec.name, spec.motor_id, effort_limit=True)
-            if pos_out_of_bounds:
-                return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
-            if speed_out_of_bounds:
-                return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
-            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
+        if any(v.has_violation for v in violations):
+            for spec, v in zip(self._specs, violations):
+                if v.has_violation:
+                    self._latch_measured_violation(spec, v)
+            for v in violations:
+                if v.primary_decision_code is not None:
+                    return self._rejected(v.primary_decision_code)
 
         self._state = State.ARMED
         return self._accepted()
@@ -687,17 +682,9 @@ class JointCore:
         for spec, joint in zip(self._specs, self._observations):
             if not joint.valid:
                 return None
-            pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
-            speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-            effort_out = abs(joint.sample.tau_nm) > spec.max_effort_nm
-            if pos_out or speed_out or effort_out:
-                self._latch_joint_fault(
-                    spec.name,
-                    spec.motor_id,
-                    position_limit=pos_out,
-                    speed_limit=speed_out,
-                    effort_limit=effort_out,
-                )
+            v = check_joint_limits(spec, joint.sample, joint.health)
+            if v.has_violation:
+                self._latch_measured_violation(spec, v)
                 self.stop()
                 return None
 
@@ -800,17 +787,9 @@ class JointCore:
         for spec, joint in zip(self._specs, self._observations):
             if not joint.valid:
                 return False
-            pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
-            speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-            effort_out = abs(joint.sample.tau_nm) > spec.max_effort_nm
-            if pos_out or speed_out or effort_out:
-                self._latch_joint_fault(
-                    spec.name,
-                    spec.motor_id,
-                    position_limit=pos_out,
-                    speed_limit=speed_out,
-                    effort_limit=effort_out,
-                )
+            v = check_joint_limits(spec, joint.sample, joint.health)
+            if v.has_violation:
+                self._latch_measured_violation(spec, v)
                 self.stop()
                 return False
 
@@ -918,6 +897,10 @@ class JointCore:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
         self._revoke_authority()
+        self._recovery_authorized = False
+        self._protection_states = [
+            state.reset_timing_gap() for state in self._protection_states
+        ]
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
@@ -927,6 +910,10 @@ class JointCore:
     def disconnect(self) -> Decision:
         self._state = State.DISCONNECTED
         self._source = None
+        self._recovery_authorized = False
+        self._protection_states = [
+            state.reset_timing_gap() for state in self._protection_states
+        ]
         self._clear_observations()
         self._confirmed_references = [None for _ in self._specs]
         self._revoke_authority()

@@ -1,0 +1,22 @@
+{
+  "integrated": "C14-fixture",
+  "baseHead": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "files": [
+    "docs/joint-api.md",
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_protection.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "test_controller.py",
+    "test_controller_effort.py",
+    "test_controller_expiry.py",
+    "test_controller_lead.py",
+    "test_controller_limits.py",
+    "test_controller_owner.py",
+    "test_controller_targets.py",
+    "test_controller_thermal.py",
+    "test_startup.py"
+  ],
+  "sourceMatchesCheckedCopy": true
+}

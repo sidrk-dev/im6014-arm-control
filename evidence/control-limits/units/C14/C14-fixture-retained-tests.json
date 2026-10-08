@@ -1,0 +1,133 @@
+{
+  "scope": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fixture-workbench",
+  "removedMethods": [],
+  "files": [
+    {
+      "file": "test_bus_owner.py",
+      "before": 17,
+      "after": 17,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller.py",
+      "before": 27,
+      "after": 27,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_effort.py",
+      "before": 20,
+      "after": 20,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_expiry.py",
+      "before": 25,
+      "after": 25,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_lead.py",
+      "before": 16,
+      "after": 16,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_limits.py",
+      "before": 55,
+      "after": 55,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_owner.py",
+      "before": 13,
+      "after": 13,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_controller_targets.py",
+      "before": 16,
+      "after": 16,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_dashboard.py",
+      "before": 0,
+      "after": 0,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_diagnostic_capture.py",
+      "before": 11,
+      "after": 11,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_joint_mapping.py",
+      "before": 12,
+      "after": 12,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_numerical_inputs.py",
+      "before": 12,
+      "after": 12,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_port_config.py",
+      "before": 12,
+      "after": 12,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_protocol.py",
+      "before": 24,
+      "after": 24,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_serial_deadline.py",
+      "before": 11,
+      "after": 11,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_spin_5rpm.py",
+      "before": 0,
+      "after": 0,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_startup.py",
+      "before": 0,
+      "after": 0,
+      "removed": [],
+      "added": []
+    },
+    {
+      "file": "test_startup_verifier.py",
+      "before": 5,
+      "after": 5,
+      "removed": [],
+      "added": []
+    }
+  ],
+  "limitation": "Method retention does not prove assertions retained; parent source inspection and actual checks remain required."
+}

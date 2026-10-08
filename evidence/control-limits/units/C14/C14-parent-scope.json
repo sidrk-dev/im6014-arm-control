@@ -1,0 +1,40 @@
+{
+  "task": "C14",
+  "baseHead": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "allowedFiles": [
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_reference.py",
+    "joint_mapping.py",
+    "im6014_codec.py",
+    "joint_effort.py",
+    "test_controller.py",
+    "test_controller_targets.py",
+    "test_controller_expiry.py",
+    "test_controller_owner.py",
+    "test_controller_limits.py",
+    "test_controller_lead.py",
+    "test_controller_effort.py",
+    "test_startup.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "docs/joint-api.md",
+    "docs/controller-limits-design.md",
+    "joint_protection.py",
+    "test_controller_thermal.py"
+  ],
+  "allowedCheckIds": [
+    "C14",
+    "milestone-tests",
+    "scripts/check_offline_baseline.sh"
+  ],
+  "parentOwnedForbidden": [
+    "evidence",
+    ".git",
+    "docs/decisions.tsv",
+    "docs/milestones.tsv",
+    "docs/c07-c16-workflow.md",
+    "docs/resume-c07-c16.md"
+  ],
+  "physicalIO": "none"
+}

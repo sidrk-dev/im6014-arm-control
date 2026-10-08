@@ -1,5 +1,6 @@
 import unittest
 from dataclasses import FrozenInstanceError
+from fractions import Fraction
 import math
 
 from im6014_codec import command
@@ -22,10 +23,20 @@ from joint_contract import (
 )
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
+from joint_protection import ProtectionPolicy
 
 
+DEFAULT_PROTECTION = ProtectionPolicy(
+    driver_trip_c=85.0,
+    driver_reset_c=70.0,
+    winding_trip_c=105.0,
+    winding_reset_c=90.0,
+    continuous_effort_nm=0.5,
+    continuous_dwell_s=1.0,
+    recovery_dwell_s=0.5,
+)
 SAMPLE = JointSample(0.1, 0.0, 0.0)
-HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False)
+HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0)
 SOURCE = SourceIdentity("fixture", "controller-test", 1)
 
 
@@ -63,6 +74,30 @@ class FakeStation:
             decision = self.core.receive(spec.motor_id, SAMPLE, HEALTHY_STOP)
             if not decision.accepted:
                 return decision
+        if acknowledge_fault:
+            max_dwell = max((spec.protection.recovery_dwell_s for spec in self.core.joint_specs), default=0.0)
+            clock = getattr(self.core, "_clock", None)
+            if clock is not None and hasattr(clock, "value") and max_dwell > 0.0:
+                max_age = Fraction(self.core._feedback_max_age_s)
+                dwell = Fraction(max_dwell)
+                step = max_age / 2
+                start = Fraction(clock.value)
+                rounds = math.ceil(dwell / step)
+                for index in range(1, rounds + 1):
+                    if Fraction(clock.value) - start >= dwell:
+                        break
+                    target = start + min(dwell, index * step)
+                    next_time = float(target)
+                    if Fraction(next_time) < target:
+                        next_time = math.nextafter(next_time, math.inf)
+                    gap = Fraction(next_time) - Fraction(clock.value)
+                    if gap <= 0 or gap > max_age:
+                        break
+                    clock.value = next_time
+                    for spec in self.core.joint_specs:
+                        decision = self.core.receive(spec.motor_id, SAMPLE, HEALTHY_STOP)
+                        if not decision.accepted:
+                            return decision
         return self.core.checked()
 
     def arm(self, owner: OwnerToken):
@@ -108,8 +143,8 @@ class DeterministicClock:
 class FeedbackAgeTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
 
     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
@@ -305,7 +340,7 @@ def core_at(test, state, clock=None):
         test.assertTrue(core.receive(
             test.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=1, warnings=0, timeout=False),
+            MotorHealth(mode=0, errors=1, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
         ).accepted)
         return core
     raise AssertionError(f"{state} is not reachable")
@@ -313,10 +348,10 @@ def core_at(test, state, clock=None):
 
 class ControllerStateTests(unittest.TestCase):
     def setUp(self):
-        self.clock = lambda: 0.0
+        self.clock = DeterministicClock(0.0)
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
 
 
@@ -326,28 +361,31 @@ class ControllerStateTests(unittest.TestCase):
             JointCore((), max_reference_gap_s=1.0)
         with self.assertRaises(ValueError):
             JointCore((
-                JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-                JointSpec("J1", 1, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+                JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+                JointSpec("J1", 1, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
             ), max_reference_gap_s=1.0)
         with self.assertRaises(ValueError):
             JointCore((
-                JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-                JointSpec("J2", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+                JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+                JointSpec("J2", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
             ), max_reference_gap_s=1.0)
         with self.assertRaises(ValueError):
-            JointSpec("J1", True, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits")
+            JointSpec("J1", True, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION)
 
-        supplied = [JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits")]
+        supplied = [JointSpec("J1", 0, mapping, -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION)]
         core = JointCore(supplied, clock=self.clock, max_reference_gap_s=1.0)
         supplied.clear()
         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
 
     def test_health_and_source_records_reject_invalid_values(self):
         for kwargs in (
-            dict(mode=True, errors=0, warnings=0, timeout=False),
-            dict(mode=0, errors=True, warnings=0, timeout=False),
-            dict(mode=0, errors=0, warnings=-1, timeout=False),
-            dict(mode=0, errors=0, warnings=0, timeout=1),
+            dict(mode=True, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=True, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=-1, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=0, timeout=1, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=0, timeout=False, driver_c=True, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=0, timeout=False, driver_c=float("nan"), winding_c=30.0),
+            dict(mode=0, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=float("inf")),
         ):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 MotorHealth(**kwargs)
@@ -383,7 +421,7 @@ class ControllerStateTests(unittest.TestCase):
     def test_arm_requires_current_stop_feedback(self):
         core = core_at(self, State.READY)
         owner = core.snapshot().latest_owner
-        self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False)))
+        self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False, 25.0, 30.0)))
         before = core.snapshot()
         self.assertEqual(core.arm(owner).code, DecisionCode.NOT_STOPPED)
         self.assertEqual(core.snapshot(), before)
@@ -403,13 +441,13 @@ class ControllerStateTests(unittest.TestCase):
         self.assertEqual(core.snapshot(), before)
 
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
-        foc = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
+        foc = MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, foc).accepted)
         before = core.snapshot()
         self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
         self.assertEqual(core.snapshot(), before)
 
-        unhealthy = MotorHealth(mode=0, errors=0, warnings=1, timeout=False)
+        unhealthy = MotorHealth(mode=0, errors=0, warnings=1, timeout=False, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, unhealthy).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertTrue(core.snapshot().fault_latched)
@@ -426,6 +464,9 @@ class ControllerStateTests(unittest.TestCase):
         self.assertTrue(core.snapshot().fault_latched)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP))
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
+        self.clock.value += 0.5
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP))
+        self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
         self.assertTrue(core.checked().accepted)
         self.assertIs(core.snapshot().state, State.READY)
 
@@ -437,7 +478,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertTrue(station.check().accepted)
         self.assertTrue(station.arm(owner).accepted)
 
-        bad_health = MotorHealth(mode=0, errors=4, warnings=2, timeout=True)
+        bad_health = MotorHealth(mode=0, errors=4, warnings=2, timeout=True, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, bad_health).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertTrue(core.snapshot().fault_latched)
@@ -553,8 +594,8 @@ class ControllerStateTests(unittest.TestCase):
 class JointFaultTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
 
     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
@@ -611,7 +652,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.arm(core.snapshot().latest_owner).accepted)
 
         unknown_errors = 0x80000004
-        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True)
+        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, status).accepted)
 
         snap = core.snapshot()
@@ -625,11 +666,11 @@ class JointFaultTests(unittest.TestCase):
         self.assertFalse(j1_fault.stale)
 
         for kwargs in (
-            dict(mode=0, errors=-1, warnings=0, timeout=False),
-            dict(mode=0, errors=0x1_0000_0000, warnings=0, timeout=False),
-            dict(mode=0, errors=0, warnings=-1, timeout=False),
-            dict(mode=0, errors=0, warnings=8, timeout=False),
-            dict(mode=0, errors=0, warnings=0, timeout="True"),
+            dict(mode=0, errors=-1, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0x1_0000_0000, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=-1, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=8, timeout=False, driver_c=25.0, winding_c=30.0),
+            dict(mode=0, errors=0, warnings=0, timeout="True", driver_c=25.0, winding_c=30.0),
         ):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 MotorHealth(**kwargs)
@@ -651,7 +692,7 @@ class JointFaultTests(unittest.TestCase):
         core = self._ready_core()
         self.assertTrue(core.arm(core.snapshot().latest_owner).accepted)
 
-        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False)
+        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, unhealthy).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
@@ -677,13 +718,13 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False),
+            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False, driver_c=25.0, winding_c=30.0),
         ).accepted)
 
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True),
+            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True, driver_c=25.0, winding_c=30.0),
         ).accepted)
 
         self.assertTrue(core.communication_failed(
@@ -705,7 +746,7 @@ class JointFaultTests(unittest.TestCase):
             self.assertTrue(core.receive(
                 self.specs[0].motor_id,
                 SAMPLE,
-                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False),
+                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
             ).accepted)
         self.assertEqual(len(core.snapshot().faults), 1)
         self.assertEqual(core.snapshot().faults[0].errors, 0x07)
@@ -806,7 +847,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False),
+            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0),
         ).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
@@ -823,7 +864,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertEqual(core.checked().code, DecisionCode.OBSERVATIONS_INCOMPLETE)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
 
-        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
+        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, non_stop).accepted)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
         self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
@@ -875,8 +916,8 @@ class JointFaultTests(unittest.TestCase):
 
     def test_independent_second_core_unchanged_by_fault(self):
         specs2 = (
-            JointSpec("J3", 2, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
-            JointSpec("J4", 3, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits"),
+            JointSpec("J3", 2, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0), -2.0, 2.0, 10.0, 100.0, 1.0, 50.0, "fixture: software position limits", DEFAULT_PROTECTION),
         )
         clock = DeterministicClock(0.0)
         core1 = JointCore(self.specs, clock=clock, max_reference_gap_s=1.0)

@@ -1,0 +1,14 @@
+test_failed_write_cannot_credit_unknown_overload_interval (__main__.DispatchGapChecks.test_failed_write_cannot_credit_unknown_overload_interval) ... FAIL
+
+======================================================================
+FAIL: test_failed_write_cannot_credit_unknown_overload_interval (__main__.DispatchGapChecks.test_failed_write_cannot_credit_unknown_overload_interval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-dispatch-gap.py", line 23, in test_failed_write_cannot_credit_unknown_overload_interval
+    self.assertFalse(core.snapshot().faults[0].continuous_effort_limit,'Failed driver transaction interval credited')
+AssertionError: True is not false : Failed driver transaction interval credited
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=1)

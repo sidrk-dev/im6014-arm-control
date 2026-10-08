@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-review-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-review-gemini-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-review-gemini-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-review-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-review-gemini-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-review-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T21:11:14.910Z",
+  "completedAt": "2026-10-08T21:16:44.072Z",
+  "elapsedMs": 329162,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-5b5dd3d09ab30f84",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-comments-workbench"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "5b16d7d1-a37a-46e2-9367-9d845f6a95cc",
+  "usage": {
+    "inputTokens": 55938,
+    "cachedInputTokens": 0,
+    "outputTokens": 54982,
+    "reasoningTokens": 53454,
+    "totalTokens": 110920
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

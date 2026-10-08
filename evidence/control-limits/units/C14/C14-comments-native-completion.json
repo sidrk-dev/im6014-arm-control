@@ -1,0 +1,11 @@
+{
+  "task": "/root/c14_comment_sicko",
+  "actualTerminal": "FINAL_ANSWER observed",
+  "contract": "C14-comments-contract.json",
+  "commentBearingLinesRemoved": 346,
+  "commentTokensRemoved": 339,
+  "testModuleDocstringsRemoved": 7,
+  "parentAstAudit": "C14-comments-parent-audit.json",
+  "checksByWorker": "none reported; parent owns checks",
+  "requestedRoute": "inherit-parent"
+}

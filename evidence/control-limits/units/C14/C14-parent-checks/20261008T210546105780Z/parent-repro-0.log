@@ -1,0 +1,25 @@
+test_known_communication_gap_cannot_credit_overload_time (__main__.ThermalHistoryChecks.test_known_communication_gap_cannot_credit_overload_time) ... FAIL
+test_new_ack_recovery_needs_full_binary_exact_interval (__main__.ThermalHistoryChecks.test_new_ack_recovery_needs_full_binary_exact_interval) ... ok
+test_stop_check_cannot_erase_confirmed_overload_history (__main__.ThermalHistoryChecks.test_stop_check_cannot_erase_confirmed_overload_history) ... FAIL
+test_unobserved_long_gap_does_not_count_but_preserves_prior_time (__main__.ThermalHistoryChecks.test_unobserved_long_gap_does_not_count_but_preserves_prior_time) ... ok
+
+======================================================================
+FAIL: test_known_communication_gap_cannot_credit_overload_time (__main__.ThermalHistoryChecks.test_known_communication_gap_cannot_credit_overload_time)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-thermal-repro.py", line 35, in test_known_communication_gap_cannot_credit_overload_time
+    self.assertFalse(fault.continuous_effort_limit,'Known invalid interval was credited as overload time')
+AssertionError: True is not false : Known invalid interval was credited as overload time
+
+======================================================================
+FAIL: test_stop_check_cannot_erase_confirmed_overload_history (__main__.ThermalHistoryChecks.test_stop_check_cannot_erase_confirmed_overload_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-thermal-repro.py", line 51, in test_stop_check_cannot_erase_confirmed_overload_history
+    self.assertTrue(core.snapshot().fault_latched,'Successful nonfault Check discarded still-overloaded history')
+AssertionError: False is not true : Successful nonfault Check discarded still-overloaded history
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+FAILED (failures=2)

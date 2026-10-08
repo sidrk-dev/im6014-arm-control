@@ -1,0 +1,7 @@
+test_initial_check_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_initial_check_preserves_time_without_gap_credit) ... ok
+test_takeover_preserves_time_without_gap_credit (__main__.AuthorityGapChecks.test_takeover_preserves_time_without_gap_credit) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK

@@ -1,0 +1,113 @@
+{
+  "seat": "antigravity:gemini-3.8-flash-high",
+  "status": "complete/drained;policy stopcomplete",
+  "findings": [
+    {
+      "number": 1,
+      "finding": {
+        "file": "joint_protection.py",
+        "function": "transition_protection",
+        "line": 128,
+        "severity": "high",
+        "evidence": "transition_protection accumulates dwell by adding dt = received_at - state.last_overload_time_s (and last_recovery_time_s) whenever 0 <= dt <= max_age_s. If two observations arrive separated by a communication gap up to max_age_s (e.g. 0.49s), the entire unobserved gap is credited as continuous dwell. Additionally, communication_failed, _record_dispatch_failure, and _housekeeping stale feedback detection in JointCore do not reset last_recovery_time_s or last_overload_time_s, allowing gaps across communication failures and stale periods to be credited as sustained dwell.",
+        "fix": "Reset timing gaps and recovery timers on all joints when communication fails, dispatch fails, or observations become stale. In transition_protection, do not credit unobserved gaps across missing or discontinuous samples toward dwell accumulation."
+      },
+      "category": "act on",
+      "parentRationale": "Known communication and driver failure boundaries bridge invalid observation intervals. Parent helpers reproduce both. Initial Check/takeover also reproduced and assigned. Only affected per-joint gaps reset; valid post-gap samples begin a new interval. Stale gap arithmetic already rejects intervals beyond max age."
+    },
+    {
+      "number": 2,
+      "finding": {
+        "file": "joint_controller.py",
+        "function": "JointCore.checked",
+        "line": 423,
+        "severity": "high",
+        "evidence": "In JointCore.checked(), upon check success, self._protection_states is unconditionally overwritten with [JointProtectionState() for _ in self._specs]. This resets overload_duration_s to 0.0, completely erasing confirmed unsafe continuous effort overload history when performing a check in STOPPED or READY state without a tripped fault. The specification requires that missing data or check operations cannot discard confirmed unsafe history.",
+        "fix": "Preserve accumulated overload_duration_s in JointCore.checked() by calling s.reset_recovery() rather than reinitializing to default JointProtectionState(), only resetting overload_duration_s when authorized continuous effort recovery dwell has been satisfied."
+      },
+      "category": "act on",
+      "parentRationale": "Parent Stop/check helper proves nonfault Check discards unsafe history; preserve it without dropping a freshly observed overload anchor."
+    },
+    {
+      "number": 3,
+      "finding": {
+        "file": "joint_protection.py",
+        "function": "transition_protection",
+        "line": 127,
+        "severity": "high",
+        "evidence": "new_overload_duration and new_recovery_duration accumulate dt using binary floating-point addition (state.overload_duration_s + dt). Due to floating-point representation error (such as 0.1 + 0.2 = 0.30000000000000004), accumulated float durations exceed continuous_dwell_s or recovery_dwell_s prematurely before the physical dwell period has elapsed. Furthermore, continuous_effort_nm threshold comparison uses float inequalities subject to mapping roundoff rather than exact rational representation.",
+        "fix": "Use exact rational arithmetic (Fraction) for dwell duration accumulation and effort limit comparisons to eliminate floating-point rounding errors causing premature overload trips or premature fault recoveries."
+      },
+      "category": "act on",
+      "parentRationale": "Both exact dwell authority failures independently reproduced; assigned bounded Fraction arithmetic. Direct comparison of two finite measured-effort/threshold floats already preserves exact ordering, so no unsupported mapping-roundoff fix is accepted."
+    },
+    {
+      "number": 4,
+      "finding": {
+        "file": "joint_protection.py",
+        "function": "JointProtectionState",
+        "line": 60,
+        "severity": "medium",
+        "evidence": "JointProtectionState lacks a __post_init__ method and performs no validation on its fields, allowing nonfinite, negative, or non-numeric values. In transition_protection, duration histories can become nonfinite, and overload_duration_s and recovery_duration_s accumulate indefinitely without finite bounds, violating the requirement for finite bounded timers.",
+        "fix": "Implement __post_init__ on JointProtectionState to validate that all duration fields are finite, nonnegative real numbers and timestamps are finite or None. Enforce finite bounds on timer accumulation in transition_protection."
+      },
+      "category": "act on",
+      "parentRationale": "Actual finite endpoint helpers prove both timer overflows; bounded exact transitions assigned. Internal owned state is trusted; blanket external-style constructor validation is not required absent an external input path."
+    },
+    {
+      "number": 5,
+      "finding": {
+        "file": "joint_protection.py",
+        "function": "transition_protection",
+        "line": 180,
+        "severity": "high",
+        "evidence": "In MeasuredViolation, effort_limit is set to 'base.effort_limit or continuous_fault'. Similarly, in JointCore._latch_joint_fault (joint_controller.py:249), effort_limit is set to 'existing.effort_limit or effort_limit or continuous_effort_limit'. This conflates peak instantaneous effort limit violation with continuous effort dwell limit violation, wrongly latching peak JointFault.effort_limit when only continuous dwell tripped.",
+        "fix": "In transition_protection, keep effort_limit=base.effort_limit without ORing continuous_fault. In JointCore._latch_joint_fault, keep effort_limit=existing.effort_limit or effort_limit without ORing continuous_effort_limit."
+      },
+      "category": "dismissed",
+      "parentRationale": "Parent-selected effort_limit is aggregate effort attribution with continuous_effort_limit additional cause. Preserve runtime union and correct conflicting fixture/docs; no physical peak-only interpretation is claimed."
+    },
+    {
+      "number": 6,
+      "finding": {
+        "file": "joint_controller.py",
+        "function": "JointCore.checked",
+        "line": 417,
+        "severity": "medium",
+        "evidence": "When JointCore.checked() fails because below_recovery is False (temperature or effort exceeds reset thresholds), it returns DecisionCode.FAULT_LATCHED without resetting the recovery dwell timers. The contract specifies: 'If any joint telemetry is stale or exceeds reset thresholds during the recovery window, the recovery dwell timer resets and checked() rejects with DecisionCode.FAULT_LATCHED'.",
+        "fix": "Reset recovery dwell timers across all joints (self._protection_states = [s.reset_recovery() for s in self._protection_states]) before returning DecisionCode.FAULT_LATCHED when any joint exceeds reset thresholds or telemetry is stale."
+      },
+      "category": "dismissed",
+      "parentRationale": "Every received elevated/unsafe sample already resets that joint recovery duration in the transition. Stale-final Check rejects, and its next fresh receive cannot credit the long interval. Resetting all joints would discard valid independent history. No actual bypass demonstrated."
+    },
+    {
+      "number": 7,
+      "finding": {
+        "file": "joint_protection.py",
+        "function": "transition_protection",
+        "line": 142,
+        "severity": "high",
+        "evidence": "In transition_protection, when is_overload is False, new_overload_duration is immediately reset to 0.0 and continuous_fault becomes False. Once continuous dwell has tripped and latched a fault, a single observation below continuous_effort_nm prematurely clears the overload violation flag before the system has completed the full recovery dwell window under reset thresholds.",
+        "fix": "Maintain the continuous effort violation flag while the fault remains latched, only clearing the violation and timer once authorized recovery dwell below reset thresholds has completed."
+      },
+      "category": "dismissed",
+      "parentRationale": "The pure current-observation violation may end on genuine safe feedback. Core retains latched cause union until acknowledged full recovery, as actual persistence tests show. Keeping pure violation perpetually true would obstruct recovery."
+    },
+    {
+      "number": 8,
+      "finding": {
+        "file": "joint_controller.py",
+        "function": "JointCore._housekeeping",
+        "line": 277,
+        "severity": "medium",
+        "evidence": "JointCore._housekeeping only calls check_joint_limits, which always sets continuous_effort_limit=False and does not advance or evaluate continuous effort dwell. During periodic tick() calls in READY, ARMED, or MOVING states, continuous effort overload dwell is never evaluated or tripped if no new receive() calls arrive.",
+        "fix": "Evaluate continuous effort protection and advance dwell in _housekeeping using the current monotonic time, latching continuous_effort_limit if continuous dwell expires during housekeeping."
+      },
+      "category": "dismissed",
+      "parentRationale": "Advancing timers without a new confirming receive would credit unobserved time, contrary to the explicit task. Housekeeping guards stale data; receive transitions own confirmed dwell."
+    }
+  ],
+  "agreement": "Muse and Gemini requested routes both identify known-gap/history/exact-timing and bounded duration defects. Both aggregate-flag proposals are rejected under the selected parent contract. No provider identity or hidden reasoning attestation inferred.",
+  "newParentRepro": "C14-parent-dispatch-gap.py/C14-original-dispatch-gap.log actual1failure",
+  "remaining": "All seats drained; fresh fixture correction and final branch configured panel remain"
+}

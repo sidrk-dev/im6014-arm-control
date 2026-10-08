@@ -15,21 +15,29 @@ from joint_contract import (
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointTarget
 
-from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STOP, core_at
+from test_controller import DEFAULT_PROTECTION, DeterministicClock, FakeStation, SAMPLE, HEALTHY_STOP, core_at
 
 
 class LatestTargetTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
         )
 
     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_repeated_refresh(self):
         clock = DeterministicClock(0.0)
-        # Keep feedback fresh beyond this one-second goal window so this test
-        # isolates expiry instead of also triggering the default 0.5s stale fault.
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.2, max_reference_gap_s=1.2)
+        feedback_max_age_s = 1.2
+        command_valid_for_s = 1.0
+        fresh_refresh_time_s = 0.05
+        expiry_check_time_s = 1.1
+        max_reference_gap_s = 1.2
+        core = JointCore(
+            self.specs,
+            clock=clock,
+            feedback_max_age_s=feedback_max_age_s,
+            max_reference_gap_s=max_reference_gap_s,
+        )
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("fixture")
@@ -37,7 +45,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertTrue(station.arm(owner).accepted)
         self.assertIsNone(core.snapshot().admitted_target)
 
-        window = station.issue_window(1.0)
+        window = station.issue_window(command_valid_for_s)
         last_target = None
         for i in range(10_000):
             target = Target(
@@ -58,21 +66,19 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(snap.last_sequence, 9999)
         self.assertIs(snap.state, State.ARMED)
 
-        clock.value = 0.05
+        clock.value = fresh_refresh_time_s
         refreshed = station.refresh()
         self.assertIsNotNone(refreshed)
         self.assertEqual(refreshed.target, last_target)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertEqual(core.snapshot().admitted_target, last_target)
 
-        # Repeated refresh of admitted goal succeeds while within window
         second_refreshed = station.refresh()
         self.assertIsNotNone(second_refreshed)
         self.assertEqual(second_refreshed.target, last_target)
         self.assertIs(core.snapshot().state, State.MOVING)
 
-        # Expiry withdraws admitted goal and disarms to STOPPED
-        clock.value = 1.1
+        clock.value = expiry_check_time_s
         expired_refreshed = station.refresh()
         self.assertIsNone(expired_refreshed)
         self.assertIs(core.snapshot().state, State.STOPPED)
@@ -230,7 +236,7 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertEqual(core.snapshot().last_sequence, 0)
                 station.writes.clear()
                 if action == 'packet':
-                    self.assertTrue(core.receive(1, SAMPLE, MotorHealth(0, 4, 0, False)))
+                    self.assertTrue(core.receive(1, SAMPLE, MotorHealth(0, 4, 0, False, 25.0, 30.0)))
                 elif action == 'communication':
                     self.assertTrue(core.communication_failed(1, CommunicationFailure.TIMEOUT))
                 else:
@@ -273,8 +279,8 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         specs_ratio = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
         )
         core_ratio = JointCore(specs_ratio, clock=clock, max_reference_gap_s=1.0)
         station_ratio = FakeStation(core_ratio)
@@ -295,8 +301,8 @@ class LatestTargetTests(unittest.TestCase):
     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
         clock = DeterministicClock(0.0)
         specs = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
         )
         core = JointCore(specs, clock=clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
@@ -529,8 +535,8 @@ class LatestTargetTests(unittest.TestCase):
 class CommandSequenceTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8, 1e8, 1e8, 1e8, "fixture: wide test limits", DEFAULT_PROTECTION),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -724,7 +730,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertTrue(station.arm(owner2).accepted)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
-        bad_health = MotorHealth(mode=0, errors=1, warnings=0, timeout=False)
+        bad_health = MotorHealth(mode=0, errors=1, warnings=0, timeout=False, driver_c=25.0, winding_c=30.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, bad_health).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().last_sequence, 10)

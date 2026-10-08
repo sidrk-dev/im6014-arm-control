@@ -1,0 +1,13 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fixture-parent-checks/20261008T212943125545Z/result.json",
+  "manifestSha256": "eb670dc1ae7e303ffc263ee61cedbd60f0203e62b8fe5f68a7dfd5f4c3a07fd2",
+  "tests": "27focused/11independentparentmethods/768allconstraints+768h0cache/263milestone/9groups/18dashboard",
+  "sourceInspection": "Required thermal policy/health migration and connected lifecycle inspected; exact capped timers preserve confirmed overload through perjoint gaps, recovery needs new contiguous samples; actualwrite outcomes retained. Three fixture-only corrections independently inspected; all preceding test methods retained. Both dynamic negative kwargs loops inspected. Four actual captures inspected and source hashes match.",
+  "panel": "Muse13/Gemini8 actual findings alltriaged; accepted defects reproduced/corrected. MiMoHTTP502 dropout retained/no retry. Final wholebranch panel required.",
+  "physicalIO": "none;fake/PTy/disconnectedGUIonly",
+  "at": "2026-10-08T21:31:19.766784+00:00"
+}

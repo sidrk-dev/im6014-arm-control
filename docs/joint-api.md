@@ -75,14 +75,16 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 from joint_contract import IntentWindow, JointSpec, MotorHealth, OwnerToken, SourceIdentity, State, Target, WriteResult
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
+from joint_protection import ProtectionPolicy
 
 clock_time = [0.0]
-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, 1.0, 50.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
+policy = ProtectionPolicy(85.0, 70.0, 105.0, 90.0, 20.0, 1.0, 0.2)
+core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, 1.0, 50.0, "fixture: software position limits", policy),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 owner = core.claim_owner("example-client")
 assert core.begin_check()
-assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
+assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False, 25.0, 30.0))
 assert core.checked()
 assert core.arm(owner)
 window = core.issue_window(0.5)
@@ -164,4 +166,30 @@ Enforcement occurs at three stages:
 2. **Reference preparation (`prepare_refresh` / `shape_reference_joint`)**: Peak effort prediction is checked for $h=0$ and $h>0$. If predicted effort violates the limit, reference generation fails closed with `DecisionCode.EFFORT_OUT_OF_BOUNDS`, latching an attributed `JointFault.effort_limit` and stopping the controller.
 3. **Per-write gate (`claim_dispatch` / `verify_dispatch_claim`)**: Immediately before dispatching, the core rechecks predicted effort on the actual prepared command against fresh observations. Changes in feedback since plan preparation invalidate dispatch, latching `JointFault.effort_limit` and withdrawing motion.
 
-Independent measured effort monitoring inspects every incoming observation in `receive()`, periodic `_housekeeping()`, `checked()`, `arm()`, `prepare_refresh()`, and `claim_dispatch()`. Any measured joint effort magnitude strictly exceeding `spec.max_effort_nm` immediately latches `JointFault.effort_limit` on that joint and drops the controller to `FAULT`. Recovery requires an explicit fresh healthy Stop check with all measured efforts within bounds (`begin_check(acknowledge_fault=True)` followed by `receive` and `checked`). Reconnects and incoming targets never clear latched faults.
+Independent measured effort monitoring inspects every incoming observation in `receive()`, periodic `_housekeeping()`, `checked()`, `arm()`, `prepare_refresh()`, and `claim_dispatch()`. Any measured joint effort magnitude strictly exceeding `spec.max_effort_nm` immediately latches `JointFault.effort_limit` on that joint and drops the controller to `FAULT`. Recovery requires an explicit fresh healthy Stop check with all measured efforts within bounds (`begin_check(acknowledge_fault=True)` followed by `receive` and `checked`). C14 adds the timed recovery rule below. Reconnects and incoming targets never clear latched faults.
+
+## Persistent temperature and continuous effort protection latches
+
+Every `JointSpec` requires an explicit, immutable `ProtectionPolicy` containing finite per-joint fixture thresholds:
+- `driver_trip_c` and `driver_reset_c` (`driver_reset_c < driver_trip_c`)
+- `winding_trip_c` and `winding_reset_c` (`winding_reset_c < winding_trip_c`)
+- `continuous_effort_nm` (`0 < continuous_effort_nm <= max_effort_nm`)
+- `continuous_dwell_s` (`> 0`)
+- `recovery_dwell_s` (`> 0`)
+
+`MotorHealth` requires explicit finite telemetry fields `driver_c` and `winding_c` (signed driver temperature and unsigned winding temperature decoded from the 26-byte CRC-validated wire frame). Missing or non-finite thermal telemetry fails closed.
+
+### Trip semantics
+- **Temperature**: Measured driver or winding temperature tripping at exact boundary ($\ge \text{trip\_c}$) immediately latches `JointFault.driver_temperature_limit` or `JointFault.winding_temperature_limit` with `DecisionCode.TEMPERATURE_OUT_OF_BOUNDS`.
+- **Peak effort**: Instantaneous effort magnitude strictly exceeding `spec.max_effort_nm` trips immediately without dwell (`JointFault.effort_limit`).
+- **Continuous effort**: Measured effort magnitude strictly exceeding `continuous_effort_nm` accumulates overload duration from successive receive timestamps. The controller compares the exact finite clock values and counts an interval only when `0 <= dt <= feedback_max_age_s`. It caps the per-joint duration at `continuous_dwell_s`. When the exact duration reaches or exceeds that dwell, `JointFault.continuous_effort_limit` and the aggregate `JointFault.effort_limit` are latched with `DecisionCode.EFFORT_OUT_OF_BOUNDS`. A fresh effort measurement at or below `continuous_effort_nm` ends the overload episode. Missing observations, communication failures, failed driver transactions, Stop, checking, or owner takeover break the timed interval while preserving confirmed overload duration.
+
+### Latch persistence and recovery
+- Latched fault causes (temperature, continuous effort, peak effort, position, velocity, and communication errors) accumulate as a per-joint union and persist across `stop()`, `disconnect()`, reconnect, healthy telemetry packets, and new target submissions. `stop()` preserves `FAULT` while any cause remains latched.
+- Unsafe dwell or latched faults cannot be artificially cleared by telemetry gaps or missing data.
+- Clearing faults requires:
+  1. An explicit recovery acknowledgment in `begin_check(acknowledge_fault=True)`.
+  2. Complete fresh healthy Stop-mode telemetry simultaneously from all joints.
+  3. Driver and winding temperatures no greater than their reset thresholds ($\le \text{reset\_c}$), with measured effort at or below `continuous_effort_nm`.
+  4. A contiguous healthy Stop interval for each joint that reaches or exceeds `recovery_dwell_s`.
+- The controller compares exact finite clock values for recovery. It counts an interval only when `0 <= dt <= feedback_max_age_s`, and caps each per-joint duration at `recovery_dwell_s`. Any missing, stale, unhealthy, above-reset, above-continuous-effort, or non-Stop observation resets that joint's recovery interval. A communication failure, failed driver transaction, Stop, new check, or owner takeover also starts a new interval. `checked()` clears the fault union only after the acknowledgment, freshness, health, reset-bound, and dwell conditions all pass. Arming remains a separate explicit action.

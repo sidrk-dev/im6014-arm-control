@@ -1,0 +1,157 @@
+{
+  "stem": "C14-fix",
+  "unit": "C14",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench",
+  "baseHead": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "sourceHashes": {
+    "fake_serial.py": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e",
+    "im6014_codec.py": "82aed0838cc0a9d8d63ab2065aea786893ade405f55e5a0b7c895eacf2197af9",
+    "im6014_port.py": "fecc6f7252e04a4894df7c166ec3c08ff04fe72decc16ebd5f155363d67ca7f5",
+    "im6014_serial.py": "395599d9aea6c737fd15e7722ec5f346616af08207f0c5aa04019db9afec37d2",
+    "joint_contract.py": "bbf32e7f45c9ee6a6af75a70122928e4517d22e366bd6e193915fc48da44fff1",
+    "joint_controller.py": "83e64336f79f2dcabd979bf42aeeec4d3ec9232ba3add6660eb88e6f83000258",
+    "joint_mapping.py": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b",
+    "joint_protection.py": "22361348443b6e2124e2f8d92d56e3f5801d08aa7031e8f00f7871f8889c2325",
+    "joint_reference.py": "8345707f9c585d9c8e3358219692092a1061e6a0a9a586a2d4f14b9ca33e68f4",
+    "motor_dashboard.py": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+    "motor_session.py": "b52f5e53db9ebd9131587b7a94f2d2e78184aba70869b3347d734591c88d9492",
+    "spin_5rpm.py": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789",
+    "test_bus_owner.py": "d24e552fb3e8e3dca88be14364a9918161e2be391dcc3fc5dd7b35e89935e26d",
+    "test_controller.py": "8321b21b23ea1929e9f2e8d124dea2fd9cacbf15eaf13b37042ff277106f0033",
+    "test_controller_effort.py": "537fd081e3400511eb2cf280393a1eef19d92f9e25a28e4973f3505bf2cd0fe8",
+    "test_controller_expiry.py": "446e795fb39a7f998cc31affdbc7b280f98b08637688c65d490bd0abe46694e4",
+    "test_controller_lead.py": "854841df1048d0a1d3eddb5cc7d693e3bd140ac795b555cc4421210182497f04",
+    "test_controller_limits.py": "895dcbddc06be0fb90617cef0d358de082286588fde5afa0627eb9a8f0bbecf5",
+    "test_controller_owner.py": "47556b9161f3125d9f7402dc20c8d9c41fa037758fa111345979e171ac354e4c",
+    "test_controller_targets.py": "ee726b9b881efcd89846d7405d66e3da9debc8d9a5760658bbc00e09d2478b94",
+    "test_controller_thermal.py": "42c57675d9cb86baa930bdfe721c4c7a0d99719e6cfe3d7cc8c740528517b5b4",
+    "test_dashboard.py": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f",
+    "test_diagnostic_capture.py": "f9ba4f1e7628dca60197876c207853a94c39c7824836dec93afd832b07de0cb8",
+    "test_joint_mapping.py": "e2e57a3ed14a5c3a38cf14501aebb825088950c0493c726d6fabe6cd0d5bdaad",
+    "test_numerical_inputs.py": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e",
+    "test_port_config.py": "c25c385600e77d5795647b82ca2bbba7aea171d85291e76d8a14789b7dd66208",
+    "test_protocol.py": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17",
+    "test_serial_deadline.py": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f",
+    "test_spin_5rpm.py": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+    "test_startup.py": "7d7dfa5fd6ccb9384b0cac8f8d9e01d6306384463ec3acb707d910979225be45",
+    "test_startup_verifier.py": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71",
+    "scripts/check_milestone.py": "70bb86e02eb7d8ed89f7d7ee515888b586d81db4ecf5d3a4ceb3b698e6ffc2b9",
+    "scripts/check_offline_baseline.sh": "5a58acde7ce7e09245e7307105bc136ca80cc500d3327a9a6157fb6afba07604",
+    "docs/ROBOT_WORKBENCH_AGENT_PROMPT.md": "70c4a04ed4d28e55daab5e78b280df515806d89de2091c40197fb1d37b628307",
+    "docs/architecture.md": "0dccfff7e6e1c94546bc38843b98fd888e5ea1e409661fdec8206831db3c43b7",
+    "docs/b01-b10-workflow.md": "11e562ee744a4df2c11bcbcc3c938ca414987697aa2e2f429dedb410a35043e3",
+    "docs/b11-c06-workflow.md": "aa31bea6fff2e391aa4d7c4d263bc38e4232149bc66a5dcf762e077a64f5e239",
+    "docs/bench-baseline.md": "8a817695685d792b94e163ea987c0fa8e0ad75b07c7bdfde9ac98e712687cbef",
+    "docs/bench-review.md": "7f83c9e6147dd6e7d0207cc1b985c5af40709fd9552c70a14460573257f8149c",
+    "docs/boundary-design.md": "60b25eade849e9d06edd0c027972658bc2cc825ace5821f1b48105355f62564b",
+    "docs/boundary-review.md": "f5ab70ea9d6bdd8cd8778e4ea2eea121f615c79199a990d7b24f206e240a5c09",
+    "docs/c07-c16-workflow.md": "4ba60f5ebb2d104edde358da81634fc029fb03112794f9a714528c8ecf48f076",
+    "docs/controller-design.md": "1c124db02893f2c0dd3013d0d0a1203fa2b7199314a8b8af1f9f7e4a67fa7ebb",
+    "docs/controller-limits-design.md": "ecbb2b75cf4bcc94d063398f94e415fead6edf7a678192d8f17715e213b83260",
+    "docs/joint-api.md": "4ed2b86eddff34e0c2571ffd170595a19507fe4d9b1661a1ffa4f26869896abb",
+    "docs/model-review.md": "c6c7c603bb1fd332bc2fb8f80c26699447f3bf050fcb456b11b1a5eb6d7b9025",
+    "docs/resume-b11-c06.md": "b8b34c51c02194637039fe2c017d88fdbad7bca61e10cf782a32b535d86beb8a",
+    "docs/resume-c07-c16.md": "7a799c1ae7057f604b314c76d118a0919e808ad12d1ffa0ddd9030575cd6de2f",
+    "docs/review.md": "380501129c317f751bf31e275494e023998dcd9023aaa449f11ee69e1abef1c3",
+    "docs/serial-deadline.md": "26358731cbb424171cc16d5ad8a19daa44fc0f5f21646c61a08d7d58c633e96f",
+    "docs/startup-design.md": "b931a00a763afa848c03f41c4056b7b1b69557178db27eeccb9565566f0cd3cf",
+    "docs/workflow.md": "76114243ee4349d97b5dcb8c351705451bcba17795b7c9e38953959b5ca3f025"
+  },
+  "sourceUnchanged": true,
+  "checks": [
+    {
+      "name": "targeted",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "scripts/check_milestone.py",
+        "C14",
+        "--python",
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "--evidence-root",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/targeted"
+      ],
+      "exitCode": 1,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/targeted.log"
+    },
+    {
+      "name": "parent-repro-0",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-thermal-repro.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-0.log"
+    },
+    {
+      "name": "parent-repro-1",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-exact-dwell.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-1.log"
+    },
+    {
+      "name": "parent-repro-2",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-finite-dwell.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-2.log"
+    },
+    {
+      "name": "parent-repro-3",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-authority-gap.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-3.log"
+    },
+    {
+      "name": "parent-repro-4",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-dispatch-gap.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-4.log"
+    },
+    {
+      "name": "parent-repro-5",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-exact-oracle.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/parent-repro-5.log"
+    },
+    {
+      "name": "baseline",
+      "argv": [
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-workbench/scripts/check_offline_baseline.sh",
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/baseline"
+      ],
+      "exitCode": 1,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-fix-parent-checks/20261008T212510136838Z/baseline.log"
+    }
+  ],
+  "physicalIO": "none; audited fake I/O and isolated PTY fixtures only",
+  "visualInspection": "pending; parent must inspect four baseline captures",
+  "passedChecks": false
+}

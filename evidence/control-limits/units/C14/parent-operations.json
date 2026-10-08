@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "operations": [
+    {
+      "id": "C08-checks-1",
+      "task": "C08",
+      "checkpoint": "C08",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "ac84fc279a6b532433234df6717041db50c78bcc",
+        "digest": "beec47b9c8cf3cbca3982c9b202b26cd404b3ad5d944f378ce0bfbb40e54f084",
+        "files": [
+          "docs/joint-api.md",
+          "joint_contract.py",
+          "joint_controller.py",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "test_controller.py",
+          "test_controller_expiry.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_startup.py"
+        ],
+        "checks": [
+          "scripts/check_milestone.py C08",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "baselineExit": 1,
+        "evidence": [
+          "C08-targeted/C08-20261008T082114001360Z/receipt.json",
+          "C08-draft-baseline/run-20261008T082238Z-ZW1Q98k8/checks.tsv"
+        ],
+        "acceptance": "rejected draft; fresh Luna bug-fix C08-fix"
+      },
+      "recordedAt": "2026-10-08T08:21:44.251Z",
+      "completedAt": "2026-10-08T08:24:41.448Z"
+    },
+    {
+      "id": "C09-checks-1",
+      "task": "C09",
+      "checkpoint": "C09-inclusive-joint-position-bounds",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "83b15785d7c065bc6144bbf569e27ed4bbee43a7",
+        "digest": "69d3161cb3cd060caa92d5a01a13e58ccabd4beb8b34bade7b0771c97b40c04d",
+        "files": [
+          "joint_contract.py",
+          "im6014_codec.py",
+          "joint_reference.py",
+          "joint_controller.py",
+          "test_controller.py",
+          "test_controller_owner.py",
+          "test_controller_expiry.py",
+          "test_controller_targets.py",
+          "test_controller_limits.py",
+          "docs/joint-api.md",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "test_startup.py"
+        ],
+        "checks": [
+          "C09",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "milestoneExit": 1,
+        "baselineExit": 1,
+        "evidence": [
+          "C09-original-checks",
+          "C09-original-targeted",
+          "C09-original-baseline"
+        ],
+        "acceptance": "Rejected original; fresh native Luna bug-fix C09-fix active"
+      },
+      "recordedAt": "2026-10-08T13:32:49.159Z",
+      "completedAt": "2026-10-08T13:35:47.057Z"
+    },
+    {
+      "id": "C10-checks-1",
+      "task": "C10",
+      "checkpoint": "c10-speed-bounded-reference",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "efb398f174e1f75e158590c0828dba8933b0891e",
+        "digest": "b8f9b084cd64a68c64d2f187dedbdef037eb51a139a1865acad39fba7f347cf6",
+        "files": [
+          "im6014_codec.py",
+          "joint_contract.py",
+          "joint_reference.py",
+          "joint_controller.py",
+          "test_controller.py",
+          "test_controller_targets.py",
+          "test_controller_expiry.py",
+          "test_controller_owner.py",
+          "test_controller_limits.py",
+          "scripts/check_milestone.py",
+          "docs/joint-api.md"
+        ],
+        "checks": [
+          "C10",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "baselineExit": 1,
+        "targeted": "12tests1failure9errors",
+        "milestone": "180tests5failures10errors",
+        "parentRepro": "4tests4failures",
+        "evidence": [
+          "C10-parent-checks/20261008T150430021639Z/result.json",
+          "C10-parent-repro.log"
+        ],
+        "acceptance": "rejected original; fresh Luna bug-fix C10-fix"
+      },
+      "recordedAt": "2026-10-08T15:07:06.933Z",
+      "completedAt": "2026-10-08T15:07:06.944Z"
+    },
+    {
+      "id": "C11-checks-1",
+      "task": "C11",
+      "checkpoint": "C11-acceleration-reference",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "f7865c69b3b13ea1e94c27e2fc425cad32f845b7",
+        "digest": "4e97aff70cb478e8366b0a44ea363fbebd68a343182cd5f409b45ee71720c53a",
+        "files": [
+          "joint_contract.py",
+          "joint_reference.py",
+          "joint_controller.py",
+          "docs/joint-api.md",
+          "scripts/check_milestone.py",
+          "test_controller.py",
+          "test_controller_expiry.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_controller_limits.py"
+        ],
+        "checks": [
+          "C11",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "targetedExit": 1,
+        "baselineExit": 1,
+        "focused": "12tests2failures5errors",
+        "milestone": "196tests3failures5errors",
+        "evidence": "C11-parent-checks/20261008T160700454728Z/result.json",
+        "acceptance": "rejected draft; full source inspection and actual bugfix after fresh quota"
+      },
+      "recordedAt": "2026-10-08T16:06:56.146Z",
+      "completedAt": "2026-10-08T16:09:01.949Z"
+    },
+    {
+      "id": "C12-checks-1",
+      "task": "C12",
+      "checkpoint": "C12-lead-bound",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "81dae29f79209f08f1b410c912ae536410ae0e06",
+        "digest": "25638c09945ccbbad466663c03ab7d6f4c13132fa740a3c3cb9eea3c9e380018",
+        "files": [
+          "joint_contract.py",
+          "joint_reference.py",
+          "joint_controller.py",
+          "test_controller.py",
+          "test_controller_expiry.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_controller_limits.py",
+          "scripts/check_milestone.py",
+          "docs/joint-api.md"
+        ],
+        "checks": [
+          "C12",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "passed": false,
+        "checksRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-parent-checks/20261008T185148207098Z/result.json",
+        "correctedParentRepro": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C12-original-exact-lead.log"
+      },
+      "recordedAt": "2026-10-08T18:51:45.150Z",
+      "completedAt": "2026-10-08T18:53:29.669Z"
+    },
+    {
+      "id": "C13-checks-1",
+      "task": "C13",
+      "checkpoint": "C13-effort-bounds",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "53102b6fa9b6e8db56f396606eee059ee659f3e8",
+        "digest": "b59762fb74be323a0012664c724b931384085a8a95c2fdbd48fbf7b8c042b8d5",
+        "files": [
+          "docs/joint-api.md",
+          "joint_contract.py",
+          "joint_controller.py",
+          "joint_reference.py",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "test_controller.py",
+          "test_controller_effort.py",
+          "test_controller_expiry.py",
+          "test_controller_lead.py",
+          "test_controller_limits.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_startup.py"
+        ],
+        "checks": [
+          "C13",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "passedChecks": false,
+        "resultRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-checks/20261008T195241941896Z/result.json"
+      },
+      "recordedAt": "2026-10-08T19:52:39.396Z",
+      "completedAt": "2026-10-08T19:54:05.282Z"
+    },
+    {
+      "id": "C14-checks-1",
+      "task": "C14",
+      "checkpoint": "C14-persistent-protection",
+      "kind": "run-checks",
+      "state": "complete",
+      "expected": {
+        "kind": "validated",
+        "operation": "run-checks",
+        "head": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+        "digest": "76bdf62d07ad935786a996af6ca9c6b39e4fc401914cf26d9933ca71082fa2fd",
+        "files": [
+          "joint_contract.py",
+          "joint_controller.py",
+          "joint_protection.py",
+          "test_controller.py",
+          "test_controller_effort.py",
+          "test_controller_expiry.py",
+          "test_controller_lead.py",
+          "test_controller_limits.py",
+          "test_controller_owner.py",
+          "test_controller_targets.py",
+          "test_controller_thermal.py",
+          "test_startup.py",
+          "scripts/check_milestone.py",
+          "scripts/check_offline_baseline.sh",
+          "docs/joint-api.md"
+        ],
+        "checks": [
+          "C14",
+          "milestone-tests",
+          "scripts/check_offline_baseline.sh"
+        ]
+      },
+      "result": {
+        "passedChecks": false,
+        "sourceUnchanged": true,
+        "resultRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-checks/20261008T210546105780Z/result.json",
+        "focused": "16tests4failures1error",
+        "milestone": "252tests4failures2errors",
+        "parentRepro": "4methods2failures"
+      },
+      "recordedAt": "2026-10-08T21:05:06.768Z",
+      "completedAt": "2026-10-08T21:08:31.546Z"
+    }
+  ]
+}

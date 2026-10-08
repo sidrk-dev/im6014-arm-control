@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "changedFiles": [
+    {
+      "path": "joint_protection.py",
+      "commentTokensRemoved": 2,
+      "sourceSha256": "3c5167baf46173d3eee3e22144859c4079da988ca54cdae0fa39d29f9d6351ca",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_effort.py",
+      "commentTokensRemoved": 24,
+      "sourceSha256": "8520559c00e49e0c17e259f51c5c8ab309dad1eda0f650d357d007bb931cd9d6",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_expiry.py",
+      "commentTokensRemoved": 65,
+      "sourceSha256": "446e795fb39a7f998cc31affdbc7b280f98b08637688c65d490bd0abe46694e4",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_lead.py",
+      "commentTokensRemoved": 57,
+      "sourceSha256": "65bfb629dfb9b486eefc9232eabcad1c47d3c487f3148b1ad0a5d1fe52365303",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_limits.py",
+      "commentTokensRemoved": 97,
+      "sourceSha256": "8af26fedbb782abfb8a4ca715fe4011d1891c1da0660f0dc1ab5004183c1db2c",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_owner.py",
+      "commentTokensRemoved": 1,
+      "sourceSha256": "47556b9161f3125d9f7402dc20c8d9c41fa037758fa111345979e171ac354e4c",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_targets.py",
+      "commentTokensRemoved": 4,
+      "sourceSha256": "1af137fb8af4076e57a3d77f4f2bfb48bc85f81491e74245964e25ee5c6fbfb3",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_controller_thermal.py",
+      "commentTokensRemoved": 89,
+      "sourceSha256": "5202e0d168eb75fd8143927b7e441606e842f66542ace3f31771b5b0073bcfce",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    },
+    {
+      "path": "test_startup.py",
+      "commentTokensRemoved": 0,
+      "sourceSha256": "7d7dfa5fd6ccb9384b0cac8f8d9e01d6306384463ec3acb707d910979225be45",
+      "pythonAstUnchangedExceptAllowedTestModuleDocstrings": true
+    }
+  ],
+  "allOtherScopedFilesByteIdentical": true,
+  "keeps": "Five inspected public API ownership contracts plus shell shebang retained; no protected suppressions or constraints deleted",
+  "parentDecision": "Accept comment-only deletions. Accept four named-argument fixture flags and one named expiry/feedback fixture flag for narrow Luna correction. No automatic runtime refactor beyond these scoped fixture changes.",
+  "noComments": "Reruns0; restores0; encodings0; encodingOffers0; openConstraints0; existing architecture named JointSpec fields covers accepted fixture shape."
+}

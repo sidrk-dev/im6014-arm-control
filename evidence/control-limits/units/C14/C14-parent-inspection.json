@@ -1,0 +1,23 @@
+{
+  "sourceManifest": "C14-files.json",
+  "sourceReview": "Pure protection module and full contract/core changes inspected with connected lifecycle; every caller migration, new thermal cases, API changes, copyset and startup fingerprint inspected. Test methods retained by AST audit; dynamic negative health kwargs inspected explicitly.",
+  "gitHeadUnchanged": "e762e436d7a6776bdb47c27743cc8ab29d763a8f",
+  "scopeCheck": "All15 authored paths within fixed parent scope; parent metadata overrides matched recorded hashes; no symlink escape.",
+  "noPhysicalIO": true,
+  "acceptance": "pending actual parent checks and independent reproductions; source inspection permits the requested fixed checks, not acceptance",
+  "potentialDefectsForReproduction": [
+    "communication_failed leaves last overload timestamp across an invalid observation",
+    "new thermal tests expect nonexistent CHECKED enum and Decision return on regressed clock",
+    "new test continuous-effort aggregate flag expectation conflicts with documented cause union"
+  ],
+  "toolObservation": "Session87904 drained exit0; actual receipt needs-parent-operation; file-only provider route. No independently attested provider identity or hidden descendant/tool guarantee.",
+  "actualChecks": {
+    "focused": "16tests4failures1error",
+    "milestone": "252tests4failures2errors",
+    "parentRepro": "4methods2failures",
+    "otherBaselineGroups": "8passed",
+    "sourceUnchanged": true,
+    "resultRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C14-parent-checks/20261008T210546105780Z/result.json"
+  },
+  "parentOperations": "C14-checks-1 actual failed checks fulfilled; original writer policy stopnoteligible"
+}

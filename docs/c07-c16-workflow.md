@@ -44,12 +44,12 @@
 - [x] C11. Parent software checks accepted; final branch review remains pending.
 - [x] C12. Parent software checks accepted; final branch review remains pending.
 - [x] C13. Parent software checks accepted; final branch review remains pending.
-- [ ] C14.
+- [x] C14. Parent software checks accepted; final branch review remains pending.
 - [ ] C15.
 - [ ] C16.
 
-Hardware remains blocked on the unanswered timeout acknowledgment. Fake I/O and PTYs only. Source baseline 244811bb6b924355852c37cddde8d00fbb0fab50. Original repository and user plan stay untouched. Gemini is the task implementation and additional review route; saved global roles unchanged. At most one reset credit is authorized if this run exhausts; zero have been redeemed.
+Hardware remains blocked on the unanswered timeout acknowledgment. Fake I/O and PTYs only. Source baseline 244811bb6b924355852c37cddde8d00fbb0fab50. Original repository and user plan stay untouched. Gemini is the task implementation and additional review route; saved global roles unchanged. At most one reset credit is authorized if this run exhausts; one has been redeemed; no second credit is authorized.
 
 ## Updated reset-credit authorization
 
-The user explicitly authorized at most one full reset credit during this run if usage exhausts. Zero credits have been redeemed by this run; all three remain available after the normal reset confirmed at 2026-10-08 18:00 UTC (primary1%,secondary79% used). This supersedes earlier instructions to leave all credits unused. Redeem only through a supported available capability and verify fresh limits and credit status; record the redemption durably. After one credit, use normal resets. Preserve this orchestrator and chat.
+The user explicitly authorized at most one full reset credit during this run if usage exhausts. One credit was redeemed at the C13 settled boundary at 2026-10-08 20:16 UTC; supported backend reset and fresh primary1%/secondary0% confirmed, with two credits unused. No second credit is authorized. This supersedes earlier instructions to leave all credits unused. Redeem only through a supported available capability and verify fresh limits and credit status; record the redemption durably. After one credit, use normal resets. Preserve this orchestrator and chat.
