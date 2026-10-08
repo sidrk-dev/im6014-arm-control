@@ -1,6 +1,6 @@
 # B11-C01 review dispositions
 
-Muse completed the requested free-model route with one submission, no permission requests and clean wrapper cleanup. Its model identity and cost are backend reports. MiMo is still running; this batch review remains open. The prompt SHA256 is 8bb313a789b247dbca948fc54e2be74c95d67b9c4b0ff4691c4e302b7e2775d9 and the supplied files correspond to the C01 snapshot plus parent documentation updates. Full inline material remains in the run directory.
+Muse completed the requested free-model route with one submission, no permission requests and clean wrapper cleanup. Its model identity and cost are backend reports. MiMo failed with HTTP 502 after one submission and clean cleanup. No output was delivered; the failed seat is retained without retry. This batch review remains incomplete. The prompt SHA256 is 8bb313a789b247dbca948fc54e2be74c95d67b9c4b0ff4691c4e302b7e2775d9 and the supplied files correspond to the C01 snapshot plus parent documentation updates. Full inline material remains in the run directory.
 
 | Finding | Parent inspection and action |
 | --- | --- |
