@@ -1,0 +1,44 @@
+FFFF
+======================================================================
+FAIL: test_confirmed_step_retains_exact_rational_value (__main__.ParentSpeedReproductions.test_confirmed_step_retains_exact_rational_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 26, in test_confirmed_step_retains_exact_rational_value
+    self.assertEqual(ref.position_step_velocity_rad_s,Fraction(ref.q_rad)/Fraction(.1))
+AssertionError: 0.9998628063142756 != Fraction(3602385409550872, 3602879701896397)
+
+======================================================================
+FAIL: test_quantization_fault_attributes_only_failing_joint (__main__.ParentSpeedReproductions.test_quantization_fault_attributes_only_failing_joint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 44, in test_quantization_fault_attributes_only_failing_joint
+    self.assertEqual(tuple(f.name for f in core.snapshot().faults),('J1',))
+AssertionError: Tuples differ: ('J1', 'J2') != ('J1',)
+
+First tuple contains 1 additional elements.
+First extra element 1:
+'J2'
+
+- ('J1', 'J2')
++ ('J1',)
+
+======================================================================
+FAIL: test_zero_objective_is_not_quantization_stall (__main__.ParentSpeedReproductions.test_zero_objective_is_not_quantization_stall)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 30, in test_zero_objective_is_not_quantization_stall
+    self.assertIsNone(code)
+AssertionError: <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> is not None
+
+======================================================================
+FAIL: test_zero_time_refresh_preserves_derivative_history (__main__.ParentSpeedReproductions.test_zero_time_refresh_preserves_derivative_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 23, in test_zero_time_refresh_preserves_derivative_history
+    self.assertEqual(new_ref,ref)
+AssertionError: Joint[73 chars]_s=0.0, encoded_velocity_rad_s=0.0, sample_tim[20 chars]True) != Joint[73 chars]_s=0.9998628063142756, encoded_velocity_rad_s=[35 chars]True)
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.008s
+
+FAILED (failures=4)

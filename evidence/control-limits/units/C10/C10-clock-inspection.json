@@ -1,0 +1,10 @@
+{
+  "sourceInspected": true,
+  "baseHead": "efb398f174e1f75e158590c0828dba8933b0891e",
+  "scope": "C10-clock-files.json",
+  "runtime": "Fraction derivative, cached full command h0, all known per-joint failures, complete required plan; no authority revival or premature history commit",
+  "nativeFinalObserved": true,
+  "checks": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/result.json",
+  "parentFixtureCorrections": "C10-parent-repro-correction.json",
+  "physicalIO": "none"
+}

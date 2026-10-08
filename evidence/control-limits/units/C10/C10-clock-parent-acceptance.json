@@ -1,0 +1,10 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/result.json",
+  "manifestSha256": "d762a36baf05c87722c20fa859854fcbd20d0e8f4bafb65da07ef2fa3f044605",
+  "at": "2026-10-08T15:31:11.985317+00:00",
+  "limits": "samplewise software constraints; fake I/O and PTYs only"
+}

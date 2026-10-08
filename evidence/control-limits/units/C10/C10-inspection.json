@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-08T15:08:35.718220+00:00",
+  "baseHead": "efb398f174e1f75e158590c0828dba8933b0891e",
+  "receipt": "C10-receipt.json",
+  "scope": "C10-files.json",
+  "handoff": "C10-handoff-validation.json",
+  "findings": [
+    "nine fixture window errors",
+    "unchanged same-goal refresh rejected",
+    "exact derivative rounded",
+    "h0 derivative reset",
+    "zero objective marked stall",
+    "constraint fault attributed to all joints",
+    "inherited postarrival fixtures conflict with explicit quantization Stop"
+  ],
+  "reproductions": "C10-parent-repro.log",
+  "accepted": false,
+  "originalRetained": true,
+  "repair": "C10-fix-workbench, Luna max separate bugfix assignment"
+}

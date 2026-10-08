@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-08T15:26:29.114890+00:00",
+  "original": "C10-parent-repro.py and original logs retained",
+  "corrected": "C10-parent-cache-repro.py",
+  "corrections": [
+    "h0 repeat same admitted goal, not a new actual-target goal",
+    "explicit measured0 both joints instead of FakeStation SAMPLE0.1"
+  ],
+  "results": "corrected 4tests pass on C10-fix; original false mixed-fault attribution labeled",
+  "remaining": "badclock prepare must withdraw authority while retaining ValueError API; two focused fixture assertions"
+}

@@ -5,6 +5,7 @@ import random
 import struct
 import unittest
 from dataclasses import replace
+from fractions import Fraction
 from unittest.mock import patch
 
 from im6014_codec import (
@@ -32,6 +33,7 @@ from joint_contract import (
     JointFault,
     JointSpec,
     JointStatus,
+    JointTrajectoryReference,
     MotorHealth,
     OwnerToken,
     RefreshPlan,
@@ -44,7 +46,12 @@ from joint_contract import (
 )
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget, OutputSample
-from joint_reference import prepare_reference_joint
+from joint_reference import (
+    ReferenceBatchResult,
+    ReferenceFailure,
+    prepare_reference_joint,
+    shape_reference_joint,
+)
 from test_controller import DeterministicClock, FakeStation, HEALTHY_STOP, SAMPLE
 
 SOURCE = SourceIdentity("fixture", "limits-test", 1)
@@ -58,14 +65,14 @@ class PositionLimitTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(0.0)
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1.0, 2.0, "fixture: software position limits J1"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -0.5, 0.5, "fixture: software position limits J2"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -1.0, 2.0, 100.0, "fixture: software position limits J1"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -0.5, 0.5, 100.0, "fixture: software position limits J2"),
         )
         self.valid_sample_j1 = JointSample(0.1, 0.0, 0.0)
         self.valid_sample_j2 = JointSample(0.0, 0.0, 0.0)
 
     def _armed_station(self, connection_id="tester"):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim(connection_id)
@@ -108,6 +115,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         station.writes.clear()
+        self.clock.value += 0.05
         plan = station.refresh()
         self.assertIsNotNone(plan)
         self.assertEqual(len(station.writes), 2)
@@ -184,6 +192,7 @@ class PositionLimitTests(unittest.TestCase):
                 JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25),
                 -1.0,
                 1.0,
+                100.0,
                 "fixture: software limits negative direction",
             ),
             JointSpec(
@@ -192,10 +201,11 @@ class PositionLimitTests(unittest.TestCase):
                 JointMap(reduction=2.0, direction=1, zero_output_rad=-0.1),
                 -0.5,
                 0.5,
+                100.0,
                 "fixture: software limits positive direction",
             ),
         )
-        core = JointCore(specs_mapped, clock=self.clock)
+        core = JointCore(specs_mapped, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("mapped-client")
@@ -218,6 +228,7 @@ class PositionLimitTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(target).accepted)
         station.writes.clear()
+        self.clock.value += 0.05
         plan = station.refresh()
         self.assertIsNotNone(plan)
         self.assertEqual(len(station.writes), 2)
@@ -255,6 +266,7 @@ class PositionLimitTests(unittest.TestCase):
             JointMap(1.0, 1, 0.0),
             grid_pos,
             grid_pos,
+            10.0,
             "fixture: exact grid point interval",
         )
         found_code = self._project(spec_zero_width, grid_pos)
@@ -273,13 +285,14 @@ class PositionLimitTests(unittest.TestCase):
             JointMap(1.0, 1, 0.0),
             mid - 1e-9,
             mid + 1e-9,
+            10.0,
             "fixture: empty grid interval",
         )
         found_none = self._project(spec_empty_grid, mid)
         self.assertIsNone(found_none)
 
         # Submission on spec with no representable command is rejected
-        core = JointCore((spec_empty_grid,), clock=self.clock)
+        core = JointCore((spec_empty_grid,), clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("zero-client")
@@ -299,46 +312,66 @@ class PositionLimitTests(unittest.TestCase):
 
         # q_min_rad > q_max_rad
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 1.0, 0.0, "fixture: invalid min max")
+            JointSpec("J1", 0, mapping, 1.0, 0.0, 10.0, "fixture: invalid min max")
 
         # non-numeric / bool types
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, True, 1.0, "fixture: bool min")
+            JointSpec("J1", 0, mapping, True, 1.0, 10.0, "fixture: bool min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0.0, False, "fixture: bool max")
+            JointSpec("J1", 0, mapping, 0.0, False, 10.0, "fixture: bool max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, "0.0", 1.0, "fixture: str min")
+            JointSpec("J1", 0, mapping, "0.0", 1.0, 10.0, "fixture: str min")
 
         # infinite / NaN
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, float("-inf"), 1.0, "fixture: neg inf min")
+            JointSpec("J1", 0, mapping, float("-inf"), 1.0, 10.0, "fixture: neg inf min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0.0, float("inf"), "fixture: inf max")
+            JointSpec("J1", 0, mapping, 0.0, float("inf"), 10.0, "fixture: inf max")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, float("nan"), 1.0, "fixture: nan min")
+            JointSpec("J1", 0, mapping, float("nan"), 1.0, 10.0, "fixture: nan min")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, 0, 10**400, "fixture: overflowing max")
+            JointSpec("J1", 0, mapping, 0, 10**400, 10.0, "fixture: overflowing max")
+
+        # v_max_rad_s <= 0 or not finite
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 0.0, "fixture: zero v_max")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, -10.0, "fixture: negative v_max")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, float("inf"), "fixture: inf v_max")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, float("nan"), "fixture: nan v_max")
+        with self.assertRaises(ValueError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, "10.0", "fixture: str v_max")
 
         # invalid provenance
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, "")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, "")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, "   ")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, "   ")
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, 123)
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, 123)
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, "x" * 257)
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, "x" * 257)
 
         with self.assertRaises(TypeError):
             JointSpec("J1", 0, mapping, -1.0, 1.0)
         with self.assertRaises(TypeError):
-            JointSpec("J1", 0, mapping, -1.0, 1.0, provenance="legacy alias")
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0)
+        with self.assertRaises(TypeError):
+            JointSpec("J1", 0, mapping, -1.0, 1.0, 10.0, provenance="legacy alias")
 
         # JointFault position_limit type validation
         with self.assertRaises(ValueError):
             JointFault("J1", 0, position_limit="bad")
-        jf = JointFault("J1", 0, position_limit=True)
+        with self.assertRaises(ValueError):
+            JointFault("J1", 0, speed_limit="bad")
+        with self.assertRaises(ValueError):
+            JointFault("J1", 0, constraint_fault="bad")
+        jf = JointFault("J1", 0, position_limit=True, speed_limit=True, constraint_fault=True)
         self.assertTrue(jf.position_limit)
+        self.assertTrue(jf.speed_limit)
+        self.assertTrue(jf.constraint_fault)
         self.assertFalse(hasattr(jf, "position_out_of_bounds"))
 
     def test_multi_joint_invalid_last_joint_cannot_replace_goal_or_watermark(self):
@@ -377,7 +410,7 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_measured_outside_bounds_at_admission_and_final_write_gate(self):
         # 1. Measured outside at receive during checking latches fault
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
@@ -401,6 +434,7 @@ class PositionLimitTests(unittest.TestCase):
             owner=owner2,
         )
         self.assertTrue(station2.submit(t2).accepted)
+        self.clock.value += 0.05
         plan = core2.prepare_refresh()
         self.assertIsNotNone(plan)
 
@@ -416,7 +450,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertIs(core2.snapshot().state, State.FAULT)
 
     def test_unhealthy_outside_feedback_preserves_both_fault_causes(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
@@ -433,7 +467,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertTrue(fault.position_limit)
 
     def test_attributed_fault_and_recovery(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("recovery-tester")
@@ -474,7 +508,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertFalse(core.snapshot().fault_latched)
 
     def test_codec_rounding_overshoot_produces_inward_actual_safe_endpoint(self):
-        spec = JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -0.1, 0.1, "fixture: rounding overshoot test")
+        spec = JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -0.1, 0.1, 10.0, "fixture: rounding overshoot test")
         target = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
 
         requested_output = spec.mapping.to_output(target)
@@ -525,11 +559,14 @@ class PositionLimitTests(unittest.TestCase):
     def test_repeated_safe_refresh_preserves_canonical_packets_and_inward_reference(self):
         core, station, owner = self._armed_station()
         window = station.issue_window(1.0)
+        # Use codec-grid goals and a positive cadence with representable motion.
+        endpoint_j1 = raw_to_position(position_to_raw(1.0))
+        endpoint_j2 = raw_to_position(position_to_raw(0.4))
         target = Target(
             1,
             (
-                JointTarget(1.0, 0.0, 0.0, 1.0, 0.1),
-                JointTarget(0.4, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(endpoint_j1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(endpoint_j2, 0.0, 0.0, 1.0, 0.1),
             ),
             window=window,
             owner=owner,
@@ -658,7 +695,7 @@ class PositionLimitTests(unittest.TestCase):
     def test_actual_reference_matches_every_canonical_wire_field(self):
         mapping = JointMap(3.0, -1, 0.25)
         spec = JointSpec(
-            "J1", 0, mapping, -2.0, 2.0, "fixture: canonical reference test"
+            "J1", 0, mapping, -2.0, 2.0, 10.0, "fixture: canonical reference test"
         )
         requested = JointTarget(0.321, 0.123, 0.321, 1.234, 0.123)
 
@@ -678,7 +715,7 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_unencodable_mapped_request_is_invalid_not_projected_into_range(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8,
+            "J1", 0, JointMap(1.0, 1, 0.0), -1e8, 1e8, 1e8,
             "fixture: wide software position limits",
         )
         code, actual, packet = prepare_reference_joint(
@@ -690,7 +727,7 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_mapping_overflow_is_invalid_argument(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1e-308, 1, 0.0), -1.0, 1.0,
+            "J1", 0, JointMap(1e-308, 1, 0.0), -1.0, 1.0, 10.0,
             "fixture: mapping overflow limits",
         )
         code, actual, packet = prepare_reference_joint(
@@ -710,6 +747,7 @@ class PositionLimitTests(unittest.TestCase):
             owner=owner,
         )
         self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
         self.assertEqual(len(plan.packets), len(plan.joint_targets))
@@ -739,18 +777,16 @@ class PositionLimitTests(unittest.TestCase):
             owner=owner,
         )
         self.assertTrue(station.submit(target).accepted)
-
-        def only_second_joint_outside(spec, joint_target):
-            if spec.motor_id == 1:
-                return DecisionCode.POSITION_OUT_OF_BOUNDS, None, None
-            return None, joint_target, b"unused"
+        self.clock.value += 0.05
 
         with patch(
             "joint_controller.prepare_complete_reference",
-            return_value=(DecisionCode.POSITION_OUT_OF_BOUNDS, None, None),
-        ), patch(
-            "joint_controller.prepare_reference_joint",
-            side_effect=only_second_joint_outside,
+            return_value=ReferenceBatchResult(
+                None,
+                None,
+                None,
+                (ReferenceFailure(DecisionCode.POSITION_OUT_OF_BOUNDS, 1),),
+            ),
         ):
             self.assertIsNone(core.prepare_refresh())
 
@@ -768,10 +804,16 @@ class PositionLimitTests(unittest.TestCase):
             owner=owner,
         )
         self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
 
         with patch(
             "joint_controller.prepare_complete_reference",
-            return_value=(DecisionCode.INVALID_ARGUMENT, None, None),
+            return_value=ReferenceBatchResult(
+                None,
+                None,
+                None,
+                (ReferenceFailure(DecisionCode.INVALID_ARGUMENT, None),),
+            ),
         ):
             self.assertIsNone(core.prepare_refresh())
 
@@ -786,7 +828,7 @@ class PositionLimitTests(unittest.TestCase):
             def __eq__(self, other):
                 return True
 
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("owner-test")
@@ -822,7 +864,7 @@ class PositionLimitTests(unittest.TestCase):
                     **{field: impostor},
                 )
 
-        fresh = JointCore(self.specs, clock=self.clock)
+        fresh = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         self.assertEqual(fresh.arm(impostor).code, DecisionCode.INVALID_STATE)
 
     def test_late_failed_outcomes_settle_after_disconnect_and_allow_new_check(self):
@@ -834,10 +876,10 @@ class PositionLimitTests(unittest.TestCase):
             with self.subTest(result=result):
                 clock = DeterministicClock(0.0)
                 spec = JointSpec(
-                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0,
+                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0,
                     "fixture: late receipt limits",
                 )
-                core = JointCore((spec,), clock=clock)
+                core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
                 station = FakeStation(core)
                 self.assertTrue(station.connect().accepted)
                 owner = station.claim("late-receipt")
@@ -851,6 +893,7 @@ class PositionLimitTests(unittest.TestCase):
                     owner,
                 )
                 self.assertTrue(station.submit(first).accepted)
+                clock.value += 0.05
                 first_plan = core.prepare_refresh()
                 self.assertTrue(core.claim_dispatch(first_plan.plan_id, 0))
                 self.assertTrue(core.dispatch_result(
@@ -864,6 +907,7 @@ class PositionLimitTests(unittest.TestCase):
                     owner,
                 )
                 self.assertTrue(station.submit(second).accepted)
+                clock.value += 0.05
                 second_plan = core.prepare_refresh()
                 self.assertTrue(core.claim_dispatch(second_plan.plan_id, 0))
                 self.assertTrue(core.disconnect().accepted)
@@ -897,10 +941,10 @@ class PositionLimitTests(unittest.TestCase):
 
         clock = EndClock(0.0)
         spec = JointSpec(
-            "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0,
+            "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0,
             "fixture: late complete limits",
         )
-        core = JointCore((spec,), clock=clock)
+        core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("late-complete")
@@ -913,6 +957,7 @@ class PositionLimitTests(unittest.TestCase):
             owner,
         )
         self.assertTrue(station.submit(target).accepted)
+        clock.value += 0.05
         plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         self.assertTrue(core.disconnect().accepted)
@@ -951,6 +996,7 @@ class PositionLimitTests(unittest.TestCase):
                 JointMap(reduction, direction, zero),
                 q - half_width,
                 q + half_width,
+                1e8,
                 "fixture: seeded software limits",
             )
             output_velocity = rng.uniform(-0.5, 0.5)
@@ -997,6 +1043,581 @@ class PositionLimitTests(unittest.TestCase):
                 ))
                 for field in ("raw_rpm", "raw_torque", "raw_kp", "raw_kd"):
                     self.assertEqual(decoded[field], request_decoded[field])
+
+
+
+class ReferenceSpeedTests(unittest.TestCase):
+    def setUp(self):
+        self.clock = DeterministicClock(10.0)
+        self.spec1 = JointSpec(
+            "J1",
+            0,
+            JointMap(1.0, 1, 0.0),
+            -2.0,
+            2.0,
+            1.0,  # v_max_rad_s = 1.0 rad/s
+            "fixture: speed limit test J1",
+        )
+        self.spec2 = JointSpec(
+            "J2",
+            1,
+            JointMap(1.0, 1, 0.0),
+            -1.0,
+            1.0,
+            2.0,  # v_max_rad_s = 2.0 rad/s
+            "fixture: speed limit test J2",
+        )
+        self.specs = (self.spec1, self.spec2)
+        self.sample1 = JointSample(0.0, 0.0, 0.0)
+        self.sample2 = JointSample(0.0, 0.0, 0.0)
+
+    def _armed_station(self, max_reference_gap_s=1.0):
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=max_reference_gap_s)
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        owner = station.claim("speed-tester")
+        self.assertTrue(core.begin_check().accepted)
+        self.assertTrue(core.receive(0, self.sample1, HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, self.sample2, HEALTHY_STOP).accepted)
+        self.assertTrue(core.checked().accepted)
+        self.assertTrue(station.arm(owner).accepted)
+        return core, station, owner
+
+    def assert_reference_speed_certificate(self, previous, current, spec):
+        h = current.sample_time_s - previous.sample_time_s
+        self.assertGreater(h, 0.0)
+        exact_position_step_velocity = (
+            Fraction(current.q_rad) - Fraction(previous.q_rad)
+        ) / Fraction(h)
+        self.assertEqual(
+            current.position_step_velocity_rad_s,
+            exact_position_step_velocity,
+        )
+        self.assertIsInstance(current.position_step_velocity_rad_s, Fraction)
+        exact_speed_limit = Fraction(spec.v_max_rad_s)
+        self.assertLessEqual(abs(exact_position_step_velocity), exact_speed_limit)
+        self.assertLessEqual(
+            abs(Fraction(current.encoded_velocity_rad_s)), exact_speed_limit
+        )
+
+    def test_checked_sample_initializes_unemitted_stop_reference(self):
+        core, station, owner = self._armed_station()
+        snapshot = core.snapshot()
+        self.assertEqual(len(snapshot.confirmed_references), 2)
+        ref0 = snapshot.confirmed_references[0]
+        self.assertIsNotNone(ref0)
+        self.assertEqual(ref0.q_rad, 0.0)
+        self.assertEqual(ref0.position_step_velocity_rad_s, 0.0)
+        self.assertEqual(ref0.encoded_velocity_rad_s, 0.0)
+        self.assertEqual(ref0.sample_time_s, 10.0)
+        self.assertFalse(ref0.is_emitted)
+
+    def test_zero_elapsed_on_fresh_stop_anchor_cannot_dispatch_write(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+        # clock has NOT advanced (h == 0) from checked anchor
+        self.assertIsNone(core.prepare_refresh())
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.FAULT)
+        self.assertTrue(snapshot.faults[0].constraint_fault)
+
+    def test_zero_elapsed_repeated_refresh_emits_unchanged_command(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target1 = Target(
+            1,
+            (
+                JointTarget(0.05, 0.25, 0.15, 1.2, 0.3),
+                JointTarget(0.05, 0.25, 0.15, 1.2, 0.3),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target1).accepted)
+        station.writes.clear()
+        self.clock.value += 0.05
+        plan1 = station.refresh()
+        self.assertIsNotNone(plan1)
+        self.assertEqual(len(station.writes), 2)
+        first_packets = list(station.writes)
+        first_reference = core.snapshot().confirmed_references[0]
+        self.assertNotEqual(first_reference.q_rad, target1.joints[0].q_rad)
+
+        # Without advancing clock (h == 0), refresh again with same target
+        station.writes.clear()
+        plan2 = station.refresh()
+        self.assertIsNotNone(plan2)
+        self.assertEqual(station.writes, first_packets)
+        self.assertEqual(plan2.packets, plan1.packets)
+        self.assertEqual(plan2.joint_targets[0].q_rad, plan1.joint_targets[0].q_rad)
+        self.assertEqual(core.snapshot().confirmed_references[0], first_reference)
+
+        # But changing target at h == 0 cannot jump
+        target2 = Target(
+            2,
+            (
+                JointTarget(0.1, 0.25, 0.2, 1.2, 0.3),
+                JointTarget(0.1, 0.25, 0.2, 1.2, 0.3),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target2).accepted)
+        station.writes.clear()
+        self.assertIsNone(station.refresh())
+        self.assertIs(core.snapshot().state, State.FAULT)
+        self.assertEqual(station.writes, [])
+        self.assertEqual(core.snapshot().confirmed_references[0], first_reference)
+
+    def test_fixed_and_varied_h_progression_within_speed_bound(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        # Large goal demanding maximum reference speed
+        target = Target(
+            1,
+            (
+                JointTarget(1.5, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.8, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+
+        previous_ref = core.snapshot().confirmed_references[0]
+        self.clock.value += 0.05
+        plan1 = station.refresh()
+        self.assertIsNotNone(plan1)
+        ref1 = core.snapshot().confirmed_references[0]
+        self.assertGreater(ref1.q_rad, 0.04)
+        self.assert_reference_speed_certificate(previous_ref, ref1, self.spec1)
+
+        previous_ref = ref1
+        self.clock.value += 0.02
+        plan2 = station.refresh()
+        self.assertIsNotNone(plan2)
+        ref2 = core.snapshot().confirmed_references[0]
+        step2 = ref2.q_rad - previous_ref.q_rad
+        self.assertGreater(step2, 0.015)
+        self.assert_reference_speed_certificate(previous_ref, ref2, self.spec1)
+
+        previous_ref = ref2
+        self.clock.value += 0.1
+        plan3 = station.refresh()
+        self.assertIsNotNone(plan3)
+        ref3 = core.snapshot().confirmed_references[0]
+        step3 = ref3.q_rad - previous_ref.q_rad
+        self.assertGreater(step3, 0.09)
+        self.assert_reference_speed_certificate(previous_ref, ref3, self.spec1)
+
+    def test_positive_negative_and_reversal_bounded(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        # Move positive toward 0.5
+        t_pos = Target(
+            1,
+            (
+                JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(t_pos).accepted)
+        previous_ref = core.snapshot().confirmed_references[0]
+        self.clock.value += 0.05
+        self.assertIsNotNone(station.refresh())
+        ref_pos = core.snapshot().confirmed_references[0]
+        self.assertGreater(ref_pos.position_step_velocity_rad_s, 0.0)
+        self.assert_reference_speed_certificate(previous_ref, ref_pos, self.spec1)
+
+        # Reverse toward negative -0.5
+        t_neg = Target(
+            2,
+            (
+                JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(t_neg).accepted)
+        previous_ref = ref_pos
+        self.clock.value += 0.05
+        self.assertIsNotNone(station.refresh())
+        ref_rev = core.snapshot().confirmed_references[0]
+        self.assertLess(ref_rev.position_step_velocity_rad_s, 0.0)
+        self.assert_reference_speed_certificate(previous_ref, ref_rev, self.spec1)
+
+    def test_reference_gap_exact_bound_and_exceeded(self):
+        core, station, owner = self._armed_station(max_reference_gap_s=0.125)
+        window = station.issue_window(1.0)
+        _, canonical_j1, _ = prepare_reference_joint(
+            self.spec1, JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
+        )
+        _, canonical_j2, _ = prepare_reference_joint(
+            self.spec2, JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
+        )
+        self.assertIsNotNone(canonical_j1)
+        self.assertIsNotNone(canonical_j2)
+        target = Target(
+            1,
+            (
+                canonical_j1,
+                canonical_j2,
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+
+        # The binary-exact cadence is exactly max_reference_gap_s.
+        self.clock.value = 10.125
+        self.assertIsNotNone(station.refresh())
+        self.assertIs(core.snapshot().state, State.MOVING)
+
+        # Move the absolute sample time one float step beyond an exact second interval.
+        self.clock.value = math.nextafter(10.25, math.inf)
+        self.assertIsNone(station.refresh())
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.STOPPED)
+        self.assertIsNone(snapshot.admitted_target)
+
+    def test_invalid_and_nonfinite_dt_fails_closed(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+
+        # Clock goes backwards (negative dt)
+        self.clock.value += 0.05
+        plan = core.prepare_refresh()
+        self.assertIsNotNone(plan)
+        self.assertIs(core.snapshot().prepared_plan, plan)
+        confirmed_before = core.snapshot().confirmed_references
+        station.writes.clear()
+        self.clock.value -= 0.1
+        with self.assertRaises(ValueError):
+            core.prepare_refresh()
+        self.clock.value = plan.prepared_at_s
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.STOPPED)
+        self.assertIsNone(snapshot.admitted_target)
+        self.assertIsNone(snapshot.prepared_plan)
+        self.assertIsNone(snapshot.current_owner)
+        self.assertEqual(snapshot.confirmed_references, confirmed_before)
+        self.assertEqual(snapshot.last_sequence, 1)
+        self.assertEqual(station.writes, [])
+        self.assertIsNone(core.prepare_refresh())
+
+        # Non-finite clock
+        self.clock.value = plan.prepared_at_s
+        core2, station2, owner2 = self._armed_station()
+        window2 = station2.issue_window(1.0)
+        target2 = Target(
+            1,
+            (
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window2,
+            owner=owner2,
+        )
+        self.assertTrue(station2.submit(target2).accepted)
+        confirmed_before2 = core2.snapshot().confirmed_references
+        station2.writes.clear()
+        self.clock.value = float("nan")
+        with self.assertRaises(ValueError):
+            core2.prepare_refresh()
+        self.clock.value = plan.prepared_at_s
+        snapshot2 = core2.snapshot()
+        self.assertIs(snapshot2.state, State.STOPPED)
+        self.assertIsNone(snapshot2.admitted_target)
+        self.assertIsNone(snapshot2.prepared_plan)
+        self.assertIsNone(snapshot2.current_owner)
+        self.assertEqual(snapshot2.confirmed_references, confirmed_before2)
+        self.assertEqual(snapshot2.last_sequence, 1)
+        self.assertEqual(station2.writes, [])
+        self.assertIsNone(core2.prepare_refresh())
+
+    def test_preparing_and_unwritten_vector_cannot_advance_history(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+
+        init_ref = core.snapshot().confirmed_references[0]
+        self.clock.value += 0.05
+        plan = core.prepare_refresh()
+        self.assertIsNotNone(plan)
+
+        # Preparing did NOT advance confirmed references
+        ref_after_prep = core.snapshot().confirmed_references[0]
+        self.assertEqual(init_ref, ref_after_prep)
+
+        # Unwritten vector dropped; advance clock further
+        self.clock.value += 0.05
+        plan2 = core.prepare_refresh()
+        self.assertIsNotNone(plan2)
+        # History is still the initial confirmed reference
+        self.assertEqual(core.snapshot().confirmed_references[0], init_ref)
+
+    def test_first_joint_full_write_and_second_failure_commits_only_first(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.05, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.05, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
+        plan = core.prepare_refresh()
+        self.assertIsNotNone(plan)
+
+        ref0_init = core.snapshot().confirmed_references[0]
+        ref1_init = core.snapshot().confirmed_references[1]
+
+        # Joint 0 completes write
+        self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
+        self.assertTrue(core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE).accepted)
+
+        # Joint 0 confirmed reference is committed
+        ref0_committed = core.snapshot().confirmed_references[0]
+        self.assertNotEqual(ref0_committed, ref0_init)
+        self.assertEqual(ref0_committed.sample_time_s, plan.prepared_at_s)
+
+        # Joint 1 fails write
+        self.assertTrue(core.claim_dispatch(plan.plan_id, 1))
+        failure = core.dispatch_result(plan.plan_id, 1, WriteResult.FAILED)
+        self.assertFalse(failure.accepted)
+        self.assertIs(failure.code, DecisionCode.FAULT_LATCHED)
+
+        # The failed write is recorded and faults J2, without advancing its history.
+        snapshot = core.snapshot()
+        self.assertEqual(snapshot.confirmed_references[0], ref0_committed)
+        self.assertEqual(snapshot.confirmed_references[1], ref1_init)
+        self.assertEqual(snapshot.dispatch_attempts[1].result, WriteResult.FAILED)
+        self.assertIs(snapshot.state, State.FAULT)
+        self.assertIsNone(snapshot.admitted_target)
+        self.assertIsNone(snapshot.current_owner)
+        self.assertEqual(len(snapshot.faults), 1)
+        self.assertEqual(snapshot.faults[0].motor_id, self.specs[1].motor_id)
+        self.assertIs(
+            snapshot.faults[0].communication_error,
+            CommunicationFailure.DRIVER_FAILURE,
+        )
+
+    def test_quantization_stall_on_nonzero_objective_vs_deliberate_hold(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+
+        # Case A: Deliberate hold (goal matches prev q, zero velocity)
+        hold_target = Target(
+            1,
+            (
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(hold_target).accepted)
+        self.clock.value += 0.001
+        hold_plan = station.refresh()
+        self.assertIsNotNone(hold_plan)
+        self.assertIs(core.snapshot().state, State.MOVING)
+
+        # Case B: Nonzero objective with too-small cadence (quantization stall)
+        stall_target = Target(
+            2,
+            (
+                JointTarget(1.0, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(stall_target).accepted)
+        self.clock.value += 1e-6  # Tiny cadence where v_max * h < 1 raw tick
+        stall_plan = station.refresh()
+        self.assertIsNone(stall_plan)
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.FAULT)
+        self.assertTrue(snapshot.faults[0].constraint_fault)
+
+    def test_dual_stream_velocities_independent_and_both_bounded(self):
+        core, station, owner = self._armed_station()
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.08, 0.2, 0.0, 1.0, 0.1),
+                JointTarget(0.05, 0.1, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
+        plan = station.refresh()
+        self.assertIsNotNone(plan)
+
+        ref0 = core.snapshot().confirmed_references[0]
+        # Verify both independent streams are exactly within spec V (1.0 rad/s).
+        initial_ref = JointTrajectoryReference(0.0, Fraction(0), 0.0, 10.0, False)
+        self.assert_reference_speed_certificate(initial_ref, ref0, self.spec1)
+        # Verify they are tracked as separate explicit values
+        self.assertIsInstance(ref0.position_step_velocity_rad_s, Fraction)
+        self.assertIsInstance(ref0.encoded_velocity_rad_s, float)
+
+    def test_zero_objective_cancellation_is_not_quantization_stall(self):
+        spec = JointSpec(
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0,
+            "fixture: zero-objective cancellation test",
+        )
+        anchor = JointTrajectoryReference(0.0, Fraction(0), 0.0, 0.0, False)
+        target = JointTarget(0.1, -1.0, 0.0, 1.0, 0.1)
+
+        code, emitted, reference, packet = shape_reference_joint(
+            spec, target, anchor, 0.1, 1.0
+        )
+
+        self.assertIsNone(code)
+        self.assertIsNotNone(emitted)
+        self.assertIsNotNone(reference)
+        self.assertIsNotNone(packet)
+        self.assertEqual(emitted.q_rad, 0.0)
+        self.assertEqual(reference.position_step_velocity_rad_s, Fraction(0))
+
+    def test_finite_extreme_objective_uses_exact_projection_without_overflow(self):
+        spec = JointSpec(
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.5e308,
+            "fixture: finite extreme objective",
+        )
+        anchor = JointTrajectoryReference(-1.0, Fraction(0), 0.0, 0.0, False)
+        target = JointTarget(1.0, 0.0, 0.0, 1.0, 0.1)
+
+        code, emitted, reference, packet = shape_reference_joint(
+            spec, target, anchor, 1e-308, 1.0
+        )
+
+        self.assertIsNone(code)
+        self.assertIsNotNone(emitted)
+        self.assertIsNotNone(reference)
+        self.assertIsNotNone(packet)
+        self.assertGreater(reference.position_step_velocity_rad_s, 0)
+        self.assertLessEqual(
+            reference.position_step_velocity_rad_s, Fraction(spec.v_max_rad_s)
+        )
+
+    def test_oversized_integer_time_inputs_fail_closed_without_raising(self):
+        spec = JointSpec(
+            "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0,
+            "fixture: oversized integer time",
+        )
+        anchor = JointTrajectoryReference(0.0, Fraction(0), 0.0, 0.0, False)
+        target = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
+
+        for now, gap in ((10**400, 1.0), (1.0, 10**400)):
+            code, emitted, reference, packet = shape_reference_joint(
+                spec, target, anchor, now, gap
+            )
+            self.assertIs(code, DecisionCode.INVALID_ARGUMENT)
+            self.assertIsNone(emitted)
+            self.assertIsNone(reference)
+            self.assertIsNone(packet)
+
+    def test_quantization_stall_fault_is_attributed_only_to_failing_joint(self):
+        clock = DeterministicClock(0.0)
+        specs = (
+            JointSpec(
+                "J1", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001,
+                "fixture: tiny-cadence stall J1",
+            ),
+            JointSpec(
+                "J2", 1, JointMap(1.0, 1, 0.0), -1.0, 1.0, 0.001,
+                "fixture: tiny-cadence hold J2",
+            ),
+        )
+        core = JointCore(specs, clock=clock, max_reference_gap_s=1.0)
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        owner = station.claim("quantization-stall-test")
+        self.assertTrue(core.begin_check().accepted)
+        self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.assertTrue(core.receive(1, JointSample(0.0, 0.0, 0.0), HEALTHY_STOP).accepted)
+        self.assertTrue(core.checked().accepted)
+        self.assertTrue(station.arm(owner).accepted)
+        window = station.issue_window(1.0)
+        target = Target(
+            1,
+            (
+                JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+        clock.value = 1e-10
+
+        self.assertIsNone(core.prepare_refresh())
+        snapshot = core.snapshot()
+        self.assertEqual(snapshot.affected_joints, ("J1",))
+        self.assertTrue(snapshot.faults[0].constraint_fault)
+
+    def test_final_write_gate_rechecks_gap_and_limits(self):
+        core, station, owner = self._armed_station(max_reference_gap_s=0.2)
+        window = station.issue_window(0.5)
+        target = Target(
+            1,
+            (
+                JointTarget(0.05, 0.0, 0.0, 1.0, 0.1),
+                JointTarget(0.05, 0.0, 0.0, 1.0, 0.1),
+            ),
+            window=window,
+            owner=owner,
+        )
+        self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
+        plan = core.prepare_refresh()
+        self.assertIsNotNone(plan)
+
+        # Before claim_dispatch, time advances past max_reference_gap_s
+        self.clock.value += 0.25
+        # Gate must deny write
+        self.assertFalse(core.claim_dispatch(plan.plan_id, 0))
 
 
 if __name__ == "__main__":

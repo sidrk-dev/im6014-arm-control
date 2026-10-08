@@ -1,0 +1,109 @@
+{
+  "stem": "C10-clock",
+  "unit": "C10",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-workbench",
+  "baseHead": "efb398f174e1f75e158590c0828dba8933b0891e",
+  "sourceHashes": {
+    "fake_serial.py": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e",
+    "im6014_codec.py": "82aed0838cc0a9d8d63ab2065aea786893ade405f55e5a0b7c895eacf2197af9",
+    "im6014_port.py": "fecc6f7252e04a4894df7c166ec3c08ff04fe72decc16ebd5f155363d67ca7f5",
+    "im6014_serial.py": "395599d9aea6c737fd15e7722ec5f346616af08207f0c5aa04019db9afec37d2",
+    "joint_contract.py": "a122cf7f9155ea9ea3a30f6c922eca78cce3b723d75a36e348b2085a4edd79b8",
+    "joint_controller.py": "39271b0e099b74e527bfb4031be5c4146c054b9445c87d0a0cd9f9069bc61b70",
+    "joint_mapping.py": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b",
+    "joint_reference.py": "22cacc4bf07ea7cc21c6e1620e1ca2fa1269258d024027a90a41cac6a4feaf61",
+    "motor_dashboard.py": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93",
+    "motor_session.py": "b52f5e53db9ebd9131587b7a94f2d2e78184aba70869b3347d734591c88d9492",
+    "spin_5rpm.py": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789",
+    "test_bus_owner.py": "d24e552fb3e8e3dca88be14364a9918161e2be391dcc3fc5dd7b35e89935e26d",
+    "test_controller.py": "d1dca6ed96ebc43ae305d98288b669e9fa4403e04c77aaa96f418a4b92b3ff21",
+    "test_controller_expiry.py": "97c0ae20449d503914109158f626189b0a3b836b5bbff05632b53e4730355648",
+    "test_controller_limits.py": "75ef9e2a239d4dddcad52fbcba1b64833bd0523780f66ad79458467b5e445eb6",
+    "test_controller_owner.py": "0a8644c63c6d66af5416819df409c89c55f16ea782ff78721114f2f97a355035",
+    "test_controller_targets.py": "751f7e0953b47915d4303d053e9a34dab521ea6f139bad7f6213d25ae69dad95",
+    "test_dashboard.py": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f",
+    "test_diagnostic_capture.py": "f9ba4f1e7628dca60197876c207853a94c39c7824836dec93afd832b07de0cb8",
+    "test_joint_mapping.py": "e2e57a3ed14a5c3a38cf14501aebb825088950c0493c726d6fabe6cd0d5bdaad",
+    "test_numerical_inputs.py": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e",
+    "test_port_config.py": "c25c385600e77d5795647b82ca2bbba7aea171d85291e76d8a14789b7dd66208",
+    "test_protocol.py": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17",
+    "test_serial_deadline.py": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f",
+    "test_spin_5rpm.py": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277",
+    "test_startup.py": "ace6caf6c6287ca48c56dfcccc3acbcb7ddf762a471f779837c43386fa8f5303",
+    "test_startup_verifier.py": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71",
+    "scripts/check_milestone.py": "39f23b9b088ff6f638ee74fcbb1299781b07f63d8ede87b48c8e916b03fa990e",
+    "scripts/check_offline_baseline.sh": "a3c7c93ae5dd867f72e64bebea9535f5337a7726c09b881d7a06164f1a52eac0",
+    "docs/ROBOT_WORKBENCH_AGENT_PROMPT.md": "70c4a04ed4d28e55daab5e78b280df515806d89de2091c40197fb1d37b628307",
+    "docs/architecture.md": "0dccfff7e6e1c94546bc38843b98fd888e5ea1e409661fdec8206831db3c43b7",
+    "docs/b01-b10-workflow.md": "11e562ee744a4df2c11bcbcc3c938ca414987697aa2e2f429dedb410a35043e3",
+    "docs/b11-c06-workflow.md": "aa31bea6fff2e391aa4d7c4d263bc38e4232149bc66a5dcf762e077a64f5e239",
+    "docs/bench-baseline.md": "8a817695685d792b94e163ea987c0fa8e0ad75b07c7bdfde9ac98e712687cbef",
+    "docs/bench-review.md": "7f83c9e6147dd6e7d0207cc1b985c5af40709fd9552c70a14460573257f8149c",
+    "docs/boundary-design.md": "60b25eade849e9d06edd0c027972658bc2cc825ace5821f1b48105355f62564b",
+    "docs/boundary-review.md": "f5ab70ea9d6bdd8cd8778e4ea2eea121f615c79199a990d7b24f206e240a5c09",
+    "docs/c07-c16-workflow.md": "6981df3bf3052f0918db894f3df5cef2e4405e1079fa55bee4c1c34d68ecee73",
+    "docs/controller-design.md": "1c124db02893f2c0dd3013d0d0a1203fa2b7199314a8b8af1f9f7e4a67fa7ebb",
+    "docs/controller-limits-design.md": "2aa778a213b57906a909e0417bdde0d75b9ab097a39a5cb53558ac7f0b805e99",
+    "docs/joint-api.md": "08563412a700291f455d296fabd81d836e1718570d119c2ecb9912ad1631afe6",
+    "docs/model-review.md": "c6c7c603bb1fd332bc2fb8f80c26699447f3bf050fcb456b11b1a5eb6d7b9025",
+    "docs/resume-b11-c06.md": "b8b34c51c02194637039fe2c017d88fdbad7bca61e10cf782a32b535d86beb8a",
+    "docs/resume-c07-c16.md": "33a6f16920417080a248815d17db92e7f82d3a8cbd993e43dc8b3fce714705c5",
+    "docs/review.md": "380501129c317f751bf31e275494e023998dcd9023aaa449f11ee69e1abef1c3",
+    "docs/serial-deadline.md": "26358731cbb424171cc16d5ad8a19daa44fc0f5f21646c61a08d7d58c633e96f",
+    "docs/startup-design.md": "b931a00a763afa848c03f41c4056b7b1b69557178db27eeccb9565566f0cd3cf",
+    "docs/workflow.md": "76114243ee4349d97b5dcb8c351705451bcba17795b7c9e38953959b5ca3f025"
+  },
+  "sourceUnchanged": true,
+  "checks": [
+    {
+      "name": "targeted",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "scripts/check_milestone.py",
+        "C10",
+        "--python",
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "--evidence-root",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/targeted"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/targeted.log"
+    },
+    {
+      "name": "parent-repro-0",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-cache-repro.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/parent-repro-0.log"
+    },
+    {
+      "name": "parent-repro-1",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "-B",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-exact-oracle.py",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-workbench"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/parent-repro-1.log"
+    },
+    {
+      "name": "baseline",
+      "argv": [
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-workbench/scripts/check_offline_baseline.sh",
+        "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+        "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/baseline"
+      ],
+      "exitCode": 0,
+      "log": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-clock-parent-checks/20261008T152913465363Z/baseline.log"
+    }
+  ],
+  "physicalIO": "none; audited fake I/O and isolated PTY fixtures only",
+  "visualInspection": "pending; parent must inspect four baseline captures",
+  "passedChecks": true
+}

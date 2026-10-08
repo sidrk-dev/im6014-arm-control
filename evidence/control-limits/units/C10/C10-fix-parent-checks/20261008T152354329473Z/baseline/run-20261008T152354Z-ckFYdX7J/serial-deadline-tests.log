@@ -1,0 +1,22 @@
+test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) ... ok
+test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success) ... ok
+test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) ... ok
+test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget) ... ok
+test_restoration_and_decode_time_cannot_return_late_success (test_serial_deadline.B09Deadline.test_restoration_and_decode_time_cannot_return_late_success) ... ok
+test_restore_failure_preserves_primary_fault_and_no_result (test_serial_deadline.B09Deadline.test_restore_failure_preserves_primary_fault_and_no_result) ... ok
+test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) ... ok
+test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) ... ok
+test_real_fragmented_reply_after_exact_request (test_serial_deadline.B09PseudoTerminal.test_real_fragmented_reply_after_exact_request) ... ok
+test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) ... PTY missing reply timeout=None: elapsed seconds [0.020183239998004865, 0.020385194002301432, 0.02020898400223814, 0.020419015003426466, 0.020261620004021097]
+PTY missing reply timeout=0: elapsed seconds [0.020059316004335415, 0.020061647999682464, 0.02005302500037942, 0.020054877997608855, 0.020055576002050657]
+PTY missing reply timeout=0.5: elapsed seconds [0.020284569000068586, 0.020416844003193546, 0.020140080996498, 0.020390568002767395, 0.02029888499964727]
+ok
+test_real_saturated_write_has_positive_deadline (test_serial_deadline.B09PseudoTerminal.test_real_saturated_write_has_positive_deadline) ... PTY saturated write timeout=None: elapsed seconds 0.020986697003536392
+PTY saturated write timeout=0: elapsed seconds 0.020790651004062966
+PTY saturated write timeout=0.5: elapsed seconds 0.020756445999722928
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.403s
+
+OK

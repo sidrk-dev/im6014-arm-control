@@ -76,7 +76,8 @@ from joint_contract import IntentWindow, JointSpec, MotorHealth, OwnerToken, Sou
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, "fixture: software position limits"),), clock=lambda: 0.0)
+clock_time = [0.0]
+core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 owner = core.claim_owner("example-client")
@@ -87,6 +88,7 @@ assert core.arm(owner)
 window = core.issue_window(0.5)
 target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), window=window, owner=owner)
 assert core.submit_target(target)
+clock_time[0] += 0.05
 plan = core.prepare_refresh()
 assert plan is not None
 assert core.claim_dispatch(plan.plan_id, 0)
@@ -116,3 +118,19 @@ The fixed per-user lock namespace under `/tmp` coordinates cooperating processes
 ## Joint Position Limits
 
 Every `JointSpec` requires explicit, immutable, finite position bounds `q_min_rad <= q_max_rad` and non-empty `limits_provenance` documenting the software threshold origin. These are fixture software limits, not physical calibration. Position requests are evaluated against inclusive bounds: exact lower and upper endpoints are accepted. Requests outside them return `DecisionCode.POSITION_OUT_OF_BOUNDS` and preserve any still-valid admitted goal, sequence watermark, owner, and window. Mapped requests must first pass the ordinary canonical codec; an unencodable mapped request returns `INVALID_ARGUMENT` and is never clamped into range. A fresh measured position outside the bounds, including during `CHECKING`, latches the attributed `JointFault.position_limit` cause and faults the core before motion. Simultaneous motor-health causes remain in the same joint fault record. `claim_dispatch` rechecks every fresh measured position and the actual prepared reference before each write. Recovery requires a new owner and an explicitly acknowledged fresh healthy Stop check with every measured position within the inclusive bounds; incoming targets cannot clear a fault. The codec owns the bounded raw position grid search through a monotonic decoded-domain callback and direction. It selects an inward representable endpoint, serializes that exact raw integer without float re-encoding, and decodes the complete canonical packet to populate actual position, velocity, feedforward, and gain reference fields. Stop packets are valid decoder inputs; mode, ID, watchdog, reserved byte, header, and CRC are checked. Repeated refreshes write the cached packet bytes unchanged.
+
+## Speed-bounded trajectory reference and gap policy
+
+Every `JointSpec` requires an explicit, finite positive maximum reference speed `v_max_rad_s`. `JointCore` requires an explicit, finite positive `max_reference_gap_s` policy. Both values describe software fixture policy unless calibrated separately.
+
+Upon a successful healthy checked Stop, the controller initializes an unemitted trajectory reference for each joint with position equal to the checked feedback sample, zero exact velocity derivative, and timestamp equal to the sample time (`is_emitted=False`). The anchor has no cached command and cannot dispatch at $h=0$.
+
+Preparing a refresh plan does not advance confirmed history. A `RefreshPlan` always carries one proposed reference, decoded command target, and immutable canonical packet per joint. Only a complete actual write commits that joint's proposed reference. Failed or partial writes leave its prior reference unchanged. Reference `sample_time_s` is the preparation time; `JointDispatchedRecord.dispatched_at_s` remains the actual claim/write start time.
+
+For $h=0$, a previously emitted reference can refresh only when the admitted joint goal is unchanged. The core reuses that reference, decoded target, and exact packet bytes, including its prior position-step derivative and feedforward values; it does not encode the values again or advance their sample time. A changed goal at $h=0$ is rejected with an attributed constraint fault. If $h > \text{max\_reference\_gap\_s}$, motion is withdrawn and the controller drops to `STOPPED` (`REFERENCE_GAP_EXCEEDED`).
+
+For $h>0$, the pure reference step intersects the speed interval $[-V,V]$ and position interval $[(q_{\min}-q_{\text{prev}})/h,(q_{\max}-q_{\text{prev}})/h]$. It projects the one-step objective $v_{\text{desired}} = (q_{\text{goal}}-q_{\text{prev}})/h + \dot{q}_{\text{goal}}$ into that intersection. The objective combines the requested position correction over this sample with velocity feedforward; it is not a continuous trajectory law.
+
+The selected endpoint is projected inward to a representable point on the canonical codec grid. Position-step velocity is the exact rational $(q_{\text{emitted,next}}-q_{\text{emitted,prev}})/h$, where the stored finite float values and computed float difference $h$ are interpreted exactly. The independently decoded wire velocity feedforward has its own history and must also satisfy $|v|\leq V$. Neither stream is substituted for the other, and wire velocity is not used in position algebra.
+
+An exactly zero objective is a stationary reference request even when position and feedforward terms cancel. For a nonzero objective, if no representable position step satisfies the closed bounds, the controller produces no mode-1 write and Stops with `DecisionCode.CONSTRAINT_VIOLATION`, attributed to each joint whose shaping failed. It does not carry hidden fractional motion or relax a bound. These are samplewise software reference limits; they do not promise a continuous motor trajectory, physical acceleration, or certified braking.

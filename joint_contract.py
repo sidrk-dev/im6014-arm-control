@@ -5,6 +5,7 @@ All records are immutable (frozen) data contracts with no transport or clock own
 
 from dataclasses import dataclass
 from enum import Enum
+from fractions import Fraction
 import math
 from typing import Literal
 
@@ -41,6 +42,9 @@ class DecisionCode(str, Enum):
     DUPLICATE_OR_OLDER = "duplicate_or_older"
     EXPIRED = "expired"
     POSITION_OUT_OF_BOUNDS = "position_out_of_bounds"
+    SPEED_OUT_OF_BOUNDS = "speed_out_of_bounds"
+    REFERENCE_GAP_EXCEEDED = "reference_gap_exceeded"
+    CONSTRAINT_VIOLATION = "constraint_violation"
 
 
 class CommunicationFailure(str, Enum):
@@ -82,6 +86,7 @@ class JointSpec:
     mapping: JointMap
     q_min_rad: float
     q_max_rad: float
+    v_max_rad_s: float
     limits_provenance: str
 
     def __post_init__(self) -> None:
@@ -106,6 +111,15 @@ class JointSpec:
         if min_val > max_val:
             raise ValueError("q_min_rad must be less than or equal to q_max_rad")
 
+        if isinstance(self.v_max_rad_s, bool) or not isinstance(self.v_max_rad_s, (int, float)):
+            raise ValueError("v_max_rad_s must be a finite positive real number")
+        try:
+            v_max_val = float(self.v_max_rad_s)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("speed limit must be finite") from exc
+        if not math.isfinite(v_max_val) or v_max_val <= 0.0:
+            raise ValueError("v_max_rad_s must be finite and positive")
+
         if (
             type(self.limits_provenance) is not str
             or not self.limits_provenance.strip()
@@ -115,7 +129,7 @@ class JointSpec:
 
         object.__setattr__(self, "q_min_rad", min_val)
         object.__setattr__(self, "q_max_rad", max_val)
-
+        object.__setattr__(self, "v_max_rad_s", v_max_val)
 
 @dataclass(frozen=True)
 class JointFault:
@@ -128,6 +142,8 @@ class JointFault:
     stale: bool = False
     communication_errors: tuple[CommunicationFailure, ...] = ()
     position_limit: bool = False
+    speed_limit: bool = False
+    constraint_fault: bool = False
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -150,6 +166,10 @@ class JointFault:
             raise ValueError("communication_errors must be a tuple of CommunicationFailure")
         if type(self.position_limit) is not bool:
             raise ValueError("position_limit must be a bool")
+        if type(self.speed_limit) is not bool:
+            raise ValueError("speed_limit must be a bool")
+        if type(self.constraint_fault) is not bool:
+            raise ValueError("constraint_fault must be a bool")
 
         if len(self.communication_errors) != len(set(self.communication_errors)):
             raise ValueError("communication_errors must contain unique codes")
@@ -327,12 +347,83 @@ class Target:
 
 
 @dataclass(frozen=True)
+class JointTrajectoryReference:
+    q_rad: float
+    position_step_velocity_rad_s: Fraction
+    encoded_velocity_rad_s: float
+    sample_time_s: float
+    is_emitted: bool = False
+    requested_goal: JointTarget | None = None
+    emitted_target: JointTarget | None = None
+    packet: bytes | None = None
+
+    def __post_init__(self) -> None:
+        for name, val in (("q_rad", self.q_rad),
+                          ("encoded_velocity_rad_s", self.encoded_velocity_rad_s),
+                          ("sample_time_s", self.sample_time_s)):
+            if isinstance(val, bool) or not isinstance(val, (int, float)):
+                raise ValueError(f"{name} must be a finite real number")
+            try:
+                v = float(val)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite") from exc
+            if not math.isfinite(v):
+                raise ValueError(f"{name} must be finite")
+            object.__setattr__(self, name, v)
+
+        derivative = self.position_step_velocity_rad_s
+        if isinstance(derivative, bool) or not isinstance(derivative, (int, float, Fraction)):
+            raise ValueError("position_step_velocity_rad_s must be an exact finite rational")
+        if isinstance(derivative, Fraction):
+            exact_derivative = derivative
+        else:
+            try:
+                as_float = float(derivative)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError("position_step_velocity_rad_s must be finite") from exc
+            if not math.isfinite(as_float):
+                raise ValueError("position_step_velocity_rad_s must be finite")
+            exact_derivative = Fraction(as_float)
+        object.__setattr__(self, "position_step_velocity_rad_s", exact_derivative)
+
+        if type(self.is_emitted) is not bool:
+            raise ValueError("is_emitted must be a bool")
+        if self.is_emitted:
+            if not isinstance(self.requested_goal, JointTarget):
+                raise ValueError("an emitted reference requires its requested goal")
+            if not isinstance(self.emitted_target, JointTarget):
+                raise ValueError("an emitted reference requires its decoded target")
+            if type(self.packet) is not bytes:
+                raise ValueError("an emitted reference requires immutable packet bytes")
+            try:
+                decoded = decode_command(self.packet)
+            except ValueError as exc:
+                raise ValueError("an emitted reference requires a canonical command") from exc
+            if decoded["mode"] != 1 or not decoded["watchdog"]:
+                raise ValueError("an emitted reference requires a watchdog-enabled FOC command")
+            if self.q_rad != self.emitted_target.q_rad:
+                raise ValueError("reference position must match its decoded target")
+            if self.encoded_velocity_rad_s != self.emitted_target.dq_rad_s:
+                raise ValueError("encoded velocity must match its decoded target")
+        else:
+            if (
+                self.requested_goal is not None
+                or self.emitted_target is not None
+                or self.packet is not None
+            ):
+                raise ValueError("an unemitted Stop anchor cannot contain an emitted command")
+            if exact_derivative != 0 or self.encoded_velocity_rad_s != 0.0:
+                raise ValueError("an unemitted Stop anchor must have zero velocity history")
+
+
+@dataclass(frozen=True)
 class RefreshPlan:
     plan_id: int
     target: Target
     prepared_at_s: float
     joint_targets: tuple[JointTarget, ...]
     packets: tuple[bytes, ...]
+    proposed_references: tuple[JointTrajectoryReference, ...]
 
     def __post_init__(self) -> None:
         if type(self.plan_id) is not int or not (0 <= self.plan_id <= (1 << 64) - 1):
@@ -352,6 +443,8 @@ class RefreshPlan:
             raise ValueError("joint_targets must be a non-empty tuple")
         if any(not isinstance(jt, JointTarget) for jt in self.joint_targets):
             raise ValueError("every joint target must be a JointTarget")
+        if len(self.target.joints) != len(self.joint_targets):
+            raise ValueError("joint_targets must match the complete target vector")
         if type(self.packets) is not tuple or len(self.packets) != len(self.joint_targets):
             raise ValueError("packets must be a tuple matching joint_targets")
         for packet in self.packets:
@@ -363,6 +456,25 @@ class RefreshPlan:
                 raise ValueError("packets must contain canonical commands") from exc
             if decoded["mode"] != 1 or not decoded["watchdog"]:
                 raise ValueError("refresh packets must be watchdog-enabled FOC commands")
+        if (
+            type(self.proposed_references) is not tuple
+            or len(self.proposed_references) != len(self.joint_targets)
+        ):
+            raise ValueError("proposed_references must match joint_targets length")
+        for goal, target, packet, reference in zip(
+            self.target.joints,
+            self.joint_targets,
+            self.packets,
+            self.proposed_references,
+        ):
+            if not isinstance(reference, JointTrajectoryReference) or not reference.is_emitted:
+                raise ValueError("every plan requires a complete emitted reference")
+            if reference.requested_goal != goal:
+                raise ValueError("reference goal must match the admitted joint goal")
+            if reference.emitted_target != target or reference.packet != packet:
+                raise ValueError("reference target and packet must match the prepared command")
+            if reference.sample_time_s > prepared:
+                raise ValueError("reference sample time cannot follow plan preparation")
 
     @property
     def window(self) -> IntentWindow:
@@ -445,6 +557,7 @@ class Snapshot:
     dispatch_attempts: tuple[JointDispatchAttempt | None, ...] = ()
     latest_owner: OwnerToken | None = None
     current_owner: OwnerToken | None = None
+    confirmed_references: tuple[JointTrajectoryReference | None, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -506,6 +619,13 @@ class Snapshot:
             raise ValueError("latest_owner must be an OwnerToken or None")
         if self.current_owner is not None and type(self.current_owner) is not OwnerToken:
             raise ValueError("current_owner must be an OwnerToken or None")
+        if not self.confirmed_references:
+            object.__setattr__(self, "confirmed_references", tuple(None for _ in self.joints))
+        else:
+            if type(self.confirmed_references) is not tuple or len(self.confirmed_references) != len(self.joints):
+                raise ValueError("confirmed_references must be a tuple with length matching joints")
+            if any(r is not None and not isinstance(r, JointTrajectoryReference) for r in self.confirmed_references):
+                raise ValueError("every confirmed reference must be a JointTrajectoryReference or None")
 
     @property
     def affected_joints(self) -> tuple[str, ...]:

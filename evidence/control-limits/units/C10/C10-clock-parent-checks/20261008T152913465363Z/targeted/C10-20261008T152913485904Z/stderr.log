@@ -1,0 +1,21 @@
+test_checked_sample_initializes_unemitted_stop_reference (test_controller_limits.ReferenceSpeedTests.test_checked_sample_initializes_unemitted_stop_reference) ... ok
+test_dual_stream_velocities_independent_and_both_bounded (test_controller_limits.ReferenceSpeedTests.test_dual_stream_velocities_independent_and_both_bounded) ... ok
+test_final_write_gate_rechecks_gap_and_limits (test_controller_limits.ReferenceSpeedTests.test_final_write_gate_rechecks_gap_and_limits) ... ok
+test_finite_extreme_objective_uses_exact_projection_without_overflow (test_controller_limits.ReferenceSpeedTests.test_finite_extreme_objective_uses_exact_projection_without_overflow) ... ok
+test_first_joint_full_write_and_second_failure_commits_only_first (test_controller_limits.ReferenceSpeedTests.test_first_joint_full_write_and_second_failure_commits_only_first) ... ok
+test_fixed_and_varied_h_progression_within_speed_bound (test_controller_limits.ReferenceSpeedTests.test_fixed_and_varied_h_progression_within_speed_bound) ... ok
+test_invalid_and_nonfinite_dt_fails_closed (test_controller_limits.ReferenceSpeedTests.test_invalid_and_nonfinite_dt_fails_closed) ... ok
+test_oversized_integer_time_inputs_fail_closed_without_raising (test_controller_limits.ReferenceSpeedTests.test_oversized_integer_time_inputs_fail_closed_without_raising) ... ok
+test_positive_negative_and_reversal_bounded (test_controller_limits.ReferenceSpeedTests.test_positive_negative_and_reversal_bounded) ... ok
+test_preparing_and_unwritten_vector_cannot_advance_history (test_controller_limits.ReferenceSpeedTests.test_preparing_and_unwritten_vector_cannot_advance_history) ... ok
+test_quantization_stall_fault_is_attributed_only_to_failing_joint (test_controller_limits.ReferenceSpeedTests.test_quantization_stall_fault_is_attributed_only_to_failing_joint) ... ok
+test_quantization_stall_on_nonzero_objective_vs_deliberate_hold (test_controller_limits.ReferenceSpeedTests.test_quantization_stall_on_nonzero_objective_vs_deliberate_hold) ... ok
+test_reference_gap_exact_bound_and_exceeded (test_controller_limits.ReferenceSpeedTests.test_reference_gap_exact_bound_and_exceeded) ... ok
+test_zero_elapsed_on_fresh_stop_anchor_cannot_dispatch_write (test_controller_limits.ReferenceSpeedTests.test_zero_elapsed_on_fresh_stop_anchor_cannot_dispatch_write) ... ok
+test_zero_elapsed_repeated_refresh_emits_unchanged_command (test_controller_limits.ReferenceSpeedTests.test_zero_elapsed_repeated_refresh_emits_unchanged_command) ... ok
+test_zero_objective_cancellation_is_not_quantization_stall (test_controller_limits.ReferenceSpeedTests.test_zero_objective_cancellation_is_not_quantization_stall) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.070s
+
+OK

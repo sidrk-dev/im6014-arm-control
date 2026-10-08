@@ -1,0 +1,19 @@
+{
+  "integrated": "C10-clock",
+  "baseHead": "efb398f174e1f75e158590c0828dba8933b0891e",
+  "files": [
+    "docs/controller-limits-design.md",
+    "docs/joint-api.md",
+    "im6014_codec.py",
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_reference.py",
+    "scripts/check_milestone.py",
+    "test_controller.py",
+    "test_controller_expiry.py",
+    "test_controller_limits.py",
+    "test_controller_owner.py",
+    "test_controller_targets.py"
+  ],
+  "sourceMatchesCheckedCopy": true
+}

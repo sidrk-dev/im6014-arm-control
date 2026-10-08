@@ -1,0 +1,41 @@
+{
+  "events": [
+    {
+      "attemptIndex": 0,
+      "status": "needs-parent-operation",
+      "processStarted": true,
+      "handoff": {
+        "operation": "run-checks",
+        "taskId": "C10",
+        "checkpointId": "c10-speed-bounded-reference",
+        "ref": "Run targeted unit test ReferenceSpeedTests for milestone C10, all milestone tests, and the offline regression baseline check."
+      },
+      "execution": {
+        "id": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+        "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-output.md",
+        "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+        "workspacePath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench",
+        "descriptor": "antigravity:gemini-3.8-flash-high@default",
+        "apiSpend": "deny",
+        "access": "isolated-write",
+        "contract": "legacy"
+      },
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+      "inspection": {
+        "state": "clear",
+        "evidenceRef": "C10-files.json;C10-diff.txt;C10-parent-repro.log; scoped draft retained, checks failed"
+      }
+    },
+    {
+      "attemptIndex": 0,
+      "status": "failed",
+      "parentOperation": {
+        "kind": "run-checks",
+        "taskId": "C10",
+        "checkpointId": "c10-speed-bounded-reference"
+      }
+    }
+  ],
+  "exhaustedGroups": [],
+  "access": "isolated-write"
+}

@@ -1,0 +1,152 @@
+test_checked_sample_initializes_unemitted_stop_reference (test_controller_limits.ReferenceSpeedTests.test_checked_sample_initializes_unemitted_stop_reference) ... ok
+test_dual_stream_velocities_independent_and_both_bounded (test_controller_limits.ReferenceSpeedTests.test_dual_stream_velocities_independent_and_both_bounded) ... ERROR
+test_final_write_gate_rechecks_gap_and_limits (test_controller_limits.ReferenceSpeedTests.test_final_write_gate_rechecks_gap_and_limits) ... ERROR
+test_first_joint_full_write_and_second_failure_commits_only_first (test_controller_limits.ReferenceSpeedTests.test_first_joint_full_write_and_second_failure_commits_only_first) ... ERROR
+test_fixed_and_varied_h_progression_within_speed_bound (test_controller_limits.ReferenceSpeedTests.test_fixed_and_varied_h_progression_within_speed_bound) ... ERROR
+test_invalid_and_nonfinite_dt_fails_closed (test_controller_limits.ReferenceSpeedTests.test_invalid_and_nonfinite_dt_fails_closed) ... ERROR
+test_positive_negative_and_reversal_bounded (test_controller_limits.ReferenceSpeedTests.test_positive_negative_and_reversal_bounded) ... ERROR
+test_preparing_and_unwritten_vector_cannot_advance_history (test_controller_limits.ReferenceSpeedTests.test_preparing_and_unwritten_vector_cannot_advance_history) ... ERROR
+test_quantization_stall_on_nonzero_objective_vs_deliberate_hold (test_controller_limits.ReferenceSpeedTests.test_quantization_stall_on_nonzero_objective_vs_deliberate_hold) ... ERROR
+test_reference_gap_exact_bound_and_exceeded (test_controller_limits.ReferenceSpeedTests.test_reference_gap_exact_bound_and_exceeded) ... ERROR
+test_zero_elapsed_on_fresh_stop_anchor_cannot_dispatch_write (test_controller_limits.ReferenceSpeedTests.test_zero_elapsed_on_fresh_stop_anchor_cannot_dispatch_write) ... ok
+test_zero_elapsed_repeated_refresh_emits_unchanged_command (test_controller_limits.ReferenceSpeedTests.test_zero_elapsed_repeated_refresh_emits_unchanged_command) ... FAIL
+
+======================================================================
+ERROR: test_dual_stream_velocities_independent_and_both_bounded (test_controller_limits.ReferenceSpeedTests.test_dual_stream_velocities_independent_and_both_bounded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1396, in test_dual_stream_velocities_independent_and_both_bounded
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_final_write_gate_rechecks_gap_and_limits (test_controller_limits.ReferenceSpeedTests.test_final_write_gate_rechecks_gap_and_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1421, in test_final_write_gate_rechecks_gap_and_limits
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_first_joint_full_write_and_second_failure_commits_only_first (test_controller_limits.ReferenceSpeedTests.test_first_joint_full_write_and_second_failure_commits_only_first)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1321, in test_first_joint_full_write_and_second_failure_commits_only_first
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_fixed_and_varied_h_progression_within_speed_bound (test_controller_limits.ReferenceSpeedTests.test_fixed_and_varied_h_progression_within_speed_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1153, in test_fixed_and_varied_h_progression_within_speed_bound
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_invalid_and_nonfinite_dt_fails_closed (test_controller_limits.ReferenceSpeedTests.test_invalid_and_nonfinite_dt_fails_closed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1265, in test_invalid_and_nonfinite_dt_fails_closed
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_positive_negative_and_reversal_bounded (test_controller_limits.ReferenceSpeedTests.test_positive_negative_and_reversal_bounded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1201, in test_positive_negative_and_reversal_bounded
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_preparing_and_unwritten_vector_cannot_advance_history (test_controller_limits.ReferenceSpeedTests.test_preparing_and_unwritten_vector_cannot_advance_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1291, in test_preparing_and_unwritten_vector_cannot_advance_history
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_quantization_stall_on_nonzero_objective_vs_deliberate_hold (test_controller_limits.ReferenceSpeedTests.test_quantization_stall_on_nonzero_objective_vs_deliberate_hold)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1358, in test_quantization_stall_on_nonzero_objective_vs_deliberate_hold
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_reference_gap_exact_bound_and_exceeded (test_controller_limits.ReferenceSpeedTests.test_reference_gap_exact_bound_and_exceeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1239, in test_reference_gap_exact_bound_and_exceeded
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/joint_controller.py", line 361, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+FAIL: test_zero_elapsed_repeated_refresh_emits_unchanged_command (test_controller_limits.ReferenceSpeedTests.test_zero_elapsed_repeated_refresh_emits_unchanged_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench/test_controller_limits.py", line 1126, in test_zero_elapsed_repeated_refresh_emits_unchanged_command
+    self.assertEqual(len(station.writes), 2)
+AssertionError: 4 != 2
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.009s
+
+FAILED (failures=1, errors=9)
+Receipt: /tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-checks/20261008T150430021639Z/targeted/C10-20261008T150430042378Z/receipt.json

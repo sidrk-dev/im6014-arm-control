@@ -1,0 +1,30 @@
+{
+  "status": "event",
+  "role": "feature, refactoring",
+  "header": "feature, refactoring",
+  "laneIndex": 0,
+  "lane": "feature, refactoring#1",
+  "attempt": "antigravity:gemini-3.8-flash-high@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "needs-parent-operation",
+    "processStarted": true,
+    "handoff": {
+      "operation": "run-checks",
+      "taskId": "C10",
+      "checkpointId": "c10-speed-bounded-reference",
+      "ref": "Run targeted unit test ReferenceSpeedTests for milestone C10, all milestone tests, and the offline regression baseline check."
+    },
+    "execution": {
+      "id": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+      "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-output.md",
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+      "workspacePath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench",
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "apiSpend": "deny",
+      "access": "isolated-write",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json"
+  }
+}

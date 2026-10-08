@@ -1,0 +1,28 @@
+.F.F
+======================================================================
+FAIL: test_quantization_fault_attributes_only_failing_joint (__main__.ParentSpeedReproductions.test_quantization_fault_attributes_only_failing_joint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 44, in test_quantization_fault_attributes_only_failing_joint
+    self.assertEqual(tuple(f.name for f in core.snapshot().faults),('J1',))
+AssertionError: Tuples differ: ('J1', 'J2') != ('J1',)
+
+First tuple contains 1 additional elements.
+First extra element 1:
+'J2'
+
+- ('J1', 'J2')
++ ('J1',)
+
+======================================================================
+FAIL: test_zero_time_refresh_preserves_derivative_history (__main__.ParentSpeedReproductions.test_zero_time_refresh_preserves_derivative_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-parent-repro.py", line 22, in test_zero_time_refresh_preserves_derivative_history
+    self.assertIsNone(code)
+AssertionError: <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> is not None
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.007s
+
+FAILED (failures=2)

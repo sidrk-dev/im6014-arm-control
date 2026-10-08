@@ -27,8 +27,8 @@ class ControllerOwnerTests(unittest.TestCase):
     def setUp(self):
         self.clock = DeterministicClock(0.0)
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, "fixture: software position limits"),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, "fixture: software position limits"),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), -2.0, 2.0, 10.0, "fixture: software position limits"),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -36,7 +36,7 @@ class ControllerOwnerTests(unittest.TestCase):
         )
 
     def _armed_station(self, connection_id="human"):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim(connection_id)
@@ -100,7 +100,7 @@ class ControllerOwnerTests(unittest.TestCase):
         self.assertEqual(core.snapshot().admitted_target, valid_target)
 
     def test_wrong_epoch_and_wrong_connection_rejected(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         owner = station.claim("client-A")
@@ -152,10 +152,10 @@ class ControllerOwnerTests(unittest.TestCase):
 
     def test_different_core_epoch_isolation(self):
         with self.assertRaises(TypeError):
-            JointCore(self.specs, clock=self.clock, epoch="injected")
+            JointCore(self.specs, clock=self.clock, epoch="injected", max_reference_gap_s=1.0)
 
-        core1 = JointCore(self.specs, clock=self.clock)
-        core2 = JointCore(self.specs, clock=self.clock)
+        core1 = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
+        core2 = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station1 = FakeStation(core1)
         self.assertTrue(station1.connect().accepted)
         owner1 = station1.claim("conn-1")
@@ -181,7 +181,7 @@ class ControllerOwnerTests(unittest.TestCase):
         self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
 
     def test_no_owner_arm_rejected(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
@@ -215,6 +215,7 @@ class ControllerOwnerTests(unittest.TestCase):
         target = Target(1, self.valid_joints, window=w, owner=owner_a)
         self.assertTrue(station.submit(target).accepted)
 
+        self.clock.value += 0.05
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
 
@@ -237,6 +238,7 @@ class ControllerOwnerTests(unittest.TestCase):
         target = Target(1, self.valid_joints, window=w, owner=owner)
         self.assertTrue(station.submit(target).accepted)
 
+        self.clock.value += 0.05
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
@@ -264,6 +266,7 @@ class ControllerOwnerTests(unittest.TestCase):
         target_a = Target(1, self.valid_joints, window=w_a, owner=owner_a)
         self.assertTrue(station.submit(target_a).accepted)
 
+        self.clock.value += 0.05
         plan_a = core.prepare_refresh()
         self.assertIsNotNone(plan_a)
 
@@ -277,6 +280,7 @@ class ControllerOwnerTests(unittest.TestCase):
         w_b = station.issue_window(1.0)
         target_b = Target(2, self.valid_joints, window=w_b, owner=owner_b)
         self.assertTrue(station.submit(target_b).accepted)
+        self.clock.value += 0.05
         plan_b = core.prepare_refresh()
         self.assertIsNotNone(plan_b)
         self.assertEqual(plan_b.target, target_b)
@@ -313,7 +317,7 @@ class ControllerOwnerTests(unittest.TestCase):
         self.assertEqual(core.snapshot().current_owner, owner3)
 
     def test_exhausted_generation_fails_closed(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         core._next_generation = (1 << 64) - 1
@@ -325,6 +329,7 @@ class ControllerOwnerTests(unittest.TestCase):
         window = station.issue_window(1.0)
         target = Target(1, self.valid_joints, window=window, owner=tok_max)
         self.assertTrue(station.submit(target).accepted)
+        self.clock.value += 0.05
         plan = core.prepare_refresh()
         self.assertIsNotNone(plan)
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
@@ -363,7 +368,7 @@ class ControllerOwnerTests(unittest.TestCase):
         self.assertEqual(snap.current_owner, owner)
 
     def test_bounded_storage_after_many_claims(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_gap_s=1.0)
         for i in range(10_000):
             token = core.claim_owner(f"client-{i % 10}")
 

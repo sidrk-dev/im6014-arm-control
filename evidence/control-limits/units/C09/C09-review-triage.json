@@ -1,0 +1,24 @@
+{
+  "muse": {
+    "status": "complete",
+    "findings": [],
+    "parentJudgment": "No reported findings; not an execution or physical safety attestation"
+  },
+  "mimo": {
+    "status": "child-failed",
+    "error": "HTTP502",
+    "submissionCount": 1,
+    "permissionsRejected": 0,
+    "terminalPolicy": "not-eligible",
+    "findings": null
+  },
+  "gemini": {
+    "status": "child-failed",
+    "failurePhase": "postprocess",
+    "terminalSuccess": false,
+    "findings": null,
+    "terminalPolicy": "not-eligible"
+  },
+  "material": "C09-review-prompt.md exactsame257383bytes",
+  "next": "Panelclosed; no completed findings toapply. Finalwholebranchreviewstillrequired."
+}

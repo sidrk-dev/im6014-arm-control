@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T14:00:46.948Z",
+  "completedAt": "2026-10-08T15:02:54.064Z",
+  "elapsedMs": 3727116,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-22803b1ba93124f8",
+    "--sandbox",
+    "--mode",
+    "accept-edits"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "needs-parent-operation",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "10cd0311-e49e-4f10-907a-28eb8b286df0",
+  "usage": {
+    "inputTokens": 1760531,
+    "cachedInputTokens": 36124730,
+    "outputTokens": 331255,
+    "reasoningTokens": 197844,
+    "totalTokens": 2091786
+  },
+  "costUsd": null,
+  "handoff": {
+    "task": "C10",
+    "checkpoint": "c10-speed-bounded-reference",
+    "operation": "run-checks",
+    "files": [
+      "im6014_codec.py",
+      "joint_contract.py",
+      "joint_reference.py",
+      "joint_controller.py",
+      "test_controller.py",
+      "test_controller_targets.py",
+      "test_controller_expiry.py",
+      "test_controller_owner.py",
+      "test_controller_limits.py",
+      "scripts/check_milestone.py",
+      "docs/joint-api.md"
+    ],
+    "checks": [
+      "C10",
+      "milestone-tests",
+      "scripts/check_offline_baseline.sh"
+    ],
+    "summary": "Run targeted unit test ReferenceSpeedTests for milestone C10, all milestone tests, and the offline regression baseline check."
+  },
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}
