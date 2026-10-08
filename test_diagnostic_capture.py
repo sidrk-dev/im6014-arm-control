@@ -88,15 +88,26 @@ class DiagnosticCapture(unittest.TestCase):
                     self.assertEqual(record['outcome'], 'DRIVER_FAILURE' if failed else 'OK')
 
     def test_capture_metadata_is_validated_before_exchange(self):
-        called = []
-        capture = transport.PacketCapture()
-        with self.assertRaises(ValueError):
-            transport.capture_exchange(
-                capture, lambda *args: called.append(args), object(), b'packet', 0,
-                source='unknown', identity='fixture', connection=0, port='', baud=6000000,
-            )
-        self.assertEqual(called, [])
-        self.assertEqual(capture.snapshot()['records'], [])
+        for invalid in (
+            dict(source='unknown'), dict(source='physical', port=''),
+            dict(identity=''), dict(connection=-1), dict(connection=True),
+            dict(connection=0x80000000), dict(baud=115200), dict(baud=True),
+        ):
+            with self.subTest(invalid=invalid):
+                called = []
+                capture = transport.PacketCapture()
+                kwargs = dict(source='fixture', identity='fixture', connection=0,
+                              port='', baud=6000000)
+                kwargs.update(invalid)
+                with self.assertRaises(ValueError):
+                    transport.capture_exchange(
+                        capture, lambda *args: called.append(args), object(),
+                        b'packet', 0, **kwargs)
+                self.assertEqual(called, [])
+                self.assertEqual(capture.snapshot()['records'], [])
+        for capacity in (0, -1, 257, True, 1.5, '1'):
+            with self.subTest(capacity=capacity), self.assertRaises(ValueError):
+                transport.PacketCapture(capacity)
 
     def test_ring_capacity_strings_and_snapshots_are_bounded_and_owned(self):
         clock = FakeClock()

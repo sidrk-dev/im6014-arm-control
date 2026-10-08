@@ -110,6 +110,22 @@ class C01BusOwnership(unittest.TestCase):
     def config(self, path):
         return PortConfig(path, 6_000_000, expected_serial=None, expected_channel=None)
 
+    def test_falsey_unknown_close_status_keeps_lease(self):
+        for status in (None, 0, []):
+            with self.subTest(status=status), PseudoTerminal() as device:
+                created = []
+                owner = open_managed_port(self.config(device.path),
+                                          factory_for(created, close_mode='leave_open'))
+                try:
+                    created[0].is_open = status
+                    self.assertFalse(owner.close())
+                    self.assertFalse(owner.close_confirmed)
+                    with self.assertRaises(PortBusyError):
+                        open_managed_port(self.config(device.path), factory_for([]))
+                finally:
+                    created[0].simulate_closed()
+                    owner.close()
+
     def test_same_process_and_symlink_alias_reject_before_factory(self):
         with PseudoTerminal() as device, tempfile.TemporaryDirectory() as temp:
             alias = str(Path(temp) / 'by-id-alias')
@@ -256,6 +272,31 @@ signal.pause()
             self.assertEqual(buses[0].close_calls, 1)
             self.assertFalse(buses[0].is_open)
             replacement = open_managed_port(self.config(first.path), factory_for([]))
+            self.assertTrue(replacement.close())
+
+    def test_regular_file_and_directory_reject_before_factory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            file = Path(temp) / 'ordinary'
+            file.write_text('not a character device')
+            for path in (temp, str(file)):
+                with self.subTest(path=path):
+                    created = []
+                    with self.assertRaises(PortOwnershipError):
+                        open_managed_port(self.config(path), factory_for(created))
+                    self.assertEqual(created, [])
+
+    def test_failed_fd_verification_closes_and_releases_lease(self):
+        with PseudoTerminal() as device:
+            created = []
+            def factory(**kwargs):
+                bus = FakeSerial(**kwargs)
+                bus.fileno = lambda: (_ for _ in ()).throw(OSError('bad fd'))
+                created.append(bus)
+                return bus
+            with self.assertRaises(PortOwnershipError):
+                open_managed_port(self.config(device.path), factory)
+            self.assertFalse(created[0].is_open)
+            replacement = open_managed_port(self.config(device.path), factory_for([]))
             self.assertTrue(replacement.close())
 
     def test_namespace_rejects_symlinks_and_insecure_modes(self):

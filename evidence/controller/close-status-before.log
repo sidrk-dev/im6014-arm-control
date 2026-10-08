@@ -1,0 +1,33 @@
+test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) ... 
+  test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=None) ... FAIL
+  test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=0) ... FAIL
+  test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=[]) ... FAIL
+
+======================================================================
+FAIL: test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 121, in test_falsey_unknown_close_status_keeps_lease
+    self.assertFalse(owner.close())
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 121, in test_falsey_unknown_close_status_keeps_lease
+    self.assertFalse(owner.close())
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_falsey_unknown_close_status_keeps_lease (test_bus_owner.C01BusOwnership.test_falsey_unknown_close_status_keeps_lease) (status=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 121, in test_falsey_unknown_close_status_keeps_lease
+    self.assertFalse(owner.close())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+FAILED (failures=3)

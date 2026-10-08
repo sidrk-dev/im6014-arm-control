@@ -94,7 +94,7 @@ class ManagedPort:
             except Exception:
                 return False
             try:
-                if getattr(self.bus, 'is_open', True):
+                if getattr(self.bus, 'is_open', None) is not False:
                     return False
             except Exception:
                 return False
