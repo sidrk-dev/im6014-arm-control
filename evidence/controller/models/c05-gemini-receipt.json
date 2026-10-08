@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini-output.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini-receipt.json",
+  "executionId": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini-output.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c05-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T00:37:33.525Z",
+  "completedAt": "2026-10-08T00:48:01.301Z",
+  "elapsedMs": 627776,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-58eab75eab1a157a",
+    "--sandbox",
+    "--mode",
+    "accept-edits"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "747cd56b-e3f2-4516-b88c-8d81b51adfeb",
+  "usage": {
+    "inputTokens": 332177,
+    "cachedInputTokens": 3517405,
+    "outputTokens": 86704,
+    "reasoningTokens": 69584,
+    "totalTokens": 418881
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

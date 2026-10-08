@@ -11,7 +11,8 @@ import math
 import time
 from typing import Literal
 
-from joint_mapping import JointMap, JointSample
+from im6014_codec import command
+from joint_mapping import JointMap, JointSample, JointTarget
 
 
 class State(Enum):
@@ -206,6 +207,19 @@ class JointStatus:
 
 
 @dataclass(frozen=True)
+class Target:
+    joints: tuple[JointTarget, ...]
+
+    def __post_init__(self) -> None:
+        if type(self.joints) is not tuple:
+            raise ValueError("joints must be a tuple of JointTarget")
+        if not self.joints:
+            raise ValueError("joints must be a non-empty tuple")
+        if any(not isinstance(joint, JointTarget) for joint in self.joints):
+            raise ValueError("every joint target must be a JointTarget")
+
+
+@dataclass(frozen=True)
 class Snapshot:
     state: State
     joint_names: tuple[str, ...]
@@ -214,6 +228,7 @@ class Snapshot:
     fault_latched: bool
     feedback_ages_s: tuple[float | None, ...]
     faults: tuple[JointFault, ...] = ()
+    pending_target: Target | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -251,6 +266,8 @@ class Snapshot:
             raise ValueError("fault_latched must be a bool")
         if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
             raise ValueError("faults must be a tuple of JointFault")
+        if self.pending_target is not None and not isinstance(self.pending_target, Target):
+            raise ValueError("pending_target must be a Target or None")
 
     @property
     def affected_joints(self) -> tuple[str, ...]:
@@ -303,6 +320,7 @@ class JointCore:
         self._feedback_max_age_s = feedback_max_age_s
         self._clock = clock
         self._faults: dict[str, JointFault] = {}
+        self._pending_target: Target | None = None
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
@@ -319,7 +337,7 @@ class JointCore:
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
 
-    def _record_joint_fault(
+    def _latch_joint_fault(
         self,
         name: str,
         motor_id: int,
@@ -329,7 +347,7 @@ class JointCore:
         timeout: bool = False,
         communication_error: CommunicationFailure | None = None,
         stale: bool = False,
-    ) -> JointFault:
+    ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
         communication_errors = existing.communication_errors
         if communication_error is not None and communication_error not in communication_errors:
@@ -344,7 +362,8 @@ class JointCore:
             communication_errors=communication_errors,
         )
         self._faults[name] = fault
-        return fault
+        self._state = State.FAULT
+        self._pending_target = None
 
     def _now(self) -> float:
         value = self._clock()
@@ -397,6 +416,7 @@ class JointCore:
         if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
+        self._pending_target = None
         self._state = State.CHECKING
         return self._accepted()
 
@@ -423,8 +443,7 @@ class JointCore:
 
         self._observations[index] = JointStatus(sample, status, self._now())
         if not status.healthy:
-            self._state = State.FAULT
-            self._record_joint_fault(
+            self._latch_joint_fault(
                 self._specs[index].name,
                 motor_id,
                 errors=status.errors,
@@ -449,7 +468,7 @@ class JointCore:
         failure_code = code
 
         spec = self._specs[index]
-        self._record_joint_fault(
+        self._latch_joint_fault(
             spec.name,
             motor_id,
             communication_error=failure_code,
@@ -457,7 +476,6 @@ class JointCore:
         joint = self._observations[index]
         self._observations[index] = JointStatus(
             joint.sample, joint.health, joint.received_at, failure_code)
-        self._state = State.FAULT
         return self._accepted()
 
     def checked(self) -> Decision:
@@ -506,18 +524,66 @@ class JointCore:
                 ):
                     stale_specs.append(spec)
             if stale_specs:
-                self._state = State.FAULT
                 for spec in stale_specs:
-                    self._record_joint_fault(
+                    self._latch_joint_fault(
                         spec.name,
                         spec.motor_id,
                         stale=True,
                     )
         return self._accepted()
 
+    def submit_target(self, target: Target) -> Decision:
+        if self._state not in (State.ARMED, State.MOVING):
+            return self._rejected(DecisionCode.INVALID_STATE)
+        if any(not joint.valid for joint in self._observations):
+            return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
+        now = self._now()
+        if not self._all_fresh(now):
+            return self._rejected(DecisionCode.STALE_FEEDBACK)
+        if any(not joint.healthy for joint in self._observations):
+            return self._rejected(DecisionCode.UNHEALTHY)
+
+        if (
+            not isinstance(target, Target)
+            or len(target.joints) != len(self._specs)
+        ):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+
+        try:
+            for spec, joint_target in zip(self._specs, target.joints):
+                output = spec.mapping.to_output(joint_target)
+                command(
+                    spec.motor_id,
+                    mode=1,
+                    rpm=output.rpm,
+                    kd=output.kd,
+                    torque=output.tau_nm,
+                    watchdog=True,
+                    position=output.q_rad,
+                    kp=output.kp,
+                )
+        except ValueError:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+
+        self._pending_target = target
+        return self._accepted()
+
+    def consume_target(self) -> Target | None:
+        if self._state not in (State.ARMED, State.MOVING):
+            return None
+        self.tick()
+        if self._state is State.FAULT or any(not joint.healthy for joint in self._observations):
+            return None
+        target = self._pending_target
+        self._pending_target = None
+        if target is not None:
+            self._state = State.MOVING
+        return target
+
     def stop(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
+        self._pending_target = None
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
@@ -528,6 +594,7 @@ class JointCore:
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
+        self._pending_target = None
         return self._accepted()
 
     def snapshot(self) -> Snapshot:
@@ -547,4 +614,5 @@ class JointCore:
             fault_latched=bool(self._faults),
             feedback_ages_s=ages,
             faults=faults,
+            pending_target=self._pending_target,
         )

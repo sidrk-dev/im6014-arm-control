@@ -27,7 +27,7 @@
 - [x] C02 controller state transitions.
 - [x] C03 per-joint feedback age.
 - [x] C04 per-joint error status.
-- [ ] C05 bounded latest target.
+- [x] C05 bounded latest target.
 - [ ] C06 command sequence validation.
 - [ ] Full regression and inspected images.
 - [ ] Comment review and configured OpenCode review panel.
