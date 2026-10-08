@@ -34,3 +34,32 @@ C05 Gemini implementation passed parent inspection after shared stale detection 
 C06 Gemini runtime changes were accepted after parent inspection. The rejected-state test loop was corrected to construct each state through shared public-action fixtures and assert the actual state; an invalid second-joint output now proves whole-vector rejection preserves pending and watermark. Target and sequence tests moved to `test_controller_targets.py`, and test discovery plus startup fingerprints include it. All 41 controller checks pass; C06 has seven dedicated tests and C05 has nine after migration. No runtime module or new test file exceeds 1,000 lines.
 
 Fresh C05/C06 comment review found 26 narration comments, all deleted, with no structural flags. The combined comment passes deleted 37 blocks/38 lines; none restored, no report reruns, no suppressions or unenforced constraints remain. Unused copied test imports were removed. The parent executed the offline controller documentation example successfully.
+
+## Final panel and parent dispositions
+
+All three seats received identical complete material at 075973b, prompt SHA256 `07d621d1ffc469b9bc1e39d43d8dce1a4b83bd89083c0c4d067444f9514a76b8`. Muse and Gemini completed. MiMo failed HTTP 502 after one submission, no output or tool denials, and clean cleanup; it remains a dropout without retry or replacement. Requested and backend-reported model evidence does not independently verify provider identity or hidden reasoning depth. Verbatim outputs and receipts are retained in evidence/controller/models. Gemini also implemented C04-C06 and reviewed B11-C03; parent tests and corrections determined acceptance.
+
+| Seat / finding | Disposition | Source-grounded reason or correction |
+| --- | --- | --- |
+| Muse 1 arming in FOC | Act | Added current Stop-mode gate. Regression failed before and passes after; submission and consumption still accept healthy FOC while moving. |
+| Muse 2 and Gemini 3.1 public fault inconsistency | Act | Reject duplicate union codes and a summary outside the union. Three constructor subcases failed before. Most recent repeated TIMEOUT need not be the union tail, which records first occurrence. |
+| Muse 3 string error counters | Act | Typed TransactionTimeoutError/TimeoutError counters and actual CRC rejected-frame count. Five fake failure cases failed before and pass after, preserving the original exception. |
+| Muse 4 numeric-string channel | Act | Decimal metadata strings match or reject known wrong channel. Public PortConfig remains strict integer. Matching-string regression failed before. |
+| Muse 5 clock failure | Dismissed | Explicit monotonic clock contract; invalid clock raises before target release. Snapshot is not advertised infallible. Documented caller responsibility. |
+| Muse 6 repeated health gates | Consider | Kept explicit action-specific gates. `_all_fresh` and `_latch_joint_fault` already centralize freshness and fault mutation. Stop-mode applies to checked/arm, not moving submission. |
+| Muse 7 hypothetical fault truthiness | Dismissed | JointFault has no boolean override; no defect demonstrated. |
+| Muse 8 and 10 precedence/error wording | Noted | Existing precedence is correct and tested; codec error describes allowed individual commands. No behavior defect. |
+| Muse 9 directory guards | Consider | Root and per-user directory ownership/mode contracts differ. Preserve explicit security checks rather than generic parameterization. |
+| Gemini 1.1 sequence gate order | Dismissed | Contract requires complete mapped validation before acceptance; invalid payloads take INVALID_ARGUMENT precedence. CRC is pure computation with no I/O. No measured performance regression was supplied. |
+| Gemini 1.2 redundant health checks | Consider | Fault latching preempts unhealthy decisions; kept explicit consumer guards rather than deferring fault transitions. No incorrect accepted action. |
+| Gemini 1.3 retained unhealthy pending | Dismissed | Public receive/communication failure immediately calls `_latch_joint_fault`, clearing pending. No reachable unhealthy pending path; all three fault entry paths exercised by C05. |
+| Gemini 2.1 lock pre-creation denial | Noted | Real availability limit on hostile multi-user hosts. Unsafe namespace rejects before opening; documentation now states administrator remediation. No environment-dependent alternative namespace introduced. |
+| Gemini 2.2 lockfile pruning | Dismissed | Device-number reuse uses the same inode; deleting a live/contended inode can split ownership. Persistent empty files are intentional, documented. |
+| Gemini 3.2 sequence saturation | Noted | Uint64 maximum intentionally exhausts a stream; documented new-core boundary. Reserved sentinel or reset would alter C06, and epochs are C08. |
+| Gemini 4.1 negative rounding jitter | Dismissed | For finite monotonic ordered readings, subtraction cannot reverse order; negative zero compares equal to zero. Clamping would conceal a genuinely regressing injected clock. |
+| Gemini 4.2 bounded close wait | Noted | Existing two-second join bounds UI waiting; retained owner blocks reconnect if worker does not finish. No safe forced close while worker owns I/O. Driver guarantees and hard cancellation remain unverified. |
+| Gemini 4.3 mapping protocol limits | Dismissed | Mapping is pure units/domain conversion. Canonical codec owns wire limits and submit validates all mapped outputs through it; duplicating limits would drift. |
+
+Agreement: both completed reviewers found the public fault-constructor gap. Both raised clock handling, resolved by the documented monotonic-clock contract. Muse alone found the arm, channel-string and counter defects; all were reproduced and fixed. Gemini's repeated-cause example describes a first-occurrence union rather than chronological history. Review assertions were checked against public transitions, tests and original source.
+
+Post-review checks: 66 affected checks pass; full nine-group offline regression passes. All four UI images inspected. Controller now has 43 checks, port configuration 12 and capture 11. The original failing logs and fresh source/artifact hashes are retained. These results use fake I/O, PTYs and DEMO; no new physical I/O.

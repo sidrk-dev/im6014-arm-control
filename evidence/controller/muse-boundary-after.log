@@ -1,0 +1,79 @@
+test_arm_requires_current_stop_feedback (test_controller.ControllerStateTests.test_arm_requires_current_stop_feedback) ... ok
+test_check_requires_every_healthy_joint_in_stop_mode (test_controller.ControllerStateTests.test_check_requires_every_healthy_joint_in_stop_mode) ... ok
+test_disconnect_and_new_connection_invalidate_observations (test_controller.ControllerStateTests.test_disconnect_and_new_connection_invalidate_observations) ... ok
+test_fake_lifecycle_writes_only_after_accepted_actions (test_controller.ControllerStateTests.test_fake_lifecycle_writes_only_after_accepted_actions) ... ok
+test_fault_survives_stop_disconnect_reconnect_and_healthy_packets (test_controller.ControllerStateTests.test_fault_survives_stop_disconnect_reconnect_and_healthy_packets) ... ok
+test_health_and_source_records_reject_invalid_values (test_controller.ControllerStateTests.test_health_and_source_records_reject_invalid_values) ... ok
+test_invalid_transition_matrix_preserves_snapshot (test_controller.ControllerStateTests.test_invalid_transition_matrix_preserves_snapshot) ... ok
+test_joint_set_is_nonempty_unique_and_owned (test_controller.ControllerStateTests.test_joint_set_is_nonempty_unique_and_owned) ... ok
+test_snapshots_are_immutable_owned_values (test_controller.ControllerStateTests.test_snapshots_are_immutable_owned_values) ... ok
+test_bad_id_and_observation_do_not_refresh_receipt_time (test_controller.FeedbackAgeTests.test_bad_id_and_observation_do_not_refresh_receipt_time) ... ok
+test_checked_rejects_feedback_older_than_limit (test_controller.FeedbackAgeTests.test_checked_rejects_feedback_older_than_limit) ... ok
+test_disconnect_invalidates_age_and_stale_fault_needs_acknowledged_check (test_controller.FeedbackAgeTests.test_disconnect_invalidates_age_and_stale_fault_needs_acknowledged_check) ... ok
+test_feedback_age_configuration_is_finite_positive_and_typed (test_controller.FeedbackAgeTests.test_feedback_age_configuration_is_finite_positive_and_typed) ... ok
+test_fresh_j1_cannot_hide_stale_j2_from_arm_or_tick (test_controller.FeedbackAgeTests.test_fresh_j1_cannot_hide_stale_j2_from_arm_or_tick) ... ok
+test_zero_timestamp_and_exact_freshness_boundary (test_controller.FeedbackAgeTests.test_zero_timestamp_and_exact_freshness_boundary) ... ok
+test_communication_failures_with_fixed_enum_codes (test_controller.JointFaultTests.test_communication_failures_with_fixed_enum_codes) ... ok
+test_current_communication_status_clears_without_erasing_cause (test_controller.JointFaultTests.test_current_communication_status_clears_without_erasing_cause) ... ok
+test_failed_recovery_retains_causes (test_controller.JointFaultTests.test_failed_recovery_retains_causes) ... ok
+test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) ... ok
+test_healthy_after_fault_preserves_latched_attribution (test_controller.JointFaultTests.test_healthy_after_fault_preserves_latched_attribution) ... ok
+test_immutability_of_fault_records_and_snapshot_collections (test_controller.JointFaultTests.test_immutability_of_fault_records_and_snapshot_collections) ... ok
+test_independent_second_core_unchanged_by_fault (test_controller.JointFaultTests.test_independent_second_core_unchanged_by_fault) ... ok
+test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage (test_controller.JointFaultTests.test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage) ... ok
+test_stale_j2_attributes_only_stale_joint_with_refreshed_j1 (test_controller.JointFaultTests.test_stale_j2_attributes_only_stale_joint_with_refreshed_j1) ... ok
+test_successful_recovery_clears_fault_causes (test_controller.JointFaultTests.test_successful_recovery_clears_fault_causes) ... ok
+test_unknown_bits_and_32bit_error_mask_retained (test_controller.JointFaultTests.test_unknown_bits_and_32bit_error_mask_retained) ... ok
+test_unknown_ids_and_invalid_codes_reject_unchanged (test_controller.JointFaultTests.test_unknown_ids_and_invalid_codes_reject_unchanged) ... ok
+test_actual_order_1_5_5_2_6_ends_at_6 (test_controller_targets.CommandSequenceTests.test_actual_order_1_5_5_2_6_ends_at_6) ... ok
+test_boundaries_0_and_uint64max (test_controller_targets.CommandSequenceTests.test_boundaries_0_and_uint64max) ... ok
+test_invalid_higher_vector_or_mapping_preserves_pending_and_watermark_and_never_blocks_smaller (test_controller_targets.CommandSequenceTests.test_invalid_higher_vector_or_mapping_preserves_pending_and_watermark_and_never_blocks_smaller) ... ok
+test_new_core_starts_negative_one_and_independent_watermarks (test_controller_targets.CommandSequenceTests.test_new_core_starts_negative_one_and_independent_watermarks) ... ok
+test_rejected_state_and_stale_submissions_preserve_watermark_and_pending (test_controller_targets.CommandSequenceTests.test_rejected_state_and_stale_submissions_preserve_watermark_and_pending) ... ok
+test_sequence_type_and_range_rejections (test_controller_targets.CommandSequenceTests.test_sequence_type_and_range_rejections) ... ok
+test_watermark_survives_consumption_stop_fault_disconnect_reconnect_and_recovery (test_controller_targets.CommandSequenceTests.test_watermark_survives_consumption_stop_fault_disconnect_reconnect_and_recovery) ... ok
+test_each_fault_path_clears_pending_without_fake_foc_writes (test_controller_targets.LatestTargetTests.test_each_fault_path_clears_pending_without_fake_foc_writes) ... ok
+test_immutable_owned_vector (test_controller_targets.LatestTargetTests.test_immutable_owned_vector) ... ok
+test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target (test_controller_targets.LatestTargetTests.test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target) ... ok
+test_mapped_torque_outside_codec_bounds_rejects (test_controller_targets.LatestTargetTests.test_mapped_torque_outside_codec_bounds_rejects) ... ok
+test_no_writes_on_rejection_stale_fault_stop_disconnect (test_controller_targets.LatestTargetTests.test_no_writes_on_rejection_stale_fault_stop_disconnect) ... ok
+test_only_armed_and_moving_may_submit_and_consume (test_controller_targets.LatestTargetTests.test_only_armed_and_moving_may_submit_and_consume) ... ok
+test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault (test_controller_targets.LatestTargetTests.test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault) ... ok
+test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings (test_controller_targets.LatestTargetTests.test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings) ... ok
+test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume (test_controller_targets.LatestTargetTests.test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume) ... ok
+test_by_id_basename_reports_matching_serial_and_interface (test_port_config.B13PortConfig.test_by_id_basename_reports_matching_serial_and_interface) ... ok
+test_by_id_hint_completes_partial_os_metadata (test_port_config.B13PortConfig.test_by_id_hint_completes_partial_os_metadata) ... ok
+test_enumerated_metadata_for_symlink_alias_overrides_path_hint (test_port_config.B13PortConfig.test_enumerated_metadata_for_symlink_alias_overrides_path_hint) ... ok
+test_explicit_alternate_route_does_not_claim_ftdi_identity (test_port_config.B13PortConfig.test_explicit_alternate_route_does_not_claim_ftdi_identity) ... ok
+test_non_ftdi_vid_rejects_even_with_matching_serial_and_channel (test_port_config.B13PortConfig.test_non_ftdi_vid_rejects_even_with_matching_serial_and_channel) ... ok
+test_numeric_string_channel_metadata_matches_or_rejects (test_port_config.B13PortConfig.test_numeric_string_channel_metadata_matches_or_rejects) ... ok
+test_supported_baud_is_an_exact_integer (test_port_config.B13PortConfig.test_supported_baud_is_an_exact_integer) ... ok
+test_unknown_default_path_stays_unknown_and_does_not_open (test_port_config.B13PortConfig.test_unknown_default_path_stays_unknown_and_does_not_open) ... ok
+test_wrong_by_id_channel_names_expected_and_observed (test_port_config.B13PortConfig.test_wrong_by_id_channel_names_expected_and_observed) ... ok
+test_wrong_cli_channel_fails_before_log_file_or_serial_constructor (test_port_config.B13PortConfig.test_wrong_cli_channel_fails_before_log_file_or_serial_constructor) ... usage: spin_5rpm.py [-h] [--port PORT] [--id ID] [--baud {4000000,6000000}]
+                    [--rpm RPM] [--kd KD] [--torque-ff TORQUE_FF]
+                    [--duration DURATION] [--speed-limit SPEED_LIMIT]
+                    [--travel-limit TRAVEL_LIMIT] [--ack-timeout] [--arm]
+                    [--log LOG]
+spin_5rpm.py: error: Port /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if01-port0: expected FTDI serial FTC2RQ7H, interface 3; observed FTDI, serial FTC2RQ7H, interface 1 from by-id basename. Select the intended FTDI interface.
+ok
+test_wrong_enumerated_serial_and_channel_are_reported (test_port_config.B13PortConfig.test_wrong_enumerated_serial_and_channel_are_reported) ... ok
+test_wrong_gui_channel_fails_before_serial_constructor (test_port_config.B13PortConfig.test_wrong_gui_channel_fails_before_serial_constructor) ... ok
+test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) ... ok
+test_capture_metadata_is_validated_before_exchange (test_diagnostic_capture.DiagnosticCapture.test_capture_metadata_is_validated_before_exchange) ... ok
+test_captured_stop_fixture_and_foc_fixture_keep_raw_and_decoded_fields (test_diagnostic_capture.DiagnosticCapture.test_captured_stop_fixture_and_foc_fixture_keep_raw_and_decoded_fields) ... ok
+test_cli_run_log_capture_is_opt_in_and_uses_patched_exchange_lookup (test_diagnostic_capture.DiagnosticCapture.test_cli_run_log_capture_is_opt_in_and_uses_patched_exchange_lookup) ... STOP/status verified: {"id": 0, "mode": 0, "timeout": 0, "driver_c": 35, "winding_c": 30, "voltage": 36.0, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "errors": 0, "warnings": 0, "raw": "fcee00231e48000000000000000000000000000000002dc022f1", "elapsed_s": 9.809200128074735e-05, "target_rpm": 0}
+STOP/status verified: {"id": 0, "mode": 0, "timeout": 0, "driver_c": 35, "winding_c": 30, "voltage": 36.0, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "errors": 0, "warnings": 0, "raw": "fcee00231e48000000000000000000000000000000002dc022f1", "elapsed_s": 5.354700260795653e-05, "target_rpm": 0}
+ok
+test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) ... ok
+test_malformed_exception_counters_are_ignored_and_large_counts_clamped (test_diagnostic_capture.DiagnosticCapture.test_malformed_exception_counters_are_ignored_and_large_counts_clamped) ... ok
+test_megabyte_request_and_reply_are_truncated_before_storage (test_diagnostic_capture.DiagnosticCapture.test_megabyte_request_and_reply_are_truncated_before_storage) ... ok
+test_memoryview_packet_and_reply_limits_are_measured_in_bytes (test_diagnostic_capture.DiagnosticCapture.test_memoryview_packet_and_reply_limits_are_measured_in_bytes) ... ok
+test_motor_session_snapshot_exports_demo_capture_without_sharing (test_diagnostic_capture.DiagnosticCapture.test_motor_session_snapshot_exports_demo_capture_without_sharing) ... ok
+test_ring_capacity_strings_and_snapshots_are_bounded_and_owned (test_diagnostic_capture.DiagnosticCapture.test_ring_capacity_strings_and_snapshots_are_bounded_and_owned) ... ok
+test_timeout_invalid_feedback_and_secret_driver_errors_have_fixed_codes (test_diagnostic_capture.DiagnosticCapture.test_timeout_invalid_feedback_and_secret_driver_errors_have_fixed_codes) ... ok
+
+----------------------------------------------------------------------
+Ran 66 tests in 0.568s
+
+OK

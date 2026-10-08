@@ -65,3 +65,7 @@ C06 Gemini writer is still running in run/c06-gemini, process session 78913. Do 
 The B11-C04 comment review is complete. Eleven comment deletions were accepted, including the deferred FakeStation deletion after C05. The sole structural flag was reproduced and fixed using the existing PortCloseError API; no new abstraction was needed. Fresh C05/C06 comment review and the final three-model panel remain pending. build-panel.py and panel-policy.py under run prepare the same complete inline template for Muse, MiMo and Gemini. The earlier failed MiMo bench seat is terminal; the final whole-controller task is separate. No retry or model substitution.
 
 Origin main still resolves to d8d8108; repository remains private. Original checkout/head/plan hash were freshly confirmed unchanged. No current-block PR yet. No hardware I/O or reset-credit use by parent. Fresh usage at about 00:50 UTC was 32% five-hour used and 36% weekly. Read fresh limits again if needed.
+
+## Final implementation checkpoint, October 8 around 01:17 UTC
+
+This supersedes the remaining-unit and in-flight descriptions above. All B11-B14/C01-C06 are accepted. Final Muse and Gemini panel completed; MiMo failed HTTP 502 and was retained without retry. Four reproduced review corrections pass, all nine full regression groups pass, and images were inspected. PR #3 exists, is private and draft: https://github.com/sidrk-dev/im6014-workbench/pull/3. Fresh independent verdict and guarded merge remain pending. No physical I/O or reset-credit use; timeout acknowledgment remains unanswered.

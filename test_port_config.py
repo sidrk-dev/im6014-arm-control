@@ -107,5 +107,16 @@ class B13PortConfig(unittest.TestCase):
         constructor.assert_not_called()
 
 
+    def test_numeric_string_channel_metadata_matches_or_rejects(self):
+        config = PortConfig('/dev/unit-test-fixture', 6_000_000)
+        for channel in ('3', ' 3 ', '03'):
+            report = inspect_port(config, metadata=dict(
+                serial_number='FTC2RQ7H', channel=channel, vid=0x0403), ports=())
+            self.assertIn('passive metadata matches', report)
+        with self.assertRaises(ValueError):
+            inspect_port(config, metadata=dict(
+                serial_number='FTC2RQ7H', channel='1', vid=0x0403), ports=())
+
+
 if __name__ == '__main__':
     unittest.main()

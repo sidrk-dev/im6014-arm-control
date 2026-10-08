@@ -30,7 +30,7 @@
 - [x] C05 bounded latest target.
 - [x] C06 command sequence validation.
 - [x] Full regression and inspected images.
-- [ ] Comment review and configured OpenCode review panel.
+- [x] Comment review and configured OpenCode review panel (Muse/Gemini complete; MiMo HTTP 502 dropout retained).
 - [ ] Fresh independent verdict, exact-head CI, unarmed queue and guarded merge.
 
 The baseline is d8d810888f76c676acaa1d54bc9e790249592f45. The parent baseline driver returned eight zero exit codes before edits. This block uses fake transport and Linux pseudo-terminals. Physical mapping, loaded-arm Stop procedures and measured loop rates remain pending.

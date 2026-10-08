@@ -112,6 +112,13 @@ class JointFault:
         ):
             raise ValueError("communication_errors must be a tuple of CommunicationFailure")
 
+        if len(self.communication_errors) != len(set(self.communication_errors)):
+            raise ValueError("communication_errors must contain unique codes")
+        if self.communication_error is not None and self.communication_errors and (
+            self.communication_error not in self.communication_errors
+        ):
+            raise ValueError("communication_error must belong to communication_errors")
+
         if self.communication_error is not None and not self.communication_errors:
             object.__setattr__(self, "communication_errors", (self.communication_error,))
         elif self.communication_errors and self.communication_error is None:
@@ -514,6 +521,8 @@ class JointCore:
             return self._rejected(DecisionCode.STALE_FEEDBACK)
         if any(not joint.healthy for joint in self._observations):
             return self._rejected(DecisionCode.UNHEALTHY)
+        if any(joint.health.mode != 0 for joint in self._observations):
+            return self._rejected(DecisionCode.NOT_STOPPED)
         self._state = State.ARMED
         return self._accepted()
 

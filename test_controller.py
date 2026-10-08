@@ -351,6 +351,15 @@ class ControllerStateTests(unittest.TestCase):
         self.assertEqual(station.writes, expected)
         self.assertIs(core.snapshot().state, State.STOPPED)
 
+    def test_arm_requires_current_stop_feedback(self):
+        core = core_at(self, State.READY)
+        self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False)))
+        before = core.snapshot()
+        self.assertEqual(core.arm().code, DecisionCode.NOT_STOPPED)
+        self.assertEqual(core.snapshot(), before)
+        self.assertTrue(core.receive(1, SAMPLE, HEALTHY_STOP))
+        self.assertTrue(core.arm())
+
     def test_check_requires_every_healthy_joint_in_stop_mode(self):
         core = JointCore(self.specs, clock=self.clock)
         self.assertTrue(core.begin_connect().accepted)
@@ -693,6 +702,17 @@ class JointFaultTests(unittest.TestCase):
         self.assertIsNone(after.joints[0].communication_error)
         self.assertEqual(after.faults, before.faults)
         self.assertIs(after.state, State.FAULT)
+
+    def test_fault_record_requires_bounded_consistent_communication_codes(self):
+        a, b = CommunicationFailure.TIMEOUT, CommunicationFailure.DRIVER_FAILURE
+        for kwargs in (dict(communication_error=a, communication_errors=(b,)),
+                       dict(communication_errors=(a, a)),
+                       dict(communication_errors=(a,) * 4)):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                JointFault("J1", 0, **kwargs)
+        record = JointFault("J1", 0, communication_error=a, communication_errors=(a, b))
+        self.assertIs(record.communication_error, a)
+        self.assertEqual(record.communication_errors, (a, b))
 
     def test_unknown_ids_and_invalid_codes_reject_unchanged(self):
         core = self._ready_core()

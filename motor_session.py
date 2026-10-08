@@ -14,7 +14,7 @@ import serial
 
 from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
 from im6014_port import PortConfig, inspect_port, open_managed_port
-from im6014_serial import PacketCapture, capture_exchange
+from im6014_serial import PacketCapture, capture_exchange, TransactionTimeoutError
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
           3: 'Undervoltage', 4: 'Chip overheating', 5: 'MOS temperature outside range',
@@ -218,9 +218,9 @@ class MotorSession:
                 baud=self.data['baud'],
             )
         except Exception as error:
-            if 'CRC' in str(error):
-                self._set(crc_errors=self.data['crc_errors'] + 1)
-            if 'deadline' in str(error):
+            if isinstance(error, TransactionTimeoutError):
+                self._set(crc_errors=self.data['crc_errors'] + error.crc_rejected_frames)
+            if isinstance(error, (TransactionTimeoutError, TimeoutError)):
                 self._set(reply_timeouts=self.data['reply_timeouts'] + 1)
             raise
         now = time.monotonic()

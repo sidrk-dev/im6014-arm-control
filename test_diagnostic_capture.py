@@ -30,6 +30,33 @@ def _healthy_stop():
 
 
 class DiagnosticCapture(unittest.TestCase):
+    def test_dashboard_counts_typed_failures_without_message_matching(self):
+        import threading
+        cases = (
+            (transport.TransactionTimeoutError('changed wording'), 1, 0),
+            (transport.InvalidFeedbackError('changed wording', rejected=2, crc_rejected=2), 1, 2),
+            (transport.InvalidFeedbackError('changed wording', rejected=1), 1, 0),
+            (TimeoutError('changed wording'), 1, 0),
+            (OSError('CRC deadline unrelated'), 0, 0),
+        )
+        for error, timeouts, crc in cases:
+            with self.subTest(error=type(error).__name__, text=str(error)):
+                session = object.__new__(motor_session.MotorSession)
+                session.lock = threading.Lock()
+                session.stop_requested = threading.Event()
+                session.closing = threading.Event()
+                session.bus = object()
+                session.packet_capture = transport.PacketCapture()
+                session.data = dict(id=0, tx=0, demo=True, port='',
+                                    baud=6000000, connection=1,
+                                    crc_errors=0, reply_timeouts=0)
+                with patch.object(motor_session, 'exchange', side_effect=error):
+                    with self.assertRaises(type(error)) as raised:
+                        session._transact()
+                self.assertIs(raised.exception, error)
+                self.assertEqual(session.data['reply_timeouts'], timeouts)
+                self.assertEqual(session.data['crc_errors'], crc)
+
     def test_captured_stop_fixture_and_foc_fixture_keep_raw_and_decoded_fields(self):
         cases = [
             (spin_5rpm.command(0), STOP_REPLY, dict(
