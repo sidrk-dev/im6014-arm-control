@@ -55,3 +55,13 @@ Memory registry used: MEMORY.md lines 47-48 and 94-100, rollout 01a0f5a4-5afb-74
 ## Resumed dispatches
 
 C04 Gemini writer: run/c04-gemini, process session 55804. Separate B11-C03 Gemini reviewer: run/precore-gemini-review, process session 65357. Retain their terminal receipt, output, progress and policy histories. No implicit inference deadline. Parent runs all acceptance checks.
+
+## Later resumed checkpoint, October 8 around 01:00 UTC
+
+C04 and C05 are accepted. Current parent branch tip is 214e3f4. C04 has eleven attributed-fault checks; C05 has nine latest-target checks, including 10,000 updates and each fault entry path. Full C04 and C05 regression drivers passed all nine groups, with all four images inspected and exact source fingerprints retained. Port review corrections require explicit boolean False on close and use PortCloseError with the original failure as cause when cleanup cannot confirm closure. Seventeen PTY ownership tests pass.
+
+C06 Gemini writer is still running in run/c06-gemini, process session 78913. Do not treat its partial source as a delivery. It uses the task override sheet and API-spend deny. Parent has not run its tests. Retain the terminal receipt/output and normalize them with external-policy.py after drain. Parent-only tests/Git/hardware remain in force. After acceptance, split the target classes with the prepared AST helper, inspect the result, update all test discovery and startup fingerprints, and rerun acceptance.
+
+The B11-C04 comment review is complete. Eleven comment deletions were accepted, including the deferred FakeStation deletion after C05. The sole structural flag was reproduced and fixed using the existing PortCloseError API; no new abstraction was needed. Fresh C05/C06 comment review and the final three-model panel remain pending. build-panel.py and panel-policy.py under run prepare the same complete inline template for Muse, MiMo and Gemini. The earlier failed MiMo bench seat is terminal; the final whole-controller task is separate. No retry or model substitution.
+
+Origin main still resolves to d8d8108; repository remains private. Original checkout/head/plan hash were freshly confirmed unchanged. No current-block PR yet. No hardware I/O or reset-credit use by parent. Fresh usage at about 00:50 UTC was 32% five-hour used and 36% weekly. Read fresh limits again if needed.

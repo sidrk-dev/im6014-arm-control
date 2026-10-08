@@ -5,8 +5,8 @@
 - [x] Read the Principles section of poteto-mode.
 - [x] Frame the ten acceptance predicates and scope.
 - [x] Design the workflow.
-- [ ] Run each unit as a measured experiment.
-- [ ] Keep the audit trail in docs/decisions.tsv.
+- [x] Run each unit as a measured experiment.
+- [x] Keep the audit trail in docs/decisions.tsv.
 - [ ] Verify the whole and hand back.
 
 ## Architect
@@ -14,7 +14,7 @@
 - [x] Ground.
 - [x] Sketch.
 - [x] Agree. Parent selected the typed Sol core with explicit corrections.
-- [ ] Implement.
+- [x] Implement.
 - [ ] Scrap. Skip unless the selected shape fails repeated checks.
 
 ## Units
@@ -28,7 +28,7 @@
 - [x] C03 per-joint feedback age.
 - [x] C04 per-joint error status.
 - [x] C05 bounded latest target.
-- [ ] C06 command sequence validation.
+- [x] C06 command sequence validation.
 - [ ] Full regression and inspected images.
 - [ ] Comment review and configured OpenCode review panel.
 - [ ] Fresh independent verdict, exact-head CI, unarmed queue and guarded merge.

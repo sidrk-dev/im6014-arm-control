@@ -65,4 +65,28 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 
 ## Latest target
 
-`Target` contains an immutable complete tuple of `JointTarget` values in configured order. `submit_target` validates every mapped output through the existing codec before replacing the single pending slot; invalid replacement preserves it. `consume_target` returns the pending target once only in ARMED or MOVING with fresh healthy feedback, then sets logical MOVING. Stop, disconnect and every fault clear pending. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. C06 adds command sequencing to this record.
+`Target(sequence, joints)` contains an immutable complete tuple of `JointTarget` values in configured order. `submit_target` validates every mapped output through the existing codec before replacing the single pending slot; invalid replacement preserves it. `consume_target` returns the pending target once only in ARMED or MOVING with fresh healthy feedback, then sets logical MOVING. Stop, disconnect and every fault clear pending. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Its exact integer sequence is in 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Duplicate or older sequences reject with `DUPLICATE_OR_OLDER`. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark.
+
+### Offline controller example
+
+```python
+from joint_controller import JointCore, JointSpec, MotorHealth, SourceIdentity, Target, State
+from joint_mapping import JointMap, JointSample, JointTarget
+
+core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25)),), clock=lambda: 0.0)
+assert core.begin_connect()
+assert core.connected(SourceIdentity("fixture", "example", 1))
+assert core.begin_check()
+assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
+assert core.checked()
+assert core.arm()
+target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),))
+assert core.submit_target(target)
+assert core.consume_target() == target
+assert core.snapshot().state is State.MOVING
+assert core.consume_target() is None
+assert core.stop()
+assert core.snapshot().last_sequence == 6
+```
+
+This example performs no serial operations. A station adapter must validate its own physical setup and own packet transmission when later milestones add one.

@@ -40,6 +40,7 @@ class DecisionCode(str, Enum):
     STALE_FEEDBACK = "stale_feedback"
     UNHEALTHY = "unhealthy"
     NOT_STOPPED = "not_stopped"
+    DUPLICATE_OR_OLDER = "duplicate_or_older"
 
 
 class CommunicationFailure(str, Enum):
@@ -208,9 +209,12 @@ class JointStatus:
 
 @dataclass(frozen=True)
 class Target:
+    sequence: int
     joints: tuple[JointTarget, ...]
 
     def __post_init__(self) -> None:
+        if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
+            raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
         if type(self.joints) is not tuple:
             raise ValueError("joints must be a tuple of JointTarget")
         if not self.joints:
@@ -229,6 +233,7 @@ class Snapshot:
     feedback_ages_s: tuple[float | None, ...]
     faults: tuple[JointFault, ...] = ()
     pending_target: Target | None = None
+    last_sequence: int = -1
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -268,6 +273,8 @@ class Snapshot:
             raise ValueError("faults must be a tuple of JointFault")
         if self.pending_target is not None and not isinstance(self.pending_target, Target):
             raise ValueError("pending_target must be a Target or None")
+        if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
+            raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
 
     @property
     def affected_joints(self) -> tuple[str, ...]:
@@ -321,6 +328,7 @@ class JointCore:
         self._clock = clock
         self._faults: dict[str, JointFault] = {}
         self._pending_target: Target | None = None
+        self._last_sequence: int = -1
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
@@ -565,7 +573,11 @@ class JointCore:
         except ValueError:
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
 
+        if target.sequence <= self._last_sequence:
+            return self._rejected(DecisionCode.DUPLICATE_OR_OLDER)
+
         self._pending_target = target
+        self._last_sequence = target.sequence
         return self._accepted()
 
     def consume_target(self) -> Target | None:
@@ -615,4 +627,5 @@ class JointCore:
             feedback_ages_s=ages,
             faults=faults,
             pending_target=self._pending_target,
+            last_sequence=self._last_sequence,
         )

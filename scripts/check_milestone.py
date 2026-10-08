@@ -16,8 +16,8 @@ CHECKS = {
     'C02': 'test_controller.ControllerStateTests',
     'C03': 'test_controller.FeedbackAgeTests',
     'C04': 'test_controller.JointFaultTests',
-    'C05': 'test_controller.LatestTargetTests',
-    'C06': 'test_controller.CommandSequenceTests',
+    'C05': 'test_controller_targets.LatestTargetTests',
+    'C06': 'test_controller_targets.CommandSequenceTests',
 }
 
 

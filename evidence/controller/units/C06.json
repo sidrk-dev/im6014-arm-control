@@ -1,0 +1,119 @@
+{
+  "unit": "C06",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_controller_targets.CommandSequenceTests"
+  ],
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "baseHead": "214e3f41579c09fc56cf3acbc15899c3aa77e033",
+  "sourceFiles": {
+    "fake_serial.py": {
+      "bytes": 6862,
+      "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+    },
+    "im6014_codec.py": {
+      "bytes": 4381,
+      "sha256": "34b65330ad51e211d61483c8d88202fbed92753b1f3ee9f0f072f6855ec88842"
+    },
+    "im6014_port.py": {
+      "bytes": 16537,
+      "sha256": "2f9879d9793916bcf394d76ce8fdc7f3d6e9bb4c88bdfda2ce424ae6ad7416e9"
+    },
+    "im6014_serial.py": {
+      "bytes": 14217,
+      "sha256": "7d1fcfc9d7fd65946907e6ec866ccdd658a2c761696f01cd0f4047d0d3e6b507"
+    },
+    "joint_controller.py": {
+      "bytes": 25768,
+      "sha256": "d71e272c25bf6996aff1040188ea11ca3e5fb4e44736396e4197126ec24d75b2"
+    },
+    "joint_mapping.py": {
+      "bytes": 5279,
+      "sha256": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b"
+    },
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 24285,
+      "sha256": "5676a14f617142848564466e423cc950fe75e7a9f8ae5e8e04beb8f15b7f7d0d"
+    },
+    "spin_5rpm.py": {
+      "bytes": 9371,
+      "sha256": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789"
+    },
+    "test_bus_owner.py": {
+      "bytes": 19281,
+      "sha256": "d24e552fb3e8e3dca88be14364a9918161e2be391dcc3fc5dd7b35e89935e26d"
+    },
+    "test_controller.py": {
+      "bytes": 36124,
+      "sha256": "f5534ad324e8a71e7db12b624d1b638b2a1df5d0e643d26ce55774bf5481b808"
+    },
+    "test_controller_targets.py": {
+      "bytes": 32081,
+      "sha256": "24a14c88eef8036f79fb93a51702baaba2e23ca48086d9715abff5256d0c1c42"
+    },
+    "test_dashboard.py": {
+      "bytes": 20603,
+      "sha256": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f"
+    },
+    "test_diagnostic_capture.py": {
+      "bytes": 13692,
+      "sha256": "8fb6452d8ca0a23bfdba725724926e80596b4e058a5e859b59bf23e8d58ea8fe"
+    },
+    "test_joint_mapping.py": {
+      "bytes": 8099,
+      "sha256": "e2e57a3ed14a5c3a38cf14501aebb825088950c0493c726d6fabe6cd0d5bdaad"
+    },
+    "test_numerical_inputs.py": {
+      "bytes": 11362,
+      "sha256": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e"
+    },
+    "test_port_config.py": {
+      "bytes": 5733,
+      "sha256": "f09d4b6b51ede5bfd52a6075f93c76a3fb9b4badca96465afb7b1efe875ba1e5"
+    },
+    "test_protocol.py": {
+      "bytes": 16673,
+      "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+    },
+    "test_serial_deadline.py": {
+      "bytes": 10995,
+      "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_startup.py": {
+      "bytes": 13531,
+      "sha256": "af1325958a4d28dcb12f494b0c2272338ea87b47fb4d91dbe475949843ecc922"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    },
+    "scripts/check_offline_baseline.sh": {
+      "bytes": 4741,
+      "sha256": "8e6351fbb1284a473c18af04d2fb26bcf4fa82a337d66927b86d227758638751"
+    },
+    "scripts/check_milestone.py": {
+      "bytes": 2917,
+      "sha256": "859c6a6abef41d82c2f3f72e18d4d597873b57c7827a3b502bc59d6c018caae1"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    }
+  },
+  "sourceUnchanged": true,
+  "exitCode": 0,
+  "recordedAt": "2026-10-08T01:02:06.775885+00:00",
+  "physicalIO": "none; parent reviewed fixtures or pseudo-terminals before execution"
+}
