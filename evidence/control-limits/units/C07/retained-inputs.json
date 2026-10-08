@@ -1,0 +1,62 @@
+{
+  "C07-authored-source.tar.gz": {
+    "bytes": 35270,
+    "sha256": "a73bc5215e9d3137c5269b05beb62b2ff606512c11fb31709ba6598731917109",
+    "contains": [
+      "docs/architecture.md",
+      "docs/joint-api.md",
+      "im6014_serial.py",
+      "joint_contract.py",
+      "joint_controller.py",
+      "scripts/check_milestone.py",
+      "scripts/check_offline_baseline.sh",
+      "test_controller.py",
+      "test_controller_expiry.py",
+      "test_controller_targets.py",
+      "test_startup.py"
+    ],
+    "baseHead": "d47326c4cfbce2499d1143e572273d328f341dcc"
+  },
+  "C07-fix-authored-source.tar.gz": {
+    "bytes": 37922,
+    "sha256": "7e7f80b2b638a2955325122045388b700035f66a876410f4e3f34a7da318d2d3",
+    "contains": [
+      "docs/architecture.md",
+      "docs/joint-api.md",
+      "im6014_serial.py",
+      "joint_contract.py",
+      "joint_controller.py",
+      "scripts/check_milestone.py",
+      "scripts/check_offline_baseline.sh",
+      "test_controller.py",
+      "test_controller_expiry.py",
+      "test_controller_targets.py",
+      "test_startup.py"
+    ],
+    "baseHead": "d47326c4cfbce2499d1143e572273d328f341dcc"
+  },
+  "C07-fault-cause-authored-source.tar.gz": {
+    "bytes": 38234,
+    "sha256": "31368d941998191fb040de5c9c54e1894d0f131d483c06c5e6fd6d9e40794fcd",
+    "contains": [
+      "docs/architecture.md",
+      "docs/joint-api.md",
+      "im6014_serial.py",
+      "joint_contract.py",
+      "joint_controller.py",
+      "scripts/check_milestone.py",
+      "scripts/check_offline_baseline.sh",
+      "test_controller.py",
+      "test_controller_expiry.py",
+      "test_controller_targets.py",
+      "test_startup.py"
+    ],
+    "baseHead": "d47326c4cfbce2499d1143e572273d328f341dcc"
+  },
+  "review-prompt.md.gz": {
+    "bytes": 45138,
+    "sha256": "53d8e0bd9269f9d98a494d8c1f623a2fa00b9b3fc9fbea99da68a7c8318867d0",
+    "uncompressedBytes": 234506,
+    "uncompressedSha256": "b715aafddbb3180333e708fbbc4acccbac59e5d1bb49f3cc288cd75cda8be2bf"
+  }
+}

@@ -1,0 +1,18 @@
+test_bounded_storage_after_many_claims (test_controller_owner.ControllerOwnerTests.test_bounded_storage_after_many_claims) ... ok
+test_delayed_old_generation_rejected_after_stop_and_rearm (test_controller_owner.ControllerOwnerTests.test_delayed_old_generation_rejected_after_stop_and_rearm) ... ok
+test_different_core_epoch_isolation (test_controller_owner.ControllerOwnerTests.test_different_core_epoch_isolation) ... ok
+test_exhausted_generation_fails_closed (test_controller_owner.ControllerOwnerTests.test_exhausted_generation_fails_closed) ... ok
+test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal (test_controller_owner.ControllerOwnerTests.test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal) ... ok
+test_no_owner_arm_rejected (test_controller_owner.ControllerOwnerTests.test_no_owner_arm_rejected) ... ok
+test_old_prepared_plan_not_revived_by_new_owner (test_controller_owner.ControllerOwnerTests.test_old_prepared_plan_not_revived_by_new_owner) ... ok
+test_owner_token_validation_and_immutability (test_controller_owner.ControllerOwnerTests.test_owner_token_validation_and_immutability) ... ok
+test_receipt_after_revoke_records_actual_write_but_no_motion (test_controller_owner.ControllerOwnerTests.test_receipt_after_revoke_records_actual_write_but_no_motion) ... ok
+test_repeated_stop_reconnect_and_fault_invalidation (test_controller_owner.ControllerOwnerTests.test_repeated_stop_reconnect_and_fault_invalidation) ... ok
+test_same_sequence_old_token_cannot_affect_ordering (test_controller_owner.ControllerOwnerTests.test_same_sequence_old_token_cannot_affect_ordering) ... ok
+test_takeover_during_vector_blocks_next_joint (test_controller_owner.ControllerOwnerTests.test_takeover_during_vector_blocks_next_joint) ... ok
+test_wrong_epoch_and_wrong_connection_rejected (test_controller_owner.ControllerOwnerTests.test_wrong_epoch_and_wrong_connection_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.014s
+
+OK

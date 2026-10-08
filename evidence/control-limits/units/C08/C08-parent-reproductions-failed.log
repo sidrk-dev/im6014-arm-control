@@ -1,0 +1,13 @@
+F
+======================================================================
+FAIL: test_overflow_revokes_active_last_generation_motion (__main__.ParentOwnerBoundary.test_overflow_revokes_active_last_generation_motion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-parent-reproductions.py", line 17, in test_overflow_revokes_active_last_generation_motion
+    self.assertFalse(c.claim_dispatch(p.plan_id,0),'Exhausted takeover must cancel old moving authority')
+AssertionError: True is not false : Exhausted takeover must cancel old moving authority
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

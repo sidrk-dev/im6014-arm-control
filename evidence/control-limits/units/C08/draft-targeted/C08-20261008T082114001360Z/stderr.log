@@ -1,0 +1,88 @@
+test_bounded_storage_after_many_claims (test_controller_owner.ControllerOwnerTests.test_bounded_storage_after_many_claims) ... FAIL
+test_delayed_old_generation_rejected_after_stop_and_rearm (test_controller_owner.ControllerOwnerTests.test_delayed_old_generation_rejected_after_stop_and_rearm) ... ERROR
+test_different_core_epoch_isolation (test_controller_owner.ControllerOwnerTests.test_different_core_epoch_isolation) ... ERROR
+test_exhausted_generation_fails_closed (test_controller_owner.ControllerOwnerTests.test_exhausted_generation_fails_closed) ... ok
+test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal (test_controller_owner.ControllerOwnerTests.test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal) ... ERROR
+test_no_owner_arm_rejected (test_controller_owner.ControllerOwnerTests.test_no_owner_arm_rejected) ... ERROR
+test_old_prepared_plan_not_revived_by_new_owner (test_controller_owner.ControllerOwnerTests.test_old_prepared_plan_not_revived_by_new_owner) ... ok
+test_owner_token_validation_and_immutability (test_controller_owner.ControllerOwnerTests.test_owner_token_validation_and_immutability) ... ok
+test_receipt_after_revoke_records_actual_write_but_no_motion (test_controller_owner.ControllerOwnerTests.test_receipt_after_revoke_records_actual_write_but_no_motion) ... ok
+test_repeated_stop_reconnect_and_fault_invalidation (test_controller_owner.ControllerOwnerTests.test_repeated_stop_reconnect_and_fault_invalidation) ... FAIL
+test_same_sequence_old_token_cannot_affect_ordering (test_controller_owner.ControllerOwnerTests.test_same_sequence_old_token_cannot_affect_ordering) ... ERROR
+test_takeover_during_vector_blocks_next_joint (test_controller_owner.ControllerOwnerTests.test_takeover_during_vector_blocks_next_joint) ... ok
+test_wrong_epoch_and_wrong_connection_rejected (test_controller_owner.ControllerOwnerTests.test_wrong_epoch_and_wrong_connection_rejected) ... ERROR
+
+======================================================================
+ERROR: test_delayed_old_generation_rejected_after_stop_and_rearm (test_controller_owner.ControllerOwnerTests.test_delayed_old_generation_rejected_after_stop_and_rearm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 93, in test_delayed_old_generation_rejected_after_stop_and_rearm
+    self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+ERROR: test_different_core_epoch_isolation (test_controller_owner.ControllerOwnerTests.test_different_core_epoch_isolation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 168, in test_different_core_epoch_isolation
+    self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+ERROR: test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal (test_controller_owner.ControllerOwnerTests.test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 329, in test_invalid_high_sequence_stale_owner_preserves_healthy_current_goal
+    self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+ERROR: test_no_owner_arm_rejected (test_controller_owner.ControllerOwnerTests.test_no_owner_arm_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 187, in test_no_owner_arm_rejected
+    self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+ERROR: test_same_sequence_old_token_cannot_affect_ordering (test_controller_owner.ControllerOwnerTests.test_same_sequence_old_token_cannot_affect_ordering)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 140, in test_same_sequence_old_token_cannot_affect_ordering
+    self.assertEqual(rej.code, DecisionCode.INVALID_OWNER)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+ERROR: test_wrong_epoch_and_wrong_connection_rejected (test_controller_owner.ControllerOwnerTests.test_wrong_epoch_and_wrong_connection_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 109, in test_wrong_epoch_and_wrong_connection_rejected
+    self.assertEqual(rej_epoch.code, DecisionCode.INVALID_OWNER)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'DecisionCode' has no attribute 'INVALID_OWNER'. Did you mean: 'INVALID_SOURCE'?
+
+======================================================================
+FAIL: test_bounded_storage_after_many_claims (test_controller_owner.ControllerOwnerTests.test_bounded_storage_after_many_claims)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 343, in test_bounded_storage_after_many_claims
+    self.assertEqual(snap.owner.generation, 10_000)
+AssertionError: 9999 != 10000
+
+======================================================================
+FAIL: test_repeated_stop_reconnect_and_fault_invalidation (test_controller_owner.ControllerOwnerTests.test_repeated_stop_reconnect_and_fault_invalidation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C08-workbench/test_controller_owner.py", line 277, in test_repeated_stop_reconnect_and_fault_invalidation
+    self.assertEqual(owner1.generation, 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.015s
+
+FAILED (failures=2, errors=6)

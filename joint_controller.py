@@ -7,6 +7,7 @@ transport and all externally visible records are immutable snapshots.
 from collections.abc import Iterable
 from dataclasses import dataclass
 import math
+import secrets
 import time
 
 from im6014_codec import command
@@ -21,6 +22,7 @@ from joint_contract import (
     JointSpec,
     JointStatus,
     MotorHealth,
+    OwnerToken,
     RefreshPlan,
     Snapshot,
     SourceIdentity,
@@ -41,7 +43,12 @@ class _DispatchClaim:
 
 
 class JointCore:
-    """Thread-confined state machine for one fixed, ordered set of joints."""
+    """Thread-confined state machine for one fixed, ordered set of joints.
+
+    The core public API assumes trusted station callers; C16 server binds its
+    actual connection identity rather than trusting client-supplied JSON fields.
+    No authentication claims are made beyond that boundary.
+    """
 
     def __init__(
         self,
@@ -74,6 +81,8 @@ class JointCore:
         if not callable(clock):
             raise ValueError("clock must be callable")
 
+        self._epoch = secrets.token_hex(16)
+
         try:
             specs = tuple(joints)
         except TypeError as exc:
@@ -100,6 +109,9 @@ class JointCore:
         self._now_high_water_s: float | None = None
         self._next_window_id: int = 0
         self._offered_window: IntentWindow | None = None
+        self._next_generation: int = 1
+        self._latest_owner: OwnerToken | None = None
+        self._current_owner: OwnerToken | None = None
         self._admitted_target: Target | None = None
         self._prepared_plan: RefreshPlan | None = None
         self._next_plan_id: int = 0
@@ -133,9 +145,53 @@ class JointCore:
         self._prepared_plan = None
         self._next_dispatch_index = 0
 
-    def _withdraw_motion(self) -> None:
+    def _revoke_authority(self) -> None:
+        self._current_owner = None
+        self._offered_window = None
         self._admitted_target = None
         self._invalidate_plan()
+
+    def claim_owner(self, connection_id: str) -> OwnerToken:
+        """Issue and claim owner authority for a trusted station caller.
+
+        The core public API assumes trusted station callers; C16 server binds its
+        actual connection identity rather than trusting client-supplied JSON fields.
+        No authentication claims are made beyond that boundary.
+        """
+        if (
+            type(connection_id) is not str
+            or not connection_id.strip()
+            or len(connection_id) > 64
+        ):
+            raise ValueError("connection_id must be a bounded non-empty string")
+        was_owned = self._current_owner is not None
+        stop_for_claim = self._state in (
+            State.CHECKING,
+            State.READY,
+            State.ARMED,
+            State.MOVING,
+        ) or (was_owned and self._state not in (State.DISCONNECTED, State.CONNECTING))
+        self._revoke_authority()
+        if self._state in (State.DISCONNECTED, State.CONNECTING):
+            pass
+        elif self._state is State.FAULT or self._faults:
+            self._state = State.FAULT
+        elif stop_for_claim:
+            self._state = State.STOPPED
+
+        if self._next_generation > (1 << 64) - 1:
+            raise OverflowError("owner generation sequence exhausted")
+
+        generation = self._next_generation
+        self._next_generation += 1
+        token = OwnerToken(
+            epoch=self._epoch,
+            generation=generation,
+            connection_id=connection_id,
+        )
+        self._current_owner = token
+        self._latest_owner = token
+        return token
 
     def _record_dispatch_failure(
         self, index: int, cause: CommunicationFailure
@@ -180,10 +236,10 @@ class JointCore:
         )
         self._faults[name] = fault
         self._state = State.FAULT
-        self._withdraw_motion()
+        self._revoke_authority()
 
     def _withdraw_expired_goal(self) -> None:
-        self._withdraw_motion()
+        self._revoke_authority()
         if self._faults:
             self._state = State.FAULT
         elif self._state in (State.ARMED, State.MOVING):
@@ -294,7 +350,8 @@ class JointCore:
         if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
-        self._withdraw_motion()
+        self._admitted_target = None
+        self._invalidate_plan()
         self._state = State.CHECKING
         return self._accepted()
 
@@ -374,9 +431,15 @@ class JointCore:
         self._faults.clear()
         return self._accepted()
 
-    def arm(self) -> Decision:
+    def arm(self, owner: OwnerToken) -> Decision:
         if self._state is not State.READY:
             return self._rejected(DecisionCode.INVALID_STATE)
+        if (
+            not isinstance(owner, OwnerToken)
+            or self._current_owner is None
+            or owner != self._current_owner
+        ):
+            return self._rejected(DecisionCode.INVALID_OWNER)
         if bool(self._faults):
             return self._rejected(DecisionCode.FAULT_LATCHED)
         if any(not joint.valid for joint in self._observations):
@@ -412,6 +475,13 @@ class JointCore:
 
         if not isinstance(target, Target) or len(target.joints) != len(self._specs):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+
+        if (
+            not isinstance(target.owner, OwnerToken)
+            or self._current_owner is None
+            or target.owner != self._current_owner
+        ):
+            return self._rejected(DecisionCode.INVALID_OWNER)
 
         if not isinstance(target.window, IntentWindow):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
@@ -466,6 +536,8 @@ class JointCore:
         if any(not joint.healthy for joint in self._observations):
             return None
         if self._admitted_target is None:
+            return None
+        if self._current_owner is None or self._admitted_target.owner != self._current_owner:
             return None
 
         try:
@@ -523,6 +595,8 @@ class JointCore:
             return False
         if self._admitted_target is None or self._prepared_plan is None:
             return False
+        if self._current_owner is None or self._prepared_plan.target.owner != self._current_owner:
+            return False
         if any(not joint.healthy for joint in self._observations):
             return False
 
@@ -554,12 +628,14 @@ class JointCore:
             target=joint_target,
             result=result,
             started_at_s=claim.started_at_s,
+            owner=plan.target.owner,
         )
         if result is WriteResult.COMPLETE:
             record = JointDispatchedRecord(
                 sequence=plan.target.sequence,
                 target=joint_target,
                 dispatched_at_s=claim.started_at_s,
+                owner=plan.target.owner,
             )
             self._dispatched_records[index] = record
             try:
@@ -574,6 +650,8 @@ class JointCore:
                 and self._admitted_target is plan.target
                 and self._state in (State.ARMED, State.MOVING)
                 and not self._faults
+                and self._current_owner is not None
+                and self._current_owner == plan.target.owner
             )
             if still_current and housekeeping is None:
                 self._next_dispatch_index = index + 1
@@ -591,7 +669,7 @@ class JointCore:
     def stop(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
-        self._withdraw_motion()
+        self._revoke_authority()
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
@@ -602,7 +680,7 @@ class JointCore:
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
-        self._withdraw_motion()
+        self._revoke_authority()
         return self._accepted()
 
     def snapshot(self) -> Snapshot:
@@ -627,4 +705,6 @@ class JointCore:
             dispatched_records=tuple(self._dispatched_records),
             dispatch_attempts=tuple(self._dispatch_attempts),
             last_sequence=self._last_sequence,
+            latest_owner=self._latest_owner,
+            current_owner=self._current_owner,
         )

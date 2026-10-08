@@ -1,0 +1,11 @@
+{
+  "status": "decision",
+  "role": "architect runners",
+  "header": "architect runners",
+  "laneIndex": 1,
+  "lane": "architect runners#2",
+  "decision": {
+    "kind": "stop",
+    "reason": "complete"
+  }
+}

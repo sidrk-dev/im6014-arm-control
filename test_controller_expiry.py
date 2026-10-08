@@ -10,6 +10,8 @@ from joint_contract import (
     DecisionCode,
     IntentWindow,
     JointSpec,
+    MotorHealth,
+    OwnerToken,
     SourceIdentity,
     State,
     Target,
@@ -46,8 +48,9 @@ class ControllerExpiryTests(unittest.TestCase):
         )
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
+        owner = station.claim("fixture")
         self.assertTrue(station.check().accepted)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(owner).accepted)
         return core, station, clock
 
     def test_expired_incoming_and_equality_boundary_reject_without_watermark_corruption(self):
@@ -56,7 +59,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         # Submit valid initial target to establish watermark at 5
         w0 = station.issue_window(0.5)
-        t0 = Target(5, self.valid_joints, window=w0)
+        t0 = Target(5, self.valid_joints, window=w0, owner=station.owner)
         self.assertTrue(station.submit(t0).accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t0)
@@ -68,7 +71,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         # Exact equality boundary: now == expires_at_s is expired
         clock.value = 0.4
-        t_boundary = Target(6, self.valid_joints, window=w1)
+        t_boundary = Target(6, self.valid_joints, window=w1, owner=station.owner)
         d_boundary = station.submit(t_boundary)
         self.assertFalse(d_boundary.accepted)
         self.assertEqual(d_boundary.code, DecisionCode.EXPIRED)
@@ -78,7 +81,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         # Strictly past expiry: now > expires_at_s is expired
         clock.value = 0.40001
-        t_past = Target(7, self.valid_joints, window=w1)
+        t_past = Target(7, self.valid_joints, window=w1, owner=station.owner)
         d_past = station.submit(t_past)
         self.assertFalse(d_past.accepted)
         self.assertEqual(d_past.code, DecisionCode.EXPIRED)
@@ -93,7 +96,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         # Client computation takes 0.3s (now is 0.3)
         clock.value = 0.3
-        target1 = Target(1, self.valid_joints, window=w1)
+        target1 = Target(1, self.valid_joints, window=w1, owner=station.owner)
         # Arrival at core does NOT grant new TTL; rejects as EXPIRED
         decision = station.submit(target1)
         self.assertFalse(decision.accepted)
@@ -103,7 +106,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         # Client cannot forge a window with extended expiry
         forged_window = IntentWindow(w1.id, w1.created_at_s, 0.9)
-        forged_target = Target(1, self.valid_joints, window=forged_window)
+        forged_target = Target(1, self.valid_joints, window=forged_window, owner=station.owner)
         d_forged = station.submit(forged_target)
         self.assertFalse(d_forged.accepted)
         self.assertEqual(d_forged.code, DecisionCode.INVALID_ARGUMENT)
@@ -118,14 +121,14 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_new_submission_cannot_revive_expired_moving_goal(self):
         core, station, clock = self._armed_core()
         first_window = station.issue_window(0.2)
-        first = Target(5, self.valid_joints, window=first_window)
+        first = Target(5, self.valid_joints, window=first_window, owner=station.owner)
         self.assertTrue(station.submit(first).accepted)
         self.assertIsNotNone(station.refresh())
         self.assertIs(core.snapshot().state, State.MOVING)
 
         clock.value = first_window.expires_at_s
         fresh_window = station.issue_window(0.2)
-        replacement = Target(6, self.valid_joints, window=fresh_window)
+        replacement = Target(6, self.valid_joints, window=fresh_window, owner=station.owner)
         decision = station.submit(replacement)
 
         self.assertFalse(decision.accepted)
@@ -137,10 +140,10 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_invalid_replacement_preserves_only_a_still_valid_goal(self):
         core, station, clock = self._armed_core()
         window = station.issue_window(0.2)
-        current = Target(5, self.valid_joints, window=window)
+        current = Target(5, self.valid_joints, window=window, owner=station.owner)
         self.assertTrue(station.submit(current).accepted)
 
-        invalid = Target(9, (self.valid_joints[0],), window=window)
+        invalid = Target(9, (self.valid_joints[0],), window=window, owner=station.owner)
         decision = station.submit(invalid)
         self.assertFalse(decision.accepted)
         self.assertEqual(decision.code, DecisionCode.INVALID_ARGUMENT)
@@ -149,7 +152,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
         clock.value = window.expires_at_s
         fresh_window = station.issue_window(0.2)
-        invalid_after_expiry = Target(10, (self.valid_joints[0],), window=fresh_window)
+        invalid_after_expiry = Target(10, (self.valid_joints[0],), window=fresh_window, owner=station.owner)
         expired_decision = station.submit(invalid_after_expiry)
         self.assertFalse(expired_decision.accepted)
         self.assertEqual(expired_decision.code, DecisionCode.EXPIRED)
@@ -160,7 +163,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_goal_expires_after_admission_and_before_prepare_or_actual_write(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(0.5)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         self.assertEqual(core.snapshot().admitted_target, target)
 
@@ -177,7 +180,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_two_joint_first_write_then_expiry_or_revoke_blocks_second_and_records_only_first(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(0.5)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -212,7 +215,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_reset_input_buffer_advancing_clock_causes_final_gate_cancellation_with_zero_mode1_write(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(0.5)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -258,7 +261,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_expiry_during_feedback_wait_causes_no_later_write(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(0.5)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -279,7 +282,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_repeated_refresh_bounded_until_expiry(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(0.5)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         # At t=0.1, refresh succeeds
@@ -310,13 +313,13 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_invalid_higher_seq_preserves_valid_goal(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        t5 = Target(5, self.valid_joints, window=w)
+        t5 = Target(5, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(t5).accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().admitted_target, t5)
 
         # High sequence with invalid joint target count
-        bad_high = Target(100, (self.valid_joints[0],), window=w)
+        bad_high = Target(100, (self.valid_joints[0],), window=w, owner=station.owner)
         d_bad = station.submit(bad_high)
         self.assertFalse(d_bad.accepted)
         self.assertEqual(d_bad.code, DecisionCode.INVALID_ARGUMENT)
@@ -326,7 +329,7 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(core.snapshot().admitted_target, t5)
 
         # High sequence with out-of-range torque
-        bad_torque = Target(100, (JointTarget(0, 0, 10.0, 1, .1), self.valid_joints[1]), window=w)
+        bad_torque = Target(100, (JointTarget(0, 0, 10.0, 1, .1), self.valid_joints[1]), window=w, owner=station.owner)
         d_torque = station.submit(bad_torque)
         self.assertFalse(d_torque.accepted)
         self.assertEqual(d_torque.code, DecisionCode.INVALID_ARGUMENT)
@@ -336,7 +339,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_stop_fault_disconnect_invalidate_plans_but_retain_sequence(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        target = Target(10, self.valid_joints, window=w)
+        target = Target(10, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
@@ -352,10 +355,11 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 10)
 
         # Re-arm and set up new target
+        owner2 = station.claim("fixture-2")
         self.assertTrue(station.check().accepted)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(owner2).accepted)
         w2 = station.issue_window(1.0)
-        target2 = Target(12, self.valid_joints, window=w2)
+        target2 = Target(12, self.valid_joints, window=w2, owner=owner2)
         self.assertTrue(station.submit(target2).accepted)
         plan2 = core.prepare_refresh()
         self.assertIsNotNone(plan2)
@@ -377,7 +381,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_wrong_duplicate_out_of_order_claims_reject(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -413,7 +417,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
     def test_stop_after_claim_preserves_completed_receipt_without_rearming(self):
         core, station, clock = self._armed_core()
-        target = Target(1, self.valid_joints, window=station.issue_window(1.0))
+        target = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
@@ -435,7 +439,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_expiry_after_claim_preserves_completed_receipt_without_moving(self):
         core, station, clock = self._armed_core()
         window = station.issue_window(0.2)
-        target = Target(1, self.valid_joints, window=window)
+        target = Target(1, self.valid_joints, window=window, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
@@ -454,12 +458,12 @@ class ControllerExpiryTests(unittest.TestCase):
 
     def test_invalidated_plan_receipt_records_write_without_reviving_old_goal(self):
         core, station, clock = self._armed_core()
-        first = Target(1, self.valid_joints, window=station.issue_window(1.0))
+        first = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(first).accepted)
         plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
 
-        replacement = Target(2, self.valid_joints, window=station.issue_window(1.0))
+        replacement = Target(2, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(replacement).accepted)
         self.assertIsNone(core.snapshot().prepared_plan)
         self.assertIsNone(core.prepare_refresh())
@@ -479,7 +483,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_complete_write_then_bad_timeout_feedback_still_counted_actually_dispatched(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -506,7 +510,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_partial_failed_write_faults(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         plan = core.prepare_refresh()
@@ -533,13 +537,13 @@ class ControllerExpiryTests(unittest.TestCase):
 
     def test_partial_attempt_keeps_previous_complete_dispatched_record(self):
         core, station, clock = self._armed_core()
-        first = Target(1, self.valid_joints, window=station.issue_window(1.0))
+        first = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(first).accepted)
         plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(plan.plan_id, 0))
         self.assertTrue(core.dispatch_result(plan.plan_id, 0, WriteResult.COMPLETE).accepted)
 
-        next_target = Target(2, self.valid_joints, window=station.issue_window(1.0))
+        next_target = Target(2, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(core.submit_target(next_target).accepted)
         next_plan = core.prepare_refresh()
         self.assertTrue(core.claim_dispatch(next_plan.plan_id, 0))
@@ -556,7 +560,7 @@ class ControllerExpiryTests(unittest.TestCase):
         for invalid_end_time in (math.nan, 0.5):
             with self.subTest(invalid_end_time=invalid_end_time):
                 core, station, clock = self._armed_core(DeterministicClock(1.0))
-                target = Target(1, self.valid_joints, window=station.issue_window(1.0))
+                target = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
                 self.assertTrue(station.submit(target).accepted)
                 plan = core.prepare_refresh()
                 claim_time = clock.value
@@ -636,7 +640,7 @@ class ControllerExpiryTests(unittest.TestCase):
 
     def test_expiry_after_successful_claim_reports_prewrite_deadline(self):
         core, station, _ = self._armed_core()
-        target = Target(1, self.valid_joints, window=station.issue_window(1.0))
+        target = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         plan = core.prepare_refresh()
 
@@ -688,7 +692,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_exchange_reports_raised_write_once_and_callback_failure_stops_feedback(self):
         results = []
         core, station, _ = self._armed_core()
-        target = Target(1, self.valid_joints, window=station.issue_window(1.0))
+        target = Target(1, self.valid_joints, window=station.issue_window(1.0), owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
         plan = core.prepare_refresh()
 
@@ -783,7 +787,7 @@ class ControllerExpiryTests(unittest.TestCase):
     def test_invalid_clock_cannot_release_writes(self):
         core, station, clock = self._armed_core()
         w = station.issue_window(1.0)
-        target = Target(1, self.valid_joints, window=w)
+        target = Target(1, self.valid_joints, window=w, owner=station.owner)
         self.assertTrue(station.submit(target).accepted)
 
         # Non-finite clock raises before prepare_refresh releases any plan
@@ -813,6 +817,13 @@ class ControllerExpiryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             core.issue_window(0.6)
 
+        # Establish station authority before offering windows; claiming invalidates prior offers.
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        owner = station.claim("fixture")
+        self.assertTrue(station.check().accepted)
+        self.assertTrue(station.arm(owner).accepted)
+
         # Monotonically increasing window IDs without wrap
         w0 = core.issue_window(0.2)
         w1 = core.issue_window(0.2)
@@ -822,20 +833,14 @@ class ControllerExpiryTests(unittest.TestCase):
         self.assertEqual(w2.id, 2)
         self.assertTrue(w0.id < w1.id < w2.id)
 
-        # Only latest offered window (w2) is admitted
-        station = FakeStation(core)
-        self.assertTrue(station.connect().accepted)
-        self.assertTrue(station.check().accepted)
-        self.assertTrue(station.arm().accepted)
-
         # Older window w0 is rejected
-        t_old = Target(1, self.valid_joints, window=w0)
+        t_old = Target(1, self.valid_joints, window=w0, owner=owner)
         d_old = station.submit(t_old)
         self.assertFalse(d_old.accepted)
         self.assertEqual(d_old.code, DecisionCode.EXPIRED)
 
         # Latest window w2 is accepted
-        t_latest = Target(1, self.valid_joints, window=w2)
+        t_latest = Target(1, self.valid_joints, window=w2, owner=owner)
         d_latest = station.submit(t_latest)
         self.assertTrue(d_latest.accepted)
 

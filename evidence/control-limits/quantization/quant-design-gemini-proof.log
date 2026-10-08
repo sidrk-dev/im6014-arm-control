@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/quant-design-gemini-proof.py", line 85, in <module>
+    run_proof()
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/quant-design-gemini-proof.py", line 22, in run_proof
+    assert naive_q > q_max, f"Naive rounding failed to overshoot: {naive_q} <= {q_max}"
+           ^^^^^^^^^^^^^^^
+AssertionError: Naive rounding failed to overshoot: 0.9999990480289892 <= 1.0

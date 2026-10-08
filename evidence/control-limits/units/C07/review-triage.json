@@ -1,0 +1,61 @@
+{
+  "reviewer": "opencode/muse-spark-1.3-contributor-free",
+  "requestedRouteEvidence": "pinned-request; reported identity not independently verified",
+  "findings": [
+    {
+      "id": 1,
+      "category": "Dismissed",
+      "why": "In-flight write receipt is intentionally retained through disconnect; reconnect is blocked until resolution, still_current false prevents motion. C08 will bind old receipts to original owner token."
+    },
+    {
+      "id": 2,
+      "category": "Noted",
+      "why": "Snapshots intentionally require finite monotonic time; this contract is explicit. Known receipt remains stored and Stop stays available. Station later catches invalid clock."
+    },
+    {
+      "id": 3,
+      "category": "Dismissed",
+      "why": "tick accepted means housekeeping ran, not that state stayed unchanged. Callers inspect snapshot; admission/claim use separate rejection semantics."
+    },
+    {
+      "id": 4,
+      "category": "Dismissed",
+      "why": "Latest offered window intentionally supersedes earlier computation windows. Core calls are trusted station operations; C08/C16 connection binding is sequenced next."
+    },
+    {
+      "id": 5,
+      "category": "Act on",
+      "why": "Local pre-write deadline and invalid completion clock should use fixed distinct fault causes rather than mislabeled driver failure. Preserve complete write receipt independently.",
+      "result": "Fixed in accepted C07 ac84fc2 with CLOCK_FAILURE/PREWRITE_DEADLINE causes; 25 targeted,89 affected and full nine-group baseline rerun passed."
+    },
+    {
+      "id": 6,
+      "category": "Noted",
+      "why": "Broad ValueError conversion and restore chaining are inherited existing behavior; new callbacks can be included in later focused error taxonomy cleanup. Does not permit write retry or hide actual core result."
+    },
+    {
+      "id": 7,
+      "category": "Consider",
+      "why": "Duplicated core encode validation can be extracted during shaped-reference introduction; adapter still needs actual packet construction. No duplicate codec scale policy."
+    }
+  ],
+  "reviewers": [
+    {
+      "model": "opencode/muse-spark-1.3-contributor-free",
+      "status": "complete",
+      "findings": 7,
+      "requestedRouteOnly": true
+    },
+    {
+      "model": "opencode/mimo-v2.6-flash-free",
+      "status": "child-failed",
+      "cause": "HTTP502; one backend submission; no permission rejection/output"
+    },
+    {
+      "model": "antigravity:gemini-3.8-flash-high@default",
+      "status": "child-failed",
+      "cause": "runner terminal envelope lacked successful result; review text not accepted"
+    }
+  ],
+  "agreement": "One completed reviewer, no cross-model consensus. Other seats retained as dropouts; final branch panel and independent nonwriter verification still required."
+}

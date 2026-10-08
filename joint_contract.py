@@ -27,6 +27,7 @@ class DecisionCode(str, Enum):
     ACCEPTED = "accepted"
     INVALID_STATE = "invalid_state"
     INVALID_ARGUMENT = "invalid_argument"
+    INVALID_OWNER = "invalid_owner"
     INVALID_SOURCE = "invalid_source"
     UNKNOWN_JOINT = "unknown_joint"
     INVALID_OBSERVATION = "invalid_observation"
@@ -221,6 +222,21 @@ class JointStatus:
 
 
 @dataclass(frozen=True)
+class OwnerToken:
+    epoch: str
+    generation: int
+    connection_id: str
+
+    def __post_init__(self) -> None:
+        if type(self.epoch) is not str or not self.epoch.strip() or len(self.epoch) > 64:
+            raise ValueError("epoch must be a bounded non-empty string")
+        if type(self.generation) is not int or not (1 <= self.generation <= (1 << 64) - 1):
+            raise ValueError("generation must be an integer from 1 to 2**64 - 1")
+        if type(self.connection_id) is not str or not self.connection_id.strip() or len(self.connection_id) > 64:
+            raise ValueError("connection_id must be a bounded non-empty string")
+
+
+@dataclass(frozen=True)
 class IntentWindow:
     id: int
     created_at_s: float
@@ -251,6 +267,7 @@ class Target:
     sequence: int
     joints: tuple[JointTarget, ...]
     window: IntentWindow
+    owner: OwnerToken
 
     def __post_init__(self) -> None:
         if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
@@ -263,6 +280,8 @@ class Target:
             raise ValueError("every joint target must be a JointTarget")
         if not isinstance(self.window, IntentWindow):
             raise ValueError("window must be an IntentWindow")
+        if not isinstance(self.owner, OwnerToken):
+            raise ValueError("owner must be an OwnerToken")
 
 
 @dataclass(frozen=True)
@@ -295,18 +314,25 @@ class RefreshPlan:
     def window(self) -> IntentWindow:
         return self.target.window
 
+    @property
+    def owner(self) -> OwnerToken:
+        return self.target.owner
+
 
 @dataclass(frozen=True)
 class JointDispatchedRecord:
     sequence: int
     target: JointTarget
     dispatched_at_s: float
+    owner: OwnerToken
 
     def __post_init__(self) -> None:
         if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
             raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
         if not isinstance(self.target, JointTarget):
             raise ValueError("target must be a JointTarget")
+        if not isinstance(self.owner, OwnerToken):
+            raise ValueError("owner must be an OwnerToken")
         if isinstance(self.dispatched_at_s, bool) or not isinstance(self.dispatched_at_s, (int, float)):
             raise ValueError("dispatched_at_s must be a finite real number")
         try:
@@ -325,6 +351,7 @@ class JointDispatchAttempt:
     target: JointTarget
     result: WriteResult
     started_at_s: float
+    owner: OwnerToken
 
     def __post_init__(self) -> None:
         if type(self.plan_id) is not int or not (0 <= self.plan_id <= (1 << 64) - 1):
@@ -335,6 +362,8 @@ class JointDispatchAttempt:
             raise ValueError("target must be a JointTarget")
         if not isinstance(self.result, WriteResult):
             raise ValueError("result must be a WriteResult")
+        if not isinstance(self.owner, OwnerToken):
+            raise ValueError("owner must be an OwnerToken")
         if isinstance(self.started_at_s, bool) or not isinstance(self.started_at_s, (int, float)):
             raise ValueError("started_at_s must be a finite real number")
         try:
@@ -360,6 +389,8 @@ class Snapshot:
     dispatched_records: tuple[JointDispatchedRecord | None, ...] = ()
     last_sequence: int = -1
     dispatch_attempts: tuple[JointDispatchAttempt | None, ...] = ()
+    latest_owner: OwnerToken | None = None
+    current_owner: OwnerToken | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -417,6 +448,10 @@ class Snapshot:
                 raise ValueError("every dispatch attempt must be a JointDispatchAttempt or None")
         if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
             raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
+        if self.latest_owner is not None and not isinstance(self.latest_owner, OwnerToken):
+            raise ValueError("latest_owner must be an OwnerToken or None")
+        if self.current_owner is not None and not isinstance(self.current_owner, OwnerToken):
+            raise ValueError("current_owner must be an OwnerToken or None")
 
     @property
     def affected_joints(self) -> tuple[str, ...]:

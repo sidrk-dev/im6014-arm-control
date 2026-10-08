@@ -1,0 +1,8 @@
+{
+  "agent": "/root/c08_owner_fix",
+  "model": "gpt-6-luna",
+  "effort": "max",
+  "terminal": "FINAL received",
+  "testsRun": false,
+  "acceptance": "unverified"
+}

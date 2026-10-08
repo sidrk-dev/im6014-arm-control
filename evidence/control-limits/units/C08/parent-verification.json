@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-08T13:03:41.525630+00:00",
+  "status": "C08 software verified; final branch review pending",
+  "targetedTests": 13,
+  "parentReproductions": 1,
+  "affectedTests": 114,
+  "fullMilestoneTests": 145,
+  "baselineGroups": 9,
+  "dashboardGroups": 18,
+  "sourceHashesMatched": true,
+  "sourceSnapshotSha256": "b97188375a515ab821124510131d7b496502b6743dcc46e0b79019d003f810bc",
+  "imagesInspected": [
+    "dashboard_preview.png",
+    "dashboard_dark_preview.png",
+    "startup-real/dashboard.png",
+    "startup-demo/dashboard.png"
+  ],
+  "physicalIO": false,
+  "models": {
+    "Gemini": "original author; parent checks failed; handoff fulfilled, no replay",
+    "LunaMax": "owner repairs and separate window fixture correction; authorship receipts retained"
+  },
+  "review": "final configured whole-branch panel and nonwriter verification still required"
+}

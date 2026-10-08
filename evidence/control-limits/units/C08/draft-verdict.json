@@ -1,0 +1,27 @@
+{
+  "accepted": false,
+  "draftBase": "ac84fc279a6b532433234df6717041db50c78bcc",
+  "targeted": {
+    "tests": 13,
+    "failures": 2,
+    "errors": 6,
+    "exit": 1
+  },
+  "baseline": {
+    "milestoneTests": 145,
+    "failures": 2,
+    "errors": 14,
+    "otherGroups": 8,
+    "otherGroupsExit": 0,
+    "exit": 1
+  },
+  "parentReproduction": {
+    "activeGenerationExhaustionOldPlanStillDispatchable": true,
+    "exit": 1
+  },
+  "unrunByWriter": true,
+  "handoff": "validated and fulfilled, failed checks, policy stop not-eligible; no replay",
+  "repairDescriptor": "codex:gpt-6-luna@max",
+  "originalSource": "C08-authored-source.tar.gz; original all ten hash values match",
+  "physicalIO": false
+}

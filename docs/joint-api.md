@@ -65,26 +65,27 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 
 ## Latest target and command expiry
 
-`Target(sequence, joints, window)` contains an immutable complete tuple of `JointTarget` values in configured order and a required station-issued `IntentWindow(id, created_at_s, expires_at_s)`. `JointCore.issue_window(valid_for_s)` issues the latest offered window with a monotonic ID and bounded duration (`max_window_s`, default 1.0s). `submit_target` first expires or faults an existing goal as needed, then validates the incoming window against the latest offered window, checks expiry (exact equality with expiry is expired), checks mapped output codec representability, and enforces monotonic command sequence ordering before admitting the goal. A rejected replacement keeps an existing goal only while that goal remains valid.
+`Target(sequence, joints, window, owner)` contains an immutable complete tuple of `JointTarget` values in configured order, a required station-issued `IntentWindow(id, created_at_s, expires_at_s)`, and the current `OwnerToken`. `JointCore.issue_window(valid_for_s)` issues the latest offered window with a monotonic ID and bounded duration (`max_window_s`, default 1.0s). `submit_target` first expires or faults an existing goal as needed, then checks the full owner token, validates the incoming window against the latest offered window, checks expiry (exact equality with expiry is expired), checks mapped output codec representability, and enforces monotonic command sequence ordering before admitting the goal. A rejected replacement keeps an existing goal only while that goal remains valid.
 
 `consume_target` is deleted in favor of explicit refresh lifecycle: `prepare_refresh()`, `claim_dispatch(plan_id, index)`, and `dispatch_result(plan_id, index, result)`. An admitted goal is refreshed repeatedly until its window expires. Preparing a plan proposes a refresh vector without dispatching. `claim_dispatch` verifies freshness, health, goal expiry, and ordered joint index immediately before each write. Only one claim may await an outcome; the core blocks another joint claim and plan preparation until it arrives. Stop, expiry, target replacement, or fault can invalidate the plan without discarding that in-flight receipt. `exchange` reports the write result once after the driver outcome; successful returns are deadline-checked before feedback. If the deadline expires after the pre-write hook grants a claim but before `bus.write`, it reports `WriteResult.PREWRITE_DEADLINE`: the software made no write call for that claim. This does not establish motor state or physical protection. `WriteResult.PARTIAL` means the driver returned a positive short count. `WriteResult.FAILED` means the driver raised or returned an invalid count, so byte delivery may be unknown. `Snapshot.dispatch_attempts` holds the latest outcome per joint. `dispatch_result` commits a dispatched record only for a complete write. A dispatched record's `dispatched_at_s` is the valid claim/write start time, not a fabricated completion timestamp. A complete write followed by invalid or regressing core time preserves the complete record and attempt, then faults with `CommunicationFailure.CLOCK_FAILURE` without restoring motion. `WriteResult.PREWRITE_DEADLINE` faults with `CommunicationFailure.PREWRITE_DEADLINE`; `PARTIAL` and `FAILED` fault with `DRIVER_FAILURE`, preserving any prior complete record. A late receipt for an invalidated plan is recorded but cannot restore motion. When an admitted goal expires, housekeeping withdraws it, invalidates pending plans, and disarms the core to `STOPPED` (latched fault preserved), requiring a new check and arm cycle. Sequence watermarks survive consumption, stop, fault, and disconnect.
 
 ### Offline controller example
 
 ```python
-from joint_contract import IntentWindow, JointSpec, MotorHealth, SourceIdentity, State, Target, WriteResult
+from joint_contract import IntentWindow, JointSpec, MotorHealth, OwnerToken, SourceIdentity, State, Target, WriteResult
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
 core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25)),), clock=lambda: 0.0)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
+owner = core.claim_owner("example-client")
 assert core.begin_check()
 assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
 assert core.checked()
-assert core.arm()
+assert core.arm(owner)
 window = core.issue_window(0.5)
-target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), window=window)
+target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), window=window, owner=owner)
 assert core.submit_target(target)
 plan = core.prepare_refresh()
 assert plan is not None
@@ -100,6 +101,14 @@ This example performs no serial operations. A station adapter must validate its 
 
 ## Core and ownership limits
 
-The injected core clock must be finite and monotonic. Invalid or regressing time rejects operations that need a fresh gate; snapshots also require that clock contract. If a complete write receipt arrives after its end clock becomes invalid, the core preserves that known write and claim timestamp, then latches a driver failure and withdraws motion until acknowledged recovery. The default clock is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Owner generations remain C08.
+The injected core clock must be finite and monotonic. Invalid or regressing time rejects operations that need a fresh gate; snapshots also require that clock contract. If a complete write receipt arrives after its end clock becomes invalid, the core preserves that known write and claim timestamp, then latches `CommunicationFailure.CLOCK_FAILURE` and withdraws motion until acknowledged recovery. The default clock is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering.
+
+### Owner generations
+
+`JointCore` generates a fresh unpredictable random 16-byte hex epoch per instance/process via `secrets.token_hex(16)` with no persisted global state. A monotonic generation counter starts at 1 and ranges through uint64. `claim_owner(connection_id)` returns a frozen `OwnerToken(epoch, generation, connection_id)`. `connection_id` is an immutable non-empty string bounded to 64 characters and identifies the client connection; `SourceIdentity` separately identifies the motor connection. The core assumes trusted station callers; the station/server binds its actual client connection identity rather than trusting unverified JSON payload attributes, with no authentication claims beyond that boundary.
+
+`arm(owner)` and `Target` require the exact matching `OwnerToken`; the core-issued full token prevents client-supplied epoch or generation values from creating authority. An owner mismatch returns `DecisionCode.INVALID_OWNER` after lifecycle state checks. Stop, any latched joint fault, disconnect, expired goals, and explicit takeover revoke active authority (`current_owner` becomes `None`), withdraw pending goals/plans and offered windows, and never auto-rearm. A claim during checking, ready, armed, or moving state, or a takeover of an existing owner on a connected core, places the core in `STOPPED` (while preserving `FAULT` and `DISCONNECTED`), requiring a fresh stop check and explicit arm call with the new token. Reconnecting requires claiming a fresh generation. Fault recovery also requires a new claim before checking and arming.
+
+Durable attempt and dispatched records retain the original `OwnerToken` stamped at plan creation; an in-flight receipt completing after authority revocation preserves the actual write record with its original owner attribution without transitioning the core to `MOVING`. `Snapshot.latest_owner` retains the most recently issued token after revocation, while `Snapshot.current_owner` is `None` unless that token currently has authority. Bounded O(1) storage retains only these two tokens. When the uint64 generation space is exhausted, a new claim revokes authority, stops the core (or preserves `FAULT`/`DISCONNECTED`), and raises `OverflowError` without wrapping; start a fresh core to obtain a new epoch.
 
 The fixed per-user lock namespace under `/tmp` coordinates cooperating processes. A hostile local user can pre-create the name and deny access; validation fails closed. An administrator must remove a foreign-owned obstruction. Lockfiles persist to preserve flock inode identity, including after device-number reuse. Do not delete them while clients may be running. No automatic pruning or hostile-local-user availability guarantee is supplied.

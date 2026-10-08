@@ -12,6 +12,7 @@ from joint_contract import (
     JointSpec,
     JointStatus,
     MotorHealth,
+    OwnerToken,
     RefreshPlan,
     Snapshot,
     SourceIdentity,
@@ -32,6 +33,7 @@ class FakeStation:
     def __init__(self, core):
         self.core = core
         self.writes = []
+        self.owner = None
 
     def _write_stops(self):
         self.writes.extend(command(spec.motor_id, mode=0) for spec in self.core.joint_specs)
@@ -45,6 +47,13 @@ class FakeStation:
             self._write_stops()
         return decision
 
+    def claim(self, connection_id="human"):
+        prior_state = self.core.snapshot().state
+        self.owner = self.core.claim_owner(connection_id)
+        if self.core.snapshot().state is State.STOPPED and prior_state is not State.STOPPED:
+            self._write_stops()
+        return self.owner
+
     def check(self, *, acknowledge_fault=False):
         decision = self.core.begin_check(acknowledge_fault=acknowledge_fault)
         if not decision.accepted:
@@ -56,8 +65,8 @@ class FakeStation:
                 return decision
         return self.core.checked()
 
-    def arm(self):
-        return self.core.arm()
+    def arm(self, owner: OwnerToken):
+        return self.core.arm(owner)
 
     def issue_window(self, valid_for_s=0.2):
         return self.core.issue_window(valid_for_s)
@@ -126,6 +135,7 @@ class FeedbackAgeTests(unittest.TestCase):
         )
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
+        station.claim("fixture")
         self.assertTrue(station.check().accepted)
         return core, station
 
@@ -138,7 +148,7 @@ class FeedbackAgeTests(unittest.TestCase):
 
     def test_zero_timestamp_and_exact_freshness_boundary(self):
         clock = DeterministicClock(0.0)
-        core, _station = self._ready_station(clock)
+        core, station = self._ready_station(clock)
 
         received = core.snapshot()
         self.assertEqual(tuple(joint.received_at for joint in received.joints), (0.0, 0.0))
@@ -147,7 +157,7 @@ class FeedbackAgeTests(unittest.TestCase):
         clock.value = 1.0
         at_boundary = core.snapshot()
         self.assertEqual(at_boundary.feedback_ages_s, (1.0, 1.0))
-        self.assertTrue(core.arm().accepted)
+        self.assertTrue(core.arm(station.owner).accepted)
 
         with self.assertRaises(FrozenInstanceError):
             at_boundary.joints[0].received_at = 1.0
@@ -173,7 +183,7 @@ class FeedbackAgeTests(unittest.TestCase):
 
     def test_bad_id_and_observation_do_not_refresh_receipt_time(self):
         clock = DeterministicClock(0.0)
-        core, _station = self._ready_station(clock)
+        core, station = self._ready_station(clock)
         initial = core.snapshot()
         calls_before = clock.calls
 
@@ -193,7 +203,7 @@ class FeedbackAgeTests(unittest.TestCase):
         )
 
         clock.value = 1.000001
-        self.assertEqual(core.arm().code, DecisionCode.STALE_FEEDBACK)
+        self.assertEqual(core.arm(station.owner).code, DecisionCode.STALE_FEEDBACK)
 
     def test_fresh_j1_cannot_hide_stale_j2_from_arm_or_tick(self):
         clock = DeterministicClock(0.0)
@@ -204,7 +214,7 @@ class FeedbackAgeTests(unittest.TestCase):
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
         clock.value = 1.000001
         before_writes = list(station.writes)
-        rejected = station.arm()
+        rejected = station.arm(station.owner)
         self.assertEqual(rejected.code, DecisionCode.STALE_FEEDBACK)
         self.assertIs(core.snapshot().state, State.READY)
         self.assertEqual(station.writes, before_writes)
@@ -214,7 +224,7 @@ class FeedbackAgeTests(unittest.TestCase):
         station.writes.clear()
         clock.value = 0.8
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(station.owner).accepted)
         clock.value = 1.000001
         before_writes = list(station.writes)
         self.assertTrue(core.tick().accepted)
@@ -225,7 +235,7 @@ class FeedbackAgeTests(unittest.TestCase):
     def test_disconnect_invalidates_age_and_stale_fault_needs_acknowledged_check(self):
         clock = DeterministicClock(0.0)
         core, station = self._ready_station(clock)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(station.owner).accepted)
 
         clock.value = 1.1
         self.assertTrue(core.tick().accepted)
@@ -272,6 +282,7 @@ def core_at(test, state, clock=None):
     test.assertTrue(station.connect().accepted)
     if state is State.CONNECTED:
         return core
+    owner = station.claim("fixture")
     if state is State.CHECKING:
         test.assertTrue(core.begin_check().accepted)
         return core
@@ -280,10 +291,10 @@ def core_at(test, state, clock=None):
     if state is State.READY:
         return core
     if state is State.ARMED:
-        test.assertTrue(station.arm().accepted)
+        test.assertTrue(station.arm(owner).accepted)
         return core
     if state is State.MOVING:
-        test.assertTrue(station.arm().accepted)
+        test.assertTrue(station.arm(owner).accepted)
         window = station.issue_window(1.0)
         target = Target(
             0,
@@ -292,15 +303,17 @@ def core_at(test, state, clock=None):
                 JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
             ),
             window=window,
+            owner=owner,
         )
         test.assertTrue(core.submit_target(target).accepted)
         test.assertIsNotNone(station.refresh())
         return core
     if state is State.STOPPED:
+        test.assertTrue(station.arm(owner).accepted)
         test.assertTrue(station.stop().accepted)
         return core
     if state is State.FAULT:
-        test.assertTrue(station.arm().accepted)
+        test.assertTrue(station.arm(owner).accepted)
         test.assertTrue(core.receive(
             test.specs[0].motor_id,
             SAMPLE,
@@ -362,11 +375,12 @@ class ControllerStateTests(unittest.TestCase):
         self.assertFalse(station.connect().accepted)
         self.assertEqual(station.writes, [])
 
+        owner = station.claim("fixture")
         self.assertTrue(station.check().accepted)
         self.assertEqual(station.writes, expected)
         self.assertIs(core.snapshot().state, State.READY)
         station.writes.clear()
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(owner).accepted)
         self.assertIs(core.snapshot().state, State.ARMED)
         self.assertTrue(station.stop().accepted)
         self.assertEqual(station.writes, expected)
@@ -374,12 +388,13 @@ class ControllerStateTests(unittest.TestCase):
 
     def test_arm_requires_current_stop_feedback(self):
         core = core_at(self, State.READY)
+        owner = core.snapshot().latest_owner
         self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False)))
         before = core.snapshot()
-        self.assertEqual(core.arm().code, DecisionCode.NOT_STOPPED)
+        self.assertEqual(core.arm(owner).code, DecisionCode.NOT_STOPPED)
         self.assertEqual(core.snapshot(), before)
         self.assertTrue(core.receive(1, SAMPLE, HEALTHY_STOP))
-        self.assertTrue(core.arm())
+        self.assertTrue(core.arm(owner))
 
     def test_check_requires_every_healthy_joint_in_stop_mode(self):
         core = JointCore(self.specs, clock=self.clock)
@@ -424,8 +439,9 @@ class ControllerStateTests(unittest.TestCase):
         core = JointCore(self.specs, clock=self.clock)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
+        owner = station.claim("fixture")
         self.assertTrue(station.check().accepted)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(owner).accepted)
 
         bad_health = MotorHealth(mode=0, errors=4, warnings=2, timeout=True)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, bad_health).accepted)
@@ -521,12 +537,15 @@ class ControllerStateTests(unittest.TestCase):
                     core = core_at(self, state)
                     station = FakeStation(core)
                     before = core.snapshot()
+                    arm_owner = core.snapshot().current_owner or OwnerToken(
+                        "matrix-epoch", 1, "matrix-client"
+                    )
                     action = {
                         "begin_connect": station.connect,
                         "connected": lambda: core.connected(SOURCE),
                         "begin_check": station.check,
                         "checked": core.checked,
-                        "arm": core.arm,
+                        "arm": lambda: core.arm(arm_owner),
                         "stop": station.stop,
                         "wrong_joint": lambda: core.receive(14, SAMPLE, HEALTHY_STOP),
                     }[event]
@@ -554,6 +573,7 @@ class JointFaultTests(unittest.TestCase):
         )
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
+        core.claim_owner("fixture")
         self.assertTrue(core.begin_check().accepted)
         for spec in self.specs:
             self.assertTrue(core.receive(spec.motor_id, SAMPLE, HEALTHY_STOP).accepted)
@@ -563,7 +583,7 @@ class JointFaultTests(unittest.TestCase):
     def test_stale_j2_attributes_only_stale_joint_with_refreshed_j1(self):
         clock = DeterministicClock(0.0)
         core = self._ready_core(clock, feedback_max_age_s=1.0)
-        self.assertTrue(core.arm().accepted)
+        self.assertTrue(core.arm(core.snapshot().latest_owner).accepted)
         self.assertIs(core.snapshot().state, State.ARMED)
 
         clock.value = 0.8
@@ -593,7 +613,7 @@ class JointFaultTests(unittest.TestCase):
     def test_unknown_bits_and_32bit_error_mask_retained(self):
         clock = DeterministicClock(0.0)
         core = self._ready_core(clock)
-        self.assertTrue(core.arm().accepted)
+        self.assertTrue(core.arm(core.snapshot().latest_owner).accepted)
 
         unknown_errors = 0x80000004
         status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True)
@@ -634,7 +654,7 @@ class JointFaultTests(unittest.TestCase):
 
     def test_healthy_after_fault_preserves_latched_attribution(self):
         core = self._ready_core()
-        self.assertTrue(core.arm().accepted)
+        self.assertTrue(core.arm(core.snapshot().latest_owner).accepted)
 
         unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, unhealthy).accepted)
@@ -785,7 +805,8 @@ class JointFaultTests(unittest.TestCase):
     def test_failed_recovery_retains_causes(self):
         clock = DeterministicClock(0.0)
         core = self._ready_core(clock, feedback_max_age_s=1.0)
-        self.assertTrue(core.arm().accepted)
+        owner = core.snapshot().latest_owner
+        self.assertTrue(core.arm(owner).accepted)
 
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
@@ -818,15 +839,16 @@ class JointFaultTests(unittest.TestCase):
         self.assertEqual(core.checked().code, DecisionCode.STALE_FEEDBACK)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
 
-        self.assertEqual(core.arm().code, DecisionCode.INVALID_STATE)
+        self.assertEqual(core.arm(owner).code, DecisionCode.INVALID_STATE)
 
     def test_successful_recovery_clears_fault_causes(self):
         clock = DeterministicClock(0.0)
         core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
+        owner = station.claim("fixture")
         self.assertTrue(station.check().accepted)
-        self.assertTrue(station.arm().accepted)
+        self.assertTrue(station.arm(owner).accepted)
 
         self.assertTrue(core.communication_failed(
             self.specs[1].motor_id,
@@ -868,12 +890,14 @@ class JointFaultTests(unittest.TestCase):
         station1 = FakeStation(core1)
         station2 = FakeStation(core2)
         self.assertTrue(station1.connect().accepted)
+        owner1 = station1.claim("fixture-1")
         self.assertTrue(station1.check().accepted)
-        self.assertTrue(station1.arm().accepted)
+        self.assertTrue(station1.arm(owner1).accepted)
 
         self.assertTrue(station2.connect().accepted)
+        owner2 = station2.claim("fixture-2")
         self.assertTrue(station2.check().accepted)
-        self.assertTrue(station2.arm().accepted)
+        self.assertTrue(station2.arm(owner2).accepted)
 
         self.assertTrue(core1.communication_failed(
             self.specs[0].motor_id,

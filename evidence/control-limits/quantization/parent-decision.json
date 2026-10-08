@@ -1,0 +1,26 @@
+{
+  "choice": "B emitted target and independently bounded position-step and encoded velocities",
+  "nativeProofExit": 0,
+  "geminiProofExit": 1,
+  "parentProofExit": 0,
+  "rejectedClaims": [
+    "noninteger512h implies no integer solution",
+    "qmax1 rounds outward",
+    "arbitrary epsilon certificates"
+  ],
+  "progressBoundary": "If h>0 motion goal needs progress but all feasible encoded position choices are unchanged, fault/Stop explicitly. No silent stall guarantee, hidden elapsed accumulation or tolerance. h=0 unchanged refresh is separate. Limits/cadence must allow representable progression; verify nonzero progress at feasible fixture cadence.",
+  "identityBoundary": "Receipts prove requested route, not independent backend identity",
+  "sha256": {
+    "quant-design-sol-candidate.md": "57f015b2e96eb1c4710f4885de33a7bbeccc20b7b8e10cd39eaf4a08ada6a195",
+    "quant-design-sol-proof.py": "13fb5e06b60ecd60f82adf7fa535f4fc616c5b1a62ac5184efd6de4eb02b9130",
+    "quant-design-sol-proof.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "quant-design-sol-terminal-policy.json": "e4eb13774450282466685bb835569a326fe3f9fbbb312445cda30f66e4af3c04",
+    "quant-design-gemini-output.md": "03209471cce7a4eac3a4da48fa61b2f882f5f9173437df0a84a512a94229b2ba",
+    "quant-design-gemini-receipt.json": "f0919bbff09df10cb08bb7cf3e29cfeec21314fff2e768ec891af68e1e2620d8",
+    "quant-design-gemini-terminal-policy.json": "9d3f9d81903e2bb558865038dbfdbb9d6f58420ef15c7c937c2f2d0f001aa156",
+    "quant-design-gemini-proof.py": "49b581f55594a11dc992e0644d17bea37574aa80acd2d7e7c4efd5252ff8fe89",
+    "quant-design-gemini-proof.log": "97a6871649fe7e3c07b9810f15d6de3183356ddd008b0a7603df06cfd0f19f7d",
+    "quant-parent-proof.py": "b3f3be32b4ad86dd95086259e9557230e571c0fac5ae4916588e053344c8aa34",
+    "quant-parent-proof.log": "d19c8e39ef02a146bf386b88fe4ca329bdd2c20797f46a68feae9a3654f8f03a"
+  }
+}

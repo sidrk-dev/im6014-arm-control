@@ -1,0 +1,7 @@
+{
+  "allTenSourceHashesMatch": true,
+  "writerSessionDrained": 77734,
+  "baseHead": "ac84fc279a6b532433234df6717041db50c78bcc",
+  "parentChecks": "targeted/full failed; raw retained",
+  "repairCopy": "C08-fix-workbench"
+}
