@@ -1,0 +1,10 @@
+{
+  "source": "11paths read; fixture-only repair inspected",
+  "acceptance": "rejected",
+  "checks": "C11-fix-parent-checks/20261008T181607337780Z/result.json",
+  "defects": [
+    "fresh-target helper and zero-objective acceleration case inserted into speed class rather than acceleration",
+    "Muse actual final-gate derivative consistency repro stillfails"
+  ],
+  "parentHarnessDefect": "Sparse copy omitted required immutable vendor CRC fixture; correction in prepare-source-copy.py, actual new copy includes exact fixture; old checkexit2 retained"
+}

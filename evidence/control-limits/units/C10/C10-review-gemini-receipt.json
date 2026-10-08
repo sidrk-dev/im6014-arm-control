@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-gemini-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-gemini-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-gemini-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T15:34:38.514Z",
+  "completedAt": "2026-10-08T15:41:56.954Z",
+  "elapsedMs": 438440,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-fca9542dc34743e3",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-workbench"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "child-failed",
+  "reportedModel": null,
+  "modelVerified": false,
+  "modelEvidence": null,
+  "sessionId": null,
+  "usage": null,
+  "costUsd": null,
+  "error": {
+    "message": "antigravity did not report a successful result",
+    "evidence": "terminal: {\"response\":\"`:\\n`plan2 = station.refresh()`\\n`self.assertEqual(station.writes, first_packets)`\\n`self.assertEqual(plan2.packets, plan1.packets)`!\\nThat matches!\\n\\nWAIT! Look at:\\n\\\"h0 only same-goal exact unchanged cache/history\\\"\\nWhat if `target != confirmed_ref.requested_goal` at `h == 0.0`?\\nLine 257:\\n`if target != confirmed_ref.requested_goal:`\\n`    return DecisionCode.CONSTRAINT_VIOLATION, None, None, None`\\nIt returns `CONSTRAINT_VIOLATION`!\\nAnd in `test_zero_elapsed_repeated_refresh_emits_unchanged_command`:\\n`\"}\nstdout: 681 line(s), 681 JSON event(s); stderr: 0 line(s), 0 JSON event(s)"
+  },
+  "failurePhase": "postprocess",
+  "processStarted": true,
+  "apiSpend": "deny",
+  "terminalSuccess": false
+}

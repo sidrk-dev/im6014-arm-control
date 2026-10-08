@@ -1,0 +1,47 @@
+{
+  "premise": "Successful child exit and review text imply successful structured terminal review.",
+  "verdict": "Premise rejected. Shipped parser requires provider terminal success predicate; repeated review exits0 fail it. Keep dropouts; no partial findings, retries or substituted route. Writer handoffs separately parse successfully.",
+  "source": "installedrunner antigravity.ts and parse-output.ts; no credentials or raw intermediate streams inspected",
+  "rows": [
+    {
+      "stem": "C08-review-gemini",
+      "status": "complete",
+      "failurePhase": null,
+      "processStarted": true,
+      "exitCode": 0,
+      "terminalSuccess": null
+    },
+    {
+      "stem": "C09-review-gemini",
+      "status": "child-failed",
+      "failurePhase": "postprocess",
+      "processStarted": true,
+      "exitCode": 0,
+      "terminalSuccess": false
+    },
+    {
+      "stem": "C10-review-gemini",
+      "status": "child-failed",
+      "failurePhase": "postprocess",
+      "processStarted": true,
+      "exitCode": 0,
+      "terminalSuccess": false
+    },
+    {
+      "stem": "C11-review-gemini",
+      "status": "child-failed",
+      "failurePhase": "postprocess",
+      "processStarted": true,
+      "exitCode": 0,
+      "terminalSuccess": false
+    },
+    {
+      "stem": "C11",
+      "status": "needs-parent-operation",
+      "failurePhase": null,
+      "processStarted": true,
+      "exitCode": 0,
+      "terminalSuccess": null
+    }
+  ]
+}

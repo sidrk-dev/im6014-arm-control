@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-08T15:45:21.450775+00:00",
+  "head": "f7865c69b3b13ea1e94c27e2fc425cad32f845b7",
+  "prompt": "C10-review-prompt.md",
+  "muse": {
+    "status": "complete",
+    "findings": [],
+    "receipt": "C10-review-muse-receipt.json"
+  },
+  "mimo": {
+    "status": "dropout",
+    "cause": "one completion request HTTP502",
+    "receipt": "C10-review-mimo-receipt.json",
+    "retry": "noteligible; no substitution"
+  },
+  "gemini": {
+    "status": "dropout",
+    "cause": "no successful terminal review; childexit0 but wrapperpostprocess childfailed",
+    "receipt": "C10-review-gemini-receipt.json",
+    "partialText": "not treated as findings",
+    "retry": "noteligible; no substitution"
+  },
+  "configuredPanel": "all handles drained; two failed seats retained",
+  "finalWholeBranchPanel": "still required",
+  "identity": "requested pinned route and backend report; not independently verified"
+}

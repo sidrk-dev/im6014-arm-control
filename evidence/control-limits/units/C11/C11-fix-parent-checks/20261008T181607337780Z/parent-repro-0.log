@@ -1,0 +1,14 @@
+test_inconsistent_safe_looking_history_cannot_claim_actual_packet (__main__.FinalHistoryCertificate.test_inconsistent_safe_looking_history_cannot_claim_actual_packet) ... FAIL
+
+======================================================================
+FAIL: test_inconsistent_safe_looking_history_cannot_claim_actual_packet (__main__.FinalHistoryCertificate.test_inconsistent_safe_looking_history_cannot_claim_actual_packet)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-parent-history-repro.py", line 23, in test_inconsistent_safe_looking_history_cannot_claim_actual_packet
+    self.assertFalse(core.claim_dispatch(plan.plan_id,0),'Gate accepted history inconsistent with actual emitted endpoint')
+AssertionError: True is not false : Gate accepted history inconsistent with actual emitted endpoint
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (failures=1)

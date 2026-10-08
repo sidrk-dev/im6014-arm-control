@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T15:32:57.420Z",
+  "completedAt": "2026-10-08T16:01:26.825Z",
+  "elapsedMs": 1709405,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-eb26d275e8e5013a",
+    "--sandbox",
+    "--mode",
+    "accept-edits"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "needs-parent-operation",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "521c977d-32de-4abc-86ac-4b9d41ba3b9a",
+  "usage": {
+    "inputTokens": 1083163,
+    "cachedInputTokens": 16980339,
+    "outputTokens": 140340,
+    "reasoningTokens": 89239,
+    "totalTokens": 1223503
+  },
+  "costUsd": null,
+  "handoff": {
+    "task": "C11",
+    "checkpoint": "C11-acceleration-reference",
+    "operation": "run-checks",
+    "files": [
+      "joint_contract.py",
+      "joint_reference.py",
+      "joint_controller.py",
+      "docs/joint-api.md",
+      "scripts/check_milestone.py",
+      "test_controller.py",
+      "test_controller_expiry.py",
+      "test_controller_owner.py",
+      "test_controller_targets.py",
+      "test_controller_limits.py"
+    ],
+    "checks": [
+      "C11",
+      "milestone-tests",
+      "scripts/check_offline_baseline.sh"
+    ],
+    "summary": "Run C11 milestone unit check, milestone-tests suite, and offline baseline verification script"
+  },
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

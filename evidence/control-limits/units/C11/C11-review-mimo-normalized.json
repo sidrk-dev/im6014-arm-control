@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 1,
+  "lane": "interrogate reviewers#2",
+  "attempt": "opencode:opencode/mimo-v2.6-flash-free@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "failed",
+    "processStarted": true,
+    "execution": {
+      "id": "e87f067c-91f9-4d29-9a4b-c7cffcaa02a9",
+      "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-mimo-output.md",
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-mimo-receipt.json",
+      "workspacePath": "/home/sid/Documents/code/im6014Development",
+      "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+      "apiSpend": "approved",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-mimo-receipt.json"
+  }
+}

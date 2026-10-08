@@ -1,0 +1,6 @@
+test_inconsistent_safe_looking_history_cannot_claim_actual_packet (__main__.FinalHistoryCertificate.test_inconsistent_safe_looking_history_cannot_claim_actual_packet) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+OK

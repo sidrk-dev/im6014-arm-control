@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 0,
+  "lane": "interrogate reviewers#1",
+  "attempt": "opencode:opencode/muse-spark-1.3-contributor-free@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "complete",
+    "processStarted": true,
+    "execution": {
+      "id": "3ec33bff-63b4-4951-af77-aa0935762fcc",
+      "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-muse-output.md",
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-muse-receipt.json",
+      "workspacePath": "/home/sid/Documents/code/im6014Development",
+      "descriptor": "opencode:opencode/muse-spark-1.3-contributor-free@default",
+      "apiSpend": "approved",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-muse-receipt.json"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-history-parent-checks/20261008T182239055121Z/result.json",
+  "manifestSha256": "44745111d33a6a866ed72dd7e16f321f160aa415c0bbcbe3c0672bd6c6a65e23",
+  "at": "2026-10-08T18:25:05.695990+00:00",
+  "limits": "samplewise software; fake I/O/isolatedPTY/disconnectedrealGUI only",
+  "visualObservations": [
+    "DEMO speedtesting plot",
+    "DEMO positiontesting plot",
+    "REAL disconnected0repliesnoportopen",
+    "DEMO disconnected0replies"
+  ],
+  "checks": "16focused/1parentrepro/768A-Vcertificates+768h0cache/200milestone/9baselinegroups/18dashboard"
+}

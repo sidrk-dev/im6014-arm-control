@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-gemini-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-gemini-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-gemini-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-review-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T18:11:37.960Z",
+  "completedAt": "2026-10-08T18:18:40.209Z",
+  "elapsedMs": 422249,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-10da33185877098c",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "child-failed",
+  "reportedModel": null,
+  "modelVerified": false,
+  "modelEvidence": null,
+  "sessionId": null,
+  "usage": null,
+  "costUsd": null,
+  "error": {
+    "message": "antigravity did not report a successful result",
+    "evidence": "terminal: {\"response\":\"[-1], 0.0)`.\\nPasses.\\n\\n- `test_mixed_h_cadence_scaling` (lines 1838-1850):\\nPasses.\\n\\n- `test_velocity_previous_retained_near_q_limit` (lines 1852-1875):\\n`target = JointTarget(1.98, 1.0, 0.0, 1.0, 0.1)`.\\nJoint advances close to 1.98 without exceeding 2.0.\\nPasses.\\n\\n- `test_partial_multi_joint_failure` (lines 1980-2017):\\nJ1 requests impossible step under tiny cadence; J2 requests hold.\\n`clock = DeterministicClock(10.0)`.\\n`clock.value = 10.0 + 1e-10`.\\nJ1 fails constraint, J2 holds (v_desired == 0).\\n`s\"}\nstdout: 605 line(s), 605 JSON event(s); stderr: 0 line(s), 0 JSON event(s)"
+  },
+  "failurePhase": "postprocess",
+  "processStarted": true,
+  "apiSpend": "deny",
+  "terminalSuccess": false
+}

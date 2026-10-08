@@ -1,0 +1,11 @@
+{
+  "status": "decision",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 2,
+  "lane": "interrogate reviewers#3",
+  "decision": {
+    "kind": "stop",
+    "reason": "not-eligible"
+  }
+}

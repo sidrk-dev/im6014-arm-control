@@ -1,0 +1,101 @@
+test_exact_acceleration_equality (test_controller_limits.ReferenceAccelerationTests.test_exact_acceleration_equality) ... ok
+test_final_write_gate_rechecks_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_final_write_gate_rechecks_acceleration_bound) ... FAIL
+test_h0_refresh_and_fresh_anchor (test_controller_limits.ReferenceAccelerationTests.test_h0_refresh_and_fresh_anchor) ... ok
+test_independently_bounded_encoded_and_position_velocities (test_controller_limits.ReferenceAccelerationTests.test_independently_bounded_encoded_and_position_velocities) ... ok
+test_mixed_h_cadence_scaling (test_controller_limits.ReferenceAccelerationTests.test_mixed_h_cadence_scaling) ... ERROR
+test_partial_multi_joint_failure (test_controller_limits.ReferenceAccelerationTests.test_partial_multi_joint_failure) ... ok
+test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp (test_controller_limits.ReferenceAccelerationTests.test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp) ... ERROR
+test_quantization_edge_and_cadence_boundary (test_controller_limits.ReferenceAccelerationTests.test_quantization_edge_and_cadence_boundary) ... FAIL
+test_repeated_positive_progression_up_to_v_max (test_controller_limits.ReferenceAccelerationTests.test_repeated_positive_progression_up_to_v_max) ... ERROR
+test_reversal_crosses_zero_under_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_reversal_crosses_zero_under_acceleration_bound) ... ERROR
+test_stop_and_check_reinitialization (test_controller_limits.ReferenceAccelerationTests.test_stop_and_check_reinitialization) ... ok
+test_velocity_previous_retained_near_q_limit (test_controller_limits.ReferenceAccelerationTests.test_velocity_previous_retained_near_q_limit) ... ERROR
+
+======================================================================
+ERROR: test_mixed_h_cadence_scaling (test_controller_limits.ReferenceAccelerationTests.test_mixed_h_cadence_scaling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1835, in test_mixed_h_cadence_scaling
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/joint_controller.py", line 362, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp (test_controller_limits.ReferenceAccelerationTests.test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1892, in test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp
+    anchor = JointTrajectoryReference(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 11, in __init__
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/joint_contract.py", line 404, in __post_init__
+    raise ValueError("an emitted reference requires its requested goal")
+ValueError: an emitted reference requires its requested goal
+
+======================================================================
+ERROR: test_repeated_positive_progression_up_to_v_max (test_controller_limits.ReferenceAccelerationTests.test_repeated_positive_progression_up_to_v_max)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1748, in test_repeated_positive_progression_up_to_v_max
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/joint_controller.py", line 362, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_reversal_crosses_zero_under_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_reversal_crosses_zero_under_acceleration_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1780, in test_reversal_crosses_zero_under_acceleration_bound
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/joint_controller.py", line 362, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+ERROR: test_velocity_previous_retained_near_q_limit (test_controller_limits.ReferenceAccelerationTests.test_velocity_previous_retained_near_q_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1858, in test_velocity_previous_retained_near_q_limit
+    window = station.issue_window(2.0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller.py", line 72, in issue_window
+    return self.core.issue_window(valid_for_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/joint_controller.py", line 362, in issue_window
+    raise ValueError(
+ValueError: valid_for_s (2.0) exceeds configured maximum window (1.0)
+
+======================================================================
+FAIL: test_final_write_gate_rechecks_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_final_write_gate_rechecks_acceleration_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 2148, in test_final_write_gate_rechecks_acceleration_bound
+    self.assertTrue(snap.faults[0].constraint_fault)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_quantization_edge_and_cadence_boundary (test_controller_limits.ReferenceAccelerationTests.test_quantization_edge_and_cadence_boundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-workbench/test_controller_limits.py", line 1967, in test_quantization_edge_and_cadence_boundary
+    self.assertTrue(snap.faults[0].constraint_fault)
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.026s
+
+FAILED (failures=2, errors=5)

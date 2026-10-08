@@ -41,11 +41,15 @@
 - [x] C08. Parent software checks accepted; final branch review remains pending.
 - [x] C09. Parent software checks accepted; final branch review remains pending.
 - [x] C10. Parent software checks accepted; final branch review remains pending.
-- [ ] C11.
+- [x] C11. Parent software checks accepted; final branch review remains pending.
 - [ ] C12.
 - [ ] C13.
 - [ ] C14.
 - [ ] C15.
 - [ ] C16.
 
-Hardware remains blocked on the unanswered timeout acknowledgment. Fake I/O and PTYs only. Source baseline 244811bb6b924355852c37cddde8d00fbb0fab50. Original repository and user plan stay untouched. Gemini is the task implementation and additional review route; saved global roles unchanged. Reset credits remain unused.
+Hardware remains blocked on the unanswered timeout acknowledgment. Fake I/O and PTYs only. Source baseline 244811bb6b924355852c37cddde8d00fbb0fab50. Original repository and user plan stay untouched. Gemini is the task implementation and additional review route; saved global roles unchanged. At most one reset credit is authorized if this run exhausts; zero have been redeemed.
+
+## Updated reset-credit authorization
+
+The user explicitly authorized at most one full reset credit during this run if usage exhausts. Zero credits have been redeemed by this run; all three remain available after the normal reset confirmed at 2026-10-08 18:00 UTC (primary1%,secondary79% used). This supersedes earlier instructions to leave all credits unused. Redeem only through a supported available capability and verify fresh limits and credit status; record the redemption durably. After one credit, use normal resets. Preserve this orchestrator and chat.

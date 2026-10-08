@@ -1,0 +1,28 @@
+{
+  "scope": "originalGeminiC11draft extra panel; finalwholebranchstillrequired",
+  "Muse": {
+    "status": "complete",
+    "findings": [
+      {
+        "finding": "exact derivative consistency missing at finalclaim",
+        "verdict": "accepted narrow finalgate invariant hardening; not external exploit claim",
+        "parentReproduction": "C11-original-history-repro.log",
+        "fixAssignment": "C11-history",
+        "fixVerification": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-history-parent-checks/20261008T182239055121Z/result.json"
+      }
+    ]
+  },
+  "MiMo": {
+    "status": "dropout",
+    "receipt": "C11-review-mimo-receipt.json",
+    "reason": "wrapper completion request failed; HTTP502",
+    "recovery": "policy stopnoteligible; no retry/substitution"
+  },
+  "Gemini": {
+    "status": "dropout",
+    "reason": "unsuccessfulterminalpostprocess",
+    "receipt": "C11-review-gemini-receipt.json",
+    "recovery": "policy stopnoteligible; no retry/substitution; no findings reconstructed"
+  },
+  "panel": "closed; all actual receipts/output inspected and handles drained; finalwholebranch stillrequired"
+}

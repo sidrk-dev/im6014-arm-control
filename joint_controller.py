@@ -788,13 +788,38 @@ class JointCore:
             self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
             self.stop()
             return False
+        h_ref = prop_ref.sample_time_s - conf_ref.sample_time_s
+        h_ref_exact = Fraction(h_ref)
+        a_max_exact = Fraction(spec.a_max_rad_s2)
+        v_max_exact = Fraction(spec.v_max_rad_s)
+        v_prev_pos = Fraction(conf_ref.position_step_velocity_rad_s)
+        v_prev_enc = Fraction(conf_ref.encoded_velocity_rad_s)
+
+        if h_ref > 0.0:
+            actual_position_step_velocity = (
+                Fraction(prop_ref.q_rad) - Fraction(conf_ref.q_rad)
+            ) / h_ref_exact
+            if prop_ref.position_step_velocity_rad_s != actual_position_step_velocity:
+                self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
+                self.stop()
+                return False
+
         if (
-            abs(prop_ref.position_step_velocity_rad_s) > Fraction(spec.v_max_rad_s)
-            or abs(Fraction(prop_ref.encoded_velocity_rad_s)) > Fraction(spec.v_max_rad_s)
+            abs(prop_ref.position_step_velocity_rad_s) > v_max_exact
+            or abs(Fraction(prop_ref.encoded_velocity_rad_s)) > v_max_exact
         ):
             self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
             self.stop()
             return False
+
+        if prop_ref.sample_time_s > conf_ref.sample_time_s:
+            if (
+                abs(prop_ref.position_step_velocity_rad_s - v_prev_pos) > a_max_exact * h_ref_exact
+                or abs(Fraction(prop_ref.encoded_velocity_rad_s) - v_prev_enc) > a_max_exact * h_ref_exact
+            ):
+                self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
+                self.stop()
+                return False
 
         self._dispatch_claim = _DispatchClaim(self._prepared_plan, index, now)
         return True

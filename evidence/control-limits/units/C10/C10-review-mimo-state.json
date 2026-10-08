@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "attemptIndex": 0,
+      "status": "failed",
+      "processStarted": true,
+      "execution": {
+        "id": "7c95bf26-a35a-4455-8144-3bcfe6f69a04",
+        "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-mimo-output.md",
+        "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-mimo-receipt.json",
+        "workspacePath": "/home/sid/Documents/code/im6014Development",
+        "descriptor": "opencode:opencode/mimo-v2.6-flash-free@default",
+        "apiSpend": "approved",
+        "access": "read-only",
+        "contract": "legacy"
+      },
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C10-review-mimo-receipt.json"
+    }
+  ],
+  "exhaustedGroups": [],
+  "access": "read-only"
+}

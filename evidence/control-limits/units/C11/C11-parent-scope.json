@@ -1,0 +1,35 @@
+{
+  "task": "C11",
+  "baseHead": "f7865c69b3b13ea1e94c27e2fc425cad32f845b7",
+  "allowedFiles": [
+    "joint_contract.py",
+    "joint_controller.py",
+    "joint_reference.py",
+    "joint_mapping.py",
+    "im6014_codec.py",
+    "test_controller.py",
+    "test_controller_targets.py",
+    "test_controller_expiry.py",
+    "test_controller_owner.py",
+    "test_controller_limits.py",
+    "test_joint_reference.py",
+    "test_startup.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "docs/joint-api.md",
+    "docs/controller-limits-design.md"
+  ],
+  "allowedCheckIds": [
+    "C11",
+    "milestone-tests",
+    "scripts/check_offline_baseline.sh"
+  ],
+  "parentChecks": "Own argv; PYTHONDONTWRITEBYTECODE and absoluteinterpreter/evidencepath; fake/PTYonly",
+  "parentOwnedForbidden": [
+    "docs/decisions.tsv",
+    "docs/milestones.tsv",
+    "docs/c07-c16-workflow.md",
+    "evidence",
+    ".git"
+  ]
+}

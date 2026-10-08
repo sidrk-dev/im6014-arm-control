@@ -87,6 +87,7 @@ class JointSpec:
     q_min_rad: float
     q_max_rad: float
     v_max_rad_s: float
+    a_max_rad_s2: float
     limits_provenance: str
 
     def __post_init__(self) -> None:
@@ -120,6 +121,15 @@ class JointSpec:
         if not math.isfinite(v_max_val) or v_max_val <= 0.0:
             raise ValueError("v_max_rad_s must be finite and positive")
 
+        if isinstance(self.a_max_rad_s2, bool) or not isinstance(self.a_max_rad_s2, (int, float)):
+            raise ValueError("a_max_rad_s2 must be a finite positive real number")
+        try:
+            a_max_val = float(self.a_max_rad_s2)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("acceleration limit must be finite") from exc
+        if not math.isfinite(a_max_val) or a_max_val <= 0.0:
+            raise ValueError("a_max_rad_s2 must be finite and positive")
+
         if (
             type(self.limits_provenance) is not str
             or not self.limits_provenance.strip()
@@ -130,6 +140,7 @@ class JointSpec:
         object.__setattr__(self, "q_min_rad", min_val)
         object.__setattr__(self, "q_max_rad", max_val)
         object.__setattr__(self, "v_max_rad_s", v_max_val)
+        object.__setattr__(self, "a_max_rad_s2", a_max_val)
 
 @dataclass(frozen=True)
 class JointFault:

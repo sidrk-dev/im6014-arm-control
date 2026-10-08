@@ -1,0 +1,47 @@
+test_acceleration_limit_requires_finite_positive_real_value (test_controller_limits.ReferenceAccelerationTests.test_acceleration_limit_requires_finite_positive_real_value) ... ok
+test_complete_then_failed_write_commits_only_certified_joint_history (test_controller_limits.ReferenceAccelerationTests.test_complete_then_failed_write_commits_only_certified_joint_history) ... ok
+test_exact_acceleration_equality (test_controller_limits.ReferenceAccelerationTests.test_exact_acceleration_equality) ... ok
+test_feasible_approach_near_q_limit_stays_inside_exact_bounds (test_controller_limits.ReferenceAccelerationTests.test_feasible_approach_near_q_limit_stays_inside_exact_bounds) ... ok
+test_final_write_gate_rechecks_both_acceleration_streams (test_controller_limits.ReferenceAccelerationTests.test_final_write_gate_rechecks_both_acceleration_streams) ... ok
+test_h0_refresh_and_fresh_anchor (test_controller_limits.ReferenceAccelerationTests.test_h0_refresh_and_fresh_anchor) ... ok
+test_independently_bounded_encoded_and_position_velocities (test_controller_limits.ReferenceAccelerationTests.test_independently_bounded_encoded_and_position_velocities) ... ok
+test_mixed_h_cadence_scaling (test_controller_limits.ReferenceAccelerationTests.test_mixed_h_cadence_scaling) ... ERROR
+test_partial_multi_joint_failure (test_controller_limits.ReferenceAccelerationTests.test_partial_multi_joint_failure) ... ok
+test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp (test_controller_limits.ReferenceAccelerationTests.test_position_and_acceleration_incompatible_withdraws_instead_of_q_clamp) ... ok
+test_quantization_edge_and_cadence_boundary (test_controller_limits.ReferenceAccelerationTests.test_quantization_edge_and_cadence_boundary) ... ok
+test_repeated_positive_progression_up_to_v_max (test_controller_limits.ReferenceAccelerationTests.test_repeated_positive_progression_up_to_v_max) ... ERROR
+test_reversal_crosses_zero_under_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_reversal_crosses_zero_under_acceleration_bound) ... ERROR
+test_stop_and_check_reinitialization (test_controller_limits.ReferenceAccelerationTests.test_stop_and_check_reinitialization) ... ok
+
+======================================================================
+ERROR: test_mixed_h_cadence_scaling (test_controller_limits.ReferenceAccelerationTests.test_mixed_h_cadence_scaling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-fix-workbench/test_controller_limits.py", line 1970, in test_mixed_h_cadence_scaling
+    self._submit_fresh_target(
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceAccelerationTests' object has no attribute '_submit_fresh_target'
+
+======================================================================
+ERROR: test_repeated_positive_progression_up_to_v_max (test_controller_limits.ReferenceAccelerationTests.test_repeated_positive_progression_up_to_v_max)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-fix-workbench/test_controller_limits.py", line 1864, in test_repeated_positive_progression_up_to_v_max
+    self._submit_fresh_target(
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceAccelerationTests' object has no attribute '_submit_fresh_target'
+
+======================================================================
+ERROR: test_reversal_crosses_zero_under_acceleration_bound (test_controller_limits.ReferenceAccelerationTests.test_reversal_crosses_zero_under_acceleration_bound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-fix-workbench/test_controller_limits.py", line 1900, in test_reversal_crosses_zero_under_acceleration_bound
+    self._submit_fresh_target(
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ReferenceAccelerationTests' object has no attribute '_submit_fresh_target'
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.076s
+
+FAILED (errors=3)
+Receipt: /tmp/pstack-c07-c16-20261008-smgcfm_v/C11-fix-parent-checks/20261008T181607337780Z/targeted/C11-20261008T181607366560Z/receipt.json

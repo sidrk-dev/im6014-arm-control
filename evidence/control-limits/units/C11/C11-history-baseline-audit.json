@@ -1,0 +1,13 @@
+{
+  "baselineGroups": 9,
+  "counts": {
+    "protocol-tests": 24,
+    "serial-deadline-tests": 11,
+    "milestone-tests": 200,
+    "startup-verifier-tests": 5
+  },
+  "dashboardGroups": 18,
+  "sourceHashesMatch": true,
+  "dashboardMotorIO": false,
+  "visualInspection": "parent must inspect four captures separately"
+}

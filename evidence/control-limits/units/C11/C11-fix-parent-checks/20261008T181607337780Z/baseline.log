@@ -1,0 +1,2 @@
+cp: cannot stat '/tmp/pstack-c07-c16-20261008-smgcfm_v/C11-fix-workbench/evidence/boundary/vendor-crc-vectors.json': No such file or directory
+Could not create a byte-identical baseline copy: evidence/boundary/vendor-crc-vectors.json

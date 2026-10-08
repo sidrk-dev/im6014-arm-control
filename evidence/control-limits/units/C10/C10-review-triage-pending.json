@@ -1,0 +1,14 @@
+{
+  "head": "f7865c69b3b13ea1e94c27e2fc425cad32f845b7",
+  "muse": {
+    "status": "complete",
+    "findings": [],
+    "receipt": "C10-review-muse-receipt.json",
+    "submissionCount": 1,
+    "rejectedPermissions": 0
+  },
+  "mimo": "active28126",
+  "gemini": "active33514",
+  "finalWholeBranchPanel": "still required",
+  "identityEvidence": "pinned requested route/backend reports only"
+}

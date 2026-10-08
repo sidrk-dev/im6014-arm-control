@@ -22,6 +22,7 @@ CHECKS = {
     'C08': 'test_controller_owner',
     'C09': 'test_controller_limits.PositionLimitTests',
     'C10': 'test_controller_limits.ReferenceSpeedTests',
+    'C11': 'test_controller_limits.ReferenceAccelerationTests',
 }
 
 

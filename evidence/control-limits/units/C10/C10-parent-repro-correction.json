@@ -7,5 +7,7 @@
     "explicit measured0 both joints instead of FakeStation SAMPLE0.1"
   ],
   "results": "corrected 4tests pass on C10-fix; original false mixed-fault attribution labeled",
-  "remaining": "badclock prepare must withdraw authority while retaining ValueError API; two focused fixture assertions"
+  "remaining": "badclock prepare must withdraw authority while retaining ValueError API; two focused fixture assertions",
+  "originalDraftCorrectedFixtureResult": "4tests4failures, all four defects independently reproduced with corrected parent setup",
+  "originalDraftCorrectedFixtureLog": "C10-original-corrected-repro.log"
 }

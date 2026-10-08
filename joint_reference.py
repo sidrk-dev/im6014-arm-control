@@ -10,6 +10,7 @@ from im6014_codec import (
     project_position_raw,
     project_speed_raw,
     raw_to_position,
+    raw_to_rpm,
 )
 from joint_contract import (
     DecisionCode,
@@ -274,14 +275,20 @@ def shape_reference_joint(
     try:
         h_exact = Fraction(h)
         q_prev_exact = Fraction(confirmed_ref.q_rad)
+        v_prev_pos_exact = Fraction(confirmed_ref.position_step_velocity_rad_s)
+        v_prev_enc_exact = Fraction(confirmed_ref.encoded_velocity_rad_s)
         q_min_exact = Fraction(spec.q_min_rad)
         q_max_exact = Fraction(spec.q_max_rad)
         v_max_exact = Fraction(spec.v_max_rad_s)
+        a_max_exact = Fraction(spec.a_max_rad_s2)
 
         v_pos_lo = (q_min_exact - q_prev_exact) / h_exact
         v_pos_hi = (q_max_exact - q_prev_exact) / h_exact
-        v_lo = max(-v_max_exact, v_pos_lo)
-        v_hi = min(v_max_exact, v_pos_hi)
+        v_acc_lo = v_prev_pos_exact - a_max_exact * h_exact
+        v_acc_hi = v_prev_pos_exact + a_max_exact * h_exact
+
+        v_lo = max(-v_max_exact, v_pos_lo, v_acc_lo)
+        v_hi = min(v_max_exact, v_pos_hi, v_acc_hi)
         if v_lo > v_hi:
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
@@ -289,8 +296,8 @@ def shape_reference_joint(
         v_desired = (Fraction(goal_q) - q_prev_exact) / h_exact + Fraction(goal_dq)
         v_projected = max(v_lo, min(v_hi, v_desired))
         q_continuous = q_prev_exact + v_projected * h_exact
-        q_next_lo = max(q_min_exact, q_prev_exact - v_max_exact * h_exact)
-        q_next_hi = min(q_max_exact, q_prev_exact + v_max_exact * h_exact)
+        q_next_lo = q_prev_exact + v_lo * h_exact
+        q_next_hi = q_prev_exact + v_hi * h_exact
         if q_next_lo > q_next_hi or not q_next_lo <= q_continuous <= q_next_hi:
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
@@ -298,6 +305,19 @@ def shape_reference_joint(
         q_lower = float(q_next_lo)
         q_upper = float(q_next_hi)
         if not all(math.isfinite(value) for value in (q_wanted, q_lower, q_upper)):
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+
+        v_enc_lo = max(-v_max_exact, v_prev_enc_exact - a_max_exact * h_exact)
+        v_enc_hi = min(v_max_exact, v_prev_enc_exact + a_max_exact * h_exact)
+        if v_enc_lo > v_enc_hi:
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+
+        v_enc_desired = Fraction(goal_dq)
+        v_enc_projected = max(v_enc_lo, min(v_enc_hi, v_enc_desired))
+        v_enc_wanted = float(v_enc_projected)
+        v_enc_lower = float(v_enc_lo)
+        v_enc_upper = float(v_enc_hi)
+        if not all(math.isfinite(value) for value in (v_enc_wanted, v_enc_lower, v_enc_upper)):
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
     except (ArithmeticError, TypeError, ValueError):
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
@@ -342,11 +362,14 @@ def shape_reference_joint(
             q_min_exact <= q_emitted_exact <= q_max_exact
             and q_next_lo <= q_emitted_exact <= q_next_hi
         )
-        safe_step = abs(position_step_velocity) <= v_max_exact
+        safe_step = (
+            abs(position_step_velocity) <= v_max_exact
+            and abs(position_step_velocity - v_prev_pos_exact) <= a_max_exact * h_exact
+        )
         if not safe_position or not safe_step:
-            if q_emitted_exact < q_next_lo or position_step_velocity < -v_max_exact:
+            if q_emitted_exact < q_next_lo or position_step_velocity < v_lo:
                 raw_step = spec.mapping.direction
-            elif q_emitted_exact > q_next_hi or position_step_velocity > v_max_exact:
+            elif q_emitted_exact > q_next_hi or position_step_velocity > v_hi:
                 raw_step = -spec.mapping.direction
             else:
                 return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
@@ -358,6 +381,7 @@ def shape_reference_joint(
                 q_min_exact <= candidate_q_exact <= q_max_exact
                 and q_next_lo <= candidate_q_exact <= q_next_hi
                 and abs(candidate_velocity) <= v_max_exact
+                and abs(candidate_velocity - v_prev_pos_exact) <= a_max_exact * h_exact
             ):
                 return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
             raw_pos = raw_candidate
@@ -369,9 +393,9 @@ def shape_reference_joint(
 
     try:
         raw_rpm = project_speed_raw(
-            goal_dq,
-            -spec.v_max_rad_s,
-            spec.v_max_rad_s,
+            v_enc_wanted,
+            v_enc_lower,
+            v_enc_upper,
             lambda out_rpm: spec.mapping.from_output(OutputSample(0.0, out_rpm, 0.0)).dq_rad_s,
             spec.mapping.direction,
         )
@@ -379,6 +403,39 @@ def shape_reference_joint(
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
     if raw_rpm is None:
+        return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+
+    def mapped_speed(raw_s: int) -> float:
+        return spec.mapping.from_output(
+            OutputSample(0.0, raw_to_rpm(raw_s), 0.0)
+        ).dq_rad_s
+
+    try:
+        v_emitted_enc = mapped_speed(raw_rpm)
+        v_emitted_enc_exact = Fraction(v_emitted_enc)
+        safe_enc = (
+            abs(v_emitted_enc_exact) <= v_max_exact
+            and abs(v_emitted_enc_exact - v_prev_enc_exact) <= a_max_exact * h_exact
+            and v_enc_lo <= v_emitted_enc_exact <= v_enc_hi
+        )
+        if not safe_enc:
+            if v_emitted_enc_exact < v_enc_lo:
+                raw_rpm_step = spec.mapping.direction
+            elif v_emitted_enc_exact > v_enc_hi:
+                raw_rpm_step = -spec.mapping.direction
+            else:
+                return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+            raw_rpm_cand = raw_rpm + raw_rpm_step
+            cand_v_enc = mapped_speed(raw_rpm_cand)
+            cand_v_enc_exact = Fraction(cand_v_enc)
+            if not (
+                abs(cand_v_enc_exact) <= v_max_exact
+                and abs(cand_v_enc_exact - v_prev_enc_exact) <= a_max_exact * h_exact
+                and v_enc_lo <= cand_v_enc_exact <= v_enc_hi
+            ):
+                return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+            raw_rpm = raw_rpm_cand
+    except (ArithmeticError, TypeError, ValueError):
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
     try:
@@ -409,15 +466,20 @@ def shape_reference_joint(
 
     actual_q_exact = Fraction(actual_target.q_rad)
     actual_position_step_velocity = (actual_q_exact - q_prev_exact) / h_exact
+    actual_v_enc_exact = Fraction(actual_target.dq_rad_s)
     if not q_min_exact <= actual_q_exact <= q_max_exact:
         return DecisionCode.POSITION_OUT_OF_BOUNDS, None, None, None
     if not q_next_lo <= actual_q_exact <= q_next_hi:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
     if v_desired != 0 and actual_target.q_rad == confirmed_ref.q_rad:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
-    if abs(Fraction(actual_target.dq_rad_s)) > v_max_exact:
+    if abs(actual_v_enc_exact) > v_max_exact:
+        return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+    if abs(actual_v_enc_exact - v_prev_enc_exact) > a_max_exact * h_exact:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
     if abs(actual_position_step_velocity) > v_max_exact:
+        return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+    if abs(actual_position_step_velocity - v_prev_pos_exact) > a_max_exact * h_exact:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
     proposed_ref = JointTrajectoryReference(

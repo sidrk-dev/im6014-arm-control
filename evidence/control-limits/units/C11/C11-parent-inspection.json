@@ -1,0 +1,12 @@
+{
+  "inspection": "All10 changed paths read; canonical C10 histories preserved; targeted raw failures read. Four command-window fixtures, missing cached emitted reference metadata, clock0->10 gap trigger, speed-before-acceleration gate fixture and finite-extreme old expectation conflict identified. No changed source accepted yet.",
+  "checks": "C11-parent-checks/20261008T160700454728Z/result.json",
+  "verdict": "rejected draft; no replay; fresh bug-fix author assignment",
+  "independentOriginalOracle": {
+    "artifact": "C11-original-exact-oracle.json",
+    "sha256": "c4e931dd64d3d677a19d2270699846e26e215088eac4cc74baa587d97fca6e32",
+    "positiveStepCertificates": 768,
+    "h0ExactCacheCertificates": 768,
+    "passed": true
+  }
+}
