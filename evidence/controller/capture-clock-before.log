@@ -1,0 +1,161 @@
+test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) ... 
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='nan', failed=False) ... ERROR
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='nan', failed=True) ... ERROR
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='inf', failed=False) ... ERROR
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='inf', failed=True) ... ERROR
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='0.5', failed=False) ... FAIL
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='0.5', failed=True) ... FAIL
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', failed=False) ... ERROR
+  test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', failed=True) ... ERROR
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='nan', failed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 84, in test_bad_end_clock_preserves_exchange_result_and_error
+    self.assertIs(_capture(capture, exchange, object(),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 98, in _now
+    raise ValueError('Capture clock must return a finite monotonic number')
+ValueError: Capture clock must return a finite monotonic number
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='nan', failed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 237, in capture_exchange
+    result = exchange_fn(bus, packet, motor_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 77, in exchange
+    raise original
+OSError: injected driver failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 81, in test_bad_end_clock_preserves_exchange_result_and_error
+    _capture(capture, exchange, object(), spin_5rpm.command(0))
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 98, in _now
+    raise ValueError('Capture clock must return a finite monotonic number')
+ValueError: Capture clock must return a finite monotonic number
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='inf', failed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 84, in test_bad_end_clock_preserves_exchange_result_and_error
+    self.assertIs(_capture(capture, exchange, object(),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 98, in _now
+    raise ValueError('Capture clock must return a finite monotonic number')
+ValueError: Capture clock must return a finite monotonic number
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='inf', failed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 237, in capture_exchange
+    result = exchange_fn(bus, packet, motor_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 77, in exchange
+    raise original
+OSError: injected driver failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 81, in test_bad_end_clock_preserves_exchange_result_and_error
+    _capture(capture, exchange, object(), spin_5rpm.command(0))
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 98, in _now
+    raise ValueError('Capture clock must return a finite monotonic number')
+ValueError: Capture clock must return a finite monotonic number
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', failed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 84, in test_bad_end_clock_preserves_exchange_result_and_error
+    self.assertIs(_capture(capture, exchange, object(),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 96, in _now
+    value = float(value)
+            ^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+ERROR: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000', failed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 237, in capture_exchange
+    result = exchange_fn(bus, packet, motor_id)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 77, in exchange
+    raise original
+OSError: injected driver failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 81, in test_bad_end_clock_preserves_exchange_result_and_error
+    _capture(capture, exchange, object(), spin_5rpm.command(0))
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 21, in _capture
+    return transport.capture_exchange(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 250, in capture_exchange
+    ended = capture._now()
+            ^^^^^^^^^^^^^^
+  File "/home/sid/Documents/code/im6014Workbench/im6014_serial.py", line 96, in _now
+    value = float(value)
+            ^^^^^^^^^^^^
+OverflowError: int too large to convert to float
+
+======================================================================
+FAIL: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='0.5', failed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 87, in test_bad_end_clock_preserves_exchange_result_and_error
+    self.assertIsNone(record['ended_s'])
+AssertionError: 0.5 is not None
+
+======================================================================
+FAIL: test_bad_end_clock_preserves_exchange_result_and_error (test_diagnostic_capture.DiagnosticCapture.test_bad_end_clock_preserves_exchange_result_and_error) (end='0.5', failed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 87, in test_bad_end_clock_preserves_exchange_result_and_error
+    self.assertIsNone(record['ended_s'])
+AssertionError: 0.5 is not None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=2, errors=6)

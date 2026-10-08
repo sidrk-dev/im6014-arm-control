@@ -64,6 +64,29 @@ class DiagnosticCapture(unittest.TestCase):
             self.assertEqual(record['outcome'], 'OK')
             self.assertLessEqual(record['started_s'], record['ended_s'])
 
+    def test_bad_end_clock_preserves_exchange_result_and_error(self):
+        for end in (float('nan'), float('inf'), .5, 10 ** 1000):
+            for failed in (False, True):
+                with self.subTest(end=repr(end), failed=failed):
+                    values = iter((1.0, end))
+                    capture = transport.PacketCapture(clock=lambda: next(values))
+                    original = OSError('injected driver failure')
+                    result = {'raw': STOP_REPLY, 'id': 0}
+                    def exchange(*args):
+                        if failed:
+                            raise original
+                        return result
+                    if failed:
+                        with self.assertRaises(OSError) as raised:
+                            _capture(capture, exchange, object(), spin_5rpm.command(0))
+                        self.assertIs(raised.exception, original)
+                    else:
+                        self.assertIs(_capture(capture, exchange, object(),
+                                               spin_5rpm.command(0)), result)
+                    record = capture.snapshot()['records'][0]
+                    self.assertIsNone(record['ended_s'])
+                    self.assertEqual(record['outcome'], 'DRIVER_FAILURE' if failed else 'OK')
+
     def test_capture_metadata_is_validated_before_exchange(self):
         called = []
         capture = transport.PacketCapture()

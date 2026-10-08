@@ -9,7 +9,7 @@ Muse completed the requested free-model route with one submission, no permission
 | Intermediate overflow may reject a mathematically finite final result | Retained documented arithmetic rejection. Existing extreme-value test deliberately checks it; hardware-scale numeric anchors pass. |
 | Excessive torque clipping and zero vectors lack tests | Added both checks; 12 parent-run mapping tests pass. |
 | Known wrong adapter/VID lacks checks | Found a real gap: non-FTDI VID could be outweighed by matching labels. VID mismatch now rejects; new test includes absent and FTDI manufacturer labels. All 11 port checks pass. |
-| Capture invalid clocks, capacity and provenance edges lack checks | Capacity, physical-port and clock guards inspected. Injected clocks must provide finite monotonic numbers. Extra clock-failure behavior and masking review remain open for the final review; no production invalid-clock case established. |
+| Capture invalid clocks, capacity and provenance edges lack checks | Reproduced end-clock masking with fake I/O: one test failed with two failed subtests and six errors before correction. End time now exports None on unavailable/regressing timing, preserving exchange result/error; start numeric overflow raises ValueError before exchange. All ten capture tests pass. |
 | More lock namespace/permission and minimal-mock cases | Existing tests cover unsafe directory modes, symlinks, device aliases and retained unconfirmed close. No current defect established in the extra cases; include in final review disposition. |
 | Timeout boolean precedence needs parentheses | Expression inspected; Python precedence is correct. A style-only change is unnecessary. |
 

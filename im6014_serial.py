@@ -65,7 +65,7 @@ class _PacketRecord:
     baud: int
     requested_motor_id: int
     started_s: float
-    ended_s: float
+    ended_s: float | None
     request_hex: str
     reply_hex: str
     decoded_fields: tuple
@@ -93,7 +93,10 @@ class PacketCapture:
         value = self._clock()
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise ValueError('Capture clock must return a finite monotonic number')
-        value = float(value)
+        try:
+            value = float(value)
+        except (OverflowError, TypeError, ValueError) as error:
+            raise ValueError('Capture clock must return a finite monotonic number') from error
         if not math.isfinite(value) or not 0 <= value <= 1e12:
             raise ValueError('Capture clock must return a finite monotonic number')
         return value
@@ -247,7 +250,12 @@ def capture_exchange(capture, exchange_fn, bus, packet, motor_id, *,
             tail = _bounded_tail(error.tail)
         raise
     finally:
-        ended = capture._now()
+        try:
+            ended = capture._now()
+        except Exception:
+            ended = None
+        if ended is not None and ended < started:
+            ended = None
         if outcome not in _OUTCOMES:
             outcome = 'DRIVER_FAILURE'
         capture._append(_PacketRecord(
