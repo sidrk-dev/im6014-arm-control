@@ -1,4 +1,3 @@
-"""Offline cross-process serial ownership checks using Linux pseudo-terminals."""
 import os
 import pty
 import select
@@ -28,7 +27,6 @@ class PseudoTerminal:
 
 
 class FakeSerial:
-    """Serial-shaped fake that opens only a supplied PTY for fstat checks."""
 
     def __init__(self, *, fail_dtr=False, fail_open=False, close_mode='normal',
                  open_path=None, after_open=None, **kwargs):
@@ -349,6 +347,34 @@ signal.pause()
             open_managed_port(wrong_identity, factory_for(created))
         self.assertEqual(created, [])
 
+    def test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause(self):
+        class OriginalFailure(OSError):
+            def __setattr__(self, name, value):
+                if name == 'managed_port':
+                    raise AttributeError('read-only exception')
+                super().__setattr__(name, value)
+        with PseudoTerminal() as device:
+            original = OriginalFailure('open failed after acquiring fd')
+            owners, buses = [], []
+            def managed(bus, lock_fd):
+                owner = ManagedPort(bus, lock_fd)
+                owners.append(owner)
+                return owner
+            def fail_after_open():
+                raise original
+            with patch.object(im6014_port, 'ManagedPort', side_effect=managed):
+                try:
+                    with self.assertRaises(PortCloseError) as raised:
+                        open_managed_port(self.config(device.path), factory_for(
+                            buses, close_mode='leave_open', after_open=fail_after_open))
+                    self.assertIs(raised.exception.__cause__, original)
+                    self.assertIs(raised.exception.managed_port, owners[0])
+                    with self.assertRaises(PortBusyError):
+                        open_managed_port(self.config(device.path), factory_for([]))
+                finally:
+                    buses[0].simulate_closed()
+                    owners[0].close()
+
     def test_context_exit_reports_unconfirmed_close_and_preserves_body_error(self):
         with PseudoTerminal() as device:
             created = []
@@ -365,14 +391,14 @@ signal.pause()
             owner = open_managed_port(self.config(device.path),
                                       factory_for(created, close_mode='leave_open'))
             original = ValueError('body failure')
-            with self.assertRaises(ValueError) as raised_body:
+            with self.assertRaises(PortCloseError) as raised_body:
                 with owner:
                     raise original
-            self.assertIs(raised_body.exception, original)
-            self.assertIs(original.managed_port, owner)
+            self.assertIs(raised_body.exception.__cause__, original)
+            self.assertIs(raised_body.exception.managed_port, owner)
             created[-1].simulate_closed()
             created[-1].close_mode = 'normal'
-            self.assertTrue(original.managed_port.close())
+            self.assertTrue(raised_body.exception.managed_port.close())
 
     def test_gui_disconnect_reports_unconfirmed_close_and_close_retries_owner(self):
         from motor_session import MotorSession

@@ -60,3 +60,5 @@ Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, dis
 ## Attributed faults
 
 `Snapshot.faults` holds immutable `JointFault` records in configured joint order. `affected_joints` derives their names. Error and warning masks accumulate by bitwise OR, and watchdog timeout and stale flags latch. Communication codes are fixed `CommunicationFailure` enum values; they do not imply an actuator watchdog timeout. Current healthy feedback clears the current communication observation while the cause remains latched. Stop and reconnect retain causes. Only an explicitly acknowledged, complete, fresh, healthy Stop check clears them. Each core stores at most one record per configured joint and a union of three fixed communication codes per record.
+
+When opening fails and cleanup cannot confirm closure, `open_managed_port` raises `PortCloseError` with `managed_port` for retry and the original error as `__cause__`. Context exit uses the same exception when closure fails, retaining any body exception as its cause. If cleanup succeeds, the original exception propagates normally.

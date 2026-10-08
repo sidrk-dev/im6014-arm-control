@@ -300,7 +300,6 @@ class MotorSession:
             self._stop()
             if self.port_owner:
                 close_confirmed = self._close_managed_port()
-                # Do not keep polling a bus whose close was not confirmed.
                 self.bus = None
             else:
                 self.bus.close()

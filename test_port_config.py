@@ -1,4 +1,3 @@
-"""Offline B13 checks for explicit, passive port configuration."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace

@@ -1,4 +1,3 @@
-"""Passive configuration checks for the existing IM6014 serial entry points."""
 from dataclasses import dataclass
 import errno
 import fcntl
@@ -52,7 +51,7 @@ class PortOwnershipError(RuntimeError):
 
 
 class PortCloseError(RuntimeError):
-    """A context manager could not confirm close and still holds its lease."""
+    """Close could not be confirmed; managed_port retains the retryable lease."""
 
     def __init__(self, managed_port):
         super().__init__('Serial close was not confirmed; the bus lease remains held')
@@ -112,17 +111,10 @@ class ManagedPort:
     def __exit__(self, exc_type, exc, traceback):
         if self.close():
             return False
-        if exc is not None:
-            try:
-                exc.managed_port = self
-            except Exception:
-                pass
-            return False
-        raise PortCloseError(self)
+        raise PortCloseError(self) from exc
 
 
 def _validate_private_directory(path, uid=None):
-    """Open and validate a fixed private directory without following links."""
     uid = os.getuid() if uid is None else uid
     try:
         before = os.lstat(path)
@@ -152,7 +144,6 @@ def _validate_private_directory(path, uid=None):
 
 
 def _validate_tmp_root():
-    """Require the fixed namespace parent to be the trusted sticky /tmp."""
     path = '/tmp'
     try:
         before = os.lstat(path)
@@ -180,7 +171,6 @@ def _validate_tmp_root():
 
 
 def _private_lock_fd(device_number):
-    """Acquire a never-unlinked lockfile keyed by character-device st_rdev."""
     uid = os.getuid()
     _validate_tmp_root()
     try:
@@ -282,13 +272,8 @@ def open_managed_port(config: PortConfig, serial_factory=None):
         managed.verified = True
         return managed
     except BaseException as error:
-        # Keep an unconfirmed owner reachable through the original exception so
-        # callers can retry cleanup instead of dropping the lock fd.
         if not managed.close():
-            try:
-                error.managed_port = managed
-            except Exception:
-                pass
+            raise PortCloseError(managed) from error
         raise
 
 

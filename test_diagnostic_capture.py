@@ -1,4 +1,3 @@
-"""B14 allowlist, bounds, provenance, and caller integration checks."""
 import json
 from array import array
 from types import SimpleNamespace
