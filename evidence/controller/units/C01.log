@@ -1,0 +1,18 @@
+test_alias_replacement_during_open_is_rejected_and_closed (test_bus_owner.C01BusOwnership.test_alias_replacement_during_open_is_rejected_and_closed) ... ok
+test_constructor_setter_and_open_failures_release_after_cleanup (test_bus_owner.C01BusOwnership.test_constructor_setter_and_open_failures_release_after_cleanup) ... ok
+test_context_exit_reports_unconfirmed_close_and_preserves_body_error (test_bus_owner.C01BusOwnership.test_context_exit_reports_unconfirmed_close_and_preserves_body_error) ... ok
+test_direct_open_runs_passive_identity_inspection_before_factory (test_bus_owner.C01BusOwnership.test_direct_open_runs_passive_identity_inspection_before_factory) ... ok
+test_gui_disconnect_reports_unconfirmed_close_and_close_retries_owner (test_bus_owner.C01BusOwnership.test_gui_disconnect_reports_unconfirmed_close_and_close_retries_owner) ... ok
+test_killed_owner_releases_kernel_lock (test_bus_owner.C01BusOwnership.test_killed_owner_releases_kernel_lock) ... ok
+test_lockfile_symlink_is_rejected_before_factory (test_bus_owner.C01BusOwnership.test_lockfile_symlink_is_rejected_before_factory) ... ok
+test_namespace_rejects_symlinks_and_insecure_modes (test_bus_owner.C01BusOwnership.test_namespace_rejects_symlinks_and_insecure_modes) ... ok
+test_returned_open_bus_that_stays_open_retains_lease (test_bus_owner.C01BusOwnership.test_returned_open_bus_that_stays_open_retains_lease) ... ok
+test_same_process_and_symlink_alias_reject_before_factory (test_bus_owner.C01BusOwnership.test_same_process_and_symlink_alias_reject_before_factory) ... ok
+test_subprocess_cannot_bypass_owner_with_alias (test_bus_owner.C01BusOwnership.test_subprocess_cannot_bypass_owner_with_alias) ... ok
+test_tmpdir_does_not_change_lock_namespace (test_bus_owner.C01BusOwnership.test_tmpdir_does_not_change_lock_namespace) ... ok
+test_unconfirmed_close_keeps_lease_until_retry_and_is_idempotent (test_bus_owner.C01BusOwnership.test_unconfirmed_close_keeps_lease_until_retry_and_is_idempotent) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.142s
+
+OK

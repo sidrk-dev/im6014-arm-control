@@ -8,6 +8,31 @@ POSITION_MIN = -2147483648 / 32768 / RATIO * math.tau
 POSITION_MAX = 2147483647 / 32768 / RATIO * math.tau
 
 
+def _motor_id(value, name='Individual ID'):
+    if type(value) is not int or not 0 <= value <= 14:
+        raise ValueError(f'{name} must be an integer from 0 to 14')
+    return value
+
+
+def _finite_control(value, name):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f'{name} must be a finite int or float')
+    try:
+        result = float(value)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError(f'{name} must be finite') from error
+    if not math.isfinite(result):
+        raise ValueError(f'{name} must be finite')
+    return result
+
+
+def _signed_raw(value, minimum, maximum, name):
+    raw = round(value)
+    if not minimum <= raw <= maximum:
+        raise ValueError(f'{name} cannot be represented by the motor protocol')
+    return raw
+
+
 def crc32(data):
     if len(data) % 4:
         raise ValueError('CRC input must contain complete four-byte words')
@@ -21,27 +46,43 @@ def crc32(data):
 
 
 def command(motor_id, mode=0, rpm=0, kd=0, torque=0, watchdog=True, position=0, kp=0):
-    if not 0 <= motor_id <= 14 or mode not in (0, 1):
+    motor_id = _motor_id(motor_id)
+    if type(mode) is not int or mode not in (0, 1):
         raise ValueError('Individual ID 0–14 and Stop/FOC modes only')
-    if not all(math.isfinite(v) for v in (rpm, kd, torque, position, kp)):
-        raise ValueError('Nonfinite control input')
+    if type(watchdog) is not bool:
+        raise ValueError('Watchdog must be a bool')
+    rpm, kd, torque, position, kp = (
+        _finite_control(value, name) for value, name in
+        ((rpm, 'Speed'), (kd, 'Kd'), (torque, 'Feedforward torque'),
+         (position, 'Position'), (kp, 'Kp'))
+    )
     if not RPM_MIN <= rpm <= RPM_MAX:
         raise ValueError('Speed cannot be encoded in the motor protocol; this is not a rated-speed limit')
     if not 0 <= kd <= 6 or not 0 <= kp <= 30 or not -3.5 <= torque <= 3.5:
         raise ValueError('Bench limits: Kd 0–6, Kp 0–30, feedforward torque ±3.5 Nm')
     if not POSITION_MIN <= position <= POSITION_MAX:
         raise ValueError('Position cannot be encoded in the motor protocol')
-    position_raw = round(position / math.tau * RATIO * 32768)
+    torque_raw = _signed_raw(torque / RATIO * 2560, -32768, 32767, 'Feedforward torque')
+    rpm_raw = _signed_raw(rpm / 60 * RATIO * 64, -32768, 32767, 'Speed')
+    position_raw = _signed_raw(position / math.tau * RATIO * 32768,
+                               -2147483648, 2147483647, 'Position')
+    kp_raw = _signed_raw(kp / RATIO ** 2 * 12800, -32768, 32767, 'Kp')
+    kd_raw = _signed_raw(kd / RATIO ** 2 * 51200, -32768, 32767, 'Kd')
     if mode == 0 and (rpm or kd or torque or position or kp) or mode == 1 and not watchdog:
         raise ValueError('Stop must have zero targets; FOC requires watchdog')
     raw = b'\xfe\xee' + bytes([motor_id | mode << 4 | int(watchdog) << 7, 0])
-    raw += struct.pack('<hhihh', round(torque / RATIO * 2560),
-                       round(rpm / 60 * RATIO * 64), position_raw, round(kp / RATIO ** 2 * 12800),
-                       round(kd / RATIO ** 2 * 51200))
+    raw += struct.pack('<hhihh', torque_raw, rpm_raw, position_raw, kp_raw, kd_raw)
     return raw + struct.pack('<I', crc32(raw))
 
 
 def feedback(raw, motor_id):
+    motor_id = _motor_id(motor_id, 'Expected motor ID')
+    if not isinstance(raw, (bytes, bytearray, memoryview)):
+        raise ValueError('Feedback frame must be a bytes-like buffer')
+    try:
+        raw = bytes(raw)
+    except (TypeError, ValueError) as error:
+        raise ValueError('Feedback frame must be a bytes-like buffer') from error
     if len(raw) != 26 or raw[:2] != b'\xfc\xee':
         raise RuntimeError('Invalid feedback length/header')
     if struct.unpack('<I', raw[22:])[0] != crc32(raw[2:22]):

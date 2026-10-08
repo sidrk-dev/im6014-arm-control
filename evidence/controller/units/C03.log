@@ -1,0 +1,11 @@
+test_bad_id_and_observation_do_not_refresh_receipt_time (test_controller.FeedbackAgeTests.test_bad_id_and_observation_do_not_refresh_receipt_time) ... ok
+test_checked_rejects_feedback_older_than_limit (test_controller.FeedbackAgeTests.test_checked_rejects_feedback_older_than_limit) ... ok
+test_disconnect_invalidates_age_and_stale_fault_needs_acknowledged_check (test_controller.FeedbackAgeTests.test_disconnect_invalidates_age_and_stale_fault_needs_acknowledged_check) ... ok
+test_feedback_age_configuration_is_finite_positive_and_typed (test_controller.FeedbackAgeTests.test_feedback_age_configuration_is_finite_positive_and_typed) ... ok
+test_fresh_j1_cannot_hide_stale_j2_from_arm_or_tick (test_controller.FeedbackAgeTests.test_fresh_j1_cannot_hide_stale_j2_from_arm_or_tick) ... ok
+test_zero_timestamp_and_exact_freshness_boundary (test_controller.FeedbackAgeTests.test_zero_timestamp_and_exact_freshness_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

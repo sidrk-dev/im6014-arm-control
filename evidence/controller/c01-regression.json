@@ -1,0 +1,98 @@
+{
+  "commit": "6b4af82",
+  "rawDirectory": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/c01-regression/run-20261007T211935Z-QJy6LRk4",
+  "checks": "check\texit_code\ninterpreter\t0\npacket-tests\t0\nprotocol-tests\t0\nserial-deadline-tests\t0\nmilestone-tests\t0\ndashboard-tests\t0\nstartup-verifier-tests\t0\nstartup-real\t0\nstartup-demo\t0\n",
+  "sourceFiles": {
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 24360,
+      "sha256": "a80268f4a49bd2da5de0a0c33f09ade6d1a16b889ff4225a889901dca90fdfdd"
+    },
+    "spin_5rpm.py": {
+      "bytes": 9371,
+      "sha256": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789"
+    },
+    "im6014_codec.py": {
+      "bytes": 4381,
+      "sha256": "34b65330ad51e211d61483c8d88202fbed92753b1f3ee9f0f072f6855ec88842"
+    },
+    "im6014_serial.py": {
+      "bytes": 13891,
+      "sha256": "83b9c5c12faede6a1b4e50bd94f7257c22a4dffe9de27b76b0607791d70d5812"
+    },
+    "fake_serial.py": {
+      "bytes": 6862,
+      "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_dashboard.py": {
+      "bytes": 20603,
+      "sha256": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f"
+    },
+    "test_startup.py": {
+      "bytes": 13456,
+      "sha256": "72af3cdd8fdf8715dc7f3e8980bb8e17d967f8876bcdd9cd3b266ab359455933"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    },
+    "test_protocol.py": {
+      "bytes": 16673,
+      "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+    },
+    "test_serial_deadline.py": {
+      "bytes": 10995,
+      "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+    },
+    "evidence/boundary/vendor-crc-vectors.json": {
+      "bytes": 25235,
+      "sha256": "5e5cc84a1b38705f858faed64f1179b5519d90c86aa074c60d1fb90f15c0ce89"
+    },
+    "joint_mapping.py": {
+      "bytes": 5279,
+      "sha256": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b"
+    },
+    "test_joint_mapping.py": {
+      "bytes": 7209,
+      "sha256": "0ba656c4f6bec29f938334d09f4946a26eb60e8291bc76a5c9280a2b20158bf5"
+    },
+    "test_numerical_inputs.py": {
+      "bytes": 11362,
+      "sha256": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e"
+    },
+    "im6014_port.py": {
+      "bytes": 17072,
+      "sha256": "8713a163234c64c8beecc9cd7dc0812336ae8cf79fe99c183c6cacb45c9729f1"
+    },
+    "test_port_config.py": {
+      "bytes": 5329,
+      "sha256": "391abc8f7075a4a549bff245b0c3d8b7e09e76ab947acd430f9a5129843a8979"
+    },
+    "test_diagnostic_capture.py": {
+      "bytes": 11818,
+      "sha256": "782b3e91fb491c4fd65e0832445318f79a36f53016744dc2628b05af581c76d0"
+    },
+    "test_bus_owner.py": {
+      "bytes": 15963,
+      "sha256": "bb37dc5bad2e858432c2760312d0f42642908159701b483b34b2eb6aff854fe5"
+    }
+  },
+  "imagesInspected": [
+    "startup-real/dashboard.png",
+    "startup-demo/dashboard.png",
+    "dashboard_preview.png",
+    "dashboard_dark_preview.png"
+  ],
+  "observation": "Disconnected startup has blank telemetry and disabled arm/run with explicit REAL and DEMO badges. Demo speed/position test plots are marked DEMO; no physical samples."
+}

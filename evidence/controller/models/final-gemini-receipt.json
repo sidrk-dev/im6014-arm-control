@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-review",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-review-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-output.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-receipt.json",
+  "executionId": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-review",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-output.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T01:04:13.558Z",
+  "completedAt": "2026-10-08T01:14:38.312Z",
+  "elapsedMs": 624754,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-128d684ea0237678",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-gemini-review"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "3bd2aa10-2c77-4f5e-86ae-6bb6a5bca0ac",
+  "usage": {
+    "inputTokens": 401455,
+    "cachedInputTokens": 1517407,
+    "outputTokens": 88173,
+    "reasoningTokens": 81467,
+    "totalTokens": 489628
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

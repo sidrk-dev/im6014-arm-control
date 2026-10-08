@@ -1,0 +1,65 @@
+{
+  "evidence": "Parent observed direct native final tool messages; no independent backend identity assertion",
+  "delivered": [
+    {
+      "task": "joint_ownership_why",
+      "descriptor": "inherit-parent",
+      "output": "why-source.md"
+    },
+    {
+      "task": "joint_why_synthesis",
+      "descriptor": "inherit-parent",
+      "output": "why-constraints.md"
+    },
+    {
+      "task": "joint_how_explain",
+      "descriptor": "codex:gpt-6.1-sol@xhigh",
+      "output": "how-grounding.md"
+    },
+    {
+      "task": "joint_design_sol",
+      "descriptor": "codex:gpt-6.1-sol@xhigh",
+      "output": "design-sol.md"
+    },
+    {
+      "task": "b11_mapping",
+      "descriptor": "codex:gpt-6-luna@max",
+      "output": "B11-native-final.md"
+    },
+    {
+      "task": "b12_validation",
+      "descriptor": "codex:gpt-6-luna@max",
+      "output": "B12-native-final.md"
+    },
+    {
+      "task": "b13_port_config",
+      "descriptor": "codex:gpt-6-luna@max",
+      "attestation": "B13-native-attestation.json",
+      "output": null
+    },
+    {
+      "task": "b14_diagnostics",
+      "descriptor": "codex:gpt-6-luna@max",
+      "attestation": "B14-native-attestation.json",
+      "output": "B14-native-final.md"
+    },
+    {
+      "task": "c01_bus_owner",
+      "descriptor": "codex:gpt-6-luna@max",
+      "attestation": "C01-native-attestation.json",
+      "output": "C01-native-final.md"
+    },
+    {
+      "task": "c02_controller",
+      "descriptor": "codex:gpt-6-luna@max",
+      "attestation": "C02-native-attestation.json",
+      "output": "C02-native-final.md"
+    },
+    {
+      "task": "c03_feedback_age",
+      "descriptor": "codex:gpt-6-luna@max",
+      "attestation": "C03-native-attestation.json",
+      "output": "C03-native-final.md"
+    }
+  ]
+}

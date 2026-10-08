@@ -1,0 +1,2 @@
+This plugin does not support propagateSizeHints()
+PASS: demo dashboard startup and shutdown; evidence: /tmp/pstack-b11-c06-20261007-1mwdi1cr/final-regression/run-20261008T010414Z-INQgeS30/startup-demo

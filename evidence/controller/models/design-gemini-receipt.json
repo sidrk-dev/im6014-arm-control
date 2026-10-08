@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-gemini.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-gemini-receipt.json",
+  "executionId": "design-gemini-b11c06-1",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Workbench",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-gemini.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-07T20:08:03.578Z",
+  "completedAt": "2026-10-07T20:11:03.096Z",
+  "elapsedMs": 179518,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-831a2f49e098ad9e",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/home/sid/Documents/code/im6014Workbench"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "f9bc4bf6-f074-4c49-8998-17187f9ec64d",
+  "usage": {
+    "inputTokens": 169344,
+    "cachedInputTokens": 541786,
+    "outputTokens": 17870,
+    "reasoningTokens": 11255,
+    "totalTokens": 187214
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

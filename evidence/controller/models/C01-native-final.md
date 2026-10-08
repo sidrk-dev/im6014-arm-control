@@ -1,0 +1,3 @@
+Implemented C01 in the assigned checkout. Both real serial open sites now use open_managed_port, which performs passive identity inspection, locks by device st_rdev in a validated per-user /tmp namespace, and retains the lease until close is confirmed. GUI disconnect reports and retains unconfirmed ownership; the CLI keeps its final Stop attempts before closing and saving the log.
+
+Added PTY and fake-serial ownership tests, including process contention, alias changes, cleanup failures, and context-manager behavior. Adapted the dashboard failure fixture to use a PTY. Tests were authored but not run, as requested. No physical port was opened.

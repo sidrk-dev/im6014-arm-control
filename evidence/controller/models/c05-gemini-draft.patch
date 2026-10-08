@@ -1,0 +1,689 @@
+diff --git a/joint_controller.py b/joint_controller.py
+index b38c3b2..c76ab8c 100644
+--- a/joint_controller.py
++++ b/joint_controller.py
+@@ -11,7 +11,8 @@ import math
+ import time
+ from typing import Literal
+ 
+-from joint_mapping import JointMap, JointSample
++from im6014_codec import command
++from joint_mapping import JointMap, JointSample, JointTarget
+ 
+ 
+ class State(Enum):
+@@ -205,6 +206,19 @@ class JointStatus:
+         return self.health.timeout if self.health is not None else False
+ 
+ 
++@dataclass(frozen=True)
++class Target:
++    joints: tuple[JointTarget, ...]
++
++    def __post_init__(self) -> None:
++        if type(self.joints) is not tuple:
++            raise ValueError("joints must be a tuple of JointTarget")
++        if not self.joints:
++            raise ValueError("joints must be a non-empty tuple")
++        if any(not isinstance(joint, JointTarget) for joint in self.joints):
++            raise ValueError("every joint target must be a JointTarget")
++
++
+ @dataclass(frozen=True)
+ class Snapshot:
+     state: State
+@@ -214,6 +228,7 @@ class Snapshot:
+     fault_latched: bool
+     feedback_ages_s: tuple[float | None, ...]
+     faults: tuple[JointFault, ...] = ()
++    pending_target: Target | None = None
+ 
+     def __post_init__(self) -> None:
+         if not isinstance(self.state, State):
+@@ -251,6 +266,8 @@ class Snapshot:
+             raise ValueError("fault_latched must be a bool")
+         if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
+             raise ValueError("faults must be a tuple of JointFault")
++        if self.pending_target is not None and not isinstance(self.pending_target, Target):
++            raise ValueError("pending_target must be a Target or None")
+ 
+     @property
+     def affected_joints(self) -> tuple[str, ...]:
+@@ -303,6 +320,7 @@ class JointCore:
+         self._feedback_max_age_s = feedback_max_age_s
+         self._clock = clock
+         self._faults: dict[str, JointFault] = {}
++        self._pending_target: Target | None = None
+ 
+     @property
+     def joint_specs(self) -> tuple[JointSpec, ...]:
+@@ -397,6 +415,7 @@ class JointCore:
+         if bool(self._faults) and not acknowledge_fault:
+             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
+         self._clear_observations()
++        self._pending_target = None
+         self._state = State.CHECKING
+         return self._accepted()
+ 
+@@ -424,6 +443,7 @@ class JointCore:
+         self._observations[index] = JointStatus(sample, status, self._now())
+         if not status.healthy:
+             self._state = State.FAULT
++            self._pending_target = None
+             self._record_joint_fault(
+                 self._specs[index].name,
+                 motor_id,
+@@ -458,6 +478,7 @@ class JointCore:
+         self._observations[index] = JointStatus(
+             joint.sample, joint.health, joint.received_at, failure_code)
+         self._state = State.FAULT
++        self._pending_target = None
+         return self._accepted()
+ 
+     def checked(self) -> Decision:
+@@ -507,6 +528,7 @@ class JointCore:
+                     stale_specs.append(spec)
+             if stale_specs:
+                 self._state = State.FAULT
++                self._pending_target = None
+                 for spec in stale_specs:
+                     self._record_joint_fault(
+                         spec.name,
+@@ -515,9 +537,84 @@ class JointCore:
+                     )
+         return self._accepted()
+ 
++    def submit_target(self, target: Target) -> Decision:
++        if self._state not in (State.ARMED, State.MOVING):
++            return self._rejected(DecisionCode.INVALID_STATE)
++        if any(not joint.valid for joint in self._observations):
++            return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
++        now = self._now()
++        if not self._all_fresh(now):
++            return self._rejected(DecisionCode.STALE_FEEDBACK)
++        if any(not joint.healthy for joint in self._observations):
++            return self._rejected(DecisionCode.UNHEALTHY)
++
++        if (
++            not isinstance(target, Target)
++            or type(target.joints) is not tuple
++            or len(target.joints) != len(self._specs)
++            or any(not isinstance(j, JointTarget) for j in target.joints)
++        ):
++            return self._rejected(DecisionCode.INVALID_ARGUMENT)
++
++        try:
++            for spec, joint_target in zip(self._specs, target.joints):
++                output = spec.mapping.to_output(joint_target)
++                command(
++                    spec.motor_id,
++                    mode=1,
++                    rpm=output.rpm,
++                    kd=output.kd,
++                    torque=output.tau_nm,
++                    watchdog=True,
++                    position=output.q_rad,
++                    kp=output.kp,
++                )
++        except (ValueError, TypeError, OverflowError):
++            return self._rejected(DecisionCode.INVALID_ARGUMENT)
++
++        self._pending_target = target
++        return self._accepted()
++
++    def consume_target(self) -> Target | None:
++        if self._state not in (State.ARMED, State.MOVING):
++            return None
++
++        now = self._now()
++        stale_specs = []
++        for index, spec in enumerate(self._specs):
++            joint = self._observations[index]
++            if (
++                not joint.valid
++                or joint.received_at is None
++                or self._age(joint.received_at, now) > self._feedback_max_age_s
++            ):
++                stale_specs.append(spec)
++        if stale_specs:
++            self._state = State.FAULT
++            self._pending_target = None
++            for spec in stale_specs:
++                self._record_joint_fault(
++                    spec.name,
++                    spec.motor_id,
++                    stale=True,
++                )
++            return None
++
++        if any(not joint.healthy for joint in self._observations):
++            return None
++
++        if self._pending_target is None:
++            return None
++
++        target = self._pending_target
++        self._pending_target = None
++        self._state = State.MOVING
++        return target
++
+     def stop(self) -> Decision:
+         if self._state in (State.DISCONNECTED, State.CONNECTING):
+             return self._rejected(DecisionCode.INVALID_STATE)
++        self._pending_target = None
+         if self._state is State.FAULT or bool(self._faults):
+             self._state = State.FAULT
+         else:
+@@ -528,6 +625,7 @@ class JointCore:
+         self._state = State.DISCONNECTED
+         self._source = None
+         self._clear_observations()
++        self._pending_target = None
+         return self._accepted()
+ 
+     def snapshot(self) -> Snapshot:
+@@ -547,4 +645,5 @@ class JointCore:
+             fault_latched=bool(self._faults),
+             feedback_ages_s=ages,
+             faults=faults,
++            pending_target=self._pending_target,
+         )
+diff --git a/test_controller.py b/test_controller.py
+index 5ce7e91..d975b2c 100644
+--- a/test_controller.py
++++ b/test_controller.py
+@@ -12,8 +12,9 @@ from joint_controller import (
+     MotorHealth,
+     SourceIdentity,
+     State,
++    Target,
+ )
+-from joint_mapping import JointMap, JointSample
++from joint_mapping import JointMap, JointSample, JointTarget
+ 
+ 
+ SAMPLE = JointSample(0.1, 0.0, 0.0)
+@@ -54,6 +55,28 @@ class FakeStation:
+     def arm(self):
+         return self.core.arm()
+ 
++    def submit(self, target):
++        return self.core.submit_target(target)
++
++    def consume(self):
++        target = self.core.consume_target()
++        if target is not None:
++            for spec, joint_target in zip(self.core.joint_specs, target.joints):
++                output = spec.mapping.to_output(joint_target)
++                self.writes.append(
++                    command(
++                        spec.motor_id,
++                        mode=1,
++                        rpm=output.rpm,
++                        kd=output.kd,
++                        torque=output.tau_nm,
++                        watchdog=True,
++                        position=output.q_rad,
++                        kp=output.kp,
++                    )
++                )
++        return target
++
+     def stop(self):
+         decision = self.core.stop()
+         if decision.accepted:
+@@ -251,6 +274,15 @@ class ControllerStateTests(unittest.TestCase):
+         if state is State.ARMED:
+             self.assertTrue(station.arm().accepted)
+             return core
++        if state is State.MOVING:
++            self.assertTrue(station.arm().accepted)
++            target = Target((
++                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
++                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
++            ))
++            self.assertTrue(core.submit_target(target).accepted)
++            self.assertIsNotNone(core.consume_target())
++            return core
+         if state is State.STOPPED:
+             self.assertTrue(station.stop().accepted)
+             return core
+@@ -262,7 +294,7 @@ class ControllerStateTests(unittest.TestCase):
+                 MotorHealth(mode=0, errors=1, warnings=0, timeout=False),
+             ).accepted)
+             return core
+-        raise AssertionError(f"{state} is not reachable in C02")
++        raise AssertionError(f"{state} is not reachable")
+ 
+     def test_joint_set_is_nonempty_unique_and_owned(self):
+         mapping = JointMap(1, 1, 0.0)
+@@ -440,6 +472,7 @@ class ControllerStateTests(unittest.TestCase):
+             State.CHECKING: ("begin_connect", "connected", "begin_check", "arm"),
+             State.READY: ("begin_connect", "connected", "begin_check", "checked"),
+             State.ARMED: ("begin_connect", "connected", "begin_check", "checked", "arm"),
++            State.MOVING: ("begin_connect", "connected", "begin_check", "checked", "arm"),
+             State.STOPPED: ("begin_connect", "connected", "checked", "arm"),
+             State.FAULT: ("begin_connect", "connected", "begin_check", "checked", "arm"),
+         }
+@@ -831,5 +864,421 @@ class JointFaultTests(unittest.TestCase):
+             snap.affected_joints[0] = "J2"
+ 
+ 
++class LatestTargetTests(unittest.TestCase):
++    def setUp(self):
++        self.specs = (
++            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
++            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
++        )
++
++    def _core_at(self, state, clock=None):
++        if clock is None:
++            clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        if state is State.DISCONNECTED:
++            return core
++        if state is State.CONNECTING:
++            self.assertTrue(core.begin_connect().accepted)
++            return core
++
++        self.assertTrue(station.connect().accepted)
++        if state is State.CONNECTED:
++            return core
++        if state is State.CHECKING:
++            self.assertTrue(core.begin_check().accepted)
++            return core
++
++        self.assertTrue(station.check().accepted)
++        if state is State.READY:
++            return core
++        if state is State.ARMED:
++            self.assertTrue(station.arm().accepted)
++            return core
++        if state is State.MOVING:
++            self.assertTrue(station.arm().accepted)
++            target = Target((
++                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
++                JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
++            ))
++            self.assertTrue(core.submit_target(target).accepted)
++            self.assertIsNotNone(core.consume_target())
++            return core
++        if state is State.STOPPED:
++            self.assertTrue(station.stop().accepted)
++            return core
++        if state is State.FAULT:
++            self.assertTrue(station.arm().accepted)
++            self.assertTrue(core.receive(
++                self.specs[0].motor_id,
++                SAMPLE,
++                MotorHealth(mode=0, errors=1, warnings=0, timeout=False),
++            ).accepted)
++            return core
++        raise AssertionError(f"{state} is not reachable")
++
++    def test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume(self):
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++        self.assertIsNone(core.snapshot().pending_target)
++
++        last_target = None
++        for i in range(10_000):
++            target = Target((
++                JointTarget(q_rad=i * 0.0001, dq_rad_s=0.0, tau_nm=0.0, kp=1.0, kd=0.1),
++                JointTarget(q_rad=-i * 0.0001, dq_rad_s=0.0, tau_nm=0.0, kp=1.0, kd=0.1),
++            ))
++            decision = station.submit(target)
++            self.assertTrue(decision.accepted)
++            last_target = target
++
++        snap = core.snapshot()
++        self.assertEqual(snap.pending_target, last_target)
++        self.assertIs(snap.state, State.ARMED)
++
++        consumed = station.consume()
++        self.assertEqual(consumed, last_target)
++        self.assertIs(core.snapshot().state, State.MOVING)
++        self.assertIsNone(core.snapshot().pending_target)
++
++        second_consumed = station.consume()
++        self.assertIsNone(second_consumed)
++        self.assertIs(core.snapshot().state, State.MOVING)
++        self.assertIsNone(core.snapshot().pending_target)
++
++    def test_immutable_owned_vector(self):
++        jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
++        jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
++
++        for bad_joints in (
++            [jt1, jt2],
++            "not a tuple",
++            123,
++            None,
++            {jt1, jt2},
++        ):
++            with self.subTest(bad_joints=repr(bad_joints)), self.assertRaises(ValueError):
++                Target(bad_joints)
++
++        with self.assertRaises(ValueError):
++            Target(())
++
++        for bad_elements in (
++            (jt1, "not a joint target"),
++            (1, 2),
++            (jt1, None),
++        ):
++            with self.subTest(bad_elements=repr(bad_elements)), self.assertRaises(ValueError):
++                Target(bad_elements)
++
++        target = Target((jt1, jt2))
++        with self.assertRaises(FrozenInstanceError):
++            target.joints = (jt2, jt1)
++        with self.assertRaises(TypeError):
++            target.joints[0] = jt2
++        with self.assertRaises(FrozenInstanceError):
++            target.joints[0].q_rad = 99.0
++
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++        self.assertTrue(station.submit(target).accepted)
++
++        snap = core.snapshot()
++        self.assertEqual(snap.pending_target, target)
++        with self.assertRaises(FrozenInstanceError):
++            snap.pending_target = None
++        with self.assertRaises(TypeError):
++            snap.pending_target.joints[0] = jt1
++        with self.assertRaises(FrozenInstanceError):
++            snap.pending_target.joints[0].tau_nm = 0.5
++
++    def test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target(self):
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++
++        jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
++        jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
++        prior_target = Target((jt1, jt2))
++        self.assertTrue(station.submit(prior_target).accepted)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        for malformed in (None, "target", 42, object(), [jt1, jt2]):
++            with self.subTest(malformed=repr(malformed)):
++                decision = core.submit_target(malformed)
++                self.assertFalse(decision.accepted)
++                self.assertEqual(decision.code, DecisionCode.INVALID_ARGUMENT)
++                self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        for wrong_vector in (
++            Target((jt1,)),
++            Target((jt1, jt2, jt1)),
++        ):
++            with self.subTest(wrong_vector=wrong_vector):
++                decision = core.submit_target(wrong_vector)
++                self.assertFalse(decision.accepted)
++                self.assertEqual(decision.code, DecisionCode.INVALID_ARGUMENT)
++                self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        huge_speed = Target((JointTarget(0.0, 1e7, 0.0, 1.0, 0.1), jt2))
++        rej = core.submit_target(huge_speed)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        huge_kp = Target((JointTarget(0.0, 0.0, 0.0, 31.0, 0.1), jt2))
++        rej = core.submit_target(huge_kp)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        huge_kd = Target((JointTarget(0.0, 0.0, 0.0, 1.0, 6.1), jt2))
++        rej = core.submit_target(huge_kd)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        huge_pos = Target((JointTarget(1e7, 0.0, 0.0, 1.0, 0.1), jt2))
++        rej = core.submit_target(huge_pos)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++    def test_mapped_torque_outside_codec_bounds_rejects(self):
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++
++        jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
++        jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
++        prior_target = Target((jt1, jt2))
++        self.assertTrue(station.submit(prior_target).accepted)
++
++        too_high = Target((JointTarget(0.0, 0.0, 3.501, 1.0, 0.1), jt2))
++        rej = core.submit_target(too_high)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        too_low = Target((JointTarget(0.0, 0.0, -3.501, 1.0, 0.1), jt2))
++        rej = core.submit_target(too_low)
++        self.assertFalse(rej.accepted)
++        self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertEqual(core.snapshot().pending_target, prior_target)
++
++        specs_ratio = (
++            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0)),
++            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0)),
++        )
++        core_ratio = JointCore(specs_ratio, clock=clock)
++        station_ratio = FakeStation(core_ratio)
++        self.assertTrue(station_ratio.connect().accepted)
++        self.assertTrue(station_ratio.check().accepted)
++        self.assertTrue(station_ratio.arm().accepted)
++
++        rej_ratio = core_ratio.submit_target(
++            Target((JointTarget(0.0, 0.0, 12.0, 9.0, 0.9), jt2))
++        )
++        self.assertFalse(rej_ratio.accepted)
++        self.assertEqual(rej_ratio.code, DecisionCode.INVALID_ARGUMENT)
++        self.assertIsNone(core_ratio.snapshot().pending_target)
++
++    def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
++        clock = DeterministicClock(0.0)
++        specs = (
++            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25)),
++            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1)),
++        )
++        core = JointCore(specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++        station.writes.clear()
++
++        jt1 = JointTarget(q_rad=0.1, dq_rad_s=1.0, tau_nm=-6.0, kp=18.0, kd=4.5)
++        jt2 = JointTarget(q_rad=0.2, dq_rad_s=-1.0, tau_nm=3.0, kp=8.0, kd=2.0)
++        target = Target((jt1, jt2))
++
++        decision = station.submit(target)
++        self.assertTrue(decision.accepted)
++        self.assertEqual(station.writes, [])
++
++        expected_pkt_1 = command(
++            0,
++            mode=1,
++            rpm=-180.0 / math.tau,
++            kd=0.5,
++            torque=2.0,
++            watchdog=True,
++            position=-0.05,
++            kp=2.0,
++        )
++
++        expected_pkt_2 = command(
++            1,
++            mode=1,
++            rpm=-120.0 / math.tau,
++            kd=0.5,
++            torque=1.5,
++            watchdog=True,
++            position=0.5,
++            kp=2.0,
++        )
++
++        consumed = station.consume()
++        self.assertEqual(consumed, target)
++        self.assertEqual(station.writes, [expected_pkt_1, expected_pkt_2])
++        self.assertIs(core.snapshot().state, State.MOVING)
++
++    def test_no_writes_on_rejection_stale_fault_stop_disconnect(self):
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++        station.writes.clear()
++
++        jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
++        jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
++        valid_target = Target((jt1, jt2))
++
++        bad_target = Target((JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), jt2))
++        self.assertFalse(station.submit(bad_target).accepted)
++        self.assertEqual(station.writes, [])
++
++        self.assertIsNone(station.consume())
++        self.assertEqual(station.writes, [])
++
++        self.assertTrue(station.submit(valid_target).accepted)
++        clock.value = 1.000001
++        self.assertEqual(station.submit(valid_target).code, DecisionCode.STALE_FEEDBACK)
++        self.assertEqual(station.writes, [])
++
++        self.assertIsNone(station.consume())
++        self.assertEqual(station.writes, [])
++        self.assertIs(core.snapshot().state, State.FAULT)
++        self.assertIsNone(core.snapshot().pending_target)
++
++        self.assertEqual(station.submit(valid_target).code, DecisionCode.INVALID_STATE)
++        self.assertIsNone(station.consume())
++        self.assertEqual(station.writes, [])
++
++        station.writes.clear()
++        self.assertTrue(station.check(acknowledge_fault=True).accepted)
++        station.writes.clear()
++        self.assertTrue(station.arm().accepted)
++        self.assertTrue(station.submit(valid_target).accepted)
++
++        station.writes.clear()
++        self.assertTrue(station.stop().accepted)
++        self.assertEqual(station.writes, [command(spec.motor_id, mode=0) for spec in self.specs])
++        self.assertIsNone(core.snapshot().pending_target)
++        station.writes.clear()
++        self.assertIsNone(station.consume())
++        self.assertEqual(station.writes, [])
++
++        core2 = JointCore(self.specs, clock=clock)
++        station2 = FakeStation(core2)
++        self.assertTrue(station2.connect().accepted)
++        self.assertTrue(station2.check().accepted)
++        self.assertTrue(station2.arm().accepted)
++        self.assertTrue(station2.submit(valid_target).accepted)
++        station2.writes.clear()
++
++        self.assertTrue(station2.disconnect().accepted)
++        self.assertEqual(station2.writes, [])
++        self.assertIsNone(core2.snapshot().pending_target)
++        self.assertIsNone(station2.consume())
++        self.assertEqual(station2.writes, [])
++
++    def test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault(self):
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock, feedback_max_age_s=0.5)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++
++        target = Target((
++            JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
++            JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),
++        ))
++        self.assertTrue(station.submit(target).accepted)
++        self.assertEqual(core.snapshot().pending_target, target)
++
++        clock.value = 0.4
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
++
++        clock.value = 0.6
++        consumed = station.consume()
++        self.assertIsNone(consumed)
++
++        snap = core.snapshot()
++        self.assertIs(snap.state, State.FAULT)
++        self.assertTrue(snap.fault_latched)
++        self.assertIsNone(snap.pending_target)
++        self.assertEqual(snap.affected_joints, ("J2",))
++        self.assertEqual(len(snap.faults), 1)
++        self.assertTrue(snap.faults[0].stale)
++        self.assertEqual(snap.faults[0].name, "J2")
++
++        self.assertEqual(station.check().code, DecisionCode.FAULT_ACK_REQUIRED)
++
++    def test_only_armed_and_moving_may_submit_and_consume(self):
++        target = Target((
++            JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
++            JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),
++        ))
++
++        rejected_states = (
++            State.DISCONNECTED,
++            State.CONNECTING,
++            State.CONNECTED,
++            State.CHECKING,
++            State.READY,
++            State.STOPPED,
++            State.FAULT,
++        )
++        for state in rejected_states:
++            with self.subTest(state=state):
++                core = self._core_at(state)
++                before = core.snapshot()
++                self.assertEqual(core.submit_target(target).code, DecisionCode.INVALID_STATE)
++                self.assertIsNone(core.consume_target())
++                self.assertEqual(core.snapshot(), before)
++
++        core = self._core_at(State.ARMED)
++        self.assertTrue(core.submit_target(target).accepted)
++        self.assertEqual(core.snapshot().pending_target, target)
++        self.assertEqual(core.consume_target(), target)
++        self.assertIs(core.snapshot().state, State.MOVING)
++
++        target2 = Target((
++            JointTarget(0.3, 0.0, 0.0, 1.0, 0.1),
++            JointTarget(0.4, 0.0, 0.0, 1.0, 0.1),
++        ))
++        self.assertTrue(core.submit_target(target2).accepted)
++        self.assertEqual(core.snapshot().pending_target, target2)
++        self.assertEqual(core.consume_target(), target2)
++        self.assertIs(core.snapshot().state, State.MOVING)
++        self.assertIsNone(core.snapshot().pending_target)
++
++
+ if __name__ == "__main__":
+     unittest.main()

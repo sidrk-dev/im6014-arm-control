@@ -1,0 +1,14 @@
+test_each_fault_path_clears_pending_without_fake_foc_writes (test_controller_targets.LatestTargetTests.test_each_fault_path_clears_pending_without_fake_foc_writes) ... ok
+test_immutable_owned_vector (test_controller_targets.LatestTargetTests.test_immutable_owned_vector) ... ok
+test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target (test_controller_targets.LatestTargetTests.test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target) ... ok
+test_mapped_torque_outside_codec_bounds_rejects (test_controller_targets.LatestTargetTests.test_mapped_torque_outside_codec_bounds_rejects) ... ok
+test_no_writes_on_rejection_stale_fault_stop_disconnect (test_controller_targets.LatestTargetTests.test_no_writes_on_rejection_stale_fault_stop_disconnect) ... ok
+test_only_armed_and_moving_may_submit_and_consume (test_controller_targets.LatestTargetTests.test_only_armed_and_moving_may_submit_and_consume) ... ok
+test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault (test_controller_targets.LatestTargetTests.test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault) ... ok
+test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings (test_controller_targets.LatestTargetTests.test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings) ... ok
+test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume (test_controller_targets.LatestTargetTests.test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.515s
+
+OK

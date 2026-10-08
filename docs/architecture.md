@@ -16,14 +16,17 @@ Inspect external foundations at exact revisions and record the revision in evide
 | `motor_dashboard.py` | Controls, display, plots, exports, UI heartbeat | `MotorSession`; codec constants; Qt; passive serial enumeration |
 | `motor_session.py` | One GUI serial-owner worker, requests, demo transport, bench lifecycle | Bench aliases in `spin_5rpm.py`; pyserial |
 | `im6014_codec.py` | Pure packet encoding, strict feedback decoding, CRC and internal reduction | Python standard library |
-| `im6014_serial.py` | One request, bounded stream scan, timeout budgets and restoration | Pure feedback decoder; Python standard library |
+| `im6014_serial.py` | One request, bounded stream scan, timeout budgets, restoration and optional bounded capture | Pure feedback decoder; Python standard library |
+| `im6014_port.py` | Passive configuration and cooperating device lease | OS metadata; injected serial factory |
+| `joint_controller.py` | Transport-free lifecycle, per-joint freshness and faults, one latest target and a sequence watermark | Frozen mapping records; pure codec validation; Python standard library |
+| `joint_mapping.py` | Pure external joint units and gain conversion | Python standard library |
 | `spin_5rpm.py` | Bench aliases, health checks and standalone bounded CLI | Codec and serial boundary; pyserial |
 | `fake_serial.py` | Scripted replies and deterministic clock for offline checks | Python standard library; never imported by production |
 | Offline tests and startup verifier | Fixtures, rejection guards, visible evidence | Production modules; never imported by production |
 | Baseline driver | Run audited checks on exact temporary source copies | Tests and selected Python interpreter |
-| `docs/milestones.tsv` | Persistent A01-A10 and B01-B10 results | Evidence paths; no runtime dependency |
+| `docs/milestones.tsv` | Persistent acceptance results with source snapshots | Evidence paths; no runtime dependency |
 
-The GUI's worker owns its bus. The standalone CLI is an alternative bus owner. Neither is yet a complete station process for a six-joint arm. Never run both against the same physical adapter. Serial exclusivity is an existing Linux port flag, not proof of the later C01 cross-process controller contract.
+The GUI worker and standalone CLI acquire the same cooperating device lease through `im6014_port.open_managed_port`. Aliases of a character device collide by `st_rdev`. The fixed private per-user namespace ignores TMPDIR and XDG settings. A second cooperating opener rejects before serial construction, and unconfirmed close retains ownership. Raw clients can ignore this advisory lock. Neither entry point is yet a complete station process for a six-joint arm.
 
 B01-B10 extract the existing codec into pure functions and the serial exchange into a separate boundary. The bench aliases preserve callers and startup interception. Build profiles and the shared station remain later work. A01-A10 baseline records describe their earlier source revisions.
 

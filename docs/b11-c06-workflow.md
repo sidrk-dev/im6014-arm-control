@@ -1,0 +1,36 @@
+# Joint mapping and controller workflow
+
+## Figure it out
+
+- [x] Read the Principles section of poteto-mode.
+- [x] Frame the ten acceptance predicates and scope.
+- [x] Design the workflow.
+- [x] Run each unit as a measured experiment.
+- [x] Keep the audit trail in docs/decisions.tsv.
+- [ ] Verify the whole and hand back.
+
+## Architect
+
+- [x] Ground.
+- [x] Sketch.
+- [x] Agree. Parent selected the typed Sol core with explicit corrections.
+- [x] Implement.
+- [ ] Scrap. Skip unless the selected shape fails repeated checks.
+
+## Units
+
+- [x] B11 external joint mapping.
+- [x] B12 numerical input rejection.
+- [x] B13 explicit port configuration.
+- [x] B14 diagnostic capture.
+- [x] C01 one bus owner.
+- [x] C02 controller state transitions.
+- [x] C03 per-joint feedback age.
+- [x] C04 per-joint error status.
+- [x] C05 bounded latest target.
+- [x] C06 command sequence validation.
+- [x] Full regression and inspected images.
+- [x] Comment review and configured OpenCode review panel (Muse/Gemini complete; MiMo HTTP 502 dropout retained).
+- [ ] Fresh independent verdict, exact-head CI, unarmed queue and guarded merge.
+
+The baseline is d8d810888f76c676acaa1d54bc9e790249592f45. The parent baseline driver returned eight zero exit codes before edits. This block uses fake transport and Linux pseudo-terminals. Physical mapping, loaded-arm Stop procedures and measured loop rates remain pending.

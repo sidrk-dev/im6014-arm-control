@@ -1,0 +1,12 @@
+test_actual_order_1_5_5_2_6_ends_at_6 (test_controller_targets.CommandSequenceTests.test_actual_order_1_5_5_2_6_ends_at_6) ... ok
+test_boundaries_0_and_uint64max (test_controller_targets.CommandSequenceTests.test_boundaries_0_and_uint64max) ... ok
+test_invalid_higher_vector_or_mapping_preserves_pending_and_watermark_and_never_blocks_smaller (test_controller_targets.CommandSequenceTests.test_invalid_higher_vector_or_mapping_preserves_pending_and_watermark_and_never_blocks_smaller) ... ok
+test_new_core_starts_negative_one_and_independent_watermarks (test_controller_targets.CommandSequenceTests.test_new_core_starts_negative_one_and_independent_watermarks) ... ok
+test_rejected_state_and_stale_submissions_preserve_watermark_and_pending (test_controller_targets.CommandSequenceTests.test_rejected_state_and_stale_submissions_preserve_watermark_and_pending) ... ok
+test_sequence_type_and_range_rejections (test_controller_targets.CommandSequenceTests.test_sequence_type_and_range_rejections) ... ok
+test_watermark_survives_consumption_stop_fault_disconnect_reconnect_and_recovery (test_controller_targets.CommandSequenceTests.test_watermark_survives_consumption_stop_fault_disconnect_reconnect_and_recovery) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.003s
+
+OK

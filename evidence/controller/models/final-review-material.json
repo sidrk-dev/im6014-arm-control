@@ -1,0 +1,33 @@
+{
+  "head": "075973b02d909e22c2f120be6045a7cf65cb6665",
+  "files": [
+    "joint_controller.py",
+    "joint_mapping.py",
+    "im6014_port.py",
+    "im6014_codec.py",
+    "im6014_serial.py",
+    "spin_5rpm.py",
+    "motor_session.py",
+    "fake_serial.py",
+    "test_controller.py",
+    "test_joint_mapping.py",
+    "test_bus_owner.py",
+    "test_port_config.py",
+    "test_numerical_inputs.py",
+    "test_diagnostic_capture.py",
+    "test_protocol.py",
+    "test_serial_deadline.py",
+    "test_dashboard.py",
+    "scripts/check_milestone.py",
+    "scripts/check_offline_baseline.sh",
+    "docs/controller-design.md",
+    "docs/joint-api.md",
+    "docs/architecture.md",
+    "docs/decisions.tsv",
+    "docs/bench-review.md",
+    "test_controller_targets.py"
+  ],
+  "prompt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/final-review-prompt.md",
+  "bytes": 379031,
+  "sha256": "07d621d1ffc469b9bc1e39d43d8dce1a4b83bd89083c0c4d067444f9514a76b8"
+}

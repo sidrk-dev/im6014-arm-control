@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "246eddd0-defd-4ec8-862c-2c8fc15c8b92",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/mimo-v2.6-flash-free",
+  "reportedModel": "opencode/mimo-v2.6-flash-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/mimo-v2.6-flash-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-review-prompt.md",
+    "--output",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-output.md",
+    "--receipt",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/mimo-v2.6-flash-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-07T20:14:57.944Z",
+  "completedAt": "2026-10-07T20:18:08.351Z",
+  "elapsedMs": 190407,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-review-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-output.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Workbench",
+    "prompt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-review-prompt.md",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-output.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/design-mimo-receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 0,
+        "write": 0
+      },
+      "input": 16758,
+      "output": 1972,
+      "reasoning": 9514,
+      "total": 28244
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

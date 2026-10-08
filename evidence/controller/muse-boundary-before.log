@@ -1,0 +1,54 @@
+test_arm_requires_current_stop_feedback (test_controller.ControllerStateTests.test_arm_requires_current_stop_feedback) ... FAIL
+test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) ... 
+  test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_error': <CommunicationFailure.TIMEOUT: 'timeout'>, 'communication_errors': (<CommunicationFailure.DRIVER_FAILURE: 'driver_failure'>,)}) ... FAIL
+  test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_errors': (<CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>)}) ... FAIL
+  test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_errors': (<CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>)}) ... FAIL
+test_numeric_string_channel_metadata_matches_or_rejects (test_port_config.B13PortConfig.test_numeric_string_channel_metadata_matches_or_rejects) ... FAIL
+
+======================================================================
+FAIL: test_arm_requires_current_stop_feedback (test_controller.ControllerStateTests.test_arm_requires_current_stop_feedback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_controller.py", line 358, in test_arm_requires_current_stop_feedback
+    self.assertEqual(core.arm().code, DecisionCode.NOT_STOPPED)
+AssertionError: <DecisionCode.ACCEPTED: 'accepted'> != <DecisionCode.NOT_STOPPED: 'not_stopped'>
+
+======================================================================
+FAIL: test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_error': <CommunicationFailure.TIMEOUT: 'timeout'>, 'communication_errors': (<CommunicationFailure.DRIVER_FAILURE: 'driver_failure'>,)})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_controller.py", line 711, in test_fault_record_requires_bounded_consistent_communication_codes
+    with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_errors': (<CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>)})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_controller.py", line 711, in test_fault_record_requires_bounded_consistent_communication_codes
+    with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_fault_record_requires_bounded_consistent_communication_codes (test_controller.JointFaultTests.test_fault_record_requires_bounded_consistent_communication_codes) (kwargs={'communication_errors': (<CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>, <CommunicationFailure.TIMEOUT: 'timeout'>)})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_controller.py", line 711, in test_fault_record_requires_bounded_consistent_communication_codes
+    with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_numeric_string_channel_metadata_matches_or_rejects (test_port_config.B13PortConfig.test_numeric_string_channel_metadata_matches_or_rejects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_port_config.py", line 115, in test_numeric_string_channel_metadata_matches_or_rejects
+    self.assertIn('passive metadata matches', report)
+AssertionError: 'passive metadata matches' not found in 'Port metadata unknown or incomplete for /dev/unit-test-fixture; expected FTDI serial FTC2RQ7H, interface 3; observed FTDI, serial FTC2RQ7H. Adapter identity is not verified.'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=5)

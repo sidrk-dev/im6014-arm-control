@@ -1,0 +1,7 @@
+{
+  "evidence": "parent observed direct native completed final message",
+  "task": "/root/c02_controller",
+  "requestedDescriptor": "codex:gpt-6-luna@max",
+  "modelVerified": false,
+  "testsOwnedBy": "parent"
+}

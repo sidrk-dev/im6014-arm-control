@@ -1,0 +1,13 @@
+test_check_requires_every_healthy_joint_in_stop_mode (test_controller.ControllerStateTests.test_check_requires_every_healthy_joint_in_stop_mode) ... ok
+test_disconnect_and_new_connection_invalidate_observations (test_controller.ControllerStateTests.test_disconnect_and_new_connection_invalidate_observations) ... ok
+test_fake_lifecycle_writes_only_after_accepted_actions (test_controller.ControllerStateTests.test_fake_lifecycle_writes_only_after_accepted_actions) ... ok
+test_fault_survives_stop_disconnect_reconnect_and_healthy_packets (test_controller.ControllerStateTests.test_fault_survives_stop_disconnect_reconnect_and_healthy_packets) ... ok
+test_health_and_source_records_reject_invalid_values (test_controller.ControllerStateTests.test_health_and_source_records_reject_invalid_values) ... ok
+test_invalid_transition_matrix_preserves_snapshot (test_controller.ControllerStateTests.test_invalid_transition_matrix_preserves_snapshot) ... ok
+test_joint_set_is_nonempty_unique_and_owned (test_controller.ControllerStateTests.test_joint_set_is_nonempty_unique_and_owned) ... ok
+test_snapshots_are_immutable_owned_values (test_controller.ControllerStateTests.test_snapshots_are_immutable_owned_values) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.004s
+
+OK

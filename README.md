@@ -49,7 +49,13 @@ Connect, Check, Scan, timeout acknowledgment, and Stop transmit control packets 
 - Telemetry, plots, packet traces, fault checks, and JSON/CSV exports.
 - Priority Stop/disarm through the button or Esc. Each test needs fresh arming.
 
-Displayed motion quantities use output-shaft units. The packet boundary applies the internal 38/3 reduction. A future external joint reduction is separate work.
+Displayed motion quantities use output-shaft units. The packet boundary applies the internal 38/3 reduction. The pure `joint_mapping` API now converts external joint units; the bench controls continue to use output-shaft units.
+
+## Joint mapping and controller core
+
+The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults and a single validated pending target and a retained monotonic sequence watermark. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
+
+Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C05`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
 
 ## Verification boundaries
 

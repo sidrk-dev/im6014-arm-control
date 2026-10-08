@@ -1,0 +1,29 @@
+{
+  "physicalIO": "none; reset sentinel aborts without I/O",
+  "cases": [
+    {
+      "motorId": true,
+      "deadline": 0.05,
+      "exception": "RuntimeError",
+      "touched": [
+        "reset"
+      ]
+    },
+    {
+      "motorId": 0,
+      "deadline": true,
+      "exception": "RuntimeError",
+      "touched": [
+        "reset"
+      ]
+    },
+    {
+      "motorId": 15,
+      "deadline": 0.05,
+      "exception": "RuntimeError",
+      "touched": [
+        "reset"
+      ]
+    }
+  ]
+}

@@ -13,6 +13,8 @@ import time
 import serial
 
 from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
+from im6014_port import PortConfig, inspect_port, open_managed_port
+from im6014_serial import PacketCapture, capture_exchange, TransactionTimeoutError
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
           3: 'Undervoltage', 4: 'Chip overheating', 5: 'MOS temperature outside range',
@@ -34,15 +36,25 @@ def fault_text(errors, warnings):
     return '; '.join(result) or 'No faults or warnings'
 
 
+def _test_number(value, name):
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise ValueError(f'{name} must be a finite number')
+    try:
+        result = float(value)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError(f'{name} must be a finite number') from error
+    if not math.isfinite(result):
+        raise ValueError(f'{name} must be finite')
+    return result
+
+
 def validate_test(values):
     kind = values.get('kind')
     if kind not in ('Speed', 'Position', 'Torque pulse', 'Damping'):
         raise ValueError('Choose Speed, Position, Torque pulse, or Damping')
-    v = {k: float(values[k]) for k in ('rpm', 'kd', 'ff', 'torque', 'duration')}
-    v.update({k: float(values.get(k, default)) for k, default in
+    v = {k: _test_number(values[k], k) for k in ('rpm', 'kd', 'ff', 'torque', 'duration')}
+    v.update({k: _test_number(values.get(k, default), k) for k, default in
               [('position_deg', 10), ('kp', 3), ('speed_limit', 0), ('travel_limit', 0)]})
-    if not all(math.isfinite(x) for x in v.values()):
-        raise ValueError('Test values must be finite')
     packet = command(0, 1, rpm=v['rpm'], kd=v['kd'], kp=v['kp'], position=math.radians(v['position_deg']))
     if not 0 <= v['ff'] <= 0.5:
         raise ValueError('Friction compensation must be 0–0.5 Nm')
@@ -136,6 +148,7 @@ class MotorSession:
         self.closing = threading.Event()
         self.generation = 0
         self.bus = None
+        self.port_owner = None
         self.test = None
         self.started = time.monotonic()
         self.last_ui = self.started
@@ -145,6 +158,7 @@ class MotorSession:
         # ponytail: rolling session buffer; stream to disk if longer captures are needed.
         self.samples = deque(maxlen=10000)
         self.events = deque(maxlen=500)
+        self.packet_capture = PacketCapture()
         self.data = dict(state='Disconnected', connected=False, demo=False, id=0, port=PORT,
                          baud=6000000, armed=False, latest=None, reason='Select an adapter and connect.',
                          tx=0, rx=0, crc_errors=0, reply_timeouts=0, rtt_ms=0., target_rpm=0.,
@@ -159,7 +173,8 @@ class MotorSession:
     def snapshot(self):
         with self.lock:
             return dict(copy.deepcopy(self.data), samples=list(self.samples), events=list(self.events),
-                        age_s=time.monotonic() - self.last_reply if self.last_reply else None)
+                        age_s=time.monotonic() - self.last_reply if self.last_reply else None,
+                        packet_capture=self.packet_capture.snapshot())
 
     def request(self, action, **values):
         if action == 'stop':
@@ -173,7 +188,9 @@ class MotorSession:
         self.request('stop')
         self.closing.set()
         self.thread.join(2)
-        return not self.thread.is_alive()
+        if not self.thread.is_alive() and self.port_owner:
+            self._close_managed_port()
+        return not self.thread.is_alive() and self.port_owner is None
 
     def _event(self, text):
         with self.lock:
@@ -191,11 +208,19 @@ class MotorSession:
         before = time.monotonic()
         self._set(tx=self.data['tx'] + 1, last_tx=packet.hex())
         try:
-            f = exchange(self.bus, packet, motor_id)
+            source = 'demo' if self.data['demo'] else 'physical'
+            f = capture_exchange(
+                self.packet_capture, exchange, self.bus, packet, motor_id,
+                source=source,
+                identity='demo-simulator' if source == 'demo' else self.data['port'],
+                connection=self.data['connection'],
+                port='' if source == 'demo' else self.data['port'],
+                baud=self.data['baud'],
+            )
         except Exception as error:
-            if 'CRC' in str(error):
-                self._set(crc_errors=self.data['crc_errors'] + 1)
-            if 'deadline' in str(error):
+            if isinstance(error, TransactionTimeoutError):
+                self._set(crc_errors=self.data['crc_errors'] + error.crc_rejected_frames)
+            if isinstance(error, (TransactionTimeoutError, TimeoutError)):
                 self._set(reply_timeouts=self.data['reply_timeouts'] + 1)
             raise
         now = time.monotonic()
@@ -231,21 +256,68 @@ class MotorSession:
 
     def _fault(self, error):
         message = str(error)
+        close_unconfirmed = False
+        failed_open_owner = getattr(error, 'managed_port', None)
+        if failed_open_owner is not None:
+            self.port_owner = failed_open_owner
         self._stop()
-        if self.bus and not self.bus.is_open:
-            self.bus.close()
+        if failed_open_owner is not None:
             self.bus = None
+            close_unconfirmed = not self._close_managed_port()
             self._set(connected=False)
-        self._set(state='Fault — disarmed', reason=message)
+        elif self.bus and not self.bus.is_open:
+            if self.port_owner:
+                if self._close_managed_port():
+                    self._set(connected=False)
+                else:
+                    close_unconfirmed = True
+            else:
+                self.bus.close()
+                self.bus = None
+                self._set(connected=False)
+        if close_unconfirmed:
+            self._set(state='Fault — serial close unconfirmed',
+                      reason='Serial close could not be confirmed; adapter ownership remains held. ' + message)
+        else:
+            self._set(state='Fault — disarmed', reason=message)
         self._event('DISARMED: ' + message)
 
+    def _close_managed_port(self):
+        owner = self.port_owner
+        if owner is None:
+            return True
+        if not owner.close():
+            self._event('SERIAL CLOSE NOT CONFIRMED: bus lease retained.')
+            return False
+        if self.bus is owner.bus:
+            self.bus = None
+        self.port_owner = None
+        return True
+
     def _disconnect(self):
+        close_confirmed = True
         if self.bus:
             self._stop()
-            self.bus.close()
-            self.bus = None
-        self._set(connected=False, armed=False, state='Disconnected', latest=None,
-                  reason='Disconnected. Reconnect requires a new check and arm action.', last_tx='', last_rx='')
+            if self.port_owner:
+                close_confirmed = self._close_managed_port()
+                self.bus = None
+            else:
+                self.bus.close()
+                self.bus = None
+        elif self.port_owner:
+            if (self.port_owner.verified and self.port_owner.bus and
+                    self.port_owner.bus.is_open):
+                self.bus = self.port_owner.bus
+                self._stop()
+                self.bus = None
+            close_confirmed = self._close_managed_port()
+        if close_confirmed:
+            self._set(connected=False, armed=False, state='Disconnected', latest=None,
+                      reason='Disconnected. Reconnect requires a new check and arm action.', last_tx='', last_rx='')
+        else:
+            self._set(connected=False, armed=False, state='Fault — serial close unconfirmed', latest=None,
+                      reason='Serial close could not be confirmed. Adapter ownership remains held; retry cleanup before reconnecting.',
+                      last_tx='', last_rx='')
         self.last_reply = 0.
 
     def _check(self, acknowledge=False):
@@ -269,11 +341,13 @@ class MotorSession:
 
     def _handle(self, action, v):
         if action == 'connect':
-            if self.bus:
+            if self.bus or getattr(self, 'port_owner', None):
                 raise ValueError('Disconnect before changing adapter or motor ID')
             motor_id, baud = v.get('id'), v.get('baud')
-            if type(motor_id) is not int or not 0 <= motor_id <= 14 or baud not in (4000000, 6000000):
+            if type(motor_id) is not int or not 0 <= motor_id <= 14 or type(baud) is not int or baud not in (4000000, 6000000):
                 raise ValueError('Individual motor ID 0–14; baud 4 or 6 Mbps')
+            if not v.get('demo'):
+                self._event(inspect_port(PortConfig(v['port'], baud)))
             self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
                       id=motor_id, baud=baud, port=v['port'], demo=bool(v.get('demo')), discovered=[],
                       connection=self.data['connection'] + 1, latest=None, armed=False, stopped=False,
@@ -282,17 +356,18 @@ class MotorSession:
             if v.get('demo'):
                 self.bus = DemoSerial()
             else:
-                self.bus = serial.Serial(port=None, baudrate=baud, timeout=0.005,
-                                         write_timeout=0.05, exclusive=True)
-                self.bus.port = v['port']
-                self.bus.dtr = self.bus.rts = False
-                self.bus.open()
+                self.port_owner = open_managed_port(
+                    PortConfig(v['port'], baud), serial_factory=serial.Serial)
+                self.bus = self.port_owner.bus
             self._set(connected=True)
             self._event(f"{'DEMO' if v.get('demo') else 'REAL'} adapter open: {v['port']} · ID {motor_id} · {baud}")
             self._check()
         elif action == 'disconnect':
             self._disconnect()
-            self._event('Disconnected.')
+            if self.port_owner:
+                self._event('Disconnect requested; serial close unconfirmed, bus ownership retained.')
+            else:
+                self._event('Disconnected.')
         elif action in ('check', 'ack'):
             self._check(acknowledge=action == 'ack')
         elif action == 'arm':

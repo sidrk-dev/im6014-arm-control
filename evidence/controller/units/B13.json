@@ -1,0 +1,99 @@
+{
+  "unit": "B13",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_port_config"
+  ],
+  "cwd": "/home/sid/Documents/code/im6014Workbench",
+  "baseHead": "3035c728e49406861eb0f963e670d5e32666cbbd",
+  "sourceFiles": {
+    "fake_serial.py": {
+      "bytes": 6862,
+      "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+    },
+    "im6014_codec.py": {
+      "bytes": 4381,
+      "sha256": "34b65330ad51e211d61483c8d88202fbed92753b1f3ee9f0f072f6855ec88842"
+    },
+    "im6014_port.py": {
+      "bytes": 7049,
+      "sha256": "7febedef6d661627ed1e041e16f402dd0f7e67c36211f68d149d75853b1539d3"
+    },
+    "im6014_serial.py": {
+      "bytes": 4780,
+      "sha256": "777753937671cae70688abdd2867e33536c98326235d1769cd850ffdfca3d5d4"
+    },
+    "joint_mapping.py": {
+      "bytes": 5279,
+      "sha256": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b"
+    },
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 21424,
+      "sha256": "2177ee7934c7f16c8fba4386d3ee63969650ae8e23a375f3c9f0d6c89864d480"
+    },
+    "spin_5rpm.py": {
+      "bytes": 7265,
+      "sha256": "ef3623907234c3d1b8470a595d5d7924c8b97a70818f28b0220797fa52c11fa3"
+    },
+    "test_dashboard.py": {
+      "bytes": 20274,
+      "sha256": "32c708eb54eeb08fb1b0036aac6f72ae6e71ed154269c7e060c91cbd9474c70d"
+    },
+    "test_joint_mapping.py": {
+      "bytes": 7209,
+      "sha256": "0ba656c4f6bec29f938334d09f4946a26eb60e8291bc76a5c9280a2b20158bf5"
+    },
+    "test_numerical_inputs.py": {
+      "bytes": 11362,
+      "sha256": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e"
+    },
+    "test_port_config.py": {
+      "bytes": 5329,
+      "sha256": "391abc8f7075a4a549bff245b0c3d8b7e09e76ab947acd430f9a5129843a8979"
+    },
+    "test_protocol.py": {
+      "bytes": 16673,
+      "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+    },
+    "test_serial_deadline.py": {
+      "bytes": 10995,
+      "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_startup.py": {
+      "bytes": 13405,
+      "sha256": "7767250caa67d91c51aa8cbe9a473c0a3333cd339f1eeb7bf350231a9a1cb61b"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    },
+    "scripts/check_offline_baseline.sh": {
+      "bytes": 4551,
+      "sha256": "4514bd7be9949df87f66ea76911ce9c41133b24a8b90ec282bdde8d7fc802763"
+    },
+    "scripts/check_milestone.py": {
+      "bytes": 2901,
+      "sha256": "da5b71d06cee324262b75d61bb6f4b4838f70fdb4e319a7ccd93a13c3b1cda41"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    }
+  },
+  "sourceUnchanged": true,
+  "exitCode": 0,
+  "recordedAt": "2026-10-07T20:45:26.549003+00:00",
+  "physicalIO": "none; parent reviewed fixtures or pseudo-terminals before execution"
+}

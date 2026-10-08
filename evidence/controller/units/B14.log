@@ -1,0 +1,16 @@
+STOP/status verified: {"id": 0, "mode": 0, "timeout": 0, "driver_c": 35, "winding_c": 30, "voltage": 36.0, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "errors": 0, "warnings": 0, "raw": "fcee00231e48000000000000000000000000000000002dc022f1", "elapsed_s": 7.540999649791047e-05, "target_rpm": 0}
+STOP/status verified: {"id": 0, "mode": 0, "timeout": 0, "driver_c": 35, "winding_c": 30, "voltage": 36.0, "torque_nm": 0.0, "rpm": 0.0, "position_rad": 0.0, "errors": 0, "warnings": 0, "raw": "fcee00231e48000000000000000000000000000000002dc022f1", "elapsed_s": 4.7708002966828644e-05, "target_rpm": 0}
+test_capture_metadata_is_validated_before_exchange (test_diagnostic_capture.DiagnosticCapture.test_capture_metadata_is_validated_before_exchange) ... ok
+test_captured_stop_fixture_and_foc_fixture_keep_raw_and_decoded_fields (test_diagnostic_capture.DiagnosticCapture.test_captured_stop_fixture_and_foc_fixture_keep_raw_and_decoded_fields) ... ok
+test_cli_run_log_capture_is_opt_in_and_uses_patched_exchange_lookup (test_diagnostic_capture.DiagnosticCapture.test_cli_run_log_capture_is_opt_in_and_uses_patched_exchange_lookup) ... ok
+test_malformed_exception_counters_are_ignored_and_large_counts_clamped (test_diagnostic_capture.DiagnosticCapture.test_malformed_exception_counters_are_ignored_and_large_counts_clamped) ... ok
+test_megabyte_request_and_reply_are_truncated_before_storage (test_diagnostic_capture.DiagnosticCapture.test_megabyte_request_and_reply_are_truncated_before_storage) ... ok
+test_memoryview_packet_and_reply_limits_are_measured_in_bytes (test_diagnostic_capture.DiagnosticCapture.test_memoryview_packet_and_reply_limits_are_measured_in_bytes) ... ok
+test_motor_session_snapshot_exports_demo_capture_without_sharing (test_diagnostic_capture.DiagnosticCapture.test_motor_session_snapshot_exports_demo_capture_without_sharing) ... ok
+test_ring_capacity_strings_and_snapshots_are_bounded_and_owned (test_diagnostic_capture.DiagnosticCapture.test_ring_capacity_strings_and_snapshots_are_bounded_and_owned) ... ok
+test_timeout_invalid_feedback_and_secret_driver_errors_have_fixed_codes (test_diagnostic_capture.DiagnosticCapture.test_timeout_invalid_feedback_and_secret_driver_errors_have_fixed_codes) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.009s
+
+OK

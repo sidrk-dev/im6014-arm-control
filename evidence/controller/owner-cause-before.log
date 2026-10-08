@@ -1,0 +1,20 @@
+test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause (test_bus_owner.C01BusOwnership.test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause) ... ERROR
+
+======================================================================
+ERROR: test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause (test_bus_owner.C01BusOwnership.test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 370, in test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause
+    open_managed_port(self.config(device.path), factory_for(
+  File "/home/sid/Documents/code/im6014Workbench/im6014_port.py", line 271, in open_managed_port
+    bus.open()
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 76, in open
+    self.after_open()
+  File "/home/sid/Documents/code/im6014Workbench/test_bus_owner.py", line 366, in fail_after_open
+    raise original
+test_bus_owner.C01BusOwnership.test_open_cleanup_failure_has_typed_reachable_owner_and_original_cause.<locals>.OriginalFailure: open failed after acquiring fd
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (errors=1)

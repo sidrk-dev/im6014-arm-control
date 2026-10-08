@@ -1,0 +1,51 @@
+test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) ... 
+  test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='TransactionTimeoutError', text='changed wording') ... FAIL
+  test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='InvalidFeedbackError', text='changed wording') ... FAIL
+  test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='InvalidFeedbackError', text='changed wording') ... FAIL
+  test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='TimeoutError', text='changed wording') ... FAIL
+  test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='OSError', text='CRC deadline unrelated') ... FAIL
+
+======================================================================
+FAIL: test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='TransactionTimeoutError', text='changed wording')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 57, in test_dashboard_counts_typed_failures_without_message_matching
+    self.assertEqual(session.data['reply_timeouts'], timeouts)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='InvalidFeedbackError', text='changed wording')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 57, in test_dashboard_counts_typed_failures_without_message_matching
+    self.assertEqual(session.data['reply_timeouts'], timeouts)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='InvalidFeedbackError', text='changed wording')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 57, in test_dashboard_counts_typed_failures_without_message_matching
+    self.assertEqual(session.data['reply_timeouts'], timeouts)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='TimeoutError', text='changed wording')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 57, in test_dashboard_counts_typed_failures_without_message_matching
+    self.assertEqual(session.data['reply_timeouts'], timeouts)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_dashboard_counts_typed_failures_without_message_matching (test_diagnostic_capture.DiagnosticCapture.test_dashboard_counts_typed_failures_without_message_matching) (error='OSError', text='CRC deadline unrelated')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Workbench/test_diagnostic_capture.py", line 57, in test_dashboard_counts_typed_failures_without_message_matching
+    self.assertEqual(session.data['reply_timeouts'], timeouts)
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=5)
