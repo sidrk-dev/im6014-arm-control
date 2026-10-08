@@ -1,0 +1,16 @@
+test_communication_failures_with_fixed_enum_codes (test_controller.JointFaultTests.test_communication_failures_with_fixed_enum_codes) ... ok
+test_current_communication_status_clears_without_erasing_cause (test_controller.JointFaultTests.test_current_communication_status_clears_without_erasing_cause) ... ok
+test_failed_recovery_retains_causes (test_controller.JointFaultTests.test_failed_recovery_retains_causes) ... ok
+test_healthy_after_fault_preserves_latched_attribution (test_controller.JointFaultTests.test_healthy_after_fault_preserves_latched_attribution) ... ok
+test_immutability_of_fault_records_and_snapshot_collections (test_controller.JointFaultTests.test_immutability_of_fault_records_and_snapshot_collections) ... ok
+test_independent_second_core_unchanged_by_fault (test_controller.JointFaultTests.test_independent_second_core_unchanged_by_fault) ... ok
+test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage (test_controller.JointFaultTests.test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage) ... ok
+test_stale_j2_attributes_only_stale_joint_with_refreshed_j1 (test_controller.JointFaultTests.test_stale_j2_attributes_only_stale_joint_with_refreshed_j1) ... ok
+test_successful_recovery_clears_fault_causes (test_controller.JointFaultTests.test_successful_recovery_clears_fault_causes) ... ok
+test_unknown_bits_and_32bit_error_mask_retained (test_controller.JointFaultTests.test_unknown_bits_and_32bit_error_mask_retained) ... ok
+test_unknown_ids_and_invalid_codes_reject_unchanged (test_controller.JointFaultTests.test_unknown_ids_and_invalid_codes_reject_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.002s
+
+OK

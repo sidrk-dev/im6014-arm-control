@@ -14,3 +14,9 @@ Muse completed the requested free-model route with one submission, no permission
 | Timeout boolean precedence needs parentheses | Expression inspected; Python precedence is correct. A style-only change is unnecessary. |
 
 This review is partial. C02-C06 still require the final configured panel, comment review and independent verifier.
+
+## Gemini preliminary review and C04 parent inspection
+
+Gemini completed its B11-C03 read-only review and independently identified the capture end-clock failure. The parent reproduced and fixed it in 7e7b940, preserving the original result or exception and marking unavailable end timing as null. Additional suggested boundary cases remain input to final verification; they were test coverage suggestions without demonstrated failures.
+
+The C04 Gemini writer completed in its isolated worktree. Parent inspection removed redundant aliases and custom enum equality, kept one canonical fault API, separated serial timeout from actuator watchdog timeout, and updated current communication health. Eleven C04 tests and all 25 controller tests passed after those corrections. The original draft patch and exact model receipts are retained. A parent bookkeeping script initially stored a normalized event wrapper instead of its event; this was corrected from the original receipt without rerunning inference.

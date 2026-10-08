@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-review",
+  "promptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-prompt.md",
+  "outputPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-output.md",
+  "receiptPath": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-receipt.json",
+  "executionId": "precore-gemini-review-1",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-review",
+    "output": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-output.md",
+    "receipt": "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T00:21:19.834Z",
+  "completedAt": "2026-10-08T00:28:46.731Z",
+  "elapsedMs": 446897,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-a880bff8af00a794",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/pstack-b11-c06-20261007-1mwdi1cr/precore-gemini-review"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "9292d8a2-4aeb-454c-b06d-c9f6c62c6e59",
+  "usage": {
+    "inputTokens": 687351,
+    "cachedInputTokens": 2534206,
+    "outputTokens": 55154,
+    "reasoningTokens": 46389,
+    "totalTokens": 742505
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

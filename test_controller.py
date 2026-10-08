@@ -4,8 +4,10 @@ import math
 
 from im6014_codec import command
 from joint_controller import (
+    CommunicationFailure,
     DecisionCode,
     JointCore,
+    JointFault,
     JointSpec,
     MotorHealth,
     SourceIdentity,
@@ -462,6 +464,371 @@ class ControllerStateTests(unittest.TestCase):
                     self.assertFalse(decision)
                     self.assertEqual(station.writes, [])
                     self.assertEqual(core.snapshot(), before)
+
+
+class JointFaultTests(unittest.TestCase):
+    def setUp(self):
+        self.specs = (
+            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+        )
+
+    def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
+        if clock is None:
+            clock = DeterministicClock(0.0)
+        core = JointCore(
+            self.specs,
+            clock=clock,
+            feedback_max_age_s=feedback_max_age_s,
+        )
+        self.assertTrue(core.begin_connect().accepted)
+        self.assertTrue(core.connected(SOURCE).accepted)
+        self.assertTrue(core.begin_check().accepted)
+        for spec in self.specs:
+            self.assertTrue(core.receive(spec.motor_id, SAMPLE, HEALTHY_STOP).accepted)
+        self.assertTrue(core.checked().accepted)
+        return core
+
+    def test_stale_j2_attributes_only_stale_joint_with_refreshed_j1(self):
+        clock = DeterministicClock(0.0)
+        core = self._ready_core(clock, feedback_max_age_s=1.0)
+        self.assertTrue(core.arm().accepted)
+        self.assertIs(core.snapshot().state, State.ARMED)
+
+        clock.value = 0.8
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
+
+        clock.value = 1.1
+        self.assertTrue(core.tick().accepted)
+        snap = core.snapshot()
+        self.assertIs(snap.state, State.FAULT)
+        self.assertTrue(snap.fault_latched)
+        self.assertEqual(snap.affected_joints, ("J2",))
+        self.assertEqual(len(snap.faults), 1)
+
+        j2_fault = snap.faults[0]
+        self.assertEqual(j2_fault.name, "J2")
+        self.assertEqual(j2_fault.motor_id, 1)
+        self.assertTrue(j2_fault.stale)
+        self.assertEqual(j2_fault.errors, 0)
+        self.assertEqual(j2_fault.warnings, 0)
+        self.assertFalse(j2_fault.timeout)
+        self.assertIsNone(j2_fault.communication_error)
+
+        self.assertNotIn("J1", snap.affected_joints)
+        self.assertEqual(snap.joints[0].received_at, 0.8)
+        self.assertEqual(snap.joints[1].received_at, 0.0)
+
+    def test_unknown_bits_and_32bit_error_mask_retained(self):
+        clock = DeterministicClock(0.0)
+        core = self._ready_core(clock)
+        self.assertTrue(core.arm().accepted)
+
+        unknown_errors = 0x80000004
+        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True)
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, status).accepted)
+
+        snap = core.snapshot()
+        self.assertIs(snap.state, State.FAULT)
+        self.assertEqual(snap.affected_joints, ("J1",))
+        j1_fault = snap.faults[0]
+        self.assertEqual(j1_fault.errors, unknown_errors)
+        self.assertEqual(j1_fault.errors & 0x80000000, 0x80000000)
+        self.assertEqual(j1_fault.warnings, 5)
+        self.assertTrue(j1_fault.timeout)
+        self.assertFalse(j1_fault.stale)
+
+        for kwargs in (
+            dict(mode=0, errors=-1, warnings=0, timeout=False),
+            dict(mode=0, errors=0x1_0000_0000, warnings=0, timeout=False),
+            dict(mode=0, errors=0, warnings=-1, timeout=False),
+            dict(mode=0, errors=0, warnings=8, timeout=False),
+            dict(mode=0, errors=0, warnings=0, timeout="True"),
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                MotorHealth(**kwargs)
+
+        for kwargs in (
+            dict(name="J1", motor_id=0, errors=-1),
+            dict(name="J1", motor_id=0, errors=0x1_0000_0000),
+            dict(name="J1", motor_id=0, warnings=-1),
+            dict(name="J1", motor_id=0, warnings=8),
+            dict(name="J1", motor_id=0, timeout=1),
+            dict(name="J1", motor_id=0, stale=1),
+            dict(name="", motor_id=0),
+            dict(name="J1", motor_id=15),
+        ):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                JointFault(**kwargs)
+
+    def test_healthy_after_fault_preserves_latched_attribution(self):
+        core = self._ready_core()
+        self.assertTrue(core.arm().accepted)
+
+        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False)
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, unhealthy).accepted)
+        self.assertIs(core.snapshot().state, State.FAULT)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+        self.assertEqual(core.snapshot().faults[0].errors, 0x02)
+
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
+        snap = core.snapshot()
+
+        self.assertTrue(snap.joints[0].healthy)
+        self.assertEqual(snap.joints[0].errors, 0)
+        self.assertEqual(snap.joints[0].health.errors, 0)
+
+        self.assertIs(snap.state, State.FAULT)
+        self.assertTrue(snap.fault_latched)
+        self.assertEqual(snap.affected_joints, ("J1",))
+        self.assertEqual(len(snap.faults), 1)
+        self.assertEqual(snap.faults[0].errors, 0x02)
+        self.assertNotEqual(snap.faults[0].errors, 0)
+
+    def test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage(self):
+        core = self._ready_core()
+
+        self.assertTrue(core.receive(
+            self.specs[0].motor_id,
+            SAMPLE,
+            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False),
+        ).accepted)
+
+        self.assertTrue(core.receive(
+            self.specs[0].motor_id,
+            SAMPLE,
+            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True),
+        ).accepted)
+
+        self.assertTrue(core.communication_failed(
+            self.specs[0].motor_id,
+            CommunicationFailure.DRIVER_FAILURE,
+        ).accepted)
+
+        snap = core.snapshot()
+        self.assertEqual(len(snap.faults), 1)
+        j1_fault = snap.faults[0]
+        self.assertEqual(j1_fault.name, "J1")
+        self.assertEqual(j1_fault.errors, 0x05)
+        self.assertEqual(j1_fault.warnings, 3)
+        self.assertTrue(j1_fault.timeout)
+        self.assertEqual(j1_fault.communication_error, CommunicationFailure.DRIVER_FAILURE)
+        self.assertIn(CommunicationFailure.DRIVER_FAILURE, j1_fault.communication_errors)
+
+        for _ in range(10):
+            self.assertTrue(core.receive(
+                self.specs[0].motor_id,
+                SAMPLE,
+                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False),
+            ).accepted)
+        self.assertEqual(len(core.snapshot().faults), 1)
+        self.assertEqual(core.snapshot().faults[0].errors, 0x07)
+
+    def test_communication_failures_with_fixed_enum_codes(self):
+        for code in (
+            CommunicationFailure.TIMEOUT,
+            CommunicationFailure.INVALID_FEEDBACK,
+            CommunicationFailure.DRIVER_FAILURE,
+        ):
+            with self.subTest(code=code):
+                core = self._ready_core()
+                decision = core.communication_failed(self.specs[0].motor_id, code)
+                self.assertTrue(decision.accepted)
+                snap = core.snapshot()
+                self.assertIs(snap.state, State.FAULT)
+                self.assertEqual(snap.affected_joints, ("J1",))
+                fault = snap.faults[0]
+                self.assertEqual(fault.communication_error, code)
+                self.assertFalse(fault.timeout)
+                self.assertEqual(snap.joints[0].communication_error, code)
+                self.assertFalse(snap.joints[0].healthy)
+
+        core = self._ready_core()
+        self.assertTrue(core.communication_failed(self.specs[1].motor_id, CommunicationFailure.INVALID_FEEDBACK).accepted)
+        self.assertEqual(core.snapshot().affected_joints, ("J2",))
+        self.assertEqual(core.snapshot().faults[0].communication_error, CommunicationFailure.INVALID_FEEDBACK)
+
+    def test_current_communication_status_clears_without_erasing_cause(self):
+        core = self._ready_core()
+        self.assertTrue(core.communication_failed(0, CommunicationFailure.TIMEOUT))
+        before = core.snapshot()
+        self.assertTrue(core.receive(0, SAMPLE, HEALTHY_STOP))
+        after = core.snapshot()
+        self.assertTrue(after.joints[0].healthy)
+        self.assertIsNone(after.joints[0].communication_error)
+        self.assertEqual(after.faults, before.faults)
+        self.assertIs(after.state, State.FAULT)
+
+    def test_unknown_ids_and_invalid_codes_reject_unchanged(self):
+        core = self._ready_core()
+        before = core.snapshot()
+
+        self.assertEqual(core.communication_failed(0, "timeout").code,
+                         DecisionCode.INVALID_ARGUMENT)
+        self.assertEqual(core.snapshot(), before)
+
+        rejected_id = core.communication_failed(14, CommunicationFailure.TIMEOUT)
+        self.assertFalse(rejected_id)
+        self.assertEqual(rejected_id.code, DecisionCode.UNKNOWN_JOINT)
+        self.assertEqual(core.snapshot(), before)
+
+        self.assertEqual(
+            core.communication_failed(True, CommunicationFailure.TIMEOUT).code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(
+            core.communication_failed("0", CommunicationFailure.TIMEOUT).code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(core.snapshot(), before)
+
+        self.assertEqual(
+            core.communication_failed(0, "unrecognized_failure").code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(
+            core.communication_failed(0, RuntimeError("comm timeout")).code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(
+            core.communication_failed(0, 999).code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(
+            core.communication_failed(0, None).code,
+            DecisionCode.INVALID_ARGUMENT,
+        )
+        self.assertEqual(core.snapshot(), before)
+
+    def test_failed_recovery_retains_causes(self):
+        clock = DeterministicClock(0.0)
+        core = self._ready_core(clock, feedback_max_age_s=1.0)
+        self.assertTrue(core.arm().accepted)
+
+        self.assertTrue(core.receive(
+            self.specs[0].motor_id,
+            SAMPLE,
+            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False),
+        ).accepted)
+        self.assertIs(core.snapshot().state, State.FAULT)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        rejected = core.begin_check(acknowledge_fault=False)
+        self.assertFalse(rejected)
+        self.assertEqual(rejected.code, DecisionCode.FAULT_ACK_REQUIRED)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
+        self.assertIs(core.snapshot().state, State.CHECKING)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        self.assertEqual(core.checked().code, DecisionCode.OBSERVATIONS_INCOMPLETE)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, non_stop).accepted)
+        self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
+        self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        clock.value = 2.0
+        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
+        self.assertEqual(core.checked().code, DecisionCode.STALE_FEEDBACK)
+        self.assertEqual(core.snapshot().affected_joints, ("J1",))
+
+        self.assertEqual(core.arm().code, DecisionCode.INVALID_STATE)
+
+    def test_successful_recovery_clears_fault_causes(self):
+        clock = DeterministicClock(0.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        self.assertTrue(station.check().accepted)
+        self.assertTrue(station.arm().accepted)
+
+        self.assertTrue(core.communication_failed(
+            self.specs[1].motor_id,
+            CommunicationFailure.TIMEOUT,
+        ).accepted)
+        self.assertIs(core.snapshot().state, State.FAULT)
+        self.assertEqual(core.snapshot().affected_joints, ("J2",))
+
+        self.assertTrue(station.stop().accepted)
+        self.assertIs(core.snapshot().state, State.FAULT)
+        self.assertEqual(core.snapshot().affected_joints, ("J2",))
+
+        self.assertTrue(station.disconnect().accepted)
+        self.assertIs(core.snapshot().state, State.DISCONNECTED)
+        self.assertTrue(core.snapshot().fault_latched)
+        self.assertEqual(core.snapshot().affected_joints, ("J2",))
+
+        self.assertTrue(station.connect().accepted)
+        self.assertIs(core.snapshot().state, State.CONNECTED)
+        self.assertTrue(core.snapshot().fault_latched)
+        self.assertEqual(core.snapshot().affected_joints, ("J2",))
+
+        self.assertTrue(station.check(acknowledge_fault=True).accepted)
+        snap = core.snapshot()
+        self.assertIs(snap.state, State.READY)
+        self.assertFalse(snap.fault_latched)
+        self.assertEqual(snap.faults, ())
+        self.assertEqual(snap.affected_joints, ())
+
+    def test_independent_second_core_unchanged_by_fault(self):
+        specs2 = (
+            JointSpec("J3", 2, JointMap(1, 1, 0.0)),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0)),
+        )
+        clock = DeterministicClock(0.0)
+        core1 = JointCore(self.specs, clock=clock)
+        core2 = JointCore(specs2, clock=clock)
+
+        station1 = FakeStation(core1)
+        station2 = FakeStation(core2)
+        self.assertTrue(station1.connect().accepted)
+        self.assertTrue(station1.check().accepted)
+        self.assertTrue(station1.arm().accepted)
+
+        self.assertTrue(station2.connect().accepted)
+        self.assertTrue(station2.check().accepted)
+        self.assertTrue(station2.arm().accepted)
+
+        self.assertTrue(core1.communication_failed(
+            self.specs[0].motor_id,
+            CommunicationFailure.DRIVER_FAILURE,
+        ).accepted)
+        snap1 = core1.snapshot()
+        self.assertIs(snap1.state, State.FAULT)
+        self.assertTrue(snap1.fault_latched)
+        self.assertEqual(snap1.affected_joints, ("J1",))
+
+        snap2 = core2.snapshot()
+        self.assertIs(snap2.state, State.ARMED)
+        self.assertFalse(snap2.fault_latched)
+        self.assertEqual(snap2.faults, ())
+        self.assertEqual(snap2.affected_joints, ())
+        self.assertTrue(station2.stop().accepted)
+        self.assertIs(core2.snapshot().state, State.STOPPED)
+
+    def test_immutability_of_fault_records_and_snapshot_collections(self):
+        fault = JointFault("J1", 0, errors=1, warnings=2, timeout=True)
+        with self.assertRaises(FrozenInstanceError):
+            fault.errors = 0
+        with self.assertRaises(FrozenInstanceError):
+            fault.name = "other"
+
+        core = self._ready_core()
+        self.assertTrue(core.communication_failed(0, CommunicationFailure.TIMEOUT).accepted)
+        snap = core.snapshot()
+
+        self.assertIsInstance(snap.faults, tuple)
+        self.assertIsInstance(snap.affected_joints, tuple)
+        with self.assertRaises(FrozenInstanceError):
+            snap.faults[0].timeout = False
+        with self.assertRaises(TypeError):
+            snap.faults[0] = fault
+        with self.assertRaises(TypeError):
+            snap.affected_joints[0] = "J2"
 
 
 if __name__ == "__main__":

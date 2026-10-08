@@ -41,6 +41,12 @@ class DecisionCode(str, Enum):
     NOT_STOPPED = "not_stopped"
 
 
+class CommunicationFailure(str, Enum):
+    TIMEOUT = "timeout"
+    INVALID_FEEDBACK = "invalid_feedback"
+    DRIVER_FAILURE = "driver_failure"
+
+
 @dataclass(frozen=True)
 class Decision:
     accepted: bool
@@ -74,6 +80,43 @@ class JointSpec:
 
 
 @dataclass(frozen=True)
+class JointFault:
+    name: str
+    motor_id: int
+    errors: int = 0
+    warnings: int = 0
+    timeout: bool = False
+    communication_error: CommunicationFailure | None = None
+    stale: bool = False
+    communication_errors: tuple[CommunicationFailure, ...] = ()
+
+    def __post_init__(self) -> None:
+        if type(self.name) is not str or not self.name.strip():
+            raise ValueError("joint name must be a non-empty string")
+        if type(self.motor_id) is not int or not (0 <= self.motor_id <= 14):
+            raise ValueError("motor_id must be an integer from 0 to 14")
+        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
+            raise ValueError("errors must be a uint32 integer")
+        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
+            raise ValueError("warnings must be a uint3 integer")
+        if type(self.timeout) is not bool:
+            raise ValueError("timeout must be a bool")
+        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
+            raise ValueError("communication_error must be a CommunicationFailure or None")
+        if type(self.stale) is not bool:
+            raise ValueError("stale must be a bool")
+        if type(self.communication_errors) is not tuple or any(
+            not isinstance(c, CommunicationFailure) for c in self.communication_errors
+        ):
+            raise ValueError("communication_errors must be a tuple of CommunicationFailure")
+
+        if self.communication_error is not None and not self.communication_errors:
+            object.__setattr__(self, "communication_errors", (self.communication_error,))
+        elif self.communication_errors and self.communication_error is None:
+            object.__setattr__(self, "communication_error", self.communication_errors[-1])
+
+
+@dataclass(frozen=True)
 class MotorHealth:
     mode: int
     errors: int
@@ -83,10 +126,10 @@ class MotorHealth:
     def __post_init__(self) -> None:
         if type(self.mode) is not int or self.mode not in (0, 1):
             raise ValueError("mode must be the integer 0 or 1")
-        if type(self.errors) is not int or self.errors < 0:
-            raise ValueError("errors must be a nonnegative integer")
-        if type(self.warnings) is not int or self.warnings < 0:
-            raise ValueError("warnings must be a nonnegative integer")
+        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
+            raise ValueError("errors must be a uint32 integer")
+        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
+            raise ValueError("warnings must be a uint3 integer")
         if type(self.timeout) is not bool:
             raise ValueError("timeout must be a bool")
 
@@ -115,6 +158,7 @@ class JointStatus:
     sample: JointSample | None = None
     health: MotorHealth | None = None
     received_at: float | None = None
+    communication_error: CommunicationFailure | None = None
 
     def __post_init__(self) -> None:
         if (self.sample is None) != (self.health is None):
@@ -123,6 +167,8 @@ class JointStatus:
             raise ValueError("sample must be a JointSample")
         if self.health is not None and not isinstance(self.health, MotorHealth):
             raise ValueError("health must be MotorHealth")
+        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
+            raise ValueError("communication_error must be a CommunicationFailure or None")
         if self.valid and self.received_at is None:
             raise ValueError("a valid observation requires received_at")
         if self.received_at is not None:
@@ -144,7 +190,19 @@ class JointStatus:
 
     @property
     def healthy(self) -> bool:
-        return self.valid and self.health.healthy
+        return self.valid and self.health.healthy and self.communication_error is None
+
+    @property
+    def errors(self) -> int:
+        return self.health.errors if self.health is not None else 0
+
+    @property
+    def warnings(self) -> int:
+        return self.health.warnings if self.health is not None else 0
+
+    @property
+    def timeout(self) -> bool:
+        return self.health.timeout if self.health is not None else False
 
 
 @dataclass(frozen=True)
@@ -155,6 +213,7 @@ class Snapshot:
     source: SourceIdentity | None
     fault_latched: bool
     feedback_ages_s: tuple[float | None, ...]
+    faults: tuple[JointFault, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -190,6 +249,12 @@ class Snapshot:
             raise ValueError("source must be a SourceIdentity or None")
         if type(self.fault_latched) is not bool:
             raise ValueError("fault_latched must be a bool")
+        if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
+            raise ValueError("faults must be a tuple of JointFault")
+
+    @property
+    def affected_joints(self) -> tuple[str, ...]:
+        return tuple(fault.name for fault in self.faults)
 
 
 class JointCore:
@@ -235,9 +300,9 @@ class JointCore:
         self._state: State = State.DISCONNECTED
         self._observations: list[JointStatus] = [JointStatus() for _ in specs]
         self._source: SourceIdentity | None = None
-        self._fault_latched: bool = False
         self._feedback_max_age_s = feedback_max_age_s
         self._clock = clock
+        self._faults: dict[str, JointFault] = {}
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
@@ -253,6 +318,33 @@ class JointCore:
 
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
+
+    def _record_joint_fault(
+        self,
+        name: str,
+        motor_id: int,
+        *,
+        errors: int = 0,
+        warnings: int = 0,
+        timeout: bool = False,
+        communication_error: CommunicationFailure | None = None,
+        stale: bool = False,
+    ) -> JointFault:
+        existing = self._faults.get(name) or JointFault(name, motor_id)
+        communication_errors = existing.communication_errors
+        if communication_error is not None and communication_error not in communication_errors:
+            communication_errors += (communication_error,)
+        fault = JointFault(
+            name, motor_id,
+            errors=existing.errors | errors,
+            warnings=existing.warnings | warnings,
+            timeout=existing.timeout or timeout,
+            stale=existing.stale or stale,
+            communication_error=communication_error or existing.communication_error,
+            communication_errors=communication_errors,
+        )
+        self._faults[name] = fault
+        return fault
 
     def _now(self) -> float:
         value = self._clock()
@@ -302,7 +394,7 @@ class JointCore:
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
         if self._state not in (State.CONNECTED, State.STOPPED, State.FAULT):
             return self._rejected(DecisionCode.INVALID_STATE)
-        if self._fault_latched and not acknowledge_fault:
+        if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
         self._state = State.CHECKING
@@ -331,8 +423,41 @@ class JointCore:
 
         self._observations[index] = JointStatus(sample, status, self._now())
         if not status.healthy:
-            self._fault_latched = True
             self._state = State.FAULT
+            self._record_joint_fault(
+                self._specs[index].name,
+                motor_id,
+                errors=status.errors,
+                warnings=status.warnings,
+                timeout=status.timeout,
+            )
+        return self._accepted()
+
+    def communication_failed(
+        self, motor_id: int, code: CommunicationFailure
+    ) -> Decision:
+        if self._state in (State.DISCONNECTED, State.CONNECTING):
+            return self._rejected(DecisionCode.INVALID_STATE)
+        if type(motor_id) is not int:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        index = self._id_to_index.get(motor_id)
+        if index is None:
+            return self._rejected(DecisionCode.UNKNOWN_JOINT)
+
+        if not isinstance(code, CommunicationFailure):
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        failure_code = code
+
+        spec = self._specs[index]
+        self._record_joint_fault(
+            spec.name,
+            motor_id,
+            communication_error=failure_code,
+        )
+        joint = self._observations[index]
+        self._observations[index] = JointStatus(
+            joint.sample, joint.health, joint.received_at, failure_code)
+        self._state = State.FAULT
         return self._accepted()
 
     def checked(self) -> Decision:
@@ -348,13 +473,13 @@ class JointCore:
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
         self._state = State.READY
-        self._fault_latched = False
+        self._faults.clear()
         return self._accepted()
 
     def arm(self) -> Decision:
         if self._state is not State.READY:
             return self._rejected(DecisionCode.INVALID_STATE)
-        if self._fault_latched:
+        if bool(self._faults):
             return self._rejected(DecisionCode.FAULT_LATCHED)
         if any(not joint.valid for joint in self._observations):
             return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
@@ -370,19 +495,30 @@ class JointCore:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
         if self._state in (State.READY, State.ARMED, State.MOVING):
-            if any(not joint.valid or joint.received_at is None for joint in self._observations):
-                self._fault_latched = True
+            now = self._now()
+            stale_specs = []
+            for index, spec in enumerate(self._specs):
+                joint = self._observations[index]
+                if (
+                    not joint.valid
+                    or joint.received_at is None
+                    or self._age(joint.received_at, now) > self._feedback_max_age_s
+                ):
+                    stale_specs.append(spec)
+            if stale_specs:
                 self._state = State.FAULT
-                return self._accepted()
-            if not self._all_fresh(self._now()):
-                self._fault_latched = True
-                self._state = State.FAULT
+                for spec in stale_specs:
+                    self._record_joint_fault(
+                        spec.name,
+                        spec.motor_id,
+                        stale=True,
+                    )
         return self._accepted()
 
     def stop(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
-        if self._state is State.FAULT or self._fault_latched:
+        if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
             self._state = State.STOPPED
@@ -401,11 +537,14 @@ class JointCore:
             None if value is None else self._age(value, now)
             for value in received
         )
+        faults = tuple(self._faults[spec.name] for spec in self._specs
+                       if spec.name in self._faults)
         return Snapshot(
             state=self._state,
             joint_names=tuple(spec.name for spec in self._specs),
             joints=tuple(self._observations),
             source=self._source,
-            fault_latched=self._fault_latched,
+            fault_latched=bool(self._faults),
             feedback_ages_s=ages,
+            faults=faults,
         )

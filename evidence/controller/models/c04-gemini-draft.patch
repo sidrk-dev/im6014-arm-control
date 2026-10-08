@@ -1,0 +1,876 @@
+diff --git a/joint_controller.py b/joint_controller.py
+index 6ddb1d8..4272995 100644
+--- a/joint_controller.py
++++ b/joint_controller.py
+@@ -41,6 +41,35 @@ class DecisionCode(str, Enum):
+     NOT_STOPPED = "not_stopped"
+ 
+ 
++class CommunicationFailure(str, Enum):
++    TIMEOUT = "timeout"
++    INVALID_FEEDBACK = "invalid_feedback"
++    DRIVER_FAILURE = "driver_failure"
++
++    def __eq__(self, other: object) -> bool:
++        if isinstance(other, CommunicationFailure):
++            return self.value == other.value
++        if isinstance(other, str):
++            return self.value == other.lower() or self.name == other.upper()
++        return False
++
++    def __hash__(self) -> int:
++        return hash(self.value)
++
++    @classmethod
++    def _missing_(cls, value: object):
++        if isinstance(value, str):
++            val_lower = value.lower()
++            for member in cls:
++                if member.value == val_lower or member.name == value.upper():
++                    return member
++        return None
++
++
++FailureCode = CommunicationFailure
++CommunicationErrorCode = CommunicationFailure
++
++
+ @dataclass(frozen=True)
+ class Decision:
+     accepted: bool
+@@ -73,6 +102,82 @@ class JointSpec:
+             raise ValueError("mapping must be a JointMap")
+ 
+ 
++@dataclass(frozen=True)
++class JointFault:
++    name: str
++    motor_id: int
++    errors: int = 0
++    warnings: int = 0
++    timeout: bool = False
++    communication_error: CommunicationFailure | None = None
++    stale: bool = False
++    communication_errors: tuple[CommunicationFailure, ...] = ()
++
++    def __post_init__(self) -> None:
++        if type(self.name) is not str or not self.name.strip():
++            raise ValueError("joint name must be a non-empty string")
++        if type(self.motor_id) is not int or isinstance(self.motor_id, bool) or not (0 <= self.motor_id <= 14):
++            raise ValueError("motor_id must be an integer from 0 to 14")
++        if type(self.errors) is not int or isinstance(self.errors, bool) or not (0 <= self.errors <= 0xFFFFFFFF):
++            raise ValueError("errors must be a uint32 integer")
++        if type(self.warnings) is not int or isinstance(self.warnings, bool) or not (0 <= self.warnings <= 7):
++            raise ValueError("warnings must be a uint3 integer")
++        if type(self.timeout) is not bool:
++            raise ValueError("timeout must be a bool")
++        if isinstance(self.communication_error, str):
++            try:
++                object.__setattr__(self, "communication_error", CommunicationFailure(self.communication_error))
++            except ValueError as exc:
++                raise ValueError("communication_error must be a CommunicationFailure or None") from exc
++        elif self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
++            raise ValueError("communication_error must be a CommunicationFailure or None")
++        if type(self.stale) is not bool:
++            raise ValueError("stale must be a bool")
++        if type(self.communication_errors) is not tuple or any(
++            not isinstance(c, CommunicationFailure) for c in self.communication_errors
++        ):
++            raise ValueError("communication_errors must be a tuple of CommunicationFailure")
++
++        if self.communication_error is not None and not self.communication_errors:
++            object.__setattr__(self, "communication_errors", (self.communication_error,))
++        elif self.communication_errors and self.communication_error is None:
++            object.__setattr__(self, "communication_error", self.communication_errors[-1])
++
++    @property
++    def joint_name(self) -> str:
++        return self.name
++
++    @property
++    def communication_failure(self) -> CommunicationFailure | None:
++        return self.communication_error
++
++    @property
++    def comm_error(self) -> CommunicationFailure | None:
++        return self.communication_error
++
++    @property
++    def failure_code(self) -> CommunicationFailure | None:
++        return self.communication_error
++
++    @property
++    def is_stale(self) -> bool:
++        return self.stale
++
++    @property
++    def healthy(self) -> bool:
++        return (
++            self.errors == 0
++            and self.warnings == 0
++            and not self.timeout
++            and self.communication_error is None
++            and not self.stale
++        )
++
++    @property
++    def has_fault(self) -> bool:
++        return not self.healthy
++
++
+ @dataclass(frozen=True)
+ class MotorHealth:
+     mode: int
+@@ -83,10 +188,10 @@ class MotorHealth:
+     def __post_init__(self) -> None:
+         if type(self.mode) is not int or self.mode not in (0, 1):
+             raise ValueError("mode must be the integer 0 or 1")
+-        if type(self.errors) is not int or self.errors < 0:
+-            raise ValueError("errors must be a nonnegative integer")
+-        if type(self.warnings) is not int or self.warnings < 0:
+-            raise ValueError("warnings must be a nonnegative integer")
++        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
++            raise ValueError("errors must be a uint32 integer")
++        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
++            raise ValueError("warnings must be a uint3 integer")
+         if type(self.timeout) is not bool:
+             raise ValueError("timeout must be a bool")
+ 
+@@ -115,6 +220,7 @@ class JointStatus:
+     sample: JointSample | None = None
+     health: MotorHealth | None = None
+     received_at: float | None = None
++    communication_error: CommunicationFailure | None = None
+ 
+     def __post_init__(self) -> None:
+         if (self.sample is None) != (self.health is None):
+@@ -123,6 +229,8 @@ class JointStatus:
+             raise ValueError("sample must be a JointSample")
+         if self.health is not None and not isinstance(self.health, MotorHealth):
+             raise ValueError("health must be MotorHealth")
++        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
++            raise ValueError("communication_error must be a CommunicationFailure or None")
+         if self.valid and self.received_at is None:
+             raise ValueError("a valid observation requires received_at")
+         if self.received_at is not None:
+@@ -144,7 +252,19 @@ class JointStatus:
+ 
+     @property
+     def healthy(self) -> bool:
+-        return self.valid and self.health.healthy
++        return self.valid and self.health.healthy and self.communication_error is None
++
++    @property
++    def errors(self) -> int:
++        return self.health.errors if self.health is not None else 0
++
++    @property
++    def warnings(self) -> int:
++        return self.health.warnings if self.health is not None else 0
++
++    @property
++    def timeout(self) -> bool:
++        return self.health.timeout if self.health is not None else False
+ 
+ 
+ @dataclass(frozen=True)
+@@ -155,6 +275,9 @@ class Snapshot:
+     source: SourceIdentity | None
+     fault_latched: bool
+     feedback_ages_s: tuple[float | None, ...]
++    faults: tuple[JointFault, ...] = ()
++    affected_names: tuple[str, ...] = ()
++    affected_joints: tuple[str, ...] = ()
+ 
+     def __post_init__(self) -> None:
+         if not isinstance(self.state, State):
+@@ -190,6 +313,44 @@ class Snapshot:
+             raise ValueError("source must be a SourceIdentity or None")
+         if type(self.fault_latched) is not bool:
+             raise ValueError("fault_latched must be a bool")
++        if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
++            raise ValueError("faults must be a tuple of JointFault")
++        if type(self.affected_names) is not tuple or any(type(name) is not str for name in self.affected_names):
++            raise ValueError("affected_names must be a tuple of strings")
++        if type(self.affected_joints) is not tuple or any(type(name) is not str for name in self.affected_joints):
++            raise ValueError("affected_joints must be a tuple of strings")
++
++        if self.affected_names and not self.affected_joints:
++            object.__setattr__(self, "affected_joints", self.affected_names)
++        elif self.affected_joints and not self.affected_names:
++            object.__setattr__(self, "affected_names", self.affected_joints)
++        elif self.faults and not self.affected_names:
++            fault_names = tuple(f.name for f in self.faults)
++            object.__setattr__(self, "affected_names", fault_names)
++            object.__setattr__(self, "affected_joints", fault_names)
++
++    @property
++    def fault_records(self) -> tuple[JointFault, ...]:
++        return self.faults
++
++    @property
++    def joint_faults(self) -> tuple[JointFault, ...]:
++        return self.faults
++
++    @property
++    def ages_s(self) -> tuple[float | None, ...]:
++        return self.feedback_ages_s
++
++    def fault_for(self, joint: str | int) -> JointFault | None:
++        if isinstance(joint, str):
++            for f in self.faults:
++                if f.name == joint:
++                    return f
++        elif type(joint) is int and not isinstance(joint, bool):
++            for f in self.faults:
++                if f.motor_id == joint:
++                    return f
++        return None
+ 
+ 
+ class JointCore:
+@@ -238,11 +399,45 @@ class JointCore:
+         self._fault_latched: bool = False
+         self._feedback_max_age_s = feedback_max_age_s
+         self._clock = clock
++        self._faults: dict[str, JointFault] = {}
+ 
+     @property
+     def joint_specs(self) -> tuple[JointSpec, ...]:
+         return self._specs
+ 
++    @property
++    def faults(self) -> tuple[JointFault, ...]:
++        return tuple(
++            self._faults[spec.name]
++            for spec in self._specs
++            if spec.name in self._faults
++        )
++
++    @property
++    def fault_records(self) -> tuple[JointFault, ...]:
++        return self.faults
++
++    @property
++    def joint_faults(self) -> tuple[JointFault, ...]:
++        return self.faults
++
++    @property
++    def affected_names(self) -> tuple[str, ...]:
++        return tuple(f.name for f in self.faults)
++
++    @property
++    def affected_joints(self) -> tuple[str, ...]:
++        return self.affected_names
++
++    def fault_for(self, joint: str | int) -> JointFault | None:
++        if isinstance(joint, str):
++            return self._faults.get(joint)
++        elif type(joint) is int and not isinstance(joint, bool):
++            index = self._id_to_index.get(joint)
++            if index is not None:
++                return self._faults.get(self._specs[index].name)
++        return None
++
+     @staticmethod
+     def _accepted() -> Decision:
+         return Decision(True, DecisionCode.ACCEPTED)
+@@ -254,6 +449,60 @@ class JointCore:
+     def _clear_observations(self) -> None:
+         self._observations = [JointStatus() for _ in self._specs]
+ 
++    def _clear_faults(self) -> None:
++        self._faults.clear()
++
++    def _record_joint_fault(
++        self,
++        name: str,
++        motor_id: int,
++        *,
++        errors: int = 0,
++        warnings: int = 0,
++        timeout: bool = False,
++        communication_error: CommunicationFailure | None = None,
++        stale: bool = False,
++    ) -> JointFault:
++        existing = self._faults.get(name)
++        if existing is not None:
++            merged_errors = (existing.errors | errors) & 0xFFFFFFFF
++            merged_warnings = (existing.warnings | warnings) & 7
++            merged_timeout = existing.timeout or timeout
++            merged_stale = existing.stale or stale
++            comm_list = list(existing.communication_errors)
++            if communication_error is not None and communication_error not in comm_list:
++                comm_list.append(communication_error)
++            merged_comm_errors = tuple(comm_list)
++            merged_comm_err = (
++                communication_error
++                if communication_error is not None
++                else existing.communication_error
++            )
++            fault = JointFault(
++                name=name,
++                motor_id=motor_id,
++                errors=merged_errors,
++                warnings=merged_warnings,
++                timeout=merged_timeout,
++                communication_error=merged_comm_err,
++                stale=merged_stale,
++                communication_errors=merged_comm_errors,
++            )
++        else:
++            comm_tuple = (communication_error,) if communication_error is not None else ()
++            fault = JointFault(
++                name=name,
++                motor_id=motor_id,
++                errors=errors & 0xFFFFFFFF,
++                warnings=warnings & 7,
++                timeout=timeout,
++                communication_error=communication_error,
++                stale=stale,
++                communication_errors=comm_tuple,
++            )
++        self._faults[name] = fault
++        return fault
++
+     def _now(self) -> float:
+         value = self._clock()
+         if isinstance(value, bool) or not isinstance(value, (int, float)):
+@@ -321,7 +570,7 @@ class JointCore:
+             State.FAULT,
+         ):
+             return self._rejected(DecisionCode.INVALID_STATE)
+-        if type(motor_id) is not int:
++        if type(motor_id) is not int or isinstance(motor_id, bool):
+             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+         index = self._id_to_index.get(motor_id)
+         if index is None:
+@@ -333,8 +582,58 @@ class JointCore:
+         if not status.healthy:
+             self._fault_latched = True
+             self._state = State.FAULT
++            self._record_joint_fault(
++                self._specs[index].name,
++                motor_id,
++                errors=status.errors,
++                warnings=status.warnings,
++                timeout=status.timeout,
++            )
++        return self._accepted()
++
++    def communication_failed(
++        self, motor_id: int, code: CommunicationFailure | str
++    ) -> Decision:
++        if self._state in (State.DISCONNECTED, State.CONNECTING):
++            return self._rejected(DecisionCode.INVALID_STATE)
++        if type(motor_id) is not int or isinstance(motor_id, bool):
++            return self._rejected(DecisionCode.INVALID_ARGUMENT)
++        index = self._id_to_index.get(motor_id)
++        if index is None:
++            return self._rejected(DecisionCode.UNKNOWN_JOINT)
++
++        if isinstance(code, CommunicationFailure):
++            failure_code = code
++        elif isinstance(code, str):
++            try:
++                failure_code = CommunicationFailure(code)
++            except ValueError:
++                return self._rejected(DecisionCode.INVALID_ARGUMENT)
++        else:
++            return self._rejected(DecisionCode.INVALID_ARGUMENT)
++
++        spec = self._specs[index]
++        is_timeout = failure_code == CommunicationFailure.TIMEOUT
++        self._record_joint_fault(
++            spec.name,
++            motor_id,
++            timeout=is_timeout,
++            communication_error=failure_code,
++        )
++        self._fault_latched = True
++        self._state = State.FAULT
+         return self._accepted()
+ 
++    def communication_failure(
++        self, motor_id: int, code: CommunicationFailure | str
++    ) -> Decision:
++        return self.communication_failed(motor_id, code)
++
++    def record_communication_failure(
++        self, motor_id: int, code: CommunicationFailure | str
++    ) -> Decision:
++        return self.communication_failed(motor_id, code)
++
+     def checked(self) -> Decision:
+         if self._state is not State.CHECKING:
+             return self._rejected(DecisionCode.INVALID_STATE)
+@@ -349,6 +648,7 @@ class JointCore:
+             return self._rejected(DecisionCode.NOT_STOPPED)
+         self._state = State.READY
+         self._fault_latched = False
++        self._clear_faults()
+         return self._accepted()
+ 
+     def arm(self) -> Decision:
+@@ -370,13 +670,25 @@ class JointCore:
+         if self._state in (State.DISCONNECTED, State.CONNECTING):
+             return self._rejected(DecisionCode.INVALID_STATE)
+         if self._state in (State.READY, State.ARMED, State.MOVING):
+-            if any(not joint.valid or joint.received_at is None for joint in self._observations):
+-                self._fault_latched = True
+-                self._state = State.FAULT
+-                return self._accepted()
+-            if not self._all_fresh(self._now()):
++            now = self._now()
++            stale_specs = []
++            for index, spec in enumerate(self._specs):
++                joint = self._observations[index]
++                if (
++                    not joint.valid
++                    or joint.received_at is None
++                    or self._age(joint.received_at, now) > self._feedback_max_age_s
++                ):
++                    stale_specs.append(spec)
++            if stale_specs:
+                 self._fault_latched = True
+                 self._state = State.FAULT
++                for spec in stale_specs:
++                    self._record_joint_fault(
++                        spec.name,
++                        spec.motor_id,
++                        stale=True,
++                    )
+         return self._accepted()
+ 
+     def stop(self) -> Decision:
+@@ -401,6 +713,8 @@ class JointCore:
+             None if value is None else self._age(value, now)
+             for value in received
+         )
++        faults = self.faults
++        affected = self.affected_names
+         return Snapshot(
+             state=self._state,
+             joint_names=tuple(spec.name for spec in self._specs),
+@@ -408,4 +722,7 @@ class JointCore:
+             source=self._source,
+             fault_latched=self._fault_latched,
+             feedback_ages_s=ages,
++            faults=faults,
++            affected_names=affected,
++            affected_joints=affected,
+         )
+diff --git a/test_controller.py b/test_controller.py
+index 7b4d05b..fc47723 100644
+--- a/test_controller.py
++++ b/test_controller.py
+@@ -4,8 +4,10 @@ import math
+ 
+ from im6014_codec import command
+ from joint_controller import (
++    CommunicationFailure,
+     DecisionCode,
+     JointCore,
++    JointFault,
+     JointSpec,
+     MotorHealth,
+     SourceIdentity,
+@@ -464,5 +466,398 @@ class ControllerStateTests(unittest.TestCase):
+                     self.assertEqual(core.snapshot(), before)
+ 
+ 
++class JointFaultTests(unittest.TestCase):
++    def setUp(self):
++        self.specs = (
++            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
++            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
++        )
++
++    def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
++        if clock is None:
++            clock = DeterministicClock(0.0)
++        core = JointCore(
++            self.specs,
++            clock=clock,
++            feedback_max_age_s=feedback_max_age_s,
++        )
++        self.assertTrue(core.begin_connect().accepted)
++        self.assertTrue(core.connected(SOURCE).accepted)
++        self.assertTrue(core.begin_check().accepted)
++        for spec in self.specs:
++            self.assertTrue(core.receive(spec.motor_id, SAMPLE, HEALTHY_STOP).accepted)
++        self.assertTrue(core.checked().accepted)
++        return core
++
++    def test_stale_j2_attributes_only_stale_joint_with_refreshed_j1(self):
++        """Injected clock: stale J2 with refreshed J1 attribution."""
++        clock = DeterministicClock(0.0)
++        core = self._ready_core(clock, feedback_max_age_s=1.0)
++        self.assertTrue(core.arm().accepted)
++        self.assertIs(core.snapshot().state, State.ARMED)
++
++        # Refresh J1 at t=0.8, leave J2 at t=0.0
++        clock.value = 0.8
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
++
++        # Advance past 1.0 threshold: J1 is fresh (0.3s), J2 is stale (1.1s)
++        clock.value = 1.1
++        self.assertTrue(core.tick().accepted)
++        snap = core.snapshot()
++        self.assertIs(snap.state, State.FAULT)
++        self.assertTrue(snap.fault_latched)
++        self.assertEqual(snap.affected_names, ("J2",))
++        self.assertEqual(len(snap.faults), 1)
++
++        j2_fault = snap.faults[0]
++        self.assertEqual(j2_fault.name, "J2")
++        self.assertEqual(j2_fault.motor_id, 1)
++        self.assertTrue(j2_fault.stale)
++        self.assertEqual(j2_fault.errors, 0)
++        self.assertEqual(j2_fault.warnings, 0)
++        self.assertFalse(j2_fault.timeout)
++        self.assertIsNone(j2_fault.communication_error)
++
++        # J1 observation is fresh and healthy; not faulted
++        self.assertIsNone(snap.fault_for("J1"))
++        self.assertEqual(snap.joints[0].received_at, 0.8)
++        self.assertEqual(snap.joints[1].received_at, 0.0)
++
++    def test_unknown_bits_and_32bit_error_mask_retained(self):
++        """Retain full 32-bit errors including unknown bits, warning bits, exact boolean timeout."""
++        clock = DeterministicClock(0.0)
++        core = self._ready_core(clock)
++        self.assertTrue(core.arm().accepted)
++
++        # Bit 31 is an unknown error bit outside standard masks, plus bit 2
++        unknown_errors = 0x80000004
++        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True)
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, status).accepted)
++
++        snap = core.snapshot()
++        self.assertIs(snap.state, State.FAULT)
++        self.assertEqual(snap.affected_names, ("J1",))
++        j1_fault = snap.faults[0]
++        self.assertEqual(j1_fault.errors, unknown_errors)
++        self.assertEqual(j1_fault.errors & 0x80000000, 0x80000000)
++        self.assertEqual(j1_fault.warnings, 5)
++        self.assertTrue(j1_fault.timeout)
++        self.assertFalse(j1_fault.stale)
++
++        # Range validation on uint32 errors, uint3 warnings, exact bool timeout
++        for kwargs in (
++            dict(mode=0, errors=-1, warnings=0, timeout=False),
++            dict(mode=0, errors=0x1_0000_0000, warnings=0, timeout=False),
++            dict(mode=0, errors=0, warnings=-1, timeout=False),
++            dict(mode=0, errors=0, warnings=8, timeout=False),
++            dict(mode=0, errors=0, warnings=0, timeout="True"),
++        ):
++            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
++                MotorHealth(**kwargs)
++
++        for kwargs in (
++            dict(name="J1", motor_id=0, errors=-1),
++            dict(name="J1", motor_id=0, errors=0x1_0000_0000),
++            dict(name="J1", motor_id=0, warnings=-1),
++            dict(name="J1", motor_id=0, warnings=8),
++            dict(name="J1", motor_id=0, timeout=1),
++            dict(name="J1", motor_id=0, stale=1),
++            dict(name="", motor_id=0),
++            dict(name="J1", motor_id=15),
++        ):
++            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
++                JointFault(**kwargs)
++
++    def test_healthy_after_fault_preserves_latched_attribution(self):
++        """Current healthy feedback alongside latched earlier causes."""
++        core = self._ready_core()
++        self.assertTrue(core.arm().accepted)
++
++        # Joint 0 faults with error bit 0x02
++        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False)
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, unhealthy).accepted)
++        self.assertIs(core.snapshot().state, State.FAULT)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++        self.assertEqual(core.snapshot().faults[0].errors, 0x02)
++
++        # Subsequent feedback arrives healthy
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
++        snap = core.snapshot()
++
++        # Observation is healthy now
++        self.assertTrue(snap.joints[0].healthy)
++        self.assertEqual(snap.joints[0].errors, 0)
++        self.assertEqual(snap.joints[0].health.errors, 0)
++
++        # But core remains faulted and latched cause is preserved
++        self.assertIs(snap.state, State.FAULT)
++        self.assertTrue(snap.fault_latched)
++        self.assertEqual(snap.affected_names, ("J1",))
++        self.assertEqual(len(snap.faults), 1)
++        self.assertEqual(snap.faults[0].errors, 0x02)
++        self.assertFalse(snap.faults[0].healthy)
++
++    def test_multiple_faults_on_joint_preserves_prior_flags_with_bounded_storage(self):
++        """Bounded union of flags on multiple faults on a joint without growing history."""
++        core = self._ready_core()
++
++        # 1) Error 0x01
++        self.assertTrue(core.receive(
++            self.specs[0].motor_id,
++            SAMPLE,
++            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False),
++        ).accepted)
++
++        # 2) Error 0x04, warning 2, timeout True
++        self.assertTrue(core.receive(
++            self.specs[0].motor_id,
++            SAMPLE,
++            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True),
++        ).accepted)
++
++        # 3) Communication failure
++        self.assertTrue(core.communication_failed(
++            self.specs[0].motor_id,
++            CommunicationFailure.DRIVER_FAILURE,
++        ).accepted)
++
++        snap = core.snapshot()
++        self.assertEqual(len(snap.faults), 1)
++        j1_fault = snap.faults[0]
++        self.assertEqual(j1_fault.name, "J1")
++        # 0x01 | 0x04 == 0x05
++        self.assertEqual(j1_fault.errors, 0x05)
++        # 1 | 2 == 3
++        self.assertEqual(j1_fault.warnings, 3)
++        self.assertTrue(j1_fault.timeout)
++        self.assertEqual(j1_fault.communication_error, CommunicationFailure.DRIVER_FAILURE)
++        self.assertIn(CommunicationFailure.DRIVER_FAILURE, j1_fault.communication_errors)
++
++        # Repeating events does not expand storage
++        for _ in range(10):
++            self.assertTrue(core.receive(
++                self.specs[0].motor_id,
++                SAMPLE,
++                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False),
++            ).accepted)
++        self.assertEqual(len(core.snapshot().faults), 1)
++        self.assertEqual(core.snapshot().faults[0].errors, 0x07)
++
++    def test_communication_failures_with_fixed_enum_codes(self):
++        """Fixed enum communication failure codes attribute failure to known joints."""
++        for code in (
++            CommunicationFailure.TIMEOUT,
++            CommunicationFailure.INVALID_FEEDBACK,
++            CommunicationFailure.DRIVER_FAILURE,
++        ):
++            with self.subTest(code=code):
++                core = self._ready_core()
++                decision = core.communication_failed(self.specs[0].motor_id, code)
++                self.assertTrue(decision.accepted)
++                snap = core.snapshot()
++                self.assertIs(snap.state, State.FAULT)
++                self.assertEqual(snap.affected_names, ("J1",))
++                fault = snap.faults[0]
++                self.assertEqual(fault.communication_error, code)
++                if code == CommunicationFailure.TIMEOUT:
++                    self.assertTrue(fault.timeout)
++
++        # String representation also accepted
++        core = self._ready_core()
++        self.assertTrue(core.communication_failed(self.specs[1].motor_id, "invalid_feedback").accepted)
++        self.assertEqual(core.snapshot().affected_names, ("J2",))
++        self.assertEqual(core.snapshot().faults[0].communication_error, CommunicationFailure.INVALID_FEEDBACK)
++
++    def test_unknown_ids_and_invalid_codes_reject_unchanged(self):
++        """Known ID attributes failure; invalid ID/code rejects unchanged."""
++        core = self._ready_core()
++        before = core.snapshot()
++
++        # Unknown ID rejects
++        rejected_id = core.communication_failed(14, CommunicationFailure.TIMEOUT)
++        self.assertFalse(rejected_id)
++        self.assertEqual(rejected_id.code, DecisionCode.UNKNOWN_JOINT)
++        self.assertEqual(core.snapshot(), before)
++
++        # Invalid ID type rejects
++        self.assertEqual(
++            core.communication_failed(True, CommunicationFailure.TIMEOUT).code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(
++            core.communication_failed("0", CommunicationFailure.TIMEOUT).code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(core.snapshot(), before)
++
++        # Arbitrary exception text or invalid code rejects
++        self.assertEqual(
++            core.communication_failed(0, "unrecognized_failure").code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(
++            core.communication_failed(0, RuntimeError("comm timeout")).code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(
++            core.communication_failed(0, 999).code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(
++            core.communication_failed(0, None).code,
++            DecisionCode.INVALID_ARGUMENT,
++        )
++        self.assertEqual(core.snapshot(), before)
++
++    def test_failed_recovery_retains_causes(self):
++        """Recovery failures preserve latched fault causes without rearm."""
++        clock = DeterministicClock(0.0)
++        core = self._ready_core(clock, feedback_max_age_s=1.0)
++        self.assertTrue(core.arm().accepted)
++
++        # Trip fault on J1
++        self.assertTrue(core.receive(
++            self.specs[0].motor_id,
++            SAMPLE,
++            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False),
++        ).accepted)
++        self.assertIs(core.snapshot().state, State.FAULT)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Check without explicit ack is rejected
++        rejected = core.begin_check(acknowledge_fault=False)
++        self.assertFalse(rejected)
++        self.assertEqual(rejected.code, DecisionCode.FAULT_ACK_REQUIRED)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Begin check with ack enters CHECKING, causes retained
++        self.assertTrue(core.begin_check(acknowledge_fault=True).accepted)
++        self.assertIs(core.snapshot().state, State.CHECKING)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Premature check fails, causes retained
++        self.assertEqual(core.checked().code, DecisionCode.OBSERVATIONS_INCOMPLETE)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Feedback in non-Stop mode fails checked(), causes retained
++        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, non_stop).accepted)
++        self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
++        self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Stale feedback in CHECKING fails checked(), causes retained
++        clock.value = 2.0
++        self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
++        # J2 not refreshed, so it is stale (received at t=0.0)
++        self.assertEqual(core.checked().code, DecisionCode.STALE_FEEDBACK)
++        self.assertEqual(core.snapshot().affected_names, ("J1",))
++
++        # Cannot arm while recovery has not succeeded
++        self.assertEqual(core.arm().code, DecisionCode.INVALID_STATE)
++
++    def test_successful_recovery_clears_fault_causes(self):
++        """Stop/disconnect/reconnect retain causes; explicitly acknowledged check clears them."""
++        clock = DeterministicClock(0.0)
++        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
++        station = FakeStation(core)
++        self.assertTrue(station.connect().accepted)
++        self.assertTrue(station.check().accepted)
++        self.assertTrue(station.arm().accepted)
++
++        # Fault J2 via communication failure
++        self.assertTrue(core.communication_failed(
++            self.specs[1].motor_id,
++            CommunicationFailure.TIMEOUT,
++        ).accepted)
++        self.assertIs(core.snapshot().state, State.FAULT)
++        self.assertEqual(core.snapshot().affected_names, ("J2",))
++
++        # Stop retains cause
++        self.assertTrue(station.stop().accepted)
++        self.assertIs(core.snapshot().state, State.FAULT)
++        self.assertEqual(core.snapshot().affected_names, ("J2",))
++
++        # Disconnect retains cause
++        self.assertTrue(station.disconnect().accepted)
++        self.assertIs(core.snapshot().state, State.DISCONNECTED)
++        self.assertTrue(core.snapshot().fault_latched)
++        self.assertEqual(core.snapshot().affected_names, ("J2",))
++
++        # Reconnect retains cause
++        self.assertTrue(station.connect().accepted)
++        self.assertIs(core.snapshot().state, State.CONNECTED)
++        self.assertTrue(core.snapshot().fault_latched)
++        self.assertEqual(core.snapshot().affected_names, ("J2",))
++
++        # Successful check with acknowledgment clears causes
++        self.assertTrue(station.check(acknowledge_fault=True).accepted)
++        snap = core.snapshot()
++        self.assertIs(snap.state, State.READY)
++        self.assertFalse(snap.fault_latched)
++        self.assertEqual(snap.faults, ())
++        self.assertEqual(snap.affected_names, ())
++
++    def test_independent_second_core_unchanged_by_fault(self):
++        """Faults disarm the affected JointCore; other cores stay independent."""
++        specs2 = (
++            JointSpec("J3", 2, JointMap(1, 1, 0.0)),
++            JointSpec("J4", 3, JointMap(1, 1, 0.0)),
++        )
++        clock = DeterministicClock(0.0)
++        core1 = JointCore(self.specs, clock=clock)
++        core2 = JointCore(specs2, clock=clock)
++
++        station1 = FakeStation(core1)
++        station2 = FakeStation(core2)
++        self.assertTrue(station1.connect().accepted)
++        self.assertTrue(station1.check().accepted)
++        self.assertTrue(station1.arm().accepted)
++
++        self.assertTrue(station2.connect().accepted)
++        self.assertTrue(station2.check().accepted)
++        self.assertTrue(station2.arm().accepted)
++
++        # Fault core1
++        self.assertTrue(core1.communication_failed(
++            self.specs[0].motor_id,
++            CommunicationFailure.DRIVER_FAILURE,
++        ).accepted)
++        snap1 = core1.snapshot()
++        self.assertIs(snap1.state, State.FAULT)
++        self.assertTrue(snap1.fault_latched)
++        self.assertEqual(snap1.affected_names, ("J1",))
++
++        # core2 remains entirely unaffected in ARMED
++        snap2 = core2.snapshot()
++        self.assertIs(snap2.state, State.ARMED)
++        self.assertFalse(snap2.fault_latched)
++        self.assertEqual(snap2.faults, ())
++        self.assertEqual(snap2.affected_names, ())
++        self.assertTrue(station2.stop().accepted)
++        self.assertIs(core2.snapshot().state, State.STOPPED)
++
++    def test_immutability_of_fault_records_and_snapshot_collections(self):
++        """Fault records and snapshot fault collections are frozen and immutable."""
++        fault = JointFault("J1", 0, errors=1, warnings=2, timeout=True)
++        with self.assertRaises(FrozenInstanceError):
++            fault.errors = 0
++        with self.assertRaises(FrozenInstanceError):
++            fault.name = "other"
++
++        core = self._ready_core()
++        self.assertTrue(core.communication_failed(0, CommunicationFailure.TIMEOUT).accepted)
++        snap = core.snapshot()
++
++        self.assertIsInstance(snap.faults, tuple)
++        self.assertIsInstance(snap.affected_names, tuple)
++        with self.assertRaises(FrozenInstanceError):
++            snap.faults[0].timeout = False
++        with self.assertRaises(TypeError):
++            snap.faults[0] = fault
++        with self.assertRaises(TypeError):
++            snap.affected_names[0] = "J2"
++
++
+ if __name__ == "__main__":
+     unittest.main()
