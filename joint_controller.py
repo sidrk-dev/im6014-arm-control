@@ -244,6 +244,7 @@ class JointCore:
         stale: bool = False,
         position_limit: bool = False,
         speed_limit: bool = False,
+        effort_limit: bool = False,
         constraint_fault: bool = False,
     ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
@@ -260,6 +261,7 @@ class JointCore:
             communication_errors=communication_errors,
             position_limit=existing.position_limit or position_limit,
             speed_limit=existing.speed_limit or speed_limit,
+            effort_limit=existing.effort_limit or effort_limit,
             constraint_fault=existing.constraint_fault or constraint_fault,
         )
         self._faults[name] = fault
@@ -311,6 +313,7 @@ class JointCore:
             stale_by_joint: list[bool] = []
             pos_outside_by_joint: list[bool] = []
             speed_outside_by_joint: list[bool] = []
+            effort_outside_by_joint: list[bool] = []
             for spec, joint in zip(self._specs, self._observations):
                 stale_by_joint.append(
                     not joint.valid
@@ -327,16 +330,22 @@ class JointCore:
                     and joint.sample is not None
                     and (abs(joint.sample.dq_rad_s) > spec.v_max_rad_s)
                 )
-            for spec, stale, pos_out, speed_out in zip(
-                self._specs, stale_by_joint, pos_outside_by_joint, speed_outside_by_joint
+                effort_outside_by_joint.append(
+                    joint.valid
+                    and joint.sample is not None
+                    and (abs(joint.sample.tau_nm) > spec.max_effort_nm)
+                )
+            for spec, stale, pos_out, speed_out, effort_out in zip(
+                self._specs, stale_by_joint, pos_outside_by_joint, speed_outside_by_joint, effort_outside_by_joint
             ):
-                if stale or pos_out or speed_out:
+                if stale or pos_out or speed_out or effort_out:
                     self._latch_joint_fault(
                         spec.name,
                         spec.motor_id,
                         stale=stale,
                         position_limit=pos_out,
                         speed_limit=speed_out,
+                        effort_limit=effort_out,
                     )
             if any(stale_by_joint):
                 return DecisionCode.STALE_FEEDBACK
@@ -344,6 +353,8 @@ class JointCore:
                 return DecisionCode.POSITION_OUT_OF_BOUNDS
             if any(speed_outside_by_joint):
                 return DecisionCode.SPEED_OUT_OF_BOUNDS
+            if any(effort_outside_by_joint):
+                return DecisionCode.EFFORT_OUT_OF_BOUNDS
         if (
             self._admitted_target is not None
             and now >= self._admitted_target.window.expires_at_s
@@ -438,7 +449,10 @@ class JointCore:
         speed_limit = (
             abs(sample.dq_rad_s) > spec.v_max_rad_s
         )
-        if not status.healthy or position_limit or speed_limit:
+        effort_limit = (
+            abs(sample.tau_nm) > spec.max_effort_nm
+        )
+        if not status.healthy or position_limit or speed_limit or effort_limit:
             self._latch_joint_fault(
                 spec.name,
                 motor_id,
@@ -447,11 +461,14 @@ class JointCore:
                 timeout=status.timeout,
                 position_limit=position_limit,
                 speed_limit=speed_limit,
+                effort_limit=effort_limit,
             )
         if position_limit:
             return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
         if speed_limit:
             return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
+        if effort_limit:
+            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
         return self._accepted()
 
     def communication_failed(
@@ -504,14 +521,23 @@ class JointCore:
             for spec, joint in zip(self._specs, self._observations)
             if abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
         ]
-        if pos_out_of_bounds or speed_out_of_bounds:
+        effort_out_of_bounds = [
+            spec
+            for spec, joint in zip(self._specs, self._observations)
+            if abs(joint.sample.tau_nm) > spec.max_effort_nm
+        ]
+        if pos_out_of_bounds or speed_out_of_bounds or effort_out_of_bounds:
             for spec in pos_out_of_bounds:
                 self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
             for spec in speed_out_of_bounds:
                 self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
+            for spec in effort_out_of_bounds:
+                self._latch_joint_fault(spec.name, spec.motor_id, effort_limit=True)
             if pos_out_of_bounds:
                 return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
-            return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
+            if speed_out_of_bounds:
+                return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
+            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
 
         self._state = State.READY
         self._faults.clear()
@@ -554,14 +580,23 @@ class JointCore:
             for spec, joint in zip(self._specs, self._observations)
             if abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
         ]
-        if pos_out_of_bounds or speed_out_of_bounds:
+        effort_out_of_bounds = [
+            spec
+            for spec, joint in zip(self._specs, self._observations)
+            if abs(joint.sample.tau_nm) > spec.max_effort_nm
+        ]
+        if pos_out_of_bounds or speed_out_of_bounds or effort_out_of_bounds:
             for spec in pos_out_of_bounds:
                 self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
             for spec in speed_out_of_bounds:
                 self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
+            for spec in effort_out_of_bounds:
+                self._latch_joint_fault(spec.name, spec.motor_id, effort_limit=True)
             if pos_out_of_bounds:
                 return self._rejected(DecisionCode.POSITION_OUT_OF_BOUNDS)
-            return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
+            if speed_out_of_bounds:
+                return self._rejected(DecisionCode.SPEED_OUT_OF_BOUNDS)
+            return self._rejected(DecisionCode.EFFORT_OUT_OF_BOUNDS)
 
         self._state = State.ARMED
         return self._accepted()
@@ -615,7 +650,7 @@ class JointCore:
         validation_failures = validate_target_vector(
             self._specs,
             target,
-            tuple(joint.sample.q_rad for joint in self._observations),
+            tuple(joint.sample for joint in self._observations),
         )
         if validation_failures:
             return self._rejected(validation_failures[0].code)
@@ -654,8 +689,15 @@ class JointCore:
                 return None
             pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
             speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-            if pos_out or speed_out:
-                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=pos_out, speed_limit=speed_out)
+            effort_out = abs(joint.sample.tau_nm) > spec.max_effort_nm
+            if pos_out or speed_out or effort_out:
+                self._latch_joint_fault(
+                    spec.name,
+                    spec.motor_id,
+                    position_limit=pos_out,
+                    speed_limit=speed_out,
+                    effort_limit=effort_out,
+                )
                 self.stop()
                 return None
 
@@ -675,7 +717,7 @@ class JointCore:
             self._specs,
             self._admitted_target,
             tuple(self._confirmed_references),
-            tuple(joint.sample.q_rad for joint in self._observations),
+            tuple(joint.sample for joint in self._observations),
             now,
             self._max_reference_gap_s,
         )
@@ -691,6 +733,10 @@ class JointCore:
                 elif failure.code is DecisionCode.SPEED_OUT_OF_BOUNDS:
                     self._latch_joint_fault(
                         spec.name, spec.motor_id, speed_limit=True
+                    )
+                elif failure.code is DecisionCode.EFFORT_OUT_OF_BOUNDS:
+                    self._latch_joint_fault(
+                        spec.name, spec.motor_id, effort_limit=True
                     )
                 else:
                     self._latch_joint_fault(
@@ -756,8 +802,15 @@ class JointCore:
                 return False
             pos_out = joint.sample.q_rad < spec.q_min_rad or joint.sample.q_rad > spec.q_max_rad
             speed_out = abs(joint.sample.dq_rad_s) > spec.v_max_rad_s
-            if pos_out or speed_out:
-                self._latch_joint_fault(spec.name, spec.motor_id, position_limit=pos_out, speed_limit=speed_out)
+            effort_out = abs(joint.sample.tau_nm) > spec.max_effort_nm
+            if pos_out or speed_out or effort_out:
+                self._latch_joint_fault(
+                    spec.name,
+                    spec.motor_id,
+                    position_limit=pos_out,
+                    speed_limit=speed_out,
+                    effort_limit=effort_out,
+                )
                 self.stop()
                 return False
 
@@ -778,7 +831,7 @@ class JointCore:
             plan_joint=plan_joint,
             packet=self._prepared_plan.packets[index],
             goal=self._prepared_plan.target.joints[index],
-            q_meas=self._observations[index].sample.q_rad,
+            sample=self._observations[index].sample,
             prepared_at_s=self._prepared_plan.prepared_at_s,
         )
         if failure_code is not None:
@@ -786,6 +839,8 @@ class JointCore:
                 self._latch_joint_fault(spec.name, spec.motor_id, position_limit=True)
             elif failure_code is DecisionCode.SPEED_OUT_OF_BOUNDS:
                 self._latch_joint_fault(spec.name, spec.motor_id, speed_limit=True)
+            elif failure_code is DecisionCode.EFFORT_OUT_OF_BOUNDS:
+                self._latch_joint_fault(spec.name, spec.motor_id, effort_limit=True)
             else:
                 self._latch_joint_fault(spec.name, spec.motor_id, constraint_fault=True)
             self.stop()

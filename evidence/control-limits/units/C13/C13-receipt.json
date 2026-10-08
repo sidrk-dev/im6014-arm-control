@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "isolated-write",
+  "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-workbench",
+  "promptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-prompt.md",
+  "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-output.md",
+  "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json",
+  "executionId": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-workbench",
+    "output": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-output.md",
+    "receipt": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-08T19:16:25.620Z",
+  "completedAt": "2026-10-08T19:51:54.612Z",
+  "elapsedMs": 2128992,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-53ca56fbc7dacf51",
+    "--sandbox",
+    "--mode",
+    "accept-edits"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "needs-parent-operation",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "64985968-b06a-49e4-bae4-bc46136f0e20",
+  "usage": {
+    "inputTokens": 1511838,
+    "cachedInputTokens": 32052142,
+    "outputTokens": 208897,
+    "reasoningTokens": 114953,
+    "totalTokens": 1720735
+  },
+  "costUsd": null,
+  "handoff": {
+    "task": "C13",
+    "checkpoint": "C13-effort-bounds",
+    "operation": "run-checks",
+    "files": [
+      "docs/joint-api.md",
+      "joint_contract.py",
+      "joint_controller.py",
+      "joint_reference.py",
+      "scripts/check_milestone.py",
+      "scripts/check_offline_baseline.sh",
+      "test_controller.py",
+      "test_controller_effort.py",
+      "test_controller_expiry.py",
+      "test_controller_lead.py",
+      "test_controller_limits.py",
+      "test_controller_owner.py",
+      "test_controller_targets.py",
+      "test_startup.py"
+    ],
+    "checks": [
+      "C13",
+      "milestone-tests",
+      "scripts/check_offline_baseline.sh"
+    ],
+    "summary": "Verify milestone C13 combined effort prediction and measured effort monitoring across targeted tests, milestone suite, and offline baseline."
+  },
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

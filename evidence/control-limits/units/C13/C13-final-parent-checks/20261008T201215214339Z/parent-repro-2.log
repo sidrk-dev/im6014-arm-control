@@ -1,0 +1,6 @@
+test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence (__main__.CacheTime.test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK

@@ -24,6 +24,7 @@ CHECKS = {
     'C10': 'test_controller_limits.ReferenceSpeedTests',
     'C11': 'test_controller_limits.ReferenceAccelerationTests',
     'C12': 'test_controller_lead.ReferenceLeadTests',
+    'C13': 'test_controller_effort.EffortLimitTests',
 }
 
 

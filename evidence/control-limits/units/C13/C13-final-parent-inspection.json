@@ -1,0 +1,10 @@
+{
+  "sourceManifest": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-final-files.json",
+  "originalInspection": "C13-parent-inspection.json",
+  "firstRepairDelta": "exactFractioncombinedgate; aliasesremoved; canonical/publictests; missedconstructor migrations",
+  "finalRepairDelta": "joint_reference timestampguard plus five encodable fixtures/directh0timestamp test and APIclarification; no other sourcechanges",
+  "dynamicConstructorAudit": "Both MotorHealth(**kwargs) calls inside existing negativeValueErrortests; literaldictscontainallfourfields; parent read complete blocks",
+  "fourCaptures": "DEMO speed/position; actual-mode startup disconnectedzero replies/noopen; DEMO startupdisconnected",
+  "runtimeLines": 960,
+  "physicalIO": "none"
+}

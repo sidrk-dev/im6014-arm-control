@@ -78,7 +78,7 @@ run_logged() {
     return 0
 }
 
-files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py im6014_serial.py fake_serial.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py test_serial_deadline.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md joint_mapping.py test_joint_mapping.py test_numerical_inputs.py im6014_port.py test_port_config.py test_diagnostic_capture.py test_bus_owner.py joint_contract.py joint_reference.py joint_controller.py test_controller.py test_controller_targets.py test_controller_expiry.py test_controller_owner.py test_controller_limits.py test_controller_lead.py)
+files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py im6014_serial.py fake_serial.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py test_serial_deadline.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md joint_mapping.py test_joint_mapping.py test_numerical_inputs.py im6014_port.py test_port_config.py test_diagnostic_capture.py test_bus_owner.py joint_contract.py joint_reference.py joint_controller.py test_controller.py test_controller_targets.py test_controller_expiry.py test_controller_owner.py test_controller_limits.py test_controller_lead.py test_controller_effort.py)
 for name in "${files[@]}"; do
     mkdir -p -- "$scratch/$(dirname -- "$name")" || exit 2
     if ! cp -- "$repo_dir/$name" "$scratch/$name" || ! cmp -s -- "$repo_dir/$name" "$scratch/$name"; then
@@ -98,7 +98,7 @@ cd -- "$scratch" || exit 2
 run_logged packet-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" test_spin_5rpm.py
 run_logged protocol-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_protocol
 run_logged serial-deadline-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_serial_deadline
-run_logged milestone-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_joint_mapping test_numerical_inputs test_port_config test_diagnostic_capture test_bus_owner test_controller test_controller_targets test_controller_expiry test_controller_owner test_controller_limits test_controller_lead
+run_logged milestone-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_joint_mapping test_numerical_inputs test_port_config test_diagnostic_capture test_bus_owner test_controller test_controller_targets test_controller_expiry test_controller_owner test_controller_limits test_controller_lead test_controller_effort
 run_logged dashboard-tests env QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 "$python_path" test_dashboard.py
 for name in dashboard_preview.png dashboard_dark_preview.png dashboard_test_results.json; do
     if [[ -f "$scratch/$name" ]]; then

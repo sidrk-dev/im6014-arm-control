@@ -1,0 +1,10 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-final-parent-checks/20261008T201215214339Z/result.json",
+  "manifestSha256": "b3b0312fefc70dfb6bc49074b571ba5bb1685e09df727a700b3e9892aebaeef7",
+  "tests": "20focused/6parentmethods/768V-A-lead-effort+768h0cache/236milestone/9groups/18dashboard",
+  "physicalIO": "none;fake/PTyonly"
+}

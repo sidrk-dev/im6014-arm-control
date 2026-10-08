@@ -1,0 +1,1 @@
+Actual native FINAL observed: shared proposed-reference preparation timestamp equality, five canonical-envelope fixtures and decoded-effort assertions, direct mismatch and genuine h0 positive tests; no tests run by worker.

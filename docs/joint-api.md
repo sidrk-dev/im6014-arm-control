@@ -77,7 +77,7 @@ from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 
 clock_time = [0.0]
-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, 1.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
+core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), -2.0, 2.0, 10.0, 40.0, 1.0, 50.0, "fixture: software position limits"),), clock=lambda: clock_time[0], max_reference_gap_s=0.5)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 owner = core.claim_owner("example-client")
@@ -127,7 +127,7 @@ Upon a successful healthy checked Stop, the controller initializes an unemitted 
 
 Preparing a refresh plan does not advance confirmed history. A `RefreshPlan` always carries one proposed reference, decoded command target, and immutable canonical packet per joint. Only a complete actual write commits that joint's proposed reference. Failed or partial writes leave its prior reference unchanged. Reference `sample_time_s` is the preparation time; `JointDispatchedRecord.dispatched_at_s` remains the actual claim/write start time.
 
-For $h=0$, a previously emitted reference can refresh only when the admitted joint goal is unchanged. The core reuses that reference, decoded target, and exact packet bytes, including its prior position-step derivative and feedforward values; it does not encode the values again or advance their sample time. A changed goal at $h=0$ is rejected with an attributed constraint fault. If $h > \text{max\_reference\_gap\_s}$, motion is withdrawn and the controller drops to `STOPPED` (`REFERENCE_GAP_EXCEEDED`).
+For $h=0$, a previously emitted reference can refresh only when the admitted joint goal is unchanged. The core reuses that reference, decoded target, and exact packet bytes, including its prior position-step derivative and feedforward values; it does not encode the values again or advance their sample time. The per-write gate requires the cached reference's `sample_time_s` to equal `prepared_at_s`, including at $h=0$. A changed goal at $h=0$ is rejected with an attributed constraint fault. If $h > \text{max\_reference\_gap\_s}$, motion is withdrawn and the controller drops to `STOPPED` (`REFERENCE_GAP_EXCEEDED`).
 
 For $h>0$, the pure reference step intersects the speed interval $[-V,V]$, acceleration interval $[v_{\text{prev}}-A\cdot h, v_{\text{prev}}+A\cdot h]$, and position interval $[(q_{\min}-q_{\text{prev}})/h,(q_{\max}-q_{\text{prev}})/h]$. It projects the one-step objective $v_{\text{desired}} = (q_{\text{goal}}-q_{\text{prev}})/h + \dot{q}_{\text{goal}}$ into that closed intersection. The objective combines the requested position correction over this sample with velocity feedforward; it is not a continuous trajectory law.
 
@@ -146,3 +146,22 @@ At target admission, the controller checks each joint request against the closed
 During reference shaping ($h>0$), the lead bound interval $[(q_{\text{meas}} - \text{lead} - q_{\text{prev}})/h, (q_{\text{meas}} + \text{lead} - q_{\text{prev}})/h]$ is intersected with the speed, acceleration, and position intervals. An empty intersection produces an attributed constraint fault and Stops motion. At $h=0$, refresh is permitted only if the previously emitted reference remains inside all bounds, including the fresh lead interval.
 
 Immediately before a write claim, `verify_dispatch_claim` rechecks the current fresh measured position against the proposed decoded endpoint and confirmed reference. If feedback drifted after plan preparation such that the endpoint exceeds the lead bound, the write gate denies dispatch, latches an attributed constraint fault, and stops the controller.
+
+## Effort prediction and monitoring bounds
+
+Every `JointSpec` requires an explicit, finite positive effort limit `max_effort_nm` in joint Nm. All limits describe software fixture policy with explicit provenance, not physical motor calibration or thermal rating claims.
+
+The authority evaluates the combined expression exactly over the actual decoded command and measured finite float values, then compares it with the exact limit. The finite float predictor remains available for display and fails closed on overflow. Its rounded result does not decide whether the controller accepts or dispatches a command.
+
+The effort predictor computes predicted torque in joint units:
+
+$$\tau_{\text{pred}} = \tau_{\text{ff}} + k_p (q_{\text{ref}} - q_{\text{meas}}) + k_d (\dot{q}_{\text{ref}} - \dot{q}_{\text{meas}})$$
+
+All terms are evaluated together without separate per-term clipping. The predictor uses actual encoded/quantized wire gains and command values mapped back once through canonical mapping (`map_decoded_command`), and combines them with current measured joint position and measured velocity (not a substituted reference derivative). Finite arithmetic overflow fails closed. Boundaries are inclusive: $|\tau| \le \text{limit}$ is permitted, while magnitude strictly exceeding the limit faults or rejects.
+
+Enforcement occurs at three stages:
+1. **Target admission (`submit_target`)**: The controller predicts effort for the admitted target against fresh feedback. If peak predicted effort exceeds `max_effort_nm`, the target is rejected with `DecisionCode.EFFORT_OUT_OF_BOUNDS`, preserving the existing admitted goal and sequence watermark.
+2. **Reference preparation (`prepare_refresh` / `shape_reference_joint`)**: Peak effort prediction is checked for $h=0$ and $h>0$. If predicted effort violates the limit, reference generation fails closed with `DecisionCode.EFFORT_OUT_OF_BOUNDS`, latching an attributed `JointFault.effort_limit` and stopping the controller.
+3. **Per-write gate (`claim_dispatch` / `verify_dispatch_claim`)**: Immediately before dispatching, the core rechecks predicted effort on the actual prepared command against fresh observations. Changes in feedback since plan preparation invalidate dispatch, latching `JointFault.effort_limit` and withdrawing motion.
+
+Independent measured effort monitoring inspects every incoming observation in `receive()`, periodic `_housekeeping()`, `checked()`, `arm()`, `prepare_refresh()`, and `claim_dispatch()`. Any measured joint effort magnitude strictly exceeding `spec.max_effort_nm` immediately latches `JointFault.effort_limit` on that joint and drops the controller to `FAULT`. Recovery requires an explicit fresh healthy Stop check with all measured efforts within bounds (`begin_check(acknowledge_fault=True)` followed by `receive` and `checked`). Reconnects and incoming targets never clear latched faults.

@@ -1,0 +1,8 @@
+test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak (__main__.EffortBoundary.test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak) ... ok
+test_predictor_keeps_finite_cancellation (__main__.EffortBoundary.test_predictor_keeps_finite_cancellation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+OK
+{"canonicalPacket": "feee900014001a00ce1900005000200024fb021b", "exactEffort": "110264429730653091072387838386043/324518553658426726783156020576256", "roundedEffort": 0.33977850723047515, "exactExcess": "8725754498523003/324518553658426726783156020576256"}

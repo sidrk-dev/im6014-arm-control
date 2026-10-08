@@ -1,0 +1,64 @@
+test_canonical_effort_equality_is_inclusive_for_both_signs (test_controller_effort.EffortLimitTests.test_canonical_effort_equality_is_inclusive_for_both_signs) ... ok
+test_canonical_exact_effort_cannot_round_down_at_admission (test_controller_effort.EffortLimitTests.test_canonical_exact_effort_cannot_round_down_at_admission) ... ok
+test_canonical_exact_effort_cannot_round_toward_zero_at_negative_bound (test_controller_effort.EffortLimitTests.test_canonical_exact_effort_cannot_round_toward_zero_at_negative_bound) ... ok
+test_cause_union_and_fresh_healthy_stop_recovery (test_controller_effort.EffortLimitTests.test_cause_union_and_fresh_healthy_stop_recovery) ... ok
+test_changed_feedback_after_preparation_invalidates_dispatch_claim (test_controller_effort.EffortLimitTests.test_changed_feedback_after_preparation_invalidates_dispatch_claim) ... FAIL
+test_combined_sum_trips_when_each_term_individually_under_peak (test_controller_effort.EffortLimitTests.test_combined_sum_trips_when_each_term_individually_under_peak) ... FAIL
+test_effort_limit_requires_finite_positive_real_value (test_controller_effort.EffortLimitTests.test_effort_limit_requires_finite_positive_real_value) ... ok
+test_encoded_gains_boundary_uses_quantized_wire_values (test_controller_effort.EffortLimitTests.test_encoded_gains_boundary_uses_quantized_wire_values) ... ok
+test_final_write_gate_rechecks_exact_effort_after_feedback_drift (test_controller_effort.EffortLimitTests.test_final_write_gate_rechecks_exact_effort_after_feedback_drift) ... ok
+test_h0_cached_reference_uses_exact_effort_boundary (test_controller_effort.EffortLimitTests.test_h0_cached_reference_uses_exact_effort_boundary) ... ok
+test_independent_measured_effort_monitoring_trips_immediately (test_controller_effort.EffortLimitTests.test_independent_measured_effort_monitoring_trips_immediately) ... ok
+test_invalid_arithmetic_overflow_fails_closed (test_controller_effort.EffortLimitTests.test_invalid_arithmetic_overflow_fails_closed) ... ok
+test_negative_mapping_and_units (test_controller_effort.EffortLimitTests.test_negative_mapping_and_units) ... ok
+test_opposing_and_cancelling_terms (test_controller_effort.EffortLimitTests.test_opposing_and_cancelling_terms) ... FAIL
+test_per_joint_attribution (test_controller_effort.EffortLimitTests.test_per_joint_attribution) ... ok
+test_positive_cadence_preparation_uses_exact_effort_boundary (test_controller_effort.EffortLimitTests.test_positive_cadence_preparation_uses_exact_effort_boundary) ... ok
+test_public_receive_effort_fault_prevents_arm (test_controller_effort.EffortLimitTests.test_public_receive_effort_fault_prevents_arm) ... ok
+test_rejected_incoming_goal_leaves_watermark_and_prior_admitted_goal_intact (test_controller_effort.EffortLimitTests.test_rejected_incoming_goal_leaves_watermark_and_prior_admitted_goal_intact) ... FAIL
+test_target_admission_enforces_peak_prediction (test_controller_effort.EffortLimitTests.test_target_admission_enforces_peak_prediction) ... FAIL
+
+======================================================================
+FAIL: test_changed_feedback_after_preparation_invalidates_dispatch_claim (test_controller_effort.EffortLimitTests.test_changed_feedback_after_preparation_invalidates_dispatch_claim)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-fix-workbench/test_controller_effort.py", line 414, in test_changed_feedback_after_preparation_invalidates_dispatch_claim
+    self.assertTrue(station.submit(target).accepted)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_combined_sum_trips_when_each_term_individually_under_peak (test_controller_effort.EffortLimitTests.test_combined_sum_trips_when_each_term_individually_under_peak)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-fix-workbench/test_controller_effort.py", line 166, in test_combined_sum_trips_when_each_term_individually_under_peak
+    self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
+AssertionError: <DecisionCode.INVALID_ARGUMENT: 'invalid_argument'> is not <DecisionCode.EFFORT_OUT_OF_BOUNDS: 'effort_out_of_bounds'>
+
+======================================================================
+FAIL: test_opposing_and_cancelling_terms (test_controller_effort.EffortLimitTests.test_opposing_and_cancelling_terms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-fix-workbench/test_controller_effort.py", line 189, in test_opposing_and_cancelling_terms
+    self.assertTrue(decision.accepted)
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_rejected_incoming_goal_leaves_watermark_and_prior_admitted_goal_intact (test_controller_effort.EffortLimitTests.test_rejected_incoming_goal_leaves_watermark_and_prior_admitted_goal_intact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-fix-workbench/test_controller_effort.py", line 391, in test_rejected_incoming_goal_leaves_watermark_and_prior_admitted_goal_intact
+    self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
+AssertionError: <DecisionCode.INVALID_ARGUMENT: 'invalid_argument'> is not <DecisionCode.EFFORT_OUT_OF_BOUNDS: 'effort_out_of_bounds'>
+
+======================================================================
+FAIL: test_target_admission_enforces_peak_prediction (test_controller_effort.EffortLimitTests.test_target_admission_enforces_peak_prediction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-fix-workbench/test_controller_effort.py", line 262, in test_target_admission_enforces_peak_prediction
+    self.assertIs(decision.code, DecisionCode.EFFORT_OUT_OF_BOUNDS)
+AssertionError: <DecisionCode.INVALID_ARGUMENT: 'invalid_argument'> is not <DecisionCode.EFFORT_OUT_OF_BOUNDS: 'effort_out_of_bounds'>
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.035s
+
+FAILED (failures=5)

@@ -43,7 +43,7 @@
 - [x] C10. Parent software checks accepted; final branch review remains pending.
 - [x] C11. Parent software checks accepted; final branch review remains pending.
 - [x] C12. Parent software checks accepted; final branch review remains pending.
-- [ ] C13.
+- [x] C13. Parent software checks accepted; final branch review remains pending.
 - [ ] C14.
 - [ ] C15.
 - [ ] C16.

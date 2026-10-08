@@ -1,0 +1,41 @@
+{
+  "events": [
+    {
+      "attemptIndex": 0,
+      "status": "needs-parent-operation",
+      "processStarted": true,
+      "handoff": {
+        "operation": "run-checks",
+        "taskId": "C13",
+        "checkpointId": "C13-effort-bounds",
+        "ref": "Verify milestone C13 combined effort prediction and measured effort monitoring across targeted tests, milestone suite, and offline baseline."
+      },
+      "execution": {
+        "id": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json",
+        "outputPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-output.md",
+        "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json",
+        "workspacePath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-workbench",
+        "descriptor": "antigravity:gemini-3.8-flash-high@default",
+        "apiSpend": "deny",
+        "access": "isolated-write",
+        "contract": "legacy"
+      },
+      "receiptPath": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-receipt.json",
+      "inspection": {
+        "state": "clear",
+        "evidenceRef": "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-inspection.json"
+      }
+    },
+    {
+      "attemptIndex": 0,
+      "status": "failed",
+      "parentOperation": {
+        "kind": "run-checks",
+        "taskId": "C13",
+        "checkpointId": "C13-effort-bounds"
+      }
+    }
+  ],
+  "exhaustedGroups": [],
+  "access": "isolated-write"
+}

@@ -1,0 +1,14 @@
+{
+  "sourceManifest": "C13-files.json",
+  "sourceReview": "Complete runtime diffs, newefforttest, all migratedcaller diffs/API/wiring inspected; prior testmethod names structurallypreserved",
+  "parentOperations": "validated C13-checks-1 fulfilled with actual failed checks/source unchanged",
+  "actualDefects": [
+    "canonical exactsum roundedunsafeadmission reproduced",
+    "nonexistent KP_MAX/raw_to_kp imports",
+    "two missing explicit effort fixture args"
+  ],
+  "noPhysicalIO": true,
+  "gitHeadUnchanged": "53102b6fa9b6e8db56f396606eee059ee659f3e8",
+  "scopeCheck": "all14authoredpaths within parent scope, no symlinks/metadatachanges",
+  "toolObservation": "Actual terminal receipt processStarted/drained; author reported no commands executed; no independent hidden-tool attestation"
+}

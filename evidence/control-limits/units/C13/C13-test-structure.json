@@ -1,0 +1,38 @@
+[
+  {
+    "file": "test_controller.py",
+    "before": 27,
+    "after": 27,
+    "oldMethodsPreserved": true
+  },
+  {
+    "file": "test_controller_expiry.py",
+    "before": 25,
+    "after": 25,
+    "oldMethodsPreserved": true
+  },
+  {
+    "file": "test_controller_lead.py",
+    "before": 16,
+    "after": 16,
+    "oldMethodsPreserved": true
+  },
+  {
+    "file": "test_controller_limits.py",
+    "before": 55,
+    "after": 55,
+    "oldMethodsPreserved": true
+  },
+  {
+    "file": "test_controller_owner.py",
+    "before": 13,
+    "after": 13,
+    "oldMethodsPreserved": true
+  },
+  {
+    "file": "test_controller_targets.py",
+    "before": 16,
+    "after": 16,
+    "oldMethodsPreserved": true
+  }
+]

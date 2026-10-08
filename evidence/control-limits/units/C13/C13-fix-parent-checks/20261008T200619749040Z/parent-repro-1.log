@@ -1,0 +1,8 @@
+test_binary_exact_sum_at_peak_allowed (__main__.EffortGates.test_binary_exact_sum_at_peak_allowed) ... ok
+test_finalclaim_refuses_exactly_over_peak (__main__.EffortGates.test_finalclaim_refuses_exactly_over_peak) ... ok
+test_h0_cached_replay_refuses_exactly_over_peak (__main__.EffortGates.test_h0_cached_replay_refuses_exactly_over_peak) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+OK

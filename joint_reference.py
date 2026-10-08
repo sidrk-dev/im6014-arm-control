@@ -18,9 +18,11 @@ from joint_contract import (
     JointTrajectoryReference,
     Target,
 )
-from joint_mapping import JointTarget, OutputSample
+from joint_mapping import JointMap, JointSample, JointTarget, OutputSample
 
 __all__ = (
+    "map_decoded_command",
+    "predict_joint_effort",
     "prepare_reference_joint",
     "shape_reference_joint",
     "prepare_complete_reference",
@@ -29,6 +31,72 @@ __all__ = (
     "ReferenceFailure",
     "ReferenceBatchResult",
 )
+
+
+def map_decoded_command(mapping: JointMap, decoded: dict) -> JointTarget:
+    """Map canonical decoded command fields back once into joint target units."""
+    actual_output = mapping.from_output(
+        OutputSample(decoded["position_rad"], decoded["rpm"], decoded["torque_nm"])
+    )
+    gain_scale = mapping.reduction ** 2
+    return JointTarget(
+        q_rad=actual_output.q_rad,
+        dq_rad_s=actual_output.dq_rad_s,
+        tau_nm=actual_output.tau_nm,
+        kp=decoded["kp"] * gain_scale,
+        kd=decoded["kd"] * gain_scale,
+    )
+
+
+def predict_joint_effort(target: JointTarget, sample: JointSample) -> float:
+    """Predict combined joint effort: tau_ff + kp*(qref - qmeas) + kd*(dqref - dqmeas).
+
+    All terms are evaluated together in joint units without separate per-term
+    clipping. Finite overflow fails closed by raising ValueError.
+    """
+    if not isinstance(target, JointTarget) or not isinstance(sample, JointSample):
+        raise ValueError("target and sample must be JointTarget and JointSample")
+    for val in (
+        target.tau_nm,
+        target.kp,
+        target.q_rad,
+        target.kd,
+        target.dq_rad_s,
+        sample.q_rad,
+        sample.dq_rad_s,
+    ):
+        if isinstance(val, bool) or not isinstance(val, (int, float)):
+            raise ValueError("effort predictor terms must be real numbers")
+        try:
+            num = float(val)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("effort predictor terms must be finite") from exc
+        if not math.isfinite(num):
+            raise ValueError("effort predictor terms must be finite")
+
+    try:
+        term_p = float(target.kp) * (float(target.q_rad) - float(sample.q_rad))
+        term_d = float(target.kd) * (float(target.dq_rad_s) - float(sample.dq_rad_s))
+        tau = float(target.tau_nm) + term_p + term_d
+    except (ArithmeticError, OverflowError) as exc:
+        raise ValueError("effort prediction overflowed") from exc
+
+    if not math.isfinite(tau):
+        raise ValueError("predicted effort is not finite")
+
+    return tau
+
+
+def _exact_predicted_effort(target: JointTarget, sample: JointSample) -> Fraction:
+    """Evaluate the authority expression exactly over its finite float inputs."""
+    predict_joint_effort(target, sample)
+    return (
+        Fraction(target.tau_nm)
+        + Fraction(target.kp)
+        * (Fraction(target.q_rad) - Fraction(sample.q_rad))
+        + Fraction(target.kd)
+        * (Fraction(target.dq_rad_s) - Fraction(sample.dq_rad_s))
+    )
 
 
 @dataclass(frozen=True)
@@ -153,19 +221,7 @@ def prepare_reference_joint(
             raw_rpm=raw_rpm,
         )
         decoded = decode_command(packet)
-        actual_output = spec.mapping.from_output(
-            OutputSample(
-                decoded["position_rad"], decoded["rpm"], decoded["torque_nm"]
-            )
-        )
-        gain_scale = spec.mapping.reduction ** 2
-        actual_target = JointTarget(
-            q_rad=actual_output.q_rad,
-            dq_rad_s=actual_output.dq_rad_s,
-            tau_nm=actual_output.tau_nm,
-            kp=decoded["kp"] * gain_scale,
-            kd=decoded["kd"] * gain_scale,
-        )
+        actual_target = map_decoded_command(spec.mapping, decoded)
     except (ArithmeticError, TypeError, ValueError):
         return DecisionCode.INVALID_ARGUMENT, None, None
 
@@ -179,36 +235,47 @@ def prepare_reference_joint(
 def validate_target_vector(
     specs: tuple[JointSpec, ...],
     target: Target,
-    measured_positions: tuple[float, ...],
+    samples: tuple[JointSample, ...],
 ) -> tuple[ReferenceFailure, ...]:
     """Validate every admitted joint request before replacing the current goal."""
     if (
         not isinstance(target, Target)
+        or type(specs) is not tuple
+        or type(samples) is not tuple
         or len(target.joints) != len(specs)
-        or len(measured_positions) != len(specs)
+        or len(samples) != len(specs)
     ):
         return (ReferenceFailure(DecisionCode.INVALID_ARGUMENT, None),)
 
     failures: list[ReferenceFailure] = []
-    for index, (spec, joint_target, q_meas) in enumerate(
-        zip(specs, target.joints, measured_positions)
+    for index, (spec, joint_target, sample) in enumerate(
+        zip(specs, target.joints, samples)
     ):
-        code, _, _ = prepare_reference_joint(spec, joint_target)
-        if code is not None:
-            failures.append(ReferenceFailure(code, index))
+        code, actual_target, _ = prepare_reference_joint(spec, joint_target)
+        if code is not None or actual_target is None:
+            failures.append(ReferenceFailure(code or DecisionCode.INVALID_ARGUMENT, index))
             continue
-        if isinstance(q_meas, bool) or not isinstance(q_meas, (int, float)):
+        if not isinstance(sample, JointSample):
             failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
             continue
-        try:
-            q_meas_float = float(q_meas)
-        except (OverflowError, TypeError, ValueError):
+        valid_sample = True
+        for val in (sample.q_rad, sample.dq_rad_s, sample.tau_nm):
+            if isinstance(val, bool) or not isinstance(val, (int, float)):
+                valid_sample = False
+                break
+            try:
+                num = float(val)
+            except (OverflowError, TypeError, ValueError):
+                valid_sample = False
+                break
+            if not math.isfinite(num):
+                valid_sample = False
+                break
+        if not valid_sample:
             failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
             continue
-        if not math.isfinite(q_meas_float):
-            failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
-            continue
-        q_meas_exact = Fraction(q_meas_float)
+
+        q_meas_exact = Fraction(sample.q_rad)
         lead_exact = Fraction(spec.max_lead_rad)
         requested_q_exact = Fraction(joint_target.q_rad)
         if not (
@@ -217,6 +284,18 @@ def validate_target_vector(
             <= q_meas_exact + lead_exact
         ):
             failures.append(ReferenceFailure(DecisionCode.LEAD_OUT_OF_BOUNDS, index))
+            continue
+
+        try:
+            if (
+                abs(_exact_predicted_effort(actual_target, sample))
+                > Fraction(spec.max_effort_nm)
+            ):
+                failures.append(ReferenceFailure(DecisionCode.EFFORT_OUT_OF_BOUNDS, index))
+                continue
+        except (ArithmeticError, OverflowError, ValueError):
+            failures.append(ReferenceFailure(DecisionCode.INVALID_ARGUMENT, index))
+            continue
     return tuple(failures)
 
 
@@ -224,7 +303,7 @@ def shape_reference_joint(
     spec: JointSpec,
     target: JointTarget,
     confirmed_ref: JointTrajectoryReference,
-    q_meas: float,
+    sample: JointSample,
     now: float,
     max_reference_gap_s: float,
 ) -> tuple[
@@ -238,6 +317,7 @@ def shape_reference_joint(
         not isinstance(spec, JointSpec)
         or not isinstance(target, JointTarget)
         or not isinstance(confirmed_ref, JointTrajectoryReference)
+        or not isinstance(sample, JointSample)
     ):
         return DecisionCode.INVALID_ARGUMENT, None, None, None
 
@@ -248,7 +328,9 @@ def shape_reference_joint(
         target.tau_nm,
         target.kp,
         target.kd,
-        q_meas,
+        sample.q_rad,
+        sample.dq_rad_s,
+        sample.tau_nm,
         now,
         max_reference_gap_s,
     ):
@@ -268,6 +350,8 @@ def shape_reference_joint(
         goal_kp,
         goal_kd,
         q_meas_val,
+        _,
+        _,
         now,
         max_reference_gap_s,
     ) = normalized
@@ -312,6 +396,14 @@ def shape_reference_joint(
         if abs(confirmed_ref.encoded_velocity_rad_s) > spec.v_max_rad_s:
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
         if abs(confirmed_ref.position_step_velocity_rad_s) > Fraction(spec.v_max_rad_s):
+            return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+        try:
+            if (
+                abs(_exact_predicted_effort(confirmed_ref.emitted_target, sample))
+                > Fraction(spec.max_effort_nm)
+            ):
+                return DecisionCode.EFFORT_OUT_OF_BOUNDS, None, None, None
+        except (ArithmeticError, OverflowError, ValueError):
             return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
         return (
             None,
@@ -507,17 +599,7 @@ def shape_reference_joint(
             raw_rpm=raw_rpm,
         )
         decoded = decode_command(packet)
-        actual_output = spec.mapping.from_output(
-            OutputSample(decoded["position_rad"], decoded["rpm"], decoded["torque_nm"])
-        )
-        gain_scale = spec.mapping.reduction ** 2
-        actual_target = JointTarget(
-            q_rad=actual_output.q_rad,
-            dq_rad_s=actual_output.dq_rad_s,
-            tau_nm=actual_output.tau_nm,
-            kp=decoded["kp"] * gain_scale,
-            kd=decoded["kd"] * gain_scale,
-        )
+        actual_target = map_decoded_command(spec.mapping, decoded)
     except (ArithmeticError, TypeError, ValueError):
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
@@ -541,6 +623,15 @@ def shape_reference_joint(
     if abs(actual_position_step_velocity - v_prev_pos_exact) > a_max_exact * h_exact:
         return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
 
+    try:
+        if (
+            abs(_exact_predicted_effort(actual_target, sample))
+            > Fraction(spec.max_effort_nm)
+        ):
+            return DecisionCode.EFFORT_OUT_OF_BOUNDS, None, None, None
+    except (ArithmeticError, OverflowError, ValueError):
+        return DecisionCode.CONSTRAINT_VIOLATION, None, None, None
+
     proposed_ref = JointTrajectoryReference(
         q_rad=actual_target.q_rad,
         position_step_velocity_rad_s=actual_position_step_velocity,
@@ -558,7 +649,7 @@ def prepare_complete_reference(
     specs: tuple[JointSpec, ...],
     target: Target,
     confirmed_references: tuple[JointTrajectoryReference, ...],
-    measured_positions: tuple[float, ...],
+    samples: tuple[JointSample, ...],
     now: float,
     max_reference_gap_s: float,
 ) -> ReferenceBatchResult:
@@ -571,8 +662,8 @@ def prepare_complete_reference(
         or len(target.joints) != len(specs)
         or type(confirmed_references) is not tuple
         or len(confirmed_references) != len(specs)
-        or type(measured_positions) is not tuple
-        or len(measured_positions) != len(specs)
+        or type(samples) is not tuple
+        or len(samples) != len(specs)
     ):
         return ReferenceBatchResult(
             None, None, None, (ReferenceFailure(DecisionCode.INVALID_ARGUMENT, None),)
@@ -583,11 +674,11 @@ def prepare_complete_reference(
     proposed_references: list[JointTrajectoryReference] = []
     failures: list[ReferenceFailure] = []
 
-    for index, (spec, joint_target, conf_ref, q_meas) in enumerate(
-        zip(specs, target.joints, confirmed_references, measured_positions)
+    for index, (spec, joint_target, conf_ref, sample) in enumerate(
+        zip(specs, target.joints, confirmed_references, samples)
     ):
         code, actual_target, prop_ref, packet = shape_reference_joint(
-            spec, joint_target, conf_ref, q_meas, now, max_reference_gap_s
+            spec, joint_target, conf_ref, sample, now, max_reference_gap_s
         )
         if code is not None or actual_target is None or prop_ref is None or packet is None:
             failures.append(
@@ -612,7 +703,7 @@ def verify_dispatch_claim(
     plan_joint: JointTarget,
     packet: bytes,
     goal: JointTarget,
-    q_meas: float,
+    sample: JointSample,
     prepared_at_s: float,
 ) -> DecisionCode | None:
     """Validate one proposed joint reference against all closed constraints at the write gate."""
@@ -623,24 +714,31 @@ def verify_dispatch_claim(
         or not isinstance(plan_joint, JointTarget)
         or type(packet) is not bytes
         or not isinstance(goal, JointTarget)
+        or not isinstance(sample, JointSample)
     ):
         return DecisionCode.CONSTRAINT_VIOLATION
+    for val in (sample.q_rad, sample.dq_rad_s, sample.tau_nm):
+        if isinstance(val, bool) or not isinstance(val, (int, float)):
+            return DecisionCode.CONSTRAINT_VIOLATION
+        try:
+            num = float(val)
+        except (OverflowError, TypeError, ValueError):
+            return DecisionCode.CONSTRAINT_VIOLATION
+        if not math.isfinite(num):
+            return DecisionCode.CONSTRAINT_VIOLATION
 
     if (
         prop_ref.requested_goal != goal
         or prop_ref.emitted_target != plan_joint
         or prop_ref.packet != packet
-        or prop_ref.sample_time_s > prepared_at_s
+        or prop_ref.sample_time_s != prepared_at_s
     ):
         return DecisionCode.CONSTRAINT_VIOLATION
 
     if prop_ref.sample_time_s == conf_ref.sample_time_s:
         if prop_ref != conf_ref:
             return DecisionCode.CONSTRAINT_VIOLATION
-    elif (
-        prop_ref.sample_time_s != prepared_at_s
-        or prop_ref.sample_time_s <= conf_ref.sample_time_s
-    ):
+    elif prop_ref.sample_time_s <= conf_ref.sample_time_s:
         return DecisionCode.CONSTRAINT_VIOLATION
 
     try:
@@ -653,7 +751,7 @@ def verify_dispatch_claim(
         q_min_exact = Fraction(spec.q_min_rad)
         q_max_exact = Fraction(spec.q_max_rad)
         lead_exact = Fraction(spec.max_lead_rad)
-        q_meas_exact = Fraction(q_meas)
+        q_meas_exact = Fraction(sample.q_rad)
         prop_q_exact = Fraction(prop_ref.q_rad)
         plan_q_exact = Fraction(plan_joint.q_rad)
 
@@ -688,6 +786,15 @@ def verify_dispatch_claim(
             or plan_q_exact < q_meas_exact - lead_exact
             or plan_q_exact > q_meas_exact + lead_exact
         ):
+            return DecisionCode.CONSTRAINT_VIOLATION
+
+        try:
+            if (
+                abs(_exact_predicted_effort(plan_joint, sample))
+                > Fraction(spec.max_effort_nm)
+            ):
+                return DecisionCode.EFFORT_OUT_OF_BOUNDS
+        except (ArithmeticError, OverflowError, ValueError):
             return DecisionCode.CONSTRAINT_VIOLATION
     except (ArithmeticError, TypeError, ValueError):
         return DecisionCode.CONSTRAINT_VIOLATION

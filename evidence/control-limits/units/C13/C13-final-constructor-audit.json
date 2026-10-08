@@ -1,0 +1,1222 @@
+{
+  "requiredFields": {
+    "JointSpec": [
+      "a_max_rad_s2",
+      "limits_provenance",
+      "mapping",
+      "max_effort_nm",
+      "max_lead_rad",
+      "motor_id",
+      "name",
+      "q_max_rad",
+      "q_min_rad",
+      "v_max_rad_s"
+    ],
+    "MotorHealth": [
+      "errors",
+      "mode",
+      "timeout",
+      "warnings"
+    ]
+  },
+  "directCalls": 141,
+  "incompleteNonTypeErrorCalls": [],
+  "dynamicCallsNeedInspection": [
+    {
+      "file": "test_controller.py",
+      "line": 353,
+      "constructor": "MotorHealth",
+      "missing": [
+        "errors",
+        "mode",
+        "timeout",
+        "warnings"
+      ],
+      "intentionalTypeError": false,
+      "dynamicArguments": true
+    },
+    {
+      "file": "test_controller.py",
+      "line": 635,
+      "constructor": "MotorHealth",
+      "missing": [
+        "errors",
+        "mode",
+        "timeout",
+        "warnings"
+      ],
+      "intentionalTypeError": false,
+      "dynamicArguments": true
+    }
+  ],
+  "passedStaticAudit": false,
+  "calls": [
+    {
+      "file": "test_controller.py",
+      "line": 28,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 406,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 412,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 440,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 614,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 654,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 826,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 111,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 112,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 318,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 319,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 338,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 340,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 556,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 557,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 878,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 879,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 353,
+      "constructor": "MotorHealth",
+      "missing": [
+        "errors",
+        "mode",
+        "timeout",
+        "warnings"
+      ],
+      "intentionalTypeError": false,
+      "dynamicArguments": true
+    },
+    {
+      "file": "test_controller.py",
+      "line": 386,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 635,
+      "constructor": "MotorHealth",
+      "missing": [
+        "errors",
+        "mode",
+        "timeout",
+        "warnings"
+      ],
+      "intentionalTypeError": false,
+      "dynamicArguments": true
+    },
+    {
+      "file": "test_controller.py",
+      "line": 308,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 329,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 330,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 334,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 335,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 680,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 686,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 809,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller.py",
+      "line": 708,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 44,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 56,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 85,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 145,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 227,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 247,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 133,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 140,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_effort.py",
+      "line": 451,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_expiry.py",
+      "line": 32,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_expiry.py",
+      "line": 33,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 26,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 38,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 196,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 227,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 469,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 618,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 777,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 144,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 303,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 306,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 338,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 460,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 731,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 734,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 678,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_lead.py",
+      "line": 681,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 269,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 291,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 526,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 580,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 766,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 786,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 798,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1012,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1124,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1136,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1583,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1602,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1640,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1721,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1733,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1859,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 2077,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 68,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 69,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 189,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 201,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 327,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 331,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 333,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 335,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 339,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 341,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 343,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 345,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 349,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 351,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 353,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 355,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 357,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 359,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 363,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 365,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 367,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 369,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 371,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 373,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 377,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 379,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 381,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 383,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 385,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 387,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 391,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 393,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 395,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 397,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 399,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 401,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 405,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 407,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 409,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 411,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 414,
+      "constructor": "JointSpec",
+      "missing": [
+        "a_max_rad_s2",
+        "limits_provenance",
+        "max_effort_nm",
+        "max_lead_rad",
+        "v_max_rad_s"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 416,
+      "constructor": "JointSpec",
+      "missing": [
+        "a_max_rad_s2",
+        "limits_provenance",
+        "max_effort_nm",
+        "max_lead_rad"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 418,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance",
+        "max_effort_nm",
+        "max_lead_rad"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 420,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance",
+        "max_effort_nm"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 422,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 424,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance",
+        "max_effort_nm",
+        "max_lead_rad"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 426,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance",
+        "max_effort_nm"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 428,
+      "constructor": "JointSpec",
+      "missing": [
+        "limits_provenance"
+      ],
+      "intentionalTypeError": true,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1062,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1659,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1663,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 947,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1843,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 2142,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 1773,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_limits.py",
+      "line": 2100,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_owner.py",
+      "line": 30,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_owner.py",
+      "line": 31,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 727,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 24,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 25,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 276,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 277,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 298,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 299,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 532,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 533,
+      "constructor": "JointSpec",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    },
+    {
+      "file": "test_controller_targets.py",
+      "line": 233,
+      "constructor": "MotorHealth",
+      "missing": [],
+      "intentionalTypeError": false,
+      "dynamicArguments": false
+    }
+  ]
+}

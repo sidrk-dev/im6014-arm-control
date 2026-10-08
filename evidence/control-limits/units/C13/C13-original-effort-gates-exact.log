@@ -1,0 +1,24 @@
+test_binary_exact_sum_at_peak_allowed (__main__.EffortGates.test_binary_exact_sum_at_peak_allowed) ... ok
+test_finalclaim_refuses_exactly_over_peak (__main__.EffortGates.test_finalclaim_refuses_exactly_over_peak) ... FAIL
+test_h0_cached_replay_refuses_exactly_over_peak (__main__.EffortGates.test_h0_cached_replay_refuses_exactly_over_peak) ... FAIL
+
+======================================================================
+FAIL: test_finalclaim_refuses_exactly_over_peak (__main__.EffortGates.test_finalclaim_refuses_exactly_over_peak)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-effort-gates-exact.py", line 27, in test_finalclaim_refuses_exactly_over_peak
+    self.assertEqual(code,DecisionCode.EFFORT_OUT_OF_BOUNDS)
+AssertionError: None != <DecisionCode.EFFORT_OUT_OF_BOUNDS: 'effort_out_of_bounds'>
+
+======================================================================
+FAIL: test_h0_cached_replay_refuses_exactly_over_peak (__main__.EffortGates.test_h0_cached_replay_refuses_exactly_over_peak)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-effort-gates-exact.py", line 23, in test_h0_cached_replay_refuses_exactly_over_peak
+    self.assertEqual(code,DecisionCode.EFFORT_OUT_OF_BOUNDS)
+AssertionError: None != <DecisionCode.EFFORT_OUT_OF_BOUNDS: 'effort_out_of_bounds'>
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+FAILED (failures=2)

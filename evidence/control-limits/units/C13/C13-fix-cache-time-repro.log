@@ -1,0 +1,14 @@
+test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence (__main__.CacheTime.test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence) ... FAIL
+
+======================================================================
+FAIL: test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence (__main__.CacheTime.test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-cache-time-repro.py", line 16, in test_old_cached_sample_cannot_claim_it_was_prepared_at_positive_cadence
+    self.assertEqual(code,DecisionCode.CONSTRAINT_VIOLATION,'h0 replay must not silently change its cadence to a positive preparation interval')
+AssertionError: None != <DecisionCode.CONSTRAINT_VIOLATION: 'constraint_violation'> : h0 replay must not silently change its cadence to a positive preparation interval
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

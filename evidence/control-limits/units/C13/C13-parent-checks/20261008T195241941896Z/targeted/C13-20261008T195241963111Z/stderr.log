@@ -1,0 +1,19 @@
+test_controller_effort (unittest.loader._FailedTest.test_controller_effort) ... ERROR
+
+======================================================================
+ERROR: test_controller_effort (unittest.loader._FailedTest.test_controller_effort)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_controller_effort
+Traceback (most recent call last):
+  File "/usr/lib64/python3.12/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-workbench/test_controller_effort.py", line 7, in <module>
+    from im6014_codec import (
+ImportError: cannot import name 'KP_MAX' from 'im6014_codec' (/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-workbench/im6014_codec.py). Did you mean: 'RPM_MAX'?
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

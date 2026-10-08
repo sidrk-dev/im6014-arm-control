@@ -3,7 +3,15 @@ from pathlib import Path
 import gzip,hashlib,json,sys
 repo=Path(sys.argv[1]).resolve();root=repo/'evidence/control-limits';assert root.is_dir() and not root.is_symlink()
 index=root/'compressed-proof-index.json';prior=json.loads(index.read_text()) if index.exists() else {'format':'gzip with exact decompressed SHA256','entries':[]};rows=prior['entries'];known={x['originalPath'] for x in rows}
-for p in sorted(root.rglob('*.json')):
+proof_logs=[]
+for p in sorted(root.rglob('parent-repro-*.log')):
+ if p.stat().st_size<=60000:continue
+ try:data=json.loads(p.read_bytes())
+ except (ValueError,UnicodeError):continue
+ if isinstance(data,dict) and data.get('passed') is True and isinstance(data.get('positiveStepCertificates'),int) and isinstance(data.get('samples'),list):
+  assert data['positiveStepCertificates']==len(data['samples'])
+  proof_logs.append(p)
+for p in sorted(list(root.rglob('*.json'))+proof_logs):
  if p==index or p.stat().st_size<=60000:continue
  assert p.is_file() and not p.is_symlink() and p.resolve().is_relative_to(root.resolve())
  relative=str(p.relative_to(repo));assert relative not in known

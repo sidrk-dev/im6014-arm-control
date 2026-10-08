@@ -1,0 +1,16 @@
+test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak (__main__.EffortBoundary.test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak) ... FAIL
+test_predictor_keeps_finite_cancellation (__main__.EffortBoundary.test_predictor_keeps_finite_cancellation) ... ok
+
+======================================================================
+FAIL: test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak (__main__.EffortBoundary.test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/pstack-c07-c16-20261008-smgcfm_v/C13-parent-effort-repro.py", line 36, in test_canonical_admission_cannot_round_unsafe_combined_sum_into_peak
+    self.assertFalse(result,'Canonical combined effort exactly exceeds peak even though float predictor rounded to equality')
+AssertionError: Decision(accepted=True, code=<DecisionCode.ACCEPTED: 'accepted'>) is not false : Canonical combined effort exactly exceeds peak even though float predictor rounded to equality
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.011s
+
+FAILED (failures=1)
+{"canonicalPacket": "feee900014001a00ce1900005000200024fb021b", "exactEffort": "110264429730653091072387838386043/324518553658426726783156020576256", "roundedEffort": 0.33977850723047515, "exactExcess": "8725754498523003/324518553658426726783156020576256"}

@@ -32,6 +32,7 @@ class ReferenceLeadTests(unittest.TestCase):
             2.0,   # v_max = 2.0 rad/s
             10.0,  # a_max = 10.0 rad/s2
             0.5,   # max_lead_rad = 0.5 rad
+            50.0,  # max_effort_nm = 50.0 Nm
             "fixture: lead test J1",
         )
         self.spec2 = JointSpec(
@@ -43,6 +44,7 @@ class ReferenceLeadTests(unittest.TestCase):
             2.0,   # v_max = 2.0 rad/s
             10.0,  # a_max = 10.0 rad/s2
             0.5,   # max_lead_rad = 0.5 rad
+            50.0,  # max_effort_nm = 50.0 Nm
             "fixture: lead test J2",
         )
         self.specs = (self.spec1, self.spec2)
@@ -140,7 +142,7 @@ class ReferenceLeadTests(unittest.TestCase):
         for val in (True, False, 0, 0.0, -0.5, math.nan, math.inf, -math.inf, 10**400, "0.5"):
             with self.subTest(val=val), self.assertRaises(ValueError):
                 JointSpec(
-                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 2.0, 10.0, val,
+                    "J1", 0, JointMap(1.0, 1, 0.0), -2.0, 2.0, 2.0, 10.0, val, 50.0,
                     "fixture: invalid lead limit input",
                 )
 
@@ -192,7 +194,7 @@ class ReferenceLeadTests(unittest.TestCase):
     def test_parent_exact_admission_reproduction(self):
         clock = DeterministicClock(0.0)
         spec = JointSpec(
-            "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.2,
+            "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.2, 50.0,
             "fixture: exact lead admission regression",
         )
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
@@ -223,7 +225,7 @@ class ReferenceLeadTests(unittest.TestCase):
     def test_exact_binary_admission_boundaries_are_inclusive(self):
         clock = DeterministicClock(0.0)
         spec = JointSpec(
-            "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.25,
+            "J", 0, JointMap(1.0, 1, 0.0), -1.0, 1.0, 1.0, 10.0, 0.25, 50.0,
             "fixture: exact binary lead equality",
         )
         core = JointCore((spec,), clock=clock, max_reference_gap_s=1.0)
@@ -371,7 +373,7 @@ class ReferenceLeadTests(unittest.TestCase):
             0.0, Fraction(0), 0.0, self.clock.value, False
         )
         code, anchor_target, anchor_fast, anchor_packet = shape_reference_joint(
-            self.spec1, anchor_goal, stop_anchor, 0.0, self.clock.value + 0.2, 1.0
+            self.spec1, anchor_goal, stop_anchor, JointSample(0.0, 0.0, 0.0), self.clock.value + 0.2, 1.0
         )
         self.assertIsNone(code)
         self.assertTrue(anchor_fast.is_emitted)
@@ -400,7 +402,7 @@ class ReferenceLeadTests(unittest.TestCase):
             self.spec1,
             anchor_goal,
             anchor_fast,
-            drifted_q_meas,
+            JointSample(drifted_q_meas, 0.0, 0.0),
             next_now,
             1.0,
         )
@@ -465,13 +467,13 @@ class ReferenceLeadTests(unittest.TestCase):
     def _quarter_cache(self, max_lead):
         mapping = JointMap(math.ldexp(raw_to_position(1), 2), 1, 0.0)
         spec = JointSpec(
-            "J", 0, mapping, -1.0, 1.0, 1.0, 4.0, max_lead,
+            "J", 0, mapping, -1.0, 1.0, 1.0, 4.0, max_lead, 50.0,
             "fixture: exact cached lead reference",
         )
         goal = JointTarget(0.25, 0.0, 0.0, 0.0, 0.0)
         anchor = JointTrajectoryReference(0.25, Fraction(0), 0.0, 0.0, False)
         code, actual, emitted, packet = shape_reference_joint(
-            spec, goal, anchor, 0.25, 0.25, 0.5
+            spec, goal, anchor, JointSample(0.25, 0.0, 0.0), 0.25, 0.5
         )
         self.assertIsNone(code)
         self.assertEqual(actual.q_rad, 0.25)
@@ -489,7 +491,7 @@ class ReferenceLeadTests(unittest.TestCase):
         )
 
         code, repeated_target, repeated_ref, repeated_packet = shape_reference_joint(
-            spec, goal, emitted_ref, -0.11, emitted_ref.sample_time_s, 0.5
+            spec, goal, emitted_ref, JointSample(-0.11, 0.0, 0.0), emitted_ref.sample_time_s, 0.5
         )
         self.assertIs(code, DecisionCode.CONSTRAINT_VIOLATION)
         self.assertIsNone(repeated_target)
@@ -501,7 +503,7 @@ class ReferenceLeadTests(unittest.TestCase):
         self.assertEqual(Fraction(actual.q_rad) - Fraction(-0.125), Fraction(0.375))
 
         code, repeated_target, repeated_ref, repeated_packet = shape_reference_joint(
-            spec, goal, emitted_ref, -0.125, emitted_ref.sample_time_s, 0.5
+            spec, goal, emitted_ref, JointSample(-0.125, 0.0, 0.0), emitted_ref.sample_time_s, 0.5
         )
         self.assertIsNone(code)
         self.assertEqual(repeated_target, actual)
@@ -622,6 +624,7 @@ class ReferenceLeadTests(unittest.TestCase):
             2.0,
             10.0,
             0.25,  # lead = 0.25 rad
+            50.0,  # max_effort_nm = 50.0 Nm
             "fixture: negative direction lead test",
         )
         clock = DeterministicClock(10.0)
@@ -772,7 +775,7 @@ class ReferenceLeadTests(unittest.TestCase):
             lead = rng.uniform(0.55, 0.75)
             mapping = JointMap(reduction, direction, zero)
             spec = JointSpec(
-                "J_fuzz", 0, mapping, q_min, q_max, v_max, a_max, lead,
+                "J_fuzz", 0, mapping, q_min, q_max, v_max, a_max, lead, 100.0,
                 "fixture: seeded emitted-reference certificate",
             )
             cadence = rng.choice(cadences)
@@ -784,7 +787,7 @@ class ReferenceLeadTests(unittest.TestCase):
             now = previous.sample_time_s + cadence
 
             code, emitted, reference, packet = shape_reference_joint(
-                spec, goal, previous, 0.0, now, 1.0
+                spec, goal, previous, JointSample(0.0, 0.0, 0.0), now, 1.0
             )
             with self.subTest(iteration=iteration, phase="advance"):
                 self.assertIsNone(code)
@@ -803,7 +806,7 @@ class ReferenceLeadTests(unittest.TestCase):
             reverse_goal = JointTarget(-goal_sign * 0.45, 0.0, 0.0, 1.0, 0.1)
             now = previous.sample_time_s + cadence
             code, emitted, reference, packet = shape_reference_joint(
-                spec, reverse_goal, previous, previous.q_rad, now, 1.0
+                spec, reverse_goal, previous, JointSample(previous.q_rad, 0.0, 0.0), now, 1.0
             )
             with self.subTest(iteration=iteration, phase="reverse"):
                 self.assertIsNone(code)
@@ -824,7 +827,7 @@ class ReferenceLeadTests(unittest.TestCase):
             impossible_measurement = previous.q_rad + 1.0
             now = previous.sample_time_s + cadence
             code, emitted, reference, packet = shape_reference_joint(
-                spec, reverse_goal, previous, impossible_measurement, now, 1.0
+                spec, reverse_goal, previous, JointSample(impossible_measurement, 0.0, 0.0), now, 1.0
             )
             with self.subTest(iteration=iteration, phase="infeasible"):
                 self.assertIs(code, DecisionCode.CONSTRAINT_VIOLATION)
