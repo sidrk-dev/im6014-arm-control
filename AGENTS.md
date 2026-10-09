@@ -1,11 +1,21 @@
-# IM6014 workbench instructions
+# Workbench contributor instructions
 
-Read `docs/ROBOT_WORKBENCH_AGENT_PROMPT.md`, `docs/milestones.tsv`, and `docs/architecture.md` before changing the workbench. Preserve the working bench entry points.
+Before editing, read [coordination](docs/development/coordination.md), the [task registry](docs/development/tasks.tsv), [architecture](docs/architecture.md), and [milestones](docs/milestones.tsv). Check the current branch and working tree. The user prioritizes a three-joint keyboard/Xbox dashboard; the remaining milestone queue is paused.
 
-Use the operator's configured Pstack routes. Do not copy model choices into a second editable routing configuration. The parent owns Git operations, package installations, test execution, and the physical communication boundary. Model reviewers receive supplied artifacts and do not establish physical results.
+## Own an isolated scope
 
-Default to fake transport and disconnected startup. Opening the motor port, Connect, Check, Scan, timeout acknowledgment, Stop, and motion are hardware control operations. A software-development request does not authorize them. Obtain explicit live-hardware scope before physical I/O.
+Agree on a task, base commit, allowed files, and acceptance checks with the integration coordinator. Use a separate checkout or worktree. Do not edit another contributor's directory, rename files an active worker needs, or overwrite unrelated work. The coordinator updates the registry and integrates changes.
 
-Implement one milestone behavior at a time. Update the ledger with actual parent-run results, source revision, and evidence paths. Never turn a model's assertion or a screenshot filename into a passing result. Inspect screenshots. Keep software, simulated, physical, and cloud evidence separate.
+Dispatched Pstack workers obey their prepared contract. Their parent owns Git mutations, installations, checks, and hardware operations. Independent user-approved collaborators can use their own branches and tools and submit draft PRs. Their account and model choices are their own. Keep the operator's model sheet as the single routing configuration.
 
-Use `scripts/check_offline_baseline.sh` for offline regression checks after installation. Read the script and supplied tests before execution. Never replace fake transport with a physical serial port in these checks.
+## Preserve control authority
+
+Keep one station/Core authority and one managed serial-port owner. Preserve exact Fraction reference histories, separate decoded wire velocity, actual per-joint write outcomes, canonical packet caches, and persistent protection/recovery rules. Preserve the bench launcher while introducing the arm interface.
+
+Use fake I/O, isolated PTYs, and disconnected startup for development. Opening a physical port, Connect, Check, Scan, timeout acknowledgment, Stop, and motion require explicit live-hardware scope. The assembled arm is not commissioned; the timeout acknowledgment remains unresolved.
+
+## Finish with evidence
+
+Use installed Pstack poteto-mode for engineering work. Ground behavior with how/why, agree on types and ownership before changes, and finish each unit with actual checks. Retain failures and inspect configured review findings against source. Apply no-comments/deslop, maintain the decision trail, and obtain fresh independent verification before guarded integration.
+
+Run the applicable checks through the parent when the worker contract requires it. The offline baseline is `scripts/check_offline_baseline.sh`. Keep raw logs, source hashes, and inspected captures. Separate software, simulation, hardware, and cloud results. A model report or screenshot filename does not prove success. Merge only the independently verified commit with green checks on that exact head.

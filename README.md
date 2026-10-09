@@ -1,12 +1,12 @@
-# IM6014 robot workbench
+# IM6014 Workbench
 
-Work alongside the construction of a custom six-joint IM6014 arm. The current software is the existing one-motor bench dashboard, with the A01-A10 repository baseline and B01-B10 verified communication boundary.
+A Linux workbench for Unitree IM6014 actuators. The current application is a single-motor Qt bench dashboard. The controller library also supplies joint mappings, exact bounded references, protection history, managed serial ownership, and station timing.
 
-The original bench source and history come from [sidrk-dev/im6014Development](https://github.com/sidrk-dev/im6014Development). The workbench lives in one repository. See [component boundaries](docs/architecture.md), the [full milestone plan](docs/ROBOT_WORKBENCH_AGENT_PROMPT.md), and the [milestone ledger](docs/milestones.tsv).
+The active priority is a three-joint arm dashboard with keyboard and Xbox jogging. Its model and operator controls are being developed; there is no working arm launcher yet. Impedance and gravity control follow verified manual control and physical commissioning.
 
-## Install the verified Linux environment
+## Install
 
-The hash lock covers Linux x86_64 with glibc 2.34 or later. The selected interpreter is Python 3.12. Other platforms are not validated by this baseline.
+The verified environment is Python 3.12 on Linux x86_64 with glibc 2.34 or later.
 
 ```bash
 git clone https://github.com/sidrk-dev/im6014-workbench.git
@@ -16,53 +16,40 @@ python3.12 -m venv .venv
 .venv/bin/python -m pip check
 ```
 
-`requirements.txt` preserves the original direct pins. `requirements.lock` adds the exact Qt component versions and wheel hashes. Install the lock for the verified environment.
+The default branch contains the landed B11-C06 work. Check [coordination](docs/development/coordination.md) before choosing a base for newer controller or arm work.
 
-## Run the offline baseline
-
-```bash
-scripts/check_offline_baseline.sh
-```
-
-The driver runs packet and protocol fixtures, serial deadline checks through isolated pseudo-terminals, the existing 18-group dashboard suite, negative startup-verifier checks, and disconnected startup checks for both source selections. It uses copied source in temporary storage. It does not modify the checkout's preview images. Each run produces new logs, screenshots, and startup receipts under `evidence/runs`. The command prints the run directory.
-
-The parent must inspect the rendered screenshots before recording A10 as verified. A test's success alone does not establish that its display is useful.
-
-The startup gate checks behavior with the supplied interpreter and records its versions. For reproducible runs, use the locked installation above and compare the receipt's interpreter and package versions with the recorded baseline. Version pinning is checked during installation and evidence review.
-
-## Launch the disconnected dashboard
+## Start the bench with fake motors
 
 ```bash
 source .venv/bin/activate
 ./start_dashboard.sh --demo
 ```
 
-Demo mode starts disconnected. Click Connect only when you want simulated telemetry. To select real hardware while remaining disconnected, omit `--demo`. Starting the app does not open the motor port.
+The dashboard starts disconnected. **Connect** in demo mode enables simulated telemetry. Omitting `--demo` selects real hardware while remaining disconnected. Starting the application does not open a physical port.
 
-Connect, Check, Scan, timeout acknowledgment, and Stop transmit control packets after a physical connection. They are not passive diagnostics. Physical operation requires explicit authorization and the setup procedures in [USER_MANUAL.md](USER_MANUAL.md).
+The bench supports output-shaft speed/position tests, bounded torque and damping tests, telemetry plots, traces, and exports. Physical operation requires explicit authorization and the setup procedure in the [bench manual](USER_MANUAL.md). A gravity-loaded arm needs support when torque is released.
 
-## Current bench controls
+## Check the software
 
-- Speed in signed output-shaft rpm, with acceleration and deceleration ramps.
-- Relative or absolute position in degrees, smooth targets, and adjustable Kp/Kd.
-- Bounded torque pulses and damping tests.
-- Telemetry, plots, packet traces, fault checks, and JSON/CSV exports.
-- Priority Stop/disarm through the button or Esc. Each test needs fresh arming.
+```bash
+scripts/check_offline_baseline.sh
+```
 
-Displayed motion quantities use output-shaft units. The packet boundary applies the internal 38/3 reduction. The pure `joint_mapping` API now converts external joint units; the bench controls continue to use output-shaft units.
+The driver uses copied source, fake transport, isolated PTYs, and offscreen Qt startup. It prints a fresh directory under `evidence/runs/` with logs, receipts, and captures. Inspect the captures before claiming UI verification.
 
-## Joint mapping and controller core
+## Arm model and commissioning
 
-The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults and a single validated pending target and a retained monotonic sequence watermark. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
+The operator's latest URDF source was `mainAssem (3).zip`; the later `mainAssem (4).zip` download contains two 3MF print parts and no URDF. The selected arm model has 76 links and 75 joints, with the driven chain `revolute_2`, `revolute_1`, `revolute_3`; the forearm clamp joint is passive.
 
-Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C05`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
+The arm design sets J1's intended travel to 180 degrees total, from -90 to +90 around a provisional zero. No arm motion path is implemented yet, and the zero and direction have not been commissioned on hardware. The operator reports that the J2 screw obstruction was removed in the updated CAD; J2/J3 physical travel still requires commissioning. Three IM6014 motors use provisional IDs 0/1/2 with no external reduction. The codec applies the motor's internal 38/3 ratio. IDs, direction, gains, timeout, and loaded-arm behavior are not physically verified. CAD inertials and visual meshes do not validate gravity or collision control.
 
-## Verification boundaries
+## Documentation
 
-The A01-A10 evidence is in [evidence/baseline](evidence/baseline). The B01-B10 evidence is in [evidence/boundary](evidence/boundary). The later batch verifies unchanged command bytes, strict decoder validation, stream recovery, requested motor identity, deadline behavior and output units. Software checks use fake transport, independent CRC fixtures, isolated pseudo-terminals and disconnected startup. Read [the transport design](docs/boundary-design.md) and [deadline limits](docs/serial-deadline.md).
+- [Bench manual](USER_MANUAL.md): current operator procedures.
+- [Contributing](CONTRIBUTING.md): setup, checks, and review.
+- [Coordination](docs/development/coordination.md) and [tasks](docs/development/tasks.tsv): active ownership and collaborator handoffs.
+- [Architecture](docs/architecture.md) and [joint API](docs/joint-api.md): control and transport boundaries.
+- [Layout plan](docs/development/layout-plan.md): the package migration and caller inventory.
+- [Milestones](docs/milestones.tsv) and [decisions](docs/decisions.tsv): actual acceptance and evidence.
 
-The inherited bench README reported a historic 5.002 rpm physical result. The B01-B10 batch performed a separately authorized Stop/status probe at 36 V and received CRC-valid ID 0 feedback. The firmware timeout flag was latched, so no FOC command or motion test followed. Final Stop mode was confirmed. This is communication and Stop evidence, not calibration, torque-off, arm safety or a new speed result. See [the raw capture](evidence/boundary/physical/stop-prechange.json).
-
-Stop releases torque on the bench and can let a gravity-loaded joint fall. A gravity-loaded arm needs its own supported shutdown procedure. The current bench tool is not the future six-joint station controller.
-
-MakerMods Lab is the planned operator interface for E01-E10. Its exact inspected revision and Python compatibility are recorded in [architecture.md](docs/architecture.md). It is not installed or integrated here. Six-joint simulation, recording, VLA training, and cloud inference remain later milestones.
+The original bench source comes from [im6014Development](https://github.com/sidrk-dev/im6014Development). Development checkout and the user plan remain separate from this private workbench.
