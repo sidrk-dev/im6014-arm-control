@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "file": "arm_station.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "9e5e8d772494c44e7d2870048a815a0c6f29f7af97a275e3b35165f3f4f38ae9"
+    },
+    {
+      "file": "arm_fixture.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "79e947845dd2b41dff53a8187bbb260ee0f8469fd7b47cc8df9741fdfb3238ea"
+    },
+    {
+      "file": "test_arm_station.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "bf4e5d676e16c272f5ca207463447c0ccad9317f5558fb69a2e5445335601597"
+    }
+  ],
+  "passed": true,
+  "deletedComments": 0,
+  "keptPublicContracts": 10
+}

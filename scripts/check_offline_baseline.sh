@@ -79,6 +79,7 @@ run_logged() {
 }
 
 files=(motor_dashboard.py motor_session.py spin_5rpm.py im6014_codec.py im6014_serial.py fake_serial.py test_spin_5rpm.py test_dashboard.py test_startup.py test_startup_verifier.py test_protocol.py test_serial_deadline.py evidence/boundary/vendor-crc-vectors.json USER_MANUAL.md joint_mapping.py test_joint_mapping.py test_numerical_inputs.py im6014_port.py test_port_config.py test_diagnostic_capture.py test_bus_owner.py joint_contract.py joint_reference.py joint_controller.py test_controller.py test_controller_targets.py test_controller_expiry.py test_controller_owner.py test_controller_limits.py test_controller_lead.py test_controller_effort.py joint_protection.py test_controller_thermal.py station_timing.py station_step.py test_station_timing.py scripts/benchmark_station_timing.py)
+files+=(arm_station.py arm_fixture.py test_arm_station.py arm_assets/model.json)
 for name in "${files[@]}"; do
     mkdir -p -- "$scratch/$(dirname -- "$name")" || exit 2
     if ! cp -- "$repo_dir/$name" "$scratch/$name" || ! cmp -s -- "$repo_dir/$name" "$scratch/$name"; then
@@ -99,6 +100,7 @@ run_logged packet-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" test_spin_5
 run_logged protocol-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_protocol
 run_logged serial-deadline-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_serial_deadline
 run_logged milestone-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_joint_mapping test_numerical_inputs test_port_config test_diagnostic_capture test_bus_owner test_controller test_controller_targets test_controller_expiry test_controller_owner test_controller_limits test_controller_lead test_controller_effort test_controller_thermal test_station_timing
+run_logged arm-station-tests env PYTHONDONTWRITEBYTECODE=1 "$python_path" -m unittest -v test_arm_station
 run_logged dashboard-tests env QT_QPA_PLATFORM=offscreen PYTHONDONTWRITEBYTECODE=1 "$python_path" test_dashboard.py
 for name in dashboard_preview.png dashboard_dark_preview.png dashboard_test_results.json; do
     if [[ -f "$scratch/$name" ]]; then

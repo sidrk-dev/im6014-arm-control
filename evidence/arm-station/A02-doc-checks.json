@@ -1,0 +1,7 @@
+{
+  "links": true,
+  "checkCommand": ".venv/bin/python -B scripts/check_milestone.py ARM-A02 --python .venv/bin/python",
+  "actualRegisteredReceipt": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/A02-unit-registration/receipt.json",
+  "claimsSource": "A02-final-acceptance.json",
+  "physicalUIClaims": "none; pending boundaries explicit"
+}

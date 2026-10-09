@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-09T16:38:33.377706+00:00",
+  "sourceCopy": "A02-review-fix-workbench",
+  "sourceFiles": [
+    {
+      "file": "arm_station.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "9e5e8d772494c44e7d2870048a815a0c6f29f7af97a275e3b35165f3f4f38ae9"
+    },
+    {
+      "file": "arm_fixture.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "79e947845dd2b41dff53a8187bbb260ee0f8469fd7b47cc8df9741fdfb3238ea"
+    },
+    {
+      "file": "test_arm_station.py",
+      "syntax": true,
+      "byteIdentical": true,
+      "ASTEquivalent": true,
+      "sha256": "bf4e5d676e16c272f5ca207463447c0ccad9317f5558fb69a2e5445335601597"
+    }
+  ],
+  "focused": 28,
+  "acceptedControllerRegressions": 293,
+  "independentParentChecks": 17,
+  "baselineGroups": 10,
+  "dashboardGroups": 18,
+  "hardwareIO": false,
+  "review": {
+    "muse": "complete, inspected, no actionable findings",
+    "gemini": "complete, inspected, no actionable findings; source review, not independent test execution",
+    "mimo": "HTTP502 child-failed, no output, no retry/substitution"
+  },
+  "knownBoundaries": [
+    "A03 per-write guard and complete typed physical commissioning pending",
+    "A04 actual keyboard/Xbox HTTP/browser controls pending",
+    "No assembled-arm or actual Xbox verification",
+    "Trusted Python snapshot owner metadata must be allowlisted/redacted by A04",
+    "A02 fixture Arm acknowledgment default cannot authorize physical I/O; A03 requires explicit physical acknowledgment",
+    "Owner unavailable during unconfirmed Stop/close cannot be silently reclaimed",
+    "Repeated preemption drain/module size remains organization follow-up"
+  ],
+  "priorFindingResolutions": {
+    "ownerRelease": "actual success and failed-stop parent tests pass",
+    "failedConnect": "actual first physical Connect refusal leaves no owner; second fixture client connects",
+    "armException": "finally clears transition, terminal receipt and authority revoked",
+    "executorFailure": "actual per-motor mode0 attempts including invalidCoreclock, close/retry verified",
+    "receiptRetention": "typed bounded lookup survives1000actualrequest flood",
+    "missingHold": "terminal NO_HOLD_TARGET/NOT_ARMED authored cases pass",
+    "syntheticBoundNames": "all scoped callers renamed"
+  },
+  "commentCleanup": "Final0deletions,10public contracts retained; exactbytes and AST proven",
+  "deslop": "Parent reviewed boundary/error paths; no behavioral refactor adopted; later organization owns module split"
+}

@@ -8,6 +8,7 @@ import subprocess
 
 
 CHECKS = {
+    'ARM-A02': 'test_arm_station',
     'B11': 'test_joint_mapping',
     'B12': 'test_numerical_inputs',
     'B13': 'test_port_config',
@@ -36,6 +37,7 @@ def fingerprint(repo):
         repo / 'scripts/check_milestone.py',
         repo / 'scripts/benchmark_station_timing.py',
         repo / 'USER_MANUAL.md',
+        repo / 'arm_assets/model.json',
     ]
     return {str(p.relative_to(repo)): {
         'bytes': p.stat().st_size,

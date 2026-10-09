@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-09T16:42:26.430500+00:00",
+  "images": [
+    {
+      "path": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/A02-integration-baseline/run-20261009T163525Z-2HzdStK6/dashboard_preview.png",
+      "sha256": "2c4e620d7c060861b9a5a10ed2fe6733891dfe0e5544805dc4e255c2454189ec",
+      "actualVisualInspection": "Legacy demo speed running; Stop/disarm visible"
+    },
+    {
+      "path": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/A02-integration-baseline/run-20261009T163525Z-2HzdStK6/dashboard_dark_preview.png",
+      "sha256": "a419a277f5d71ac36b2c5c9833fe0b39eb6d04c2fc1d0d0e351365a0a6986957",
+      "actualVisualInspection": "Legacy demo position running; dark theme readable"
+    },
+    {
+      "path": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/A02-integration-baseline/run-20261009T163525Z-2HzdStK6/startup-real/dashboard.png",
+      "sha256": "ea8a1331cc4420295049fc0492b7cfe5616426559f0c4e2a9d897d3cfd2619df",
+      "actualVisualInspection": "Legacy physical startup disconnected; zero replies; Arm unavailable"
+    },
+    {
+      "path": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/A02-integration-baseline/run-20261009T163525Z-2HzdStK6/startup-demo/dashboard.png",
+      "sha256": "b1c8a333447529b3e5f9a70aac5d320603068dbb21069277632382b79379d2f0",
+      "actualVisualInspection": "Legacy demo startup disconnected; zero replies"
+    }
+  ],
+  "sourceComparisons": [
+    {
+      "startup": "startup-real",
+      "matchedFiles": 37,
+      "allMatch": true,
+      "scope": "legacy startup fingerprint; A02 source checked separately"
+    },
+    {
+      "startup": "startup-demo",
+      "matchedFiles": 37,
+      "allMatch": true,
+      "scope": "legacy startup fingerprint; A02 source checked separately"
+    }
+  ],
+  "scope": "Actual legacy Qt baseline captures; not arm browser/Xbox proof",
+  "A02SourceProof": "A02-final-comments-proof.json and A02-unit-registration/receipt.json"
+}

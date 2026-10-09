@@ -2,7 +2,7 @@
 
 A Linux workbench for Unitree IM6014 actuators. The current application is a single-motor Qt bench dashboard. The controller library also supplies joint mappings, exact bounded references, protection history, managed serial ownership, and station timing.
 
-The active priority is a three-joint arm dashboard with keyboard and Xbox jogging. Its model and operator controls are being developed; there is no working arm launcher yet. Impedance and gravity control follow verified manual control and physical commissioning.
+The active priority is a three-joint arm dashboard with keyboard and Xbox jogging. The updated model and fixture station backend are software verified. Browser controls and physical commissioning are being developed; there is no working arm launcher yet. Impedance and gravity control follow verified manual control and physical commissioning.
 
 ## Install
 
@@ -41,7 +41,7 @@ The driver uses copied source, fake transport, isolated PTYs, and offscreen Qt s
 
 The operator's latest URDF source was `mainAssem (3).zip`; the later `mainAssem (4).zip` download contains two 3MF print parts and no URDF. The selected arm model has 76 links and 75 joints, with the driven chain `revolute_2`, `revolute_1`, `revolute_3`; the forearm clamp joint is passive.
 
-The arm design sets J1's intended travel to 180 degrees total, from -90 to +90 around a provisional zero. No arm motion path is implemented yet, and the zero and direction have not been commissioned on hardware. The operator reports that the J2 screw obstruction was removed in the updated CAD; J2/J3 physical travel still requires commissioning. Three IM6014 motors use provisional IDs 0/1/2 with no external reduction. The codec applies the motor's internal 38/3 ratio. IDs, direction, gains, timeout, and loaded-arm behavior are not physically verified. CAD inertials and visual meshes do not validate gravity or collision control.
+The arm design sets J1's intended travel to 180 degrees total, from -90 to +90 around a provisional zero. The station's motion checks use a synthetic fixture; zero and direction have not been commissioned on hardware. The operator reports that the J2 screw obstruction was removed in the updated CAD; J2/J3 physical travel still requires commissioning. Three IM6014 motors use provisional IDs 0/1/2 with no external reduction. The codec applies the motor's internal 38/3 ratio. IDs, direction, gains, timeout, and loaded-arm behavior are not physically verified. CAD inertials and visual meshes do not validate gravity or collision control.
 
 ## Documentation
 
@@ -49,6 +49,7 @@ The arm design sets J1's intended travel to 180 degrees total, from -90 to +90 a
 - [Contributing](CONTRIBUTING.md): setup, checks, and review.
 - [Coordination](docs/development/coordination.md) and [tasks](docs/development/tasks.tsv): active ownership and collaborator handoffs.
 - [Architecture](docs/architecture.md) and [joint API](docs/joint-api.md): control and transport boundaries.
+- [Arm station API](docs/arm-station.md): verified fixture ownership, input, Stop and close semantics.
 - [Layout plan](docs/development/layout-plan.md): the package migration and caller inventory.
 - [Milestones](docs/milestones.tsv) and [decisions](docs/decisions.tsv): actual acceptance and evidence.
 
