@@ -1,0 +1,26 @@
+Fri Oct  9 01:06:12 2026    /home/sid/Documents/code/im6014Workbench-runs/c07-c16-recovery/C15-recovered-profile.pstats
+
+         1978088 function calls (1951473 primitive calls) in 0.560 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1097 to 16 due to restriction <16>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    229/1    0.015    0.000    0.585    0.585 {built-in method builtins.exec}
+        1    0.000    0.000    0.585    0.585 benchmark_station_timing.py:1(<module>)
+        1    0.000    0.000    0.521    0.521 benchmark_station_timing.py:575(main)
+        1    0.000    0.000    0.506    0.506 benchmark_station_timing.py:168(run_one_repeat)
+    18072    0.041    0.000    0.314    0.000 joint_mapping.py:85(from_output)
+      120    0.001    0.000    0.286    0.002 im6014_codec.py:149(project_position_raw)
+    11760    0.007    0.000    0.282    0.000 im6014_codec.py:176(mapped)
+      360    0.004    0.000    0.280    0.001 im6014_codec.py:184(first_raw_satisfying)
+       10    0.001    0.000    0.277    0.028 station_step.py:98(step)
+       10    0.000    0.000    0.247    0.025 joint_controller.py:661(prepare_refresh)
+       10    0.000    0.000    0.244    0.024 joint_reference.py:648(prepare_complete_reference)
+       60    0.004    0.000    0.244    0.004 joint_reference.py:302(shape_reference_joint)
+       10    0.000    0.000    0.224    0.022 joint_controller.py:606(submit_target)
+       10    0.001    0.000    0.223    0.022 joint_reference.py:235(validate_target_vector)
+       60    0.000    0.000    0.219    0.004 joint_reference.py:160(prepare_reference_joint)
+    72888    0.044    0.000    0.142    0.000 joint_mapping.py:25(_multiply)
+
+

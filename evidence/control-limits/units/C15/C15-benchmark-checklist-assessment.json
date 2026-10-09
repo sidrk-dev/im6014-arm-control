@@ -1,0 +1,41 @@
+{
+  "at": "2026-10-09T06:09:18.793947+00:00",
+  "passed": true,
+  "physicalIO": "none",
+  "work": {
+    "repeats": 5,
+    "mode1Transactions": 1500,
+    "setupStopQueries": 30,
+    "shutdownStopQueries": 30,
+    "errors": 0
+  },
+  "medianOfRepeatMeanPeriodSeconds": 0.017025165877552057,
+  "rangeOfRepeatMeanPeriodSeconds": [
+    0.016927269306126286,
+    0.019561636816331662
+  ],
+  "aggregateActuals": {
+    "actual_start_period_s": {
+      "sample_count": 245,
+      "min_s": 0.014687983999920107,
+      "median_s": 0.01706897099984417,
+      "max_s": 0.029013171000315197,
+      "mean_s": 0.01753213494285978
+    },
+    "transaction_duration_s": {
+      "sample_count": 1500,
+      "min_s": 0.00014597900008084252,
+      "median_s": 0.00019344499992257624,
+      "max_s": 0.0010826410002664488,
+      "mean_s": 0.00020251410400002592
+    }
+  },
+  "limiter": "Separate profile: canonical raw-position projection/mapping searches .286s cumulative of .506s repeat; prepare_refresh/reference shaping main timed-loop cost; profile excluded from reported timings",
+  "tuning": "Fixed explicit fixture, real canonical path and no performance comparison or winner claim",
+  "limits": "Nominal5ms is configuration; observed host software period varies; no physical bus/actuator-rate guarantee",
+  "repeatability": "Five sequential unprofiled runs, retained raw traces/host context. Fresh hostload2.45/2.13/1.56 across20cores; first repeat slower than others, range retained; no old/new comparison",
+  "errorsChecked": "Each repeated50cycle vector and6joint actual COMPLETE/OK/feedback records inspected; setup and shutdown separate, stopped finalstate",
+  "relevance": "Complete fake fixture station path includes bounds/canonical shaping and real synchronous fake exchange; calibratedproduction and hardware absent",
+  "workHappened": "250actualcycle records/1500successful transactions with actual timestamps/owner/sequence/plan/joint correlation, not copied nominal values",
+  "sourceHashesMatch": true
+}

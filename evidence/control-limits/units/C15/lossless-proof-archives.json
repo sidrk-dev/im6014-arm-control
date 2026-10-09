@@ -1,0 +1,12 @@
+[
+  {
+    "originalPath": "fresh-parent-checks/parent-repro-2.log",
+    "archivePath": "fresh-parent-checks/parent-repro-2.log.gz",
+    "uncompressedSha256": "78e3194dc01dd1e25f246bc25b2bd22caa70129dbd5e45888c0783b6aaaf9632"
+  },
+  {
+    "originalPath": "C15-recovered-benchmark/C15-timing-benchmark-20261009T060612314194Z/timing-benchmark-receipt.json",
+    "archivePath": "C15-recovered-benchmark/C15-timing-benchmark-20261009T060612314194Z/timing-benchmark-receipt.json.gz",
+    "uncompressedSha256": "442b23b5fb90959c1935930bdaf605a50f3d00a74e6be0cd417f58bc5443c258"
+  }
+]

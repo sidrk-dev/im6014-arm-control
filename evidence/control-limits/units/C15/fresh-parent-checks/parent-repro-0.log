@@ -1,0 +1,12 @@
+test_actual_read_timeout_invalidates_joint_and_latches_cause (__main__.CoordinatorFailureChecks.test_actual_read_timeout_invalidates_joint_and_latches_cause) ... ok
+test_default_real_clock_runner_actually_paces (__main__.CoordinatorFailureChecks.test_default_real_clock_runner_actually_paces) ... ok
+test_stop_query_timeout_invalidates_prior_healthy_observation (__main__.CoordinatorFailureChecks.test_stop_query_timeout_invalidates_prior_healthy_observation) ... ok
+test_cycle_end_cannot_rewind_actual_transaction_time (__main__.TimingBoundaryChecks.test_cycle_end_cannot_rewind_actual_transaction_time) ... ok
+test_finite_slot_inputs_have_finite_result_or_explicit_rejection (__main__.TimingBoundaryChecks.test_finite_slot_inputs_have_finite_result_or_explicit_rejection) ... ok
+test_new_transaction_cannot_precede_prior_actual_end (__main__.TimingBoundaryChecks.test_new_transaction_cannot_precede_prior_actual_end) ... ok
+test_start_cannot_replace_an_unfinished_cycle (__main__.TimingBoundaryChecks.test_start_cannot_replace_an_unfinished_cycle) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.033s
+
+OK

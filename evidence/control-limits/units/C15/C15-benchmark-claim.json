@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-09T06:06:07.817392+00:00",
+  "claim": "Measure actual start-to-start period and perjoint canonical fakeexchange duration on explicit sixjoint fixture, five unprofiled50cycle runs, separately verify setup/shutdown phases/errors. No beforeafter speedup, motor orphysicalwire rate claim. Profile separately excluded from reportedruns.",
+  "scriptRead": "Recovered standalone script bytes exactly match previously fully-inspected accepted SHA256; parent inspected receipt/workvalidation/sourcebootstrap/pacing policy.",
+  "uptime": "01:06:07 up 36 min,  2 users,  load average: 2.45, 2.13, 1.56",
+  "nproc": 20,
+  "loadAverage": [
+    2.45068359375,
+    2.13232421875,
+    1.5615234375
+  ],
+  "ownedConcurrentJobs": "none; verification66176settled"
+}

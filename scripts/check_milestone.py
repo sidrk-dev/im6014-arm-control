@@ -26,13 +26,16 @@ CHECKS = {
     'C12': 'test_controller_lead.ReferenceLeadTests',
     'C13': 'test_controller_effort.EffortLimitTests',
     'C14': 'test_controller_thermal.ThermalPersistentEffortTests',
+    'C15': 'test_station_timing.StationTimingTests',
 }
 
 
 def fingerprint(repo):
     paths = sorted(repo.glob('*.py')) + [
         repo / 'scripts/check_offline_baseline.sh',
-        repo / 'scripts/check_milestone.py', repo / 'USER_MANUAL.md',
+        repo / 'scripts/check_milestone.py',
+        repo / 'scripts/benchmark_station_timing.py',
+        repo / 'USER_MANUAL.md',
     ]
     return {str(p.relative_to(repo)): {
         'bytes': p.stat().st_size,

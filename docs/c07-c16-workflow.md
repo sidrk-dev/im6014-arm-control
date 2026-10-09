@@ -45,7 +45,7 @@
 - [x] C12. Parent software checks accepted; final branch review remains pending.
 - [x] C13. Parent software checks accepted; final branch review remains pending.
 - [x] C14. Parent software checks accepted; final branch review remains pending.
-- [ ] C15.
+- [x] C15. Exact accepted source recovered and freshly software verified; final branch review remains pending.
 - [ ] C16.
 
 Hardware remains blocked on the unanswered timeout acknowledgment. Fake I/O and PTYs only. Source baseline 244811bb6b924355852c37cddde8d00fbb0fab50. Original repository and user plan stay untouched. Gemini is the task implementation and additional review route; saved global roles unchanged. At most one reset credit is authorized if this run exhausts; one has been redeemed; no second credit is authorized.

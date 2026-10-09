@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-09T06:02:49.207052+00:00",
+  "acceptedSourceSHA256Matches": [
+    {
+      "path": "docs/joint-api.md",
+      "exists": true,
+      "bytes": 34342,
+      "sha256": "4808060cb28ebd33954046a1d6a88d89d634640b81555e59bd74a9f1ce59b843"
+    },
+    {
+      "path": "docs/station-timing.md",
+      "exists": true,
+      "bytes": 5083,
+      "sha256": "9d4070928eea6cdb2364f3b0d9b22f31daa07b8a9961f4d58e057daf6e323464"
+    },
+    {
+      "path": "scripts/benchmark_station_timing.py",
+      "exists": true,
+      "bytes": 29081,
+      "sha256": "97223549ad9b5923543a67c668917ffcadd1df8cb0df7f05474c15fcee7a79f5"
+    },
+    {
+      "path": "scripts/check_milestone.py",
+      "exists": true,
+      "bytes": 3457,
+      "sha256": "6fb2300649c84fb79a39752f0d2036fdc9a1c77bef301b3c550c19c30f2236e2"
+    },
+    {
+      "path": "scripts/check_offline_baseline.sh",
+      "exists": true,
+      "bytes": 5201,
+      "sha256": "4330e4a563b044624c2d1bf48e07fa5d594deac164146147bf4cf56487c91d5e"
+    },
+    {
+      "path": "station_step.py",
+      "exists": true,
+      "bytes": 16897,
+      "sha256": "def755c485e490fd4ebeab2313d78faa6bad31110d603040470588e86bd400f1"
+    },
+    {
+      "path": "station_timing.py",
+      "exists": true,
+      "bytes": 27877,
+      "sha256": "7bcf73ce9257ffbcfade2ae96a3bc3443708570bbcd7e9aa66795b2732c191a8"
+    },
+    {
+      "path": "test_startup.py",
+      "exists": true,
+      "bytes": 13793,
+      "sha256": "051a444014fe0f28590064211bbb3c43b3b5ba37c7b00860dab0ff5830ab8f83"
+    },
+    {
+      "path": "test_station_timing.py",
+      "exists": true,
+      "bytes": 35050,
+      "sha256": "f1f2dd8dc21c6e4000c1dbcb2798c0c11896971433190d4d61a76274586c07a2"
+    }
+  ],
+  "missingOldRun": "/tmp/pstack-c07-c16-20261008-smgcfm_v",
+  "recovery": "Exact source reconstructed from selected retained tool outputs and19recorded patches; prior rawcheck/benchmark/capture files missing and must regenerate; no oldraw evidence invented",
+  "baseHead": "cfb0b67f5b260f64f51f25cb02b488fe42d0f44e"
+}

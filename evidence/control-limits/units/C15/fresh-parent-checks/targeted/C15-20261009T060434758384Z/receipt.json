@@ -1,0 +1,171 @@
+{
+  "unit": "C15",
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_station_timing.StationTimingTests"
+  ],
+  "cwd": "/home/sid/Documents/code/im6014Workbench-runs/c07-c16-recovery/C15-fixture-workbench",
+  "baseHead": "cfb0b67f5b260f64f51f25cb02b488fe42d0f44e",
+  "sourceFiles": {
+    "fake_serial.py": {
+      "bytes": 6862,
+      "sha256": "1fa538bff2553bf017feb89785e2d9fc7a555c9a47d71a9206795d1cbb51ab3e"
+    },
+    "im6014_codec.py": {
+      "bytes": 13296,
+      "sha256": "82aed0838cc0a9d8d63ab2065aea786893ade405f55e5a0b7c895eacf2197af9"
+    },
+    "im6014_port.py": {
+      "bytes": 16626,
+      "sha256": "fecc6f7252e04a4894df7c166ec3c08ff04fe72decc16ebd5f155363d67ca7f5"
+    },
+    "im6014_serial.py": {
+      "bytes": 16116,
+      "sha256": "395599d9aea6c737fd15e7722ec5f346616af08207f0c5aa04019db9afec37d2"
+    },
+    "joint_contract.py": {
+      "bytes": 33658,
+      "sha256": "bbf32e7f45c9ee6a6af75a70122928e4517d22e366bd6e193915fc48da44fff1"
+    },
+    "joint_controller.py": {
+      "bytes": 38123,
+      "sha256": "83e64336f79f2dcabd979bf42aeeec4d3ec9232ba3add6660eb88e6f83000258"
+    },
+    "joint_mapping.py": {
+      "bytes": 5279,
+      "sha256": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b"
+    },
+    "joint_protection.py": {
+      "bytes": 9300,
+      "sha256": "22361348443b6e2124e2f8d92d56e3f5801d08aa7031e8f00f7871f8889c2325"
+    },
+    "joint_reference.py": {
+      "bytes": 31710,
+      "sha256": "8345707f9c585d9c8e3358219692092a1061e6a0a9a586a2d4f14b9ca33e68f4"
+    },
+    "motor_dashboard.py": {
+      "bytes": 32125,
+      "sha256": "7e1087bb52e94b915aee9bf1fb1d8ff36721a55485d739de579effcf64383b93"
+    },
+    "motor_session.py": {
+      "bytes": 24391,
+      "sha256": "b52f5e53db9ebd9131587b7a94f2d2e78184aba70869b3347d734591c88d9492"
+    },
+    "spin_5rpm.py": {
+      "bytes": 9371,
+      "sha256": "12e4df1c0f5a30b93c28d10e6f91f71e8dfca156eef27a36642acf41e522b789"
+    },
+    "station_step.py": {
+      "bytes": 16897,
+      "sha256": "def755c485e490fd4ebeab2313d78faa6bad31110d603040470588e86bd400f1"
+    },
+    "station_timing.py": {
+      "bytes": 27877,
+      "sha256": "7bcf73ce9257ffbcfade2ae96a3bc3443708570bbcd7e9aa66795b2732c191a8"
+    },
+    "test_bus_owner.py": {
+      "bytes": 19281,
+      "sha256": "d24e552fb3e8e3dca88be14364a9918161e2be391dcc3fc5dd7b35e89935e26d"
+    },
+    "test_controller.py": {
+      "bytes": 43626,
+      "sha256": "88953841d30383ae4cca0230ac35ec36f58cea739be1c410bfc95a383f16b8a3"
+    },
+    "test_controller_effort.py": {
+      "bytes": 25927,
+      "sha256": "537fd081e3400511eb2cf280393a1eef19d92f9e25a28e4973f3505bf2cd0fe8"
+    },
+    "test_controller_expiry.py": {
+      "bytes": 36584,
+      "sha256": "446e795fb39a7f998cc31affdbc7b280f98b08637688c65d490bd0abe46694e4"
+    },
+    "test_controller_lead.py": {
+      "bytes": 34455,
+      "sha256": "854841df1048d0a1d3eddb5cc7d693e3bd140ac795b555cc4421210182497f04"
+    },
+    "test_controller_limits.py": {
+      "bytes": 105922,
+      "sha256": "a613c1b5a82699de9356395f3031e99dc33d76e77800f936c206a78508f683da"
+    },
+    "test_controller_owner.py": {
+      "bytes": 16920,
+      "sha256": "47556b9161f3125d9f7402dc20c8d9c41fa037758fa111345979e171ac354e4c"
+    },
+    "test_controller_targets.py": {
+      "bytes": 37724,
+      "sha256": "ee726b9b881efcd89846d7405d66e3da9debc8d9a5760658bbc00e09d2478b94"
+    },
+    "test_controller_thermal.py": {
+      "bytes": 36621,
+      "sha256": "c41b88a120c0028d931ba36199a5fd14323aff351df8529b3c565bc417383bee"
+    },
+    "test_dashboard.py": {
+      "bytes": 20603,
+      "sha256": "83a8569bc4e9c8d32c68726c9f8c7b930c381d6ce872242fd7920c0c429d082f"
+    },
+    "test_diagnostic_capture.py": {
+      "bytes": 15228,
+      "sha256": "f9ba4f1e7628dca60197876c207853a94c39c7824836dec93afd832b07de0cb8"
+    },
+    "test_joint_mapping.py": {
+      "bytes": 8099,
+      "sha256": "e2e57a3ed14a5c3a38cf14501aebb825088950c0493c726d6fabe6cd0d5bdaad"
+    },
+    "test_numerical_inputs.py": {
+      "bytes": 11362,
+      "sha256": "4e2d0bc8e7490915b07af0a2fc0a05ce644ab846ff39fab3ac2d7a115c48d16e"
+    },
+    "test_port_config.py": {
+      "bytes": 6285,
+      "sha256": "c25c385600e77d5795647b82ca2bbba7aea171d85291e76d8a14789b7dd66208"
+    },
+    "test_protocol.py": {
+      "bytes": 16673,
+      "sha256": "7ce78551af0e621e900101dcfbb25dbd0bafa16b64a883bc05fd6a2471318e17"
+    },
+    "test_serial_deadline.py": {
+      "bytes": 10995,
+      "sha256": "81a9ad7dd215df243516c116ba00bde2d33af240cc87d12adaae1cc443117a5f"
+    },
+    "test_spin_5rpm.py": {
+      "bytes": 3278,
+      "sha256": "492219a27c2d243e3650beec88075d4a1a9e734d8414a9b7b99abbe952cc9277"
+    },
+    "test_startup.py": {
+      "bytes": 13793,
+      "sha256": "051a444014fe0f28590064211bbb3c43b3b5ba37c7b00860dab0ff5830ab8f83"
+    },
+    "test_startup_verifier.py": {
+      "bytes": 6678,
+      "sha256": "ce243622e66b699d74a44fbdf7d9e86818a26ef6eb868b5482975c0a79e8db71"
+    },
+    "test_station_timing.py": {
+      "bytes": 35050,
+      "sha256": "f1f2dd8dc21c6e4000c1dbcb2798c0c11896971433190d4d61a76274586c07a2"
+    },
+    "scripts/check_offline_baseline.sh": {
+      "bytes": 5201,
+      "sha256": "4330e4a563b044624c2d1bf48e07fa5d594deac164146147bf4cf56487c91d5e"
+    },
+    "scripts/check_milestone.py": {
+      "bytes": 3457,
+      "sha256": "6fb2300649c84fb79a39752f0d2036fdc9a1c77bef301b3c550c19c30f2236e2"
+    },
+    "scripts/benchmark_station_timing.py": {
+      "bytes": 29081,
+      "sha256": "97223549ad9b5923543a67c668917ffcadd1df8cb0df7f05474c15fcee7a79f5"
+    },
+    "USER_MANUAL.md": {
+      "bytes": 18881,
+      "sha256": "bfbf7b34eb535d2d6f4ea96d494099bacd02201093f8d297217a64d00598fdd7"
+    }
+  },
+  "sourceUnchanged": true,
+  "exitCode": 0,
+  "recordedAt": "2026-10-09T06:04:35.142195+00:00",
+  "physicalIO": "none; parent reviewed fixtures or pseudo-terminals before execution"
+}

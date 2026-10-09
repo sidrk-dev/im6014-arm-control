@@ -110,7 +110,7 @@ def _cleanup_after_main(window, state):
 
 def _fingerprint(root):
     names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "im6014_codec.py", "im6014_serial.py", "fake_serial.py", "USER_MANUAL.md",
-             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_contract.py", "joint_reference.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py", "test_controller_expiry.py", "test_controller_owner.py", "test_controller_limits.py", "test_controller_lead.py", "test_controller_effort.py", "joint_protection.py", "test_controller_thermal.py")
+             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_contract.py", "joint_reference.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py", "test_controller_expiry.py", "test_controller_owner.py", "test_controller_limits.py", "test_controller_lead.py", "test_controller_effort.py", "joint_protection.py", "test_controller_thermal.py", "station_timing.py", "station_step.py", "test_station_timing.py", "scripts/benchmark_station_timing.py")
     files = {}
     for name in names:
         path = root / name

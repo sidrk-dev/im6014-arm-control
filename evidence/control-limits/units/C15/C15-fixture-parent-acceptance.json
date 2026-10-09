@@ -1,0 +1,13 @@
+{
+  "accepted": true,
+  "sourceInspected": true,
+  "visualCapturesInspected": 4,
+  "baselineAuditPassed": true,
+  "checkResult": "/home/sid/Documents/code/im6014Workbench-runs/c07-c16-recovery/C15-fixture-parent-checks/20261009T060434650729Z/result.json",
+  "manifestSha256": "90ccc8d737b07eb1fb9e75af885f10e2c09f80b84ce9bf9180effe1fbb4c7461",
+  "tests": "30focused/7publictiming-health+3adapter/768reference+768cache/293milestone/9groups18dashboard",
+  "recovery": "All9accepted source hashes exact; all9originalGemini and9Lunafix sources/actualterminalreceipts/reviewfindings recovered. Oldtmprawlogs/captureslost; fresh checks/captures/benchmark/profile regenerated without invented historical evidence.",
+  "panel": "Muse9/Gemini11 originalfindings triaged; actualMiMoHTTP502 dropout no retry/substitution; finalwholebranchreviewrequired",
+  "physicalIO": "none",
+  "at": "2026-10-09T06:09:18.793947+00:00"
+}

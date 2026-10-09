@@ -1,0 +1,1502 @@
+{
+  "benchmark": "C15-station-timing",
+  "timestamp_utc": "2026-10-09T06:06:12.960035+00:00",
+  "status": "passed",
+  "failed_repeat_indices": [],
+  "configuration": {
+    "joint_count": 6,
+    "repeats": 1,
+    "cycles_per_repeat": 10,
+    "nominal_period_s": 0.005,
+    "profile": true
+  },
+  "limiting_latency_note": "Measured over in-memory fake transport with synchronous exchange. Values reflect this host's software dispatch and scheduler context; they do not establish physical RS485 or motor-bus rates.",
+  "environment": {
+    "python_executable": "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "python_version": "3.12.14 (main, Aug 13 2026, 00:00:00) [GCC 15.3.1 20260722 (Red Hat 15.3.1-1)]",
+    "platform": "Linux-7.2.5-100.fc43.x86_64-x86_64-with-glibc2.42",
+    "clock_info": {
+      "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+      "monotonic": true,
+      "resolution_s": 1e-09
+    },
+    "host_load_avg": [
+      2.41455078125,
+      2.1298828125,
+      1.56396484375
+    ]
+  },
+  "aggregate_mode1_actuals": {
+    "actual_start_period_s": {
+      "sample_count": 9,
+      "min_s": 0.04564370600019174,
+      "median_s": 0.05033959299998969,
+      "max_s": 0.05279583099991214,
+      "mean_s": 0.049999076333329465
+    },
+    "transaction_duration_s": {
+      "sample_count": 60,
+      "min_s": 0.0003431520003687183,
+      "median_s": 0.00044521449990497786,
+      "max_s": 0.0005523389995687467,
+      "mean_s": 0.0004424921000463655
+    }
+  },
+  "repeats": [
+    {
+      "repeat_index": 1,
+      "wall_start_utc": "2026-10-09T06:06:12.453442+00:00",
+      "wall_end_utc": "2026-10-09T06:06:12.959535+00:00",
+      "phase_counts": {
+        "setup_stop_queries": 6,
+        "setup_transaction_records": 6,
+        "mode1_cycles": 10,
+        "mode1_transactions": 60,
+        "mode1_transaction_records": 60,
+        "shutdown_stop_queries": 6,
+        "shutdown_transaction_records": 6
+      },
+      "phase_driver_counts": {
+        "setup": {
+          "write_calls": 6,
+          "write_bytes": 120,
+          "read_calls": 6,
+          "read_bytes": 156,
+          "input_resets": 6,
+          "write_errors": 0,
+          "read_errors": 0
+        },
+        "mode1": {
+          "write_calls": 60,
+          "write_bytes": 1200,
+          "read_calls": 60,
+          "read_bytes": 1560,
+          "input_resets": 60,
+          "write_errors": 0,
+          "read_errors": 0
+        },
+        "shutdown": {
+          "write_calls": 6,
+          "write_bytes": 120,
+          "read_calls": 6,
+          "read_bytes": 156,
+          "input_resets": 6,
+          "write_errors": 0,
+          "read_errors": 0
+        }
+      },
+      "driver_counts_all_phases": {
+        "write_calls": 72,
+        "write_bytes": 1440,
+        "read_calls": 72,
+        "read_bytes": 1872,
+        "input_resets": 72,
+        "write_errors": 0,
+        "read_errors": 0
+      },
+      "final_core_state": "stopped",
+      "final_core_faulted": false,
+      "counters_all_phases": {
+        "cycles": 10,
+        "transactions": 72,
+        "successful_transactions": 72,
+        "failed_transactions": 0,
+        "timeout_transactions": 0,
+        "invalid_feedback_transactions": 0,
+        "write_cancelled_transactions": 0,
+        "prewrite_deadline_transactions": 0,
+        "driver_failure_transactions": 0,
+        "skipped_transactions": 0,
+        "clock_failure_transactions": 0,
+        "overruns": 10,
+        "missed_slots_skipped": 45
+      },
+      "timing_statistics_all_phases": {
+        "min_actual_period_s": 0.04564370600019174,
+        "max_actual_period_s": 0.05279583099991214,
+        "mean_actual_period_s": 0.049999076333329465,
+        "min_execution_duration_s": 0.024789640000108193,
+        "max_execution_duration_s": 0.02979909499981659,
+        "mean_execution_duration_s": 0.02746851689998948,
+        "min_transaction_duration_s": 0.00018363100025453605,
+        "max_transaction_duration_s": 0.000689555000008113,
+        "mean_transaction_duration_s": 0.0004103099861494128,
+        "total_overrun_s": 0.2246851689998948,
+        "latest_sampling_skew_s": 0.0025485549999757495
+      },
+      "mode1_timing_statistics": {
+        "actual_start_period_s": {
+          "sample_count": 9,
+          "min_s": 0.04564370600019174,
+          "median_s": 0.05033959299998969,
+          "max_s": 0.05279583099991214,
+          "mean_s": 0.049999076333329465
+        },
+        "transaction_duration_s": {
+          "sample_count": 60,
+          "min_s": 0.0003431520003687183,
+          "median_s": 0.00044521449990497786,
+          "max_s": 0.0005523389995687467,
+          "mean_s": 0.0004424921000463655
+        },
+        "cycle_count": 10,
+        "overrun_count": 10,
+        "missed_slots_skipped": 45
+      },
+      "failures": [],
+      "raw_traces": [
+        {
+          "cycle_index": 0,
+          "started_s": 2177.395859749,
+          "ended_s": 2177.422666076,
+          "execution_duration_s": 0.02680632700003116,
+          "actual_period_s": null,
+          "overrun": true,
+          "overrun_s": 0.02180632700003116,
+          "missed_slots_skipped": 0,
+          "feedback_ages_s": [
+            0.0021332329997676425,
+            0.0017232800000783755,
+            0.0013245279997136095,
+            0.000893273999736266,
+            0.00044973000012760167,
+            7.760200014672591e-05
+          ],
+          "sampling_skew_s": 0.0020556309996209166,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.420152406,
+              "ended_s": 2177.420606599,
+              "duration_s": 0.000454193000223313,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.42053582,
+              "feedback_age_s": 3.3723999877111055e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.420631502,
+              "ended_s": 2177.421013361,
+              "duration_s": 0.0003818589998445532,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.420945773,
+              "feedback_age_s": 2.7679000140778953e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.42103237,
+              "ended_s": 2177.42141221,
+              "duration_s": 0.000379840000277909,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.421344525,
+              "feedback_age_s": 2.9487999654520536e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.421430873,
+              "ended_s": 2177.421855738,
+              "duration_s": 0.00042486499978622305,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.421775779,
+              "feedback_age_s": 3.53629998244287e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.421879058,
+              "ended_s": 2177.422284438,
+              "duration_s": 0.0004053800003021024,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.422219323,
+              "feedback_age_s": 2.8889000077469973e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 0,
+              "sequence": 1,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.422301733,
+              "ended_s": 2177.422649436,
+              "duration_s": 0.0003477029999885417,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.422591451,
+              "feedback_age_s": 2.503400037312531e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 1,
+          "started_s": 2177.444845989,
+          "ended_s": 2177.472427821,
+          "execution_duration_s": 0.02758183200012354,
+          "actual_period_s": 0.04898623999997653,
+          "overrun": true,
+          "overrun_s": 0.02258183200012354,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002316569999948115,
+            0.0018597700000100303,
+            0.0014053840000087803,
+            0.000972907000232226,
+            0.0005382170002121711,
+            9.302799981014687e-05
+          ],
+          "sampling_skew_s": 0.002223542000137968,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.469723306,
+              "ended_s": 2177.470192973,
+              "duration_s": 0.00046966699983386206,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.470115085,
+              "feedback_age_s": 3.468900013103848e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.470219236,
+              "ended_s": 2177.47064428,
+              "duration_s": 0.0004250440001669631,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.470571885,
+              "feedback_age_s": 3.143599997201818e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.470665899,
+              "ended_s": 2177.471097709,
+              "duration_s": 0.0004318100000091363,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.471026271,
+              "feedback_age_s": 2.9934999929537298e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.471118413,
+              "ended_s": 2177.471526531,
+              "duration_s": 0.0004081179999957385,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.471458748,
+              "feedback_age_s": 2.998000036313897e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.471546454,
+              "ended_s": 2177.471972866,
+              "duration_s": 0.0004264120002517302,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.471893438,
+              "feedback_age_s": 2.8808000024582725e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 1,
+              "sequence": 2,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.471993378,
+              "ended_s": 2177.472407608,
+              "duration_s": 0.00041422999993301346,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.472338627,
+              "feedback_age_s": 2.9348999760259176e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 2,
+          "started_s": 2177.495185582,
+          "ended_s": 2177.522786032,
+          "execution_duration_s": 0.027600450000136334,
+          "actual_period_s": 0.05033959299998969,
+          "overrun": true,
+          "overrun_s": 0.022600450000136333,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002484904000084498,
+            0.0019939859998885368,
+            0.001491953999902762,
+            0.0010360709998167295,
+            0.0005564160001085838,
+            9.696699999039993e-05
+          ],
+          "sampling_skew_s": 0.002387937000094098,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.519895628,
+              "ended_s": 2177.520388104,
+              "duration_s": 0.0004924760000903916,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.520304411,
+              "feedback_age_s": 3.6502000057225814e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.520415898,
+              "ended_s": 2177.520881835,
+              "duration_s": 0.00046593700017183437,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.520795329,
+              "feedback_age_s": 4.061299978275201e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.520904702,
+              "ended_s": 2177.521372266,
+              "duration_s": 0.0004675640002460568,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.521297361,
+              "feedback_age_s": 3.1768000098963967e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.521393948,
+              "ended_s": 2177.521832781,
+              "duration_s": 0.0004388329998619156,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.521753244,
+              "feedback_age_s": 3.1210000088321976e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.521861731,
+              "ended_s": 2177.522308594,
+              "duration_s": 0.00044686299997920287,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.522232899,
+              "feedback_age_s": 3.231800019420916e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 2,
+              "sequence": 3,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.522330075,
+              "ended_s": 2177.522765841,
+              "duration_s": 0.0004357660000096075,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.522692348,
+              "feedback_age_s": 3.1769000088388566e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 3,
+          "started_s": 2177.547981413,
+          "ended_s": 2177.57554573,
+          "execution_duration_s": 0.02756431700026951,
+          "actual_period_s": 0.05279583099991214,
+          "overrun": true,
+          "overrun_s": 0.02256431700026951,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002209064999988186,
+            0.0017716429997562955,
+            0.0013459469996632833,
+            0.0009465129996897303,
+            0.0005506399998012057,
+            9.563300000081654e-05
+          ],
+          "sampling_skew_s": 0.0021134319999873696,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.572930744,
+              "ended_s": 2177.573412873,
+              "duration_s": 0.00048212899991995073,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.573339837,
+              "feedback_age_s": 3.249600013077725e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.573439976,
+              "ended_s": 2177.573847272,
+              "duration_s": 0.0004072960000485182,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.573777259,
+              "feedback_age_s": 2.980699991894653e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.573866499,
+              "ended_s": 2177.574268574,
+              "duration_s": 0.0004020750002382556,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.574202955,
+              "feedback_age_s": 2.808799990816624e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.574287713,
+              "ended_s": 2177.574665324,
+              "duration_s": 0.00037761099974886747,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.574602389,
+              "feedback_age_s": 2.735599991865456e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.574682764,
+              "ended_s": 2177.575068466,
+              "duration_s": 0.00038570200013055,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.574998262,
+              "feedback_age_s": 3.0081000204518205e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 3,
+              "sequence": 4,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.575087704,
+              "ended_s": 2177.575527485,
+              "duration_s": 0.0004397809998408775,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.575453269,
+              "feedback_age_s": 3.0110000352578936e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 4,
+          "started_s": 2177.597874734,
+          "ended_s": 2177.622664374,
+          "execution_duration_s": 0.024789640000108193,
+          "actual_period_s": 0.04989332100012689,
+          "overrun": true,
+          "overrun_s": 0.019789640000108192,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.0019979470002908783,
+            0.001577844000166806,
+            0.0011953050002375676,
+            0.0008169250004357309,
+            0.0004392950004330487,
+            7.904400035840808e-05
+          ],
+          "sampling_skew_s": 0.0019189029999324703,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.620321209,
+              "ended_s": 2177.620739763,
+              "duration_s": 0.0004185540001344634,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.620669042,
+              "feedback_age_s": 3.1009999929665355e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.62076399,
+              "ended_s": 2177.621154106,
+              "duration_s": 0.0003901160002897086,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.621089145,
+              "feedback_age_s": 2.8556999950524187e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.621171758,
+              "ended_s": 2177.62153427,
+              "duration_s": 0.0003625120002652693,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.621471684,
+              "feedback_age_s": 2.6299000182916643e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.621552574,
+              "ended_s": 2177.621911494,
+              "duration_s": 0.000358920000053331,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.621850064,
+              "feedback_age_s": 2.746800009845174e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.621929207,
+              "ended_s": 2177.622287055,
+              "duration_s": 0.00035784800002147676,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.622227694,
+              "feedback_age_s": 2.493700003469712e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 4,
+              "sequence": 5,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.622305133,
+              "ended_s": 2177.622648285,
+              "duration_s": 0.0003431520003687183,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.622587945,
+              "feedback_age_s": 2.492400017217733e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 5,
+          "started_s": 2177.64351844,
+          "ended_s": 2177.670085044,
+          "execution_duration_s": 0.026566603999981453,
+          "actual_period_s": 0.04564370600019174,
+          "overrun": true,
+          "overrun_s": 0.021566603999981452,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.0024092000003292924,
+            0.0019292650003990275,
+            0.0014715660004185338,
+            0.0010196140001426102,
+            0.000564194000162388,
+            0.0001057630001923826
+          ],
+          "sampling_skew_s": 0.0023034370001369098,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.66728715,
+              "ended_s": 2177.667762443,
+              "duration_s": 0.0004752929999085609,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.667679454,
+              "feedback_age_s": 3.652800023701275e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.667788166,
+              "ended_s": 2177.668236132,
+              "duration_s": 0.00044796600013796706,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.668159389,
+              "feedback_age_s": 3.333200038468931e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.668258374,
+              "ended_s": 2177.668691229,
+              "duration_s": 0.00043285500032652635,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.668617088,
+              "feedback_age_s": 3.143300000374438e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.668712493,
+              "ended_s": 2177.669142393,
+              "duration_s": 0.0004299000001992681,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.66906904,
+              "feedback_age_s": 3.154599971821881e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.669162347,
+              "ended_s": 2177.669597609,
+              "duration_s": 0.00043526199988264125,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.66952446,
+              "feedback_age_s": 3.07079999402049e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 5,
+              "sequence": 6,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.669618465,
+              "ended_s": 2177.67006267,
+              "duration_s": 0.0004442049998942821,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.669982891,
+              "feedback_age_s": 3.664399991976097e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 6,
+          "started_s": 2177.692357022,
+          "ended_s": 2177.719769384,
+          "execution_duration_s": 0.027412361999722634,
+          "actual_period_s": 0.04883858199991664,
+          "overrun": true,
+          "overrun_s": 0.022412361999722633,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.0024097059999803605,
+            0.00193824100006168,
+            0.0014717670001118677,
+            0.001015572999676806,
+            0.000548678000086511,
+            9.59999997576233e-05
+          ],
+          "sampling_skew_s": 0.002313706000222737,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.716964261,
+              "ended_s": 2177.717442973,
+              "duration_s": 0.00047871199967630673,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.717362942,
+              "feedback_age_s": 3.565399993021856e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.717469127,
+              "ended_s": 2177.717908181,
+              "duration_s": 0.0004390539997984888,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.717834407,
+              "feedback_age_s": 3.1167000088316854e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.71792971,
+              "ended_s": 2177.718375934,
+              "duration_s": 0.00044622399991567363,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.718300881,
+              "feedback_age_s": 3.235100029996829e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.718397749,
+              "ended_s": 2177.718831251,
+              "duration_s": 0.0004335020003054524,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.718757075,
+              "feedback_age_s": 3.091299959123717e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.718852756,
+              "ended_s": 2177.719300441,
+              "duration_s": 0.0004476849999264232,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.71922397,
+              "feedback_age_s": 3.2828000257723033e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 6,
+              "sequence": 7,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.719321936,
+              "ended_s": 2177.719748669,
+              "duration_s": 0.00042673300004025805,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.719676648,
+              "feedback_age_s": 3.090699965468957e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 7,
+          "started_s": 2177.742761949,
+          "ended_s": 2177.770772437,
+          "execution_duration_s": 0.028010487999836187,
+          "actual_period_s": 0.05040492699981769,
+          "overrun": true,
+          "overrun_s": 0.023010487999836186,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002642428000399377,
+            0.0021194580003793817,
+            0.00161313800026619,
+            0.001100997000321513,
+            0.000605409000399959,
+            0.00010542300015004002
+          ],
+          "sampling_skew_s": 0.002537005000249337,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.767710406,
+              "ended_s": 2177.768224016,
+              "duration_s": 0.0005136100003255706,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.768133755,
+              "feedback_age_s": 4.0349000300921034e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.76825149,
+              "ended_s": 2177.768737752,
+              "duration_s": 0.0004862620003223128,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.768656725,
+              "feedback_age_s": 3.366000009918935e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.768760641,
+              "ended_s": 2177.769251454,
+              "duration_s": 0.0004908129999421362,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.769163045,
+              "feedback_age_s": 3.557700028977706e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.769275114,
+              "ended_s": 2177.769754497,
+              "duration_s": 0.00047938300031091785,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.769675186,
+              "feedback_age_s": 3.378000019438332e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.769777393,
+              "ended_s": 2177.770251909,
+              "duration_s": 0.0004745159999401949,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.770170774,
+              "feedback_age_s": 3.499100012049894e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 7,
+              "sequence": 8,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.770275314,
+              "ended_s": 2177.770750911,
+              "duration_s": 0.00047559699987687054,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.77067076,
+              "feedback_age_s": 3.4761999813781586e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 8,
+          "started_s": 2177.793665639,
+          "ended_s": 2177.822219693,
+          "execution_duration_s": 0.02855405399986921,
+          "actual_period_s": 0.0509036900002684,
+          "overrun": true,
+          "overrun_s": 0.02355405399986921,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002591513999959716,
+            0.0020635549999497016,
+            0.0015744090001135191,
+            0.0010831969998434943,
+            0.0005980780001664243,
+            0.00010743199982243823
+          ],
+          "sampling_skew_s": 0.0024840820001372776,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.819185086,
+              "ended_s": 2177.819723828,
+              "duration_s": 0.000538742000117054,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.819631754,
+              "feedback_age_s": 4.0252999951917445e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.819753492,
+              "ended_s": 2177.820242928,
+              "duration_s": 0.0004894359999525477,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.820159713,
+              "feedback_age_s": 3.475199991953559e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.820265592,
+              "ended_s": 2177.820725814,
+              "duration_s": 0.0004602220001288515,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.820648859,
+              "feedback_age_s": 3.237200007788488e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.82074834,
+              "ended_s": 2177.821221698,
+              "duration_s": 0.0004733579999083304,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.821140071,
+              "feedback_age_s": 3.4561999655124964e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.821244673,
+              "ended_s": 2177.821703264,
+              "duration_s": 0.00045859100009693066,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.82162519,
+              "feedback_age_s": 3.321700023661833e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 8,
+              "sequence": 9,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.821726009,
+              "ended_s": 2177.822197662,
+              "duration_s": 0.0004716529997494945,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.822115836,
+              "feedback_age_s": 3.4202999813714996e-05
+            }
+          ]
+        },
+        {
+          "cycle_index": 9,
+          "started_s": 2177.845851436,
+          "ended_s": 2177.875650531,
+          "execution_duration_s": 0.02979909499981659,
+          "actual_period_s": 0.052185796999765444,
+          "overrun": true,
+          "overrun_s": 0.024799094999816588,
+          "missed_slots_skipped": 5,
+          "feedback_ages_s": [
+            0.002660021999872697,
+            0.0021263389999148785,
+            0.0016159930000867462,
+            0.0011114950002593105,
+            0.0006083570001464977,
+            0.00011146699989694753
+          ],
+          "sampling_skew_s": 0.0025485549999757495,
+          "transactions": [
+            {
+              "joint_index": 0,
+              "joint_name": "J1",
+              "motor_id": 0,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.872548609,
+              "ended_s": 2177.873100948,
+              "duration_s": 0.0005523389995687467,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.872994095,
+              "feedback_age_s": 4.57520000054501e-05
+            },
+            {
+              "joint_index": 1,
+              "joint_name": "J2",
+              "motor_id": 1,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.873129837,
+              "ended_s": 2177.873611856,
+              "duration_s": 0.0004820190001737501,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.873527778,
+              "feedback_age_s": 3.534500001478591e-05
+            },
+            {
+              "joint_index": 2,
+              "joint_name": "J3",
+              "motor_id": 2,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.873635092,
+              "ended_s": 2177.874118693,
+              "duration_s": 0.00048360100026911823,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.874038124,
+              "feedback_age_s": 3.461100004642503e-05
+            },
+            {
+              "joint_index": 3,
+              "joint_name": "J4",
+              "motor_id": 3,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.874141867,
+              "ended_s": 2177.874626066,
+              "duration_s": 0.0004841989998567442,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.874542622,
+              "feedback_age_s": 3.558000025805086e-05
+            },
+            {
+              "joint_index": 4,
+              "joint_name": "J5",
+              "motor_id": 4,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.874649038,
+              "ended_s": 2177.87512325,
+              "duration_s": 0.00047421199997188523,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.87504576,
+              "feedback_age_s": 3.297700004623039e-05
+            },
+            {
+              "joint_index": 5,
+              "joint_name": "J6",
+              "motor_id": 5,
+              "plan_id": 9,
+              "sequence": 10,
+              "owner": {
+                "generation": 1,
+                "connection_id": "bench-conn-1"
+              },
+              "started_s": 2177.875146336,
+              "ended_s": 2177.875627662,
+              "duration_s": 0.00048132600022654515,
+              "write_result": "complete",
+              "outcome": "OK",
+              "feedback_received": true,
+              "feedback_timestamp_s": 2177.87554265,
+              "feedback_age_s": 3.5415999718679814e-05
+            }
+          ]
+        }
+      ],
+      "validation_failures": []
+    }
+  ]
+}

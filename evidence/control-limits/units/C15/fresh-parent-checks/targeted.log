@@ -1,0 +1,36 @@
+test_actual_period_not_copied_from_nominal (test_station_timing.StationTimingTests.test_actual_period_not_copied_from_nominal) ... ok
+test_benchmark_direct_file_cli_writes_phase_receipt (test_station_timing.StationTimingTests.test_benchmark_direct_file_cli_writes_phase_receipt) ... ok
+test_benchmark_failure_accounting_rejects_missing_work (test_station_timing.StationTimingTests.test_benchmark_failure_accounting_rejects_missing_work) ... ok
+test_bounded_records_over_many_iterations (test_station_timing.StationTimingTests.test_bounded_records_over_many_iterations) ... ok
+test_check_step_timeout_latches_typed_joint_failure (test_station_timing.StationTimingTests.test_check_step_timeout_latches_typed_joint_failure) ... ok
+test_clock_boolean_rejected (test_station_timing.StationTimingTests.test_clock_boolean_rejected) ... ok
+test_clock_negative_rejected (test_station_timing.StationTimingTests.test_clock_negative_rejected) ... ok
+test_clock_nonfinite_rejected (test_station_timing.StationTimingTests.test_clock_nonfinite_rejected) ... ok
+test_clock_regressing_rejected (test_station_timing.StationTimingTests.test_clock_regressing_rejected) ... ok
+test_clock_zero_valid (test_station_timing.StationTimingTests.test_clock_zero_valid) ... ok
+test_completion_overrun_attribution (test_station_timing.StationTimingTests.test_completion_overrun_attribution) ... ok
+test_coordinator_driver_failure_partial_write (test_station_timing.StationTimingTests.test_coordinator_driver_failure_partial_write) ... ok
+test_coordinator_idle_or_stop_handling (test_station_timing.StationTimingTests.test_coordinator_idle_or_stop_handling) ... ok
+test_coordinator_successful_step (test_station_timing.StationTimingTests.test_coordinator_successful_step) ... ok
+test_coordinator_timeout_and_remaining_skipped (test_station_timing.StationTimingTests.test_coordinator_timeout_and_remaining_skipped) ... ok
+test_coordinator_write_cancelled_and_remaining_skipped (test_station_timing.StationTimingTests.test_coordinator_write_cancelled_and_remaining_skipped) ... ok
+test_counter_saturation_fixed (test_station_timing.StationTimingTests.test_counter_saturation_fixed) ... ok
+test_cycle_end_cannot_precede_recorded_transaction_end (test_station_timing.StationTimingTests.test_cycle_end_cannot_precede_recorded_transaction_end) ... ok
+test_distinguishable_outcomes_and_no_secret_text (test_station_timing.StationTimingTests.test_distinguishable_outcomes_and_no_secret_text) ... ok
+test_faulted_dispatch_preserves_complete_write_and_skips_receive (test_station_timing.StationTimingTests.test_faulted_dispatch_preserves_complete_write_and_skips_receive) ... ok
+test_feedback_age_and_sampling_skew (test_station_timing.StationTimingTests.test_feedback_age_and_sampling_skew) ... ok
+test_feedback_age_uses_core_clock_with_independent_tracker_clock (test_station_timing.StationTimingTests.test_feedback_age_uses_core_clock_with_independent_tracker_clock) ... ok
+test_missed_slots_skip_never_burst (test_station_timing.StationTimingTests.test_missed_slots_skip_never_burst) ... ok
+test_no_overrun_when_within_budget (test_station_timing.StationTimingTests.test_no_overrun_when_within_budget) ... ok
+test_run_steps_default_sleep_is_paced_and_rechecks_early_wake (test_station_timing.StationTimingTests.test_run_steps_default_sleep_is_paced_and_rechecks_early_wake) ... ok
+test_sampling_skew_single_or_empty (test_station_timing.StationTimingTests.test_sampling_skew_single_or_empty) ... ok
+test_sampling_skew_uses_only_current_cycle_receives (test_station_timing.StationTimingTests.test_sampling_skew_uses_only_current_cycle_receives) ... ok
+test_start_cycle_rejects_replacing_an_active_cycle (test_station_timing.StationTimingTests.test_start_cycle_rejects_replacing_an_active_cycle) ... ok
+test_subnormal_period_rejects_unrepresentable_future_slot (test_station_timing.StationTimingTests.test_subnormal_period_rejects_unrepresentable_future_slot) ... ok
+test_transaction_start_cannot_precede_prior_transaction_end (test_station_timing.StationTimingTests.test_transaction_start_cannot_precede_prior_transaction_end) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.230s
+
+OK
+Receipt: /home/sid/Documents/code/im6014Workbench-runs/c07-c16-recovery/C15-fixture-parent-checks/20261009T060434650729Z/targeted/C15-20261009T060434758384Z/receipt.json

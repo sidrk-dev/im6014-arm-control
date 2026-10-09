@@ -1,0 +1,8 @@
+Starting real-clock fake-transport station timing benchmark: 5 repeats of 50 cycles @ 5.0ms nominal
+Platform: Linux-7.2.5-100.fc43.x86_64-x86_64-with-glibc2.42, clock resolution: 1.00e-09s
+  Running repeat 1/5... complete: 300 mode1 transactions, mean actual period 19.56ms
+  Running repeat 2/5... complete: 300 mode1 transactions, mean actual period 17.14ms
+  Running repeat 3/5... complete: 300 mode1 transactions, mean actual period 17.03ms
+  Running repeat 4/5... complete: 300 mode1 transactions, mean actual period 17.01ms
+  Running repeat 5/5... complete: 300 mode1 transactions, mean actual period 16.93ms
+Benchmark receipt saved: /home/sid/Documents/code/im6014Workbench-runs/c07-c16-recovery/C15-recovered-benchmark/C15-timing-benchmark-20261009T060612314194Z/timing-benchmark-receipt.json

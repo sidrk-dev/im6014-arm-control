@@ -1,0 +1,74 @@
+[
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.start_cycle",
+    "line": 336,
+    "severity": "high",
+    "evidence": "start_cycle only validates monotonic vs _high_water_s and never checks _cycle_in_progress; parent test_start_cannot_replace_an_unfinished_cycle expects RuntimeError but none raised",
+    "fix": "Reject start_cycle while _cycle_in_progress is true with RuntimeError; only clear flag in end_cycle/reset. Do not weaken finite/monotonic validation."
+  },
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.record_transaction / end_cycle",
+    "line": 347,
+    "severity": "high",
+    "evidence": "record_transaction unconditionally raises _high_water_s if later but never rejects earlier started_s/ended_s; end_cycle validates only vs _current_cycle_start_s, not high-water. Parent tests test_new_transaction_cannot_precede_prior_actual_end and test_cycle_end_cannot_rewind_actual_transaction_time fail with no ValueError.",
+    "fix": "Validate record.started_s/ended_s and end_cycle now_s are monotonic vs _high_water_s and reject regressing values with ValueError; advance high-water only on acceptance. Keep zero valid, negative/nonfinite/regressing rejected."
+  },
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.calculate_slot_skip",
+    "line": 400,
+    "severity": "high",
+    "evidence": "missed = int(elapsed // nominal_period_s)+1 with tiny nominal math.nextafter(0,1) overflows: OverflowError cannot convert float infinity to integer instead of ValueError; new_slot = slot+missed*nominal not checked finite/bounded",
+    "fix": "Wrap slot arithmetic in finite checks; on nonfinite elapsed/quotient/slot or missed<0 raise ValueError explicitly; ensure returned slot is finite and > current_time; saturate missed counter at UINT64_MAX without wrapping. Do not invent calibrated minimum period."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step / check_step",
+    "line": 82,
+    "severity": "high",
+    "evidence": "step catches WriteCancelledError/InvalidFeedbackError/TransactionTimeoutError/Exception then only calls core.stop(); never calls core.communication_failed. Parent tests show TIMEOUT with write_result COMPLETE leaves joints[0].valid True and no CommunicationFailure.TIMEOUT latched; check_step TIMEOUT similarly leaves prior healthy observation valid.",
+    "fix": "Attribute each per-joint transport outcome to core via communication_failed(motor_id, code) mapping TIMEOUT->TIMEOUT, INVALID_FEEDBACK->INVALID_FEEDBACK, DRIVER_FAILURE->DRIVER_FAILURE, PREWRITE_DEADLINE->PREWRITE_DEADLINE, clock failure->CLOCK_FAILURE; preserve tracker write_result and core dispatched record; ensure observation no longer counts as healthy/valid and fault union latches. Do not weaken core bounds."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step on_write/before_write",
+    "line": 110,
+    "severity": "high",
+    "evidence": "on_write swallows all dispatch_result exceptions/returns and step maps generic Exception to DRIVER_FAILURE; CLOCK_FAILURE outcome in VALID_OUTCOMES is never emitted; claim-time clock raise is caught in before_write as False -> WRITE_CANCELLED, hiding CLOCK_FAILURE; COMPLETE+invalid end-clock latches CLOCK_FAILURE in core but coordinator still marks OK and calls receive.",
+    "fix": "Preserve actual write result: surface dispatch_result CLOCK_FAILURE/PREWRITE_DEADLINE/DRIVER_FAILURE into JointTransactionRecord outcome/write_result instead of overwriting with OK/WRITE_CANCELLED/DRIVER_FAILURE; do not swallow clock errors; after faulted dispatch do not commit receive as OK. Keep failures distinguishable with no exception text."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.run_steps",
+    "line": 242,
+    "severity": "high",
+    "evidence": "run_steps(count, sleep_fn=None) only sleeps if sleep_fn is not None; default real-clock path bursts idle cycles. Parent test_default_real_clock_runner_actually_paces shows actual_period_s ~26us < nominal 10ms over 3 idle steps.",
+    "fix": "Default pacing to time.sleep when sleep_fn is None; never burst to catch up \u2014 advance to next future slot via calculate_slot_skip and sleep to it; keep missed_slots_skipped accounting. Do not copy nominal into actual_period."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step before_write/on_write closures",
+    "line": 115,
+    "severity": "medium",
+    "evidence": "def before_write(): return core.claim_dispatch(plan_id,index) closes over loop variable index/plan_id by reference; deferred/reused hooks for C16 server could fire for wrong joint; no explicit binding or re-verification of plan_id/index at on_write.",
+    "fix": "Bind plan_id/index by value (default args) in hooks and re-validate claim identity in on_write before dispatch_result; enforce single outstanding claim ordering and block prepare/reconnect until receipt as core does. Keep synchronous single-writer semantics."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step/check_step feedback age",
+    "line": 165,
+    "severity": "medium",
+    "evidence": "tx_feedback_age = tx_end_s - feedback_ts mixes tracker clock (tx_end_s) with core clock (snap_joint.received_at); end_cycle feedback_ages from core.snapshot vs cycle times from tracker clock; with distinct clocks result can be negative/cross-domain, not genuine observed age/skew.",
+    "fix": "Use single clock domain for age/skew: require shared clock or compute ages/skew from core received_at vs core now and tracker durations separately; validate non-negative finite before recording; document that sampling_skew is max-min of valid core receive timestamps only."
+  },
+  {
+    "file": "scripts/benchmark_station_timing.py",
+    "function": "run_one_repeat/main",
+    "line": 85,
+    "severity": "medium",
+    "evidence": "Direct CLI import fails ModuleNotFoundError im6014_codec; run_one_repeat ignores submit_target/step outcomes and reports timing with 306 tx OK per repeat without asserting complete work; failed/skipped/timeout/driver-failure counts not checked, core state not verified MOVING.",
+    "fix": "Make script runnable from repo root (sys.path insert or -m invocation documented); account complete work vs errors: check submit accepted, tally OK vs TIMEOUT/INVALID_FEEDBACK/WRITE_CANCELLED/PREWRITE_DEADLINE/DRIVER_FAILURE/SKIPPED/CLOCK_FAILURE, verify core still MOVING, annotate receipt with error counts; state explicitly that numbers are host fake-transport dispatch jitter, not physical RS485/motor rates."
+  }
+]

@@ -193,3 +193,39 @@ Every `JointSpec` requires an explicit, immutable `ProtectionPolicy` containing 
   3. Driver and winding temperatures no greater than their reset thresholds ($\le \text{reset\_c}$), with measured effort at or below `continuous_effort_nm`.
   4. A contiguous healthy Stop interval for each joint that reaches or exceeds `recovery_dwell_s`.
 - The controller compares exact finite clock values for recovery. It counts an interval only when `0 <= dt <= feedback_max_age_s`, and caps each per-joint duration at `recovery_dwell_s`. Any missing, stale, unhealthy, above-reset, above-continuous-effort, or non-Stop observation resets that joint's recovery interval. A communication failure, failed driver transaction, Stop, new check, or owner takeover also starts a new interval. `checked()` clears the fault union only after the acknowledgment, freshness, health, reset-bound, and dwell conditions all pass. Arming remains a separate explicit action.
+
+## Station timing and loop instrumentation
+
+The station timing instrumentation in `station_timing.py` and step coordinator in `station_step.py` provide hardware-independent measurement tracking for synchronous station loops. Transport acquisition and physical device leases remain outside this layer.
+
+The tracker keeps a single monotonic high-water mark across cycles, transactions, and Stop queries. Transactions must be sequential in recorded time, an active cycle cannot be replaced by another start, and cycle completion cannot precede any transaction end. Timestamp validation completes before tracker state or counters change. Exact arithmetic decides overrun and missed-slot boundaries; missed counts saturate, but due-time advancement uses the full count. When a strictly future due timestamp cannot be represented as finite, scheduling rejects with `ValueError`.
+
+`run_steps(count)` uses `time.sleep` by default, rechecks the clock after waking, and anchors each next due time at the previous actual cycle start plus the nominal period. It skips expired slots without catch-up bursts. `actual_period_s` remains the measured start-to-start interval and is never copied from nominal configuration.
+
+### Configuration and actual loop periods
+
+`StationTimingConfig(nominal_period_s, capacity=256)` configures nominal pacing. Actual start-to-start loop period is never copied from nominal configuration. Each loop cycle computes:
+- `actual_period_s`: exact elapsed time between successive cycle starts ($t_{\text{start}, k} - t_{\text{start}, k-1}$), `None` for the initial cycle.
+- `execution_duration_s`: actual duration from cycle start to cycle completion ($t_{\text{end}} - t_{\text{start}}$).
+- `overrun`: boolean flag indicating whether execution duration exceeded nominal period.
+- `overrun_s`: positive duration exceeding the nominal period ($t_{\text{end}} - t_{\text{start}} - T_{\text{nom}}$), or `0.0`.
+- `overrun_joints`: tuple of joint names attributed with causing the overrun (joints exceeding their fair slice $T_{\text{nom}} / N$, or joint with maximum duration).
+- `missed_slots_skipped`: integer count of expired nominal slots skipped when execution overruns or scheduler delays occur. The loop advances forward to the next future slot boundary and never executes burst catch-up iterations.
+
+### Monotonic clock contract and bounded counters
+
+All timing inputs are validated with exact finite monotonic checks. Zero ($0.0$) is a valid timestamp; negative, nonfinite, non-numeric, or regressing values raise `ValueError`.
+
+Cumulative event counters (`cycles`, `transactions`, `successful_transactions`, `failed_transactions`, `timeout_transactions`, `invalid_feedback_transactions`, `write_cancelled_transactions`, `prewrite_deadline_transactions`, `driver_failure_transactions`, `skipped_transactions`, `clock_failure_transactions`, `overruns`, `missed_slots_skipped`) saturate at `UINT64_MAX` ($2^{64}-1$) without wrapping or overflow. Ring buffers for cycle and transaction records are bounded to the configured capacity.
+
+### Transaction records and failure correlation
+
+`JointTransactionRecord` correlates plan ID, command sequence, owner token, motor ID, joint name, write result (`WriteResult`), and typed outcome (`OK`, `TIMEOUT`, `INVALID_FEEDBACK`, `WRITE_CANCELLED`, `PREWRITE_DEADLINE`, `DRIVER_FAILURE`, `SKIPPED`, `CLOCK_FAILURE`). Failures and no-write states remain distinguishable; no raw exception text or secrets are retained. Actual transaction start and end timestamps are recorded separately from reference preparation and dispatch claim times.
+
+### Feedback age and sampling skew
+
+`feedback_ages_s` records the per-joint ages from the core snapshot, using the core's monotonic clock. The coordinator may use a different clock for transaction and loop measurements. `sampling_skew_s` records the spread across successful feedback receives in the current cycle only; retained observations from prior cycles are excluded. It is `None` when fewer than two current-cycle feedback samples were received, including idle cycles.
+
+### Station step coordinator
+
+`StationStepCoordinator(core, bus, timing, clock=None, deadline_s=0.05)` coordinates synchronous single-writer step execution. Each step calls `core.prepare_refresh()`, gates writes with `core.claim_dispatch(plan_id, index)` in `before_write`, reports outcomes with `core.dispatch_result(plan_id, index, result)` in `on_write`, decodes verified replies via `im6014_codec.feedback` and `joint_mapping.JointMap`, and commits observations via `core.receive`. It retains both the driver's actual write receipt and the returned dispatch decision. A complete write followed by a core clock fault stays recorded as `WriteResult.COMPLETE` with `CLOCK_FAILURE`; its reply is not accepted as feedback. Read timeouts and invalid feedback are classified through `core.communication_failed()` with typed causes. A pure final-gate cancellation remains distinct from a motor fault. After a cycle failure, later mode-1 writes are skipped and the core is stopped. An idle step ticks the core and records zero transactions without interrupting loop pacing.

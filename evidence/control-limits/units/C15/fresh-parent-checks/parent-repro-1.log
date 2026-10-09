@@ -1,0 +1,8 @@
+test_age_uses_core_receive_clock_not_tracker_offset (__main__.AdapterReviewChecks.test_age_uses_core_receive_clock_not_tracker_offset) ... ok
+test_completed_write_clock_failure_keeps_actual_receipt_and_class (__main__.AdapterReviewChecks.test_completed_write_clock_failure_keeps_actual_receipt_and_class) ... ok
+test_current_cycle_skew_excludes_old_skipped_or_failed_receipts (__main__.AdapterReviewChecks.test_current_cycle_skew_excludes_old_skipped_or_failed_receipts) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.021s
+
+OK

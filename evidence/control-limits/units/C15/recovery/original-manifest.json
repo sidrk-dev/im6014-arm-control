@@ -1,0 +1,60 @@
+{
+  "baseHead": "cfb0b67f5b260f64f51f25cb02b488fe42d0f44e",
+  "files": [
+    {
+      "path": "docs/joint-api.md",
+      "exists": true,
+      "bytes": 32960,
+      "sha256": "fe44800a8aad80319c587b01d168776fb5196df55236a4ae328c8032f1767277"
+    },
+    {
+      "path": "docs/station-timing.md",
+      "exists": true,
+      "bytes": 1982,
+      "sha256": "1ef6b49c45ba64e3f95471c3aa2787dff8728ebd39188bd05b6b825d74250648"
+    },
+    {
+      "path": "scripts/benchmark_station_timing.py",
+      "exists": true,
+      "bytes": 12422,
+      "sha256": "1df5fdba93e5d5948a587f71bf25e638868a5f5aad626222ca5c93862877fa18"
+    },
+    {
+      "path": "scripts/check_milestone.py",
+      "exists": true,
+      "bytes": 3457,
+      "sha256": "6fb2300649c84fb79a39752f0d2036fdc9a1c77bef301b3c550c19c30f2236e2"
+    },
+    {
+      "path": "scripts/check_offline_baseline.sh",
+      "exists": true,
+      "bytes": 5201,
+      "sha256": "4330e4a563b044624c2d1bf48e07fa5d594deac164146147bf4cf56487c91d5e"
+    },
+    {
+      "path": "station_step.py",
+      "exists": true,
+      "bytes": 13003,
+      "sha256": "b1f5436b0551eccf44dcb8575b4af0979d0047bd675de9315023555442443e91"
+    },
+    {
+      "path": "station_timing.py",
+      "exists": true,
+      "bytes": 25239,
+      "sha256": "2c5c855c04970bb44fbeff9ddab7fa109c2383defc739da44fcaad6bd164e378"
+    },
+    {
+      "path": "test_startup.py",
+      "exists": true,
+      "bytes": 13793,
+      "sha256": "051a444014fe0f28590064211bbb3c43b3b5ba37c7b00860dab0ff5830ab8f83"
+    },
+    {
+      "path": "test_station_timing.py",
+      "exists": true,
+      "bytes": 22362,
+      "sha256": "46f219457074c8cb5ce004a62c9f26d34f291167c1a8a46d034c2f064df8c8b2"
+    }
+  ],
+  "parentMetadataOverridesExcluded": []
+}

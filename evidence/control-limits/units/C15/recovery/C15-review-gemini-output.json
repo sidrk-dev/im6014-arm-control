@@ -1,0 +1,90 @@
+[
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.calculate_slot_skip",
+    "line": 436,
+    "severity": "HIGH",
+    "evidence": "In calculate_slot_skip, `missed = int(elapsed // self._config.nominal_period_s) + 1` produces an unbounded integer. If elapsed time is large (e.g. across long scheduling pauses or large clock inputs), calculating `new_slot = slot + (missed * self._config.nominal_period_s)` multiplies a large int (> 1.79e308) by a float, raising `OverflowError: int too large to convert to float`. Furthermore, `missed` is not saturated at `UINT64_MAX`, violating the uint64 bounded counter contract, and for `0 < elapsed < nominal_period_s`, it prematurely marks `missed = 1` even though the current time is still within the active slot window.",
+    "fix": "Saturate `missed` at `UINT64_MAX` using `min(missed, UINT64_MAX)`. For slot calculation, clamp `missed` before float multiplication and guard with finite checks against `OverflowError`. Only count a slot as missed if `now >= slot + nominal_period_s`."
+  },
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.end_cycle",
+    "line": 455,
+    "severity": "HIGH",
+    "evidence": "Line 455 validates `now = validate_monotonic_time(now_s, self._current_cycle_start_s, 'loop cycle end')` and line 456 assigns `self._high_water_s = now`. If individual transactions in the cycle recorded completion timestamps that advanced `self._high_water_s` beyond `now_s`, validating against `_current_cycle_start_s` allows `now_s < self._high_water_s`, causing `self._high_water_s` to regress backwards in time and breaking tracker monotonicity.",
+    "fix": "Validate `now_s` against `self._high_water_s` (or `max(self._high_water_s, self._current_cycle_start_s)`) to ensure the loop cycle completion timestamp never regresses behind any transaction completion recorded during that cycle."
+  },
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingTracker.start_cycle",
+    "line": 354,
+    "severity": "MEDIUM",
+    "evidence": "start_cycle does not verify whether `self._cycle_in_progress` is already True. If called repeatedly without an intervening `end_cycle`, it clobbers `_current_cycle_start_s` without finalizing or accounting for the in-progress cycle, corrupting cycle index alignment and metrics.",
+    "fix": "Check `if self._cycle_in_progress: raise RuntimeError('start_cycle called while cycle already in progress')` at the beginning of start_cycle."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step",
+    "line": 200,
+    "severity": "HIGH",
+    "evidence": "When `exchange()` raises `InvalidFeedbackError`, `TransactionTimeoutError`, or driver exceptions, `step()` catches the error, sets local record outcome, and calls `self.core.stop()`. It never calls `self.core.communication_failed(motor_id, code)`. Because the communication failure is never attributed to `JointCore`, `self.core.stop()` places the core in `State.STOPPED` rather than latching `State.FAULT`, leaving `Snapshot.fault_latched` as False and failing to attribute the communication failure to the affected joint.",
+    "fix": "Call `self.core.communication_failed(motor_id, CommunicationFailure.INVALID_FEEDBACK)` on InvalidFeedbackError, `self.core.communication_failed(motor_id, CommunicationFailure.TIMEOUT)` on TransactionTimeoutError (when not prewrite deadline), and `self.core.communication_failed(motor_id, CommunicationFailure.DRIVER_FAILURE)` on driver errors before calling `self.core.stop()`."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step",
+    "line": 167,
+    "severity": "MEDIUM",
+    "evidence": "In `before_write`, `self.core.claim_dispatch(plan_id, index)` is wrapped in `try ... except Exception: return False`. If `claim_dispatch` raises an exception because of clock failure or regression, `before_write` returns False, which causes `exchange()` to raise `WriteCancelledError`. `step()` then marks the transaction as `outcome = 'WRITE_CANCELLED'`, masking the underlying clock failure as a routine pre-write cancellation and preventing `TimingCounters.clock_failure_transactions` from being incremented.",
+    "fix": "Inspect whether `claim_dispatch` failed due to clock error or if core latched `CLOCK_FAILURE`. Distinguish clock exceptions and set `outcome = 'CLOCK_FAILURE'`, updating timing tracker counters accordingly."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.step",
+    "line": 258,
+    "severity": "HIGH",
+    "evidence": "Line 258 takes `feedback_timestamps = tuple(j.received_at for j in snap.joints)`. If a multi-joint cycle aborts partially (e.g. joint 0 succeeds but joint 1 fails and joints 2-5 are skipped), `snap.joints` retains the `received_at` timestamps from previous cycles for skipped joints. Passing these to `end_cycle` causes `calculate_sampling_skew` to compute skew across timestamps from different loop iterations, reporting an invalid multi-second skew rather than genuine within-cycle skew.",
+    "fix": "Construct `feedback_timestamps` using only observations received during the current step iteration (e.g., from `tx_records` where `feedback_received` is True). If fewer than two joints receive feedback in the current step, pass empty timestamps so `sampling_skew_s` correctly evaluates to None."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.run_steps",
+    "line": 360,
+    "severity": "MEDIUM",
+    "evidence": "In `run_steps`, when an overrun occurs, line 360 calls `missed, next_slot = self.timing.calculate_slot_skip(t_current, next_slot)`, which advances `next_slot` forward to the future scheduled slot boundary. Then line 364 unconditionally executes `next_slot += nominal`, advancing `next_slot` a second time and causing an extra slot to be skipped on every overrun.",
+    "fix": "Only advance `next_slot += nominal` if `calculate_slot_skip` was not triggered, or ensure `calculate_slot_skip` establishes the target slot for the current step and advances to the subsequent slot for the next iteration without double-incrementing."
+  },
+  {
+    "file": "station_step.py",
+    "function": "StationStepCoordinator.__init__",
+    "line": 66,
+    "severity": "MEDIUM",
+    "evidence": "StationStepCoordinator hardcodes `before_write` and `on_write` inside `step()` with local closures and provides no parameter or hook for between-joint write gating. C16 station server coordination requires between-joint write-gate hooks to enforce client connection binding, pacing pauses, and external cancellation checks between serial transactions.",
+    "fix": "Add optional hook parameters `before_joint_write: Callable[[int, bytes], bool] | None = None` and `after_joint_write: Callable[[int, WriteResult], None] | None = None` to `StationStepCoordinator.__init__` and invoke them inside `before_write` and `on_write`."
+  },
+  {
+    "file": "station_timing.py",
+    "function": "StationTimingConfig.__post_init__",
+    "line": 86,
+    "severity": "LOW",
+    "evidence": "StationTimingConfig requires an explicit positional `nominal_period_s` with no module-level default constant or default parameter, raising TypeError if instantiated without arguments despite standard workbench default pacing (e.g. 5ms/10ms) documented across C15/C16 specs.",
+    "fix": "Define `DEFAULT_NOMINAL_PERIOD_S = 0.005` in `station_timing.py` and provide it as default in `StationTimingConfig(nominal_period_s: float = DEFAULT_NOMINAL_PERIOD_S)`."
+  },
+  {
+    "file": "scripts/benchmark_station_timing.py",
+    "function": "main",
+    "line": 24,
+    "severity": "HIGH",
+    "evidence": "Direct execution via CLI (`python3 scripts/benchmark_station_timing.py`) fails with `ModuleNotFoundError` because `sys.path` only includes `scripts/`, omitting the workbench root where `station_timing`, `station_step`, and `joint_controller` reside.",
+    "fix": "Add `sys.path.insert(0, str(Path(__file__).resolve().parent.parent))` at the top of `scripts/benchmark_station_timing.py` before importing workbench modules."
+  },
+  {
+    "file": "scripts/benchmark_station_timing.py",
+    "function": "run_one_repeat",
+    "line": 165,
+    "severity": "MEDIUM",
+    "evidence": "In `run_one_repeat`, `coordinator.check_step()` runs during setup before the loop and calls `tracker.record_transaction(tx)`. This pollutes `TimingSnapshot.counters.transactions` and transaction duration statistics with 6 setup Stop transactions (306 transactions recorded for 50 mode-1 cycles), while `counters.cycles` only reflects the 50 loop cycles. Furthermore, return decisions of `checked()`, `arm()`, and `submit_target()` are unasserted, allowing rejected targets to run as idle steps without error accounting.",
+    "fix": "Call `tracker.reset()` after setup `coordinator.check_step()` so timing metrics cleanly isolate mode-1 cycles, and assert that `core.checked()`, `core.arm(owner)`, and `core.submit_target(target)` return accepted decisions."
+  }
+]
