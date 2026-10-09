@@ -1,0 +1,218 @@
+{
+  "stem": "D01-integration",
+  "checks": [
+    {
+      "check": "D01-doc-links AGENTS.md docs/development/coordination.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links AGENTS.md docs/development/tasks.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links AGENTS.md docs/architecture.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links AGENTS.md docs/milestones.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/development/coordination.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md USER_MANUAL.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md USER_MANUAL.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md CONTRIBUTING.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/development/coordination.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/development/tasks.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/architecture.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/joint-api.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/development/layout-plan.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/milestones.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/decisions.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links README.md docs/arm-model.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links CONTRIBUTING.md docs/development/coordination.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links CONTRIBUTING.md docs/development/tasks.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links CONTRIBUTING.md README.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links CONTRIBUTING.md docs/arm-model.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links CONTRIBUTING.md docs/development/layout-plan.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-doc-links docs/development/coordination.md tasks.tsv",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source start_dashboard.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source scripts/check_offline_baseline.sh",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source scripts/check_milestone.py",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source test_joint_mapping.py",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source test_controller_limits.py",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source test_dashboard.py",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source requirements.lock",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source .github/workflows/offline-baseline.yml",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-command-source CI platform",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope GitIDs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope C16identity",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope internalgearbox",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope no unverifiedpark",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope no unobservedOpusassignment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "D01-coordination-scope publishedstate",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "passedChecks": true,
+  "sourceHashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "8585c0587afc4f1d93d45c9d2120dda4d517afc91c821c2c1f5f6e6c25f55c19"
+    },
+    {
+      "path": "README.md",
+      "sha256": "ce4e526674ef88ffb555345640c6293cf08790664fb4963facd8faee3fb7fde6"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "107a9065c3b8f7d3afc5a52492f184062bf7f975d4203975d5305cd447f08456"
+    },
+    {
+      "path": "docs/development/coordination.md",
+      "sha256": "f8b3aac18b73a1700986269ee5032d3599ce450222f5bd82c83ca0522735062b"
+    },
+    {
+      "path": "docs/development/layout-plan.md",
+      "sha256": "bef7f16489c5ab3060e160495a049f0a9ca2246d7c534f3a8ed3c48bbe3213d5"
+    },
+    {
+      "path": "docs/development/tasks.tsv",
+      "sha256": "6dceb8ff6bf1370362529ef2fb0a27c76efe904f786e41808d7cab3fb98a3178"
+    }
+  ],
+  "physicalIO": "none; document/source inspection"
+}

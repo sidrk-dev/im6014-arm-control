@@ -1,0 +1,7 @@
+{
+  "source": "M01-review-final-workbench",
+  "selected": "M01-cleanup-workbench",
+  "change": "Sort the explicit expected unknown-material set; runtime already returns sorted names. Original failure retained.",
+  "runtimeChange": false,
+  "failedChecks": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T114708405516Z/result.json"
+}

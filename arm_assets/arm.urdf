@@ -1,0 +1,1645 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="mainassem">
+    <link name="_8_32_thin_nylock_nut__32_02_">
+        <inertial>
+            <mass value="0.00151666" />
+            <origin xyz="-7.88171e-18 -2.62109e-18 0.00205627" rpy="0 -0 0" />
+            <inertia ixx="9.91363e-09" ixy="1.01948e-14" ixz="0" iyy="9.91363e-09" iyz="0" izz="1.54744e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.000254" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_Thin_Nylock_Nut__32_02_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_thin_nylock_nut__32_02__1">
+        <inertial>
+            <mass value="0.00151666" />
+            <origin xyz="-7.88171e-18 -2.62109e-18 0.00205627" rpy="0 -0 0" />
+            <inertia ixx="9.91363e-09" ixy="1.01948e-14" ixz="0" iyy="9.91363e-09" iyz="0" izz="1.54744e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.000254" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_Thin_Nylock_Nut__32_02_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_thin_nylock_nut__32_02__2">
+        <inertial>
+            <mass value="0.00151666" />
+            <origin xyz="-7.88171e-18 -2.62109e-18 0.00205627" rpy="0 -0 0" />
+            <inertia ixx="9.91363e-09" ixy="1.01948e-14" ixz="0" iyy="9.91363e-09" iyz="0" izz="1.54744e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -0.000254" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_Thin_Nylock_Nut__32_02_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016_">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__1">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__10">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__11">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__12">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__13">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__14">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__15">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__16">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__17">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__2">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__3">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__4">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__5">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__6">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__7">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__8">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="_8_32_x________2_1_2______star_drive_screw______276_8016__9">
+        <inertial>
+            <mass value="0.00731222" />
+            <origin xyz="-6.26479e-10 9.18808e-09 -0.0292937" rpy="0 -0 0" />
+            <inertia ixx="2.79996e-06" ixy="2.14613e-14" ixz="1.00324e-13" iyy="2.79996e-06" iyz="-1.57694e-12" izz="1.84596e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.701961_0.701961_0.701961_0.000000_0.000000">
+                <color rgba="0.701961 0.701961 0.701961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="none">
+        <inertial>
+            <mass value="0.000177256" />
+            <origin xyz="0.0293781 0.000484199 4.19519e-08" rpy="0 -0 0" />
+            <inertia ixx="8.7919e-08" ixy="-2.1038e-09" ixz="-1.35122e-13" iyy="9.07282e-08" iyz="9.3781e-14" izz="8.93969e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.036 0 -4.15376e-34" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/NONE.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.647059_0.647059_0.647059_0.000000_0.000000">
+                <color rgba="0.647059 0.647059 0.647059 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="none_1">
+        <inertial>
+            <mass value="0.000177256" />
+            <origin xyz="0.0301781 0.000484199 4.19519e-08" rpy="0 -0 0" />
+            <inertia ixx="8.7919e-08" ixy="-2.1038e-09" ixz="-1.35122e-13" iyy="9.07282e-08" iyz="9.3781e-14" izz="8.93969e-08" />
+        </inertial>
+    </link>
+    <link name="none_2">
+        <inertial>
+            <mass value="0.000177256" />
+            <origin xyz="0.0293781 0.000484199 4.19519e-08" rpy="0 -0 0" />
+            <inertia ixx="8.7919e-08" ixy="-2.1038e-09" ixz="-1.35122e-13" iyy="9.07282e-08" iyz="9.3781e-14" izz="8.93969e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.036 0 -4.15376e-34" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/NONE.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.647059_0.647059_0.647059_0.000000_0.000000">
+                <color rgba="0.647059 0.647059 0.647059 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="none_3">
+        <inertial>
+            <mass value="0.000177256" />
+            <origin xyz="0.0293781 0.000484199 4.19519e-08" rpy="0 -0 0" />
+            <inertia ixx="8.7919e-08" ixy="-2.1038e-09" ixz="-1.35122e-13" iyy="9.07282e-08" iyz="9.3781e-14" izz="8.93969e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.036 0 -4.15376e-34" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/NONE.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.647059_0.647059_0.647059_0.000000_0.000000">
+                <color rgba="0.647059 0.647059 0.647059 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1">
+        <inertial>
+            <mass value="6.93675e-05" />
+            <origin xyz="-0.0356072 0.0104862 -0.00847341" rpy="0 -0 0" />
+            <inertia ixx="3.05533e-08" ixy="-7.99425e-12" ixz="-6.77551e-11" iyy="5.48654e-08" iyz="2.98787e-10" izz="2.76389e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.00205538 0.0144016 -0.00121679" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_1">
+        <inertial>
+            <mass value="6.63504e-05" />
+            <origin xyz="3.80381e-19 -0.165 -9.62965e-35" rpy="0 -0 0" />
+            <inertia ixx="6.03192e-07" ixy="0" ixz="0" iyy="2.12321e-09" iyz="0" izz="6.03192e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -4.89859e-19" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_10">
+        <inertial>
+            <mass value="2.17076e-05" />
+            <origin xyz="-0.0050805 5.31902e-19 -4.03277e-19" rpy="2.75909 -0 0" />
+            <inertia ixx="8.24686e-09" ixy="0" ixz="0" iyy="4.30121e-09" iyz="0" izz="4.30121e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0 6.23931e-19 1.55084e-18" rpy="2.75909 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_2.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_11">
+        <inertial>
+            <mass value="6.63504e-05" />
+            <origin xyz="3.80381e-19 -0.165 -9.62965e-35" rpy="0 -0 0" />
+            <inertia ixx="6.03192e-07" ixy="0" ixz="0" iyy="2.12321e-09" iyz="0" izz="6.03192e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -4.89859e-19" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_12">
+        <inertial>
+            <mass value="5.10356e-05" />
+            <origin xyz="0.0353981 -0.00836116 -0.00825005" rpy="0 -0 0" />
+            <inertia ixx="2.27276e-08" ixy="5.54127e-12" ixz="-5.40084e-11" iyy="4.09347e-08" iyz="-2.0709e-10" izz="1.97412e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0730667 -0.0144016 -0.00121679" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_4.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_13">
+        <inertial>
+            <mass value="6.93675e-05" />
+            <origin xyz="0.0354041 0.0104862 -0.00847341" rpy="0 -0 0" />
+            <inertia ixx="3.05533e-08" ixy="-7.99425e-12" ixz="-6.77551e-11" iyy="5.48654e-08" iyz="2.98787e-10" izz="2.76389e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0730667 0.0144016 -0.00121679" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_14">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_15">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_16">
+        <inertial>
+            <mass value="3.55922e-05" />
+            <origin xyz="0.0380812 0.00525445 0.00480879" rpy="0 -0 0" />
+            <inertia ixx="2.39872e-08" ixy="2.16947e-11" ixz="6.44271e-14" iyy="3.80953e-08" iyz="1.19771e-11" izz="6.15247e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0381 7.11376e-16 -0.0002" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_7.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_17">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_18">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="-1.25659e-18 -1.44445e-34 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="-1.27347e-18 -3.84548e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_19">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="1.68804e-20 2.45244e-19 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -1.39304e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_2">
+        <inertial>
+            <mass value="6.93675e-05" />
+            <origin xyz="-0.0314396 -0.00791536 0.00678121" rpy="3.14159 0.523599 3.14159" />
+            <inertia ixx="2.98834e-08" ixy="1.56317e-10" ixz="1.2281e-09" iyy="5.48654e-08" iyz="-2.5476e-10" izz="2.83088e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.0604281 -0.004 -0.0183345" rpy="3.14159 0.523599 3.14159" />
+            <geometry>
+                <mesh filename="meshes/Part_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_20">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_21">
+        <inertial>
+            <mass value="6.61532e-05" />
+            <origin xyz="-0.0254248 -0.0381 -0.00749719" rpy="0 -0 0" />
+            <inertia ixx="6.09215e-08" ixy="0" ixz="-2.92284e-15" iyy="5.04772e-08" iyz="0" izz="1.09129e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.025425 -0.0381 -0.0144984" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_9.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_22">
+        <inertial>
+            <mass value="5.01479e-06" />
+            <origin xyz="-0.00125 -9.7938e-19 1.62463e-19" rpy="0 -0 0" />
+            <inertia ixx="1.94513e-09" ixy="0" ixz="0" iyy="9.75177e-10" iyz="0" izz="9.75177e-10" />
+        </inertial>
+        <visual>
+            <origin xyz="0.01 0 -1.67164e-18" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_3.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_23">
+        <inertial>
+            <mass value="0.000227502" />
+            <origin xyz="-0.0103896 -0.0506863 -0.000123502" rpy="0 -0 0" />
+            <inertia ixx="5.13624e-07" ixy="-1.25651e-08" ixz="-7.09334e-12" iyy="1.62128e-07" iyz="-1.03928e-11" izz="3.76894e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.006 -0.0169996 -0.000121525" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_10.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_24">
+        <inertial>
+            <mass value="2.17076e-05" />
+            <origin xyz="-0.0050805 -1.37648e-19 -6.5315e-19" rpy="1.6293 -0 0" />
+            <inertia ixx="8.24686e-09" ixy="0" ixz="0" iyy="4.30121e-09" iyz="0" izz="4.30121e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0 1.66878e-18 9.77481e-20" rpy="1.6293 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_2.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_25">
+        <inertial>
+            <mass value="6.61532e-05" />
+            <origin xyz="-0.0254248 -0.0381 -0.00749719" rpy="0 -0 0" />
+            <inertia ixx="6.09215e-08" ixy="0" ixz="-2.92284e-15" iyy="5.04772e-08" iyz="0" izz="1.09129e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.025425 -0.0381 -0.0144984" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_9.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_26">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="1.68804e-20 2.45244e-19 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -1.39304e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_27">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="-1.25659e-18 -1.44445e-34 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="-1.27347e-18 -3.84548e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_28">
+        <inertial>
+            <mass value="3.55922e-05" />
+            <origin xyz="-1.87896e-05 0.00525445 0.00500879" rpy="0 -0 0" />
+            <inertia ixx="2.39872e-08" ixy="2.16947e-11" ixz="6.44271e-14" iyy="3.80953e-08" iyz="1.19771e-11" izz="6.15247e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_7.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_29">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_3">
+        <inertial>
+            <mass value="6.63504e-05" />
+            <origin xyz="3.80381e-19 -0.165 -9.62965e-35" rpy="0 -0 0" />
+            <inertia ixx="6.03192e-07" ixy="0" ixz="0" iyy="2.12321e-09" iyz="0" izz="6.03192e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -4.89859e-19" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_30">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_31">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_32">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_33">
+        <inertial>
+            <mass value="5.10356e-05" />
+            <origin xyz="-0.0356132 -0.00836116 0.0163" rpy="0 -0 0" />
+            <inertia ixx="2.27276e-08" ixy="5.54127e-12" ixz="-5.40084e-11" iyy="4.09347e-08" iyz="-2.0709e-10" izz="1.97412e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.00205538 -0.0144016 0.0233332" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_4.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_34">
+        <inertial>
+            <mass value="6.93675e-05" />
+            <origin xyz="-0.0356072 0.0104862 0.0160766" rpy="0 -0 0" />
+            <inertia ixx="3.05533e-08" ixy="-7.99425e-12" ixz="-6.77551e-11" iyy="5.48654e-08" iyz="2.98787e-10" izz="2.76389e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.00205538 0.0144016 0.0233332" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_35">
+        <inertial>
+            <mass value="8.80893e-05" />
+            <origin xyz="0.0332618 0.0075 -0.0222113" rpy="0 -0 0" />
+            <inertia ixx="3.56105e-08" ixy="0" ixz="-6.37966e-11" iyy="8.8602e-08" iyz="0" izz="5.62948e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0291904 0 -0.0322354" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_11.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_36">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 2.88171e-19 -0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -1.39304e-19 -0.034" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_37">
+        <inertial>
+            <mass value="3.55922e-05" />
+            <origin xyz="0.0380812 0.0306545 -0.00499121" rpy="0 -0 0" />
+            <inertia ixx="2.39872e-08" ixy="2.16947e-11" ixz="6.44271e-14" iyy="3.80953e-08" iyz="1.19771e-11" izz="6.15247e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0381 0.0254 -0.01" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_7.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_38">
+        <inertial>
+            <mass value="6.61532e-05" />
+            <origin xyz="1.77417e-07 -0.04685 0.00700123" rpy="0 -0 0" />
+            <inertia ixx="6.09215e-08" ixy="0" ixz="-2.92284e-15" iyy="5.04772e-08" iyz="0" izz="1.09129e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-7.56042e-10 -0.04685 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_9.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.901961_0.901961_0.901961_0.000000_0.000000">
+                <color rgba="0.901961 0.901961 0.901961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_39">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="-1.25659e-18 -1.44445e-34 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="-1.27347e-18 -3.84548e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_4">
+        <inertial>
+            <mass value="6.63504e-05" />
+            <origin xyz="3.80381e-19 -0.165 -9.62965e-35" rpy="0 -0 0" />
+            <inertia ixx="6.03192e-07" ixy="0" ixz="0" iyy="2.12321e-09" iyz="0" izz="6.03192e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 -4.89859e-19" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_1.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_40">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_41">
+        <inertial>
+            <mass value="2.82684e-06" />
+            <origin xyz="1.68804e-20 2.45244e-19 0.017" rpy="0 -0 0" />
+            <inertia ixx="2.98337e-10" ixy="0" ixz="0" iyy="2.98337e-10" iyz="0" izz="5.20368e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -1.39304e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_8.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.400000_0.400000_0.400000_0.000000_0.000000">
+                <color rgba="0.4 0.4 0.4 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_42">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_43">
+        <inertial>
+            <mass value="3.79967e-06" />
+            <origin xyz="-4.72486e-20 3.66019e-20 0.017" rpy="0 -0 0" />
+            <inertia ixx="4.09658e-10" ixy="0" ixz="0" iyy="4.09658e-10" iyz="0" izz="8.72478e-11" />
+        </inertial>
+        <visual>
+            <origin xyz="0 -3.90873e-19 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_6.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_5">
+        <inertial>
+            <mass value="2.17076e-05" />
+            <origin xyz="-0.0050805 4.28564e-19 -5.11747e-19" rpy="2.53417 -0 0" />
+            <inertia ixx="8.24686e-09" ixy="0" ixz="0" iyy="4.30121e-09" iyz="0" izz="4.30121e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0 9.54091e-19 1.37263e-18" rpy="2.53417 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_2.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_6">
+        <inertial>
+            <mass value="5.01479e-06" />
+            <origin xyz="0.00125 -9.7938e-19 1.62463e-19" rpy="0 -0 0" />
+            <inertia ixx="1.94513e-09" ixy="0" ixz="0" iyy="9.75177e-10" iyz="0" izz="9.75177e-10" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0125 0 -1.67164e-18" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_3.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_7">
+        <inertial>
+            <mass value="5.10356e-05" />
+            <origin xyz="-0.0356132 -0.00836116 -0.00825005" rpy="0 -0 0" />
+            <inertia ixx="2.27276e-08" ixy="5.54127e-12" ixz="-5.40084e-11" iyy="4.09347e-08" iyz="-2.0709e-10" izz="1.97412e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.00205538 -0.0144016 -0.00121679" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_4.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_8">
+        <inertial>
+            <mass value="5.10356e-05" />
+            <origin xyz="0.00892659 0.00604042 0.00402495" rpy="0 -0 0" />
+            <inertia ixx="2.27276e-08" ixy="5.54127e-12" ixz="-5.40084e-11" iyy="4.09347e-08" iyz="-2.0709e-10" izz="1.97412e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0465951 0 0.0110582" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_4.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.917647_0.917647_0.917647_0.000000_0.000000">
+                <color rgba="0.917647 0.917647 0.917647 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="part_1_9">
+        <inertial>
+            <mass value="1.90562e-05" />
+            <origin xyz="0.00475 -9.16981e-19 5.8963e-20" rpy="0 -0 0" />
+            <inertia ixx="7.39149e-09" ixy="0" ixz="0" iyy="3.83906e-09" iyz="0" izz="3.83906e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0.0195 0 -1.67164e-18" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Part_1_5.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.301961_0.301961_0.301961_0.000000_0.000000">
+                <color rgba="0.301961 0.301961 0.301961 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="root" />
+    <link name="socket_button_head_screw_m4x0_7_x_16">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="socket_button_head_screw_m4x0_7_x_16_1">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="socket_button_head_screw_m4x0_7_x_16_2">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="socket_button_head_screw_m4x0_7_x_16_3">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="socket_button_head_screw_m4x0_7_x_16_4">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <link name="socket_button_head_screw_m4x0_7_x_16_5">
+        <inertial>
+            <mass value="0.00201625" />
+            <origin xyz="1.30326e-18 1.58924e-20 -0.00593309" rpy="0 -0 0" />
+            <inertia ixx="6.3587e-08" ixy="0" ixz="0" iyy="6.3587e-08" iyz="0" izz="5.89329e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="1.09708e-18 -7.37398e-35 0.0022" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="meshes/Socket_button_head_screw_M4x0_7_x_16.stl" scale="1 1 1" />
+            </geometry>
+            <material name="0.603922_0.647059_0.686275_0.000000_0.000000">
+                <color rgba="0.603922 0.647059 0.686275 1" />
+            </material>
+        </visual>
+    </link>
+    <joint name="fastened_1" type="fixed">
+        <origin xyz="1.38778e-17 -2.77556e-17 0.034" rpy="3.14159 2.77556e-17 3.14329e-23" />
+        <axis xyz="-0 -0 1" />
+        <parent link="part_1_14" />
+        <child link="part_1_21" />
+    </joint>
+    <joint name="fastened_10" type="fixed">
+        <origin xyz="-2.08167e-17 2.77556e-17 0" rpy="3.83088e-19 -5.90344e-17 -1.5708" />
+        <axis xyz="-1 0 0" />
+        <parent link="part_1_3" />
+        <child link="part_1_13" />
+    </joint>
+    <joint name="fastened_10__1_" type="fixed">
+        <origin xyz="0.00345792 -0.0184016 0.0171451" rpy="2.61799 1.11577e-14 1.5708" />
+        <axis xyz="-0 -1 -0" />
+        <parent link="part_1_2" />
+        <child link="part_1_11" />
+    </joint>
+    <joint name="fastened_11" type="fixed">
+        <origin xyz="0 -2.08167e-17 2.77556e-17" rpy="6.09587e-16 1.12133e-14 -5.70234e-15" />
+        <axis xyz="1 0 7.59685e-17" />
+        <parent link="part_1_7" />
+        <child link="part_1" />
+    </joint>
+    <joint name="fastened_12" type="fixed">
+        <origin xyz="-0.025425 -0.0381 -0.0144984" rpy="0 -1.5708 1.5708" />
+        <axis xyz="1 -0 -0" />
+        <parent link="part_1_21" />
+        <child link="none" />
+    </joint>
+    <joint name="fastened_12_1" type="fixed">
+        <origin xyz="-0.025425 -0.0381 -0.0144984" rpy="0 -1.5708 1.5708" />
+        <axis xyz="1 -0 -0" />
+        <parent link="part_1_25" />
+        <child link="none_2" />
+    </joint>
+    <joint name="fastened_12_2" type="fixed">
+        <origin xyz="-7.56042e-10 -0.04685 1.38778e-17" rpy="0 -1.5708 1.5708" />
+        <axis xyz="1 -0 -0" />
+        <parent link="part_1_38" />
+        <child link="none_3" />
+    </joint>
+    <joint name="fastened_12_3" type="fixed">
+        <origin xyz="0 0.0184016 -0.00907795" rpy="0 -1.5708 1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1" />
+        <child link="part_1_38" />
+    </joint>
+    <joint name="fastened_13" type="fixed">
+        <origin xyz="0 0.0254 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_15" />
+    </joint>
+    <joint name="fastened_13_1" type="fixed">
+        <origin xyz="0.0762 0.0254 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_17" />
+    </joint>
+    <joint name="fastened_13_10" type="fixed">
+        <origin xyz="0.0762 -1.11022e-16 -1.73472e-17" rpy="1.57289e-15 6.20838e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_37" />
+        <child link="part_1_42" />
+    </joint>
+    <joint name="fastened_13_11" type="fixed">
+        <origin xyz="0 1.11022e-16 -0.034" rpy="-2.33693e-15 1.33134e-15 1.5708" />
+        <axis xyz="-0 -0 1" />
+        <parent link="part_1_36" />
+        <child link="part_1_37" />
+    </joint>
+    <joint name="fastened_13_2" type="fixed">
+        <origin xyz="0.0762 -0.0254 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_20" />
+    </joint>
+    <joint name="fastened_13_3" type="fixed">
+        <origin xyz="-2.77556e-17 -0.0254 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_14" />
+    </joint>
+    <joint name="fastened_13_4" type="fixed">
+        <origin xyz="-0.0381 0.0254 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_32" />
+    </joint>
+    <joint name="fastened_13_5" type="fixed">
+        <origin xyz="0.0381 0.0254 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_31" />
+    </joint>
+    <joint name="fastened_13_6" type="fixed">
+        <origin xyz="0.0381 -0.0254 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_30" />
+    </joint>
+    <joint name="fastened_13_7" type="fixed">
+        <origin xyz="-0.0381 -0.0254 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_29" />
+    </joint>
+    <joint name="fastened_13_8" type="fixed">
+        <origin xyz="1.11022e-16 0.0508 -1.38778e-17" rpy="1.57289e-15 6.20838e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_37" />
+        <child link="part_1_43" />
+    </joint>
+    <joint name="fastened_13_9" type="fixed">
+        <origin xyz="0.0762 0.0508 -1.38778e-17" rpy="1.57289e-15 6.20838e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_37" />
+        <child link="part_1_40" />
+    </joint>
+    <joint name="fastened_14" type="fixed">
+        <origin xyz="0 0 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_19" />
+    </joint>
+    <joint name="fastened_14_1" type="fixed">
+        <origin xyz="-0.0381 -7.14706e-16 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_26" />
+    </joint>
+    <joint name="fastened_14_2" type="fixed">
+        <origin xyz="-0.0594441 0.0184016 0.0131191" rpy="-1.29412e-15 -4.02456e-15 1.4223e-15" />
+        <axis xyz="0 -1 0" />
+        <parent link="part_1" />
+        <child link="part_1_35" />
+    </joint>
+    <joint name="fastened_14_3" type="fixed">
+        <origin xyz="0 0.0254 -1.73472e-17" rpy="1.57289e-15 6.20838e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_37" />
+        <child link="part_1_41" />
+    </joint>
+    <joint name="fastened_15" type="fixed">
+        <origin xyz="0.0762 -4.16334e-17 0.0098" rpy="-1.08437e-15 5.96741e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_16" />
+        <child link="part_1_18" />
+    </joint>
+    <joint name="fastened_15_1" type="fixed">
+        <origin xyz="-0.01 1.72085e-15 -1.55431e-15" rpy="1.9533 1.76664e-14 -3.14159" />
+        <axis xyz="-1 0 0" />
+        <parent link="part_1_10" />
+        <child link="part_1_9" />
+    </joint>
+    <joint name="fastened_15_2" type="fixed">
+        <origin xyz="0.0381 -7.42462e-16 0.01" rpy="-3.67342e-40 -3.30872e-24 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_28" />
+        <child link="part_1_27" />
+    </joint>
+    <joint name="fastened_15_3" type="fixed">
+        <origin xyz="0.0762 0.0254 -1.04083e-17" rpy="1.57289e-15 6.20838e-16 -1.5708" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_37" />
+        <child link="part_1_39" />
+    </joint>
+    <joint name="fastened_16" type="fixed">
+        <origin xyz="-0.05085 -0.0762 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016_" />
+    </joint>
+    <joint name="fastened_16_1" type="fixed">
+        <origin xyz="-0.02545 -0.0762 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__4" />
+    </joint>
+    <joint name="fastened_16_10" type="fixed">
+        <origin xyz="-0.02545 8.06868e-13 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__7" />
+    </joint>
+    <joint name="fastened_16_11" type="fixed">
+        <origin xyz="-6.93889e-18 -1.38778e-17 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__6" />
+    </joint>
+    <joint name="fastened_16_12" type="fixed">
+        <origin xyz="-0.05085 8.20592e-10 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__10" />
+    </joint>
+    <joint name="fastened_16_13" type="fixed">
+        <origin xyz="-0.025425 -0.08495 2.77556e-17" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__12" />
+    </joint>
+    <joint name="fastened_16_14" type="fixed">
+        <origin xyz="-2.50008e-05 -0.08495 0" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__17" />
+    </joint>
+    <joint name="fastened_16_15" type="fixed">
+        <origin xyz="0.025425 -0.08495 2.77556e-17" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__15" />
+    </joint>
+    <joint name="fastened_16_16" type="fixed">
+        <origin xyz="-2.49995e-05 -0.00875 4.16334e-17" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__14" />
+    </joint>
+    <joint name="fastened_16_17" type="fixed">
+        <origin xyz="0.025425 -0.00875 2.77556e-17" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__13" />
+    </joint>
+    <joint name="fastened_16_18" type="fixed">
+        <origin xyz="-0.025425 -0.00875 2.77556e-17" rpy="3.14159 8.9438e-16 3.16414e-15" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_38" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__16" />
+    </joint>
+    <joint name="fastened_16_2" type="fixed">
+        <origin xyz="-1.22968e-09 -0.0762 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__5" />
+    </joint>
+    <joint name="fastened_16_3" type="fixed">
+        <origin xyz="-0.02545 8.06882e-13 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__1" />
+    </joint>
+    <joint name="fastened_16_4" type="fixed">
+        <origin xyz="-1.38778e-17 2.77556e-17 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__3" />
+    </joint>
+    <joint name="fastened_16_5" type="fixed">
+        <origin xyz="-0.05085 8.20592e-10 -0.0144984" rpy="-3.14159 2.77556e-17 6.61744e-23" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_21" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__2" />
+    </joint>
+    <joint name="fastened_16_6" type="fixed">
+        <origin xyz="1.04083e-15 -0.33 -2.22045e-16" rpy="3.14159 1.60702e-14 -1.5708" />
+        <axis xyz="1 0 7.59685e-17" />
+        <parent link="part_1_11" />
+        <child link="part_1_33" />
+    </joint>
+    <joint name="fastened_16_7" type="fixed">
+        <origin xyz="-0.05085 -0.0762 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__9" />
+    </joint>
+    <joint name="fastened_16_8" type="fixed">
+        <origin xyz="-0.02545 -0.0762 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__11" />
+    </joint>
+    <joint name="fastened_16_9" type="fixed">
+        <origin xyz="-1.22968e-09 -0.0762 -0.0144984" rpy="3.14159 5.18454e-40 4.56707e-17" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_25" />
+        <child link="_8_32_x________2_1_2______star_drive_screw______276_8016__8" />
+    </joint>
+    <joint name="fastened_17" type="fixed">
+        <origin xyz="8.04912e-16 -0.33 8.32667e-16" rpy="3.14159 1.60702e-14 -1.5708" />
+        <axis xyz="1 0 7.59685e-17" />
+        <parent link="part_1_11" />
+        <child link="part_1_34" />
+    </joint>
+    <joint name="fastened_1_1" type="fixed">
+        <origin xyz="6.93889e-18 0 0.034" rpy="3.14159 -6.61744e-24 9.13414e-17" />
+        <axis xyz="-0 -0 1" />
+        <parent link="part_1_29" />
+        <child link="part_1_25" />
+    </joint>
+    <joint name="fastened_1_2" type="fixed">
+        <origin xyz="-6.93889e-18 -0.33 0" rpy="-5.96579e-15 -8.55729e-16 -1.5708" />
+        <axis xyz="1 0 7.59685e-17" />
+        <parent link="part_1_3" />
+        <child link="part_1_7" />
+    </joint>
+    <joint name="fastened_1_3" type="fixed">
+        <origin xyz="0.025425 -0.00875 0.0144984" rpy="3.14159 -2.58722e-16 1.36002e-15" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_38" />
+        <child link="part_1_36" />
+    </joint>
+    <joint name="fastened_2" type="fixed">
+        <origin xyz="0 6.93889e-18 6.93889e-18" rpy="1.6293 -7.09207e-23 3.37442e-23" />
+        <axis xyz="-1 -0 -0" />
+        <parent link="part_1_24" />
+        <child link="none_1" />
+    </joint>
+    <joint name="fastened_3" type="fixed">
+        <origin xyz="-0.0248 -0.103 -0.000146526" rpy="1.5708 -2.43522e-21 -3.14159" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_23" />
+        <child link="part_1_16" />
+    </joint>
+    <joint name="fastened_4" type="fixed">
+        <origin xyz="-0.01 -0.0164718 -0.000964825" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16_4" />
+    </joint>
+    <joint name="fastened_4_1" type="fixed">
+        <origin xyz="-0.01 -0.00907145 0.0137826" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16_2" />
+    </joint>
+    <joint name="fastened_4_2" type="fixed">
+        <origin xyz="-0.01 0.00907145 -0.0137826" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16_5" />
+    </joint>
+    <joint name="fastened_4_3" type="fixed">
+        <origin xyz="-0.01 0.00740032 0.0147474" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16" />
+    </joint>
+    <joint name="fastened_4_4" type="fixed">
+        <origin xyz="-0.01 0.0164718 0.000964825" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16_3" />
+    </joint>
+    <joint name="fastened_4_5" type="fixed">
+        <origin xyz="-0.01 -0.00740032 -0.0147474" rpy="1.5708 0.0585076 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="part_1_24" />
+        <child link="socket_button_head_screw_m4x0_7_x_16_1" />
+    </joint>
+    <joint name="fastened_4_6" type="fixed">
+        <origin xyz="-0.01 2.77556e-17 0" rpy="0.607419 5.97092e-17 3.14159" />
+        <axis xyz="-1 0 0" />
+        <parent link="part_1_5" />
+        <child link="part_1_6" />
+    </joint>
+    <joint name="fastened_5" type="fixed">
+        <origin xyz="-0.01 -0.00111535 0.0169634" rpy="1.6293 -5.47055e-24 1.29446e-21" />
+        <axis xyz="1 0 0" />
+        <parent link="part_1_24" />
+        <child link="part_1_23" />
+    </joint>
+    <joint name="fastened_6" type="fixed">
+        <origin xyz="0.0025 0.0169996 0.000121525" rpy="0 1.5708 -1.5708" />
+        <axis xyz="0 -1 0" />
+        <parent link="part_1_6" />
+        <child link="part_1_8" />
+    </joint>
+    <joint name="fastened_7" type="fixed">
+        <origin xyz="-0.016 0 0" rpy="0 1.5708 3.14159" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_23" />
+        <child link="_8_32_thin_nylock_nut__32_02_" />
+    </joint>
+    <joint name="fastened_7_1" type="fixed">
+        <origin xyz="-0.016 -0.0256046 0.0145398" rpy="0 1.5708 3.14159" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_23" />
+        <child link="_8_32_thin_nylock_nut__32_02__2" />
+    </joint>
+    <joint name="fastened_7_2" type="fixed">
+        <origin xyz="-0.01 6.93889e-18 6.93889e-18" rpy="1.6293 -7.09207e-23 3.37442e-23" />
+        <axis xyz="1 0 0" />
+        <parent link="part_1_24" />
+        <child link="part_1_22" />
+    </joint>
+    <joint name="fastened_7_3" type="fixed">
+        <origin xyz="-0.016 -0.0253941 -0.0149043" rpy="0 1.5708 3.14159" />
+        <axis xyz="0 0 -1" />
+        <parent link="part_1_23" />
+        <child link="_8_32_thin_nylock_nut__32_02__1" />
+    </joint>
+    <joint name="fastened_8" type="fixed">
+        <origin xyz="-0.0264715 0.0144016 0.012275" rpy="-5.19879e-17 -3.83088e-19 1.5708" />
+        <axis xyz="0 1 0" />
+        <parent link="part_1_8" />
+        <child link="part_1_3" />
+    </joint>
+    <joint name="fastened_8__1_" type="fixed">
+        <origin xyz="3.19189e-16 -3.10862e-15 -2.55351e-15" rpy="2.55288e-15 5.11817e-16 -1.5708" />
+        <axis xyz="1 -0 -0" />
+        <parent link="part_1_11" />
+        <child link="part_1_12" />
+    </joint>
+    <joint name="fastened_9" type="fixed">
+        <origin xyz="-0.0264715 0.0144016 -0.012275" rpy="7.46426e-16 -8.67304e-16 1.5708" />
+        <axis xyz="0 1 0" />
+        <parent link="part_1_8" />
+        <child link="part_1_1" />
+    </joint>
+    <joint name="fastened_9__1_" type="fixed">
+        <origin xyz="-1.44329e-15 6.93889e-17 -0.02455" rpy="-5.94458e-15 -6.08754e-15 1.5708" />
+        <axis xyz="0 1 0" />
+        <parent link="part_1_12" />
+        <child link="part_1_4" />
+    </joint>
+    <joint name="fixed_node_to_root_joint" type="fixed">
+        <origin xyz="-0.0593692 0.0624683 -0.115059" rpy="3.14159 -1.61375e-08 -1.5708" />
+        <axis xyz="0 0 1" />
+        <parent link="root" />
+        <child link="part_1_28" />
+    </joint>
+    <joint name="revolute_1" type="continuous">
+        <origin xyz="-0.0008 4.16334e-17 2.77556e-17" rpy="-1.5708 -5.22276e-15 7.7149e-15" />
+        <axis xyz="1 0 0" />
+        <parent link="none" />
+        <child link="part_1_5" />
+    </joint>
+    <joint name="revolute_2" type="revolute">
+        <origin xyz="-0.0008 0 -6.93889e-18" rpy="-1.5708 -9.20735e-20 1.65089e-20" />
+        <axis xyz="1 0 0" />
+        <parent link="none_2" />
+        <child link="part_1_24" />
+        <limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="0" velocity="0" />
+    </joint>
+    <joint name="revolute_3" type="continuous">
+        <origin xyz="-0.0008 1.94289e-16 1.11022e-16" rpy="-1.34892e-14 -2.02069e-14 -2.91618e-16" />
+        <axis xyz="1 0 0" />
+        <parent link="none_3" />
+        <child link="part_1_10" />
+    </joint>
+    <joint name="revolute_4" type="fixed">
+        <origin xyz="0.0095 0.0169996 0.000121525" rpy="4.1704e-14 -1.08961e-14 1.5708" />
+        <parent link="part_1_9" />
+        <child link="part_1_2" />
+    </joint>
+</robot>

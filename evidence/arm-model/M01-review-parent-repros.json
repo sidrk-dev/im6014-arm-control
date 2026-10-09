@@ -1,0 +1,40 @@
+[
+  {
+    "check": "opposite winding faces preserved",
+    "expected": 2,
+    "actual": 1,
+    "passed": false
+  },
+  {
+    "check": "zero quaternion rejected",
+    "passed": false,
+    "actual": "accepted"
+  },
+  {
+    "check": "nonunit quaternion rejected",
+    "passed": false,
+    "actual": "accepted"
+  },
+  {
+    "check": "zero scale rejected",
+    "passed": false,
+    "actual": "accepted"
+  },
+  {
+    "check": "mirrored winding preserved",
+    "passed": false,
+    "actual_normal": [
+      0.0,
+      0.0,
+      -9.999999747378752e-05
+    ]
+  },
+  {
+    "check": "empty geometry rejected",
+    "passed": false,
+    "actual": [
+      0,
+      0
+    ]
+  }
+]

@@ -29,3 +29,28 @@ jobs:
         with:
           name: offline-baseline
           path: evidence/runs/
+
+  arm-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12.14'
+      - name: Install converter dependencies
+        run: |
+          python -m venv .model-venv
+          .model-venv/bin/python -m pip install --only-binary=:all: -r tools/manual-arm-requirements.txt
+          .model-venv/bin/python -m pip check
+      - name: Check model generator
+        shell: bash
+        run: |
+          mkdir -p evidence/runs/arm-model-ci
+          .model-venv/bin/python -B -m unittest -v tools.test_build_manual_arm 2>&1 | tee evidence/runs/arm-model-ci/tests.log
+      - name: Preserve model test log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: arm-model-tests
+          path: evidence/runs/arm-model-ci/

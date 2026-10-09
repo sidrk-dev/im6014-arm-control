@@ -1,0 +1,64 @@
+{
+  "unit": "M01",
+  "parentBefore": "ff4ff5faea42dc3c42634cfb49e8dee5ab4c3b03",
+  "checks": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z",
+  "modelRuntimeIO": "none",
+  "hardwareCommissioned": false,
+  "sourceHashes": [
+    {
+      "path": "tools/build_manual_arm.py",
+      "sha256": "3df0e24c1394a1f2b84b46d5009e2e037dee12ad31497e5c5d8ff0679dcf75da"
+    },
+    {
+      "path": "tools/arm_gltf.py",
+      "sha256": "5c1068d770183f990122d60b8cb2e54bbd943f0cd733a1a42a904baf6667ea6a"
+    },
+    {
+      "path": "tools/test_build_manual_arm.py",
+      "sha256": "430d05a2f67f08a5e717dfe96726aac55e2380ea0ed39e39ccbf8b3319631b12"
+    },
+    {
+      "path": "tools/manual-arm-requirements.txt",
+      "sha256": "7bd6b8946940b79948c548c8048e545684b91c8edc9444d8dfc0c8f76a97c0a7"
+    },
+    {
+      "path": "docs/arm-model.md",
+      "sha256": "af7a88fab4a863a33a8c725fc5070599e2cba338a3216458a7457099f602f898"
+    },
+    {
+      "path": ".github/workflows/offline-baseline.yml",
+      "sha256": "397bace44a1225f90319a8116a31c9e6cd8f0926eb71f84f76883713f32560b3"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "107a9065c3b8f7d3afc5a52492f184062bf7f975d4203975d5305cd447f08456"
+    },
+    {
+      "path": "README.md",
+      "sha256": "ce4e526674ef88ffb555345640c6293cf08790664fb4963facd8faee3fb7fde6"
+    },
+    {
+      "path": "docs/development/tasks.tsv",
+      "sha256": "6dceb8ff6bf1370362529ef2fb0a27c76efe904f786e41808d7cab3fb98a3178"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "4a7a36f7937e09c04320ace4518351a3b6dbe6a82ee609d0a94a9db3d964d199"
+    }
+  ],
+  "baseline": {
+    "checks": 9,
+    "exitCode": 0,
+    "directory": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-integration-baseline/run-20261009T115556Z-8nu9rXkP"
+  },
+  "ciStyleTests": {
+    "count": 26,
+    "skippedSourceClass": true,
+    "exitCode": 0
+  },
+  "visual": {
+    "priorPreview": "M01-visual-inspection.json",
+    "currentReload": "DOM shows updated v3/three active joints; capture API unavailable on two documented methods; no new screenshot claimed",
+    "pending": "Reinspect rendered model during functional browser acceptance"
+  }
+}

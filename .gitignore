@@ -19,3 +19,5 @@ motor_run.json
 /IM6014 Motor Bench.desktop
 /dashboard_preview.png
 /evidence/runs/
+.model-venv/
+_arm_inputs/

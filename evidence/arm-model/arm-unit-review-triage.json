@@ -1,0 +1,236 @@
+{
+  "at": "2026-10-09T11:41:23.028208+00:00",
+  "selected": "M01-fixture-workbench",
+  "repair": "M01-review-fix-workbench",
+  "reviews": {
+    "Muse": "complete",
+    "Gemini": "complete",
+    "MiMo": "HTTP502, no output; no retry/substitution"
+  },
+  "findings": [
+    {
+      "source": "Muse",
+      "item": 1,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Replace J1 source limit and safety_controller before one canonical limit.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 2,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Deep-copy source XML before formatting output; the original tests independently reparse source so reviewer vacuity claim is false.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 3,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Reject nonunit quaternion and singular transforms; preserve mirrored nodes with corrected winding. Zero quaternion currently yields identity, not the claimed zero matrix.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 5,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Use exact mainassem-relative archive entries; do not allow arbitrary prefix.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 6,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Require visible triangle geometry.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 8,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Deduplicate cyclic orientations, preserving opposite winding.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 9,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Record unknown display material fallback in provenance; filenames do not establish structural role.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 10,
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Give empty base geometry a domain error.",
+      "evidence": "selected source; M01-review-parent-repros.json; retained review"
+    },
+    {
+      "source": "Muse",
+      "item": 4,
+      "verdict": "rejected",
+      "reason": "glTF bufferView schema explicitly limits byteStride to 252; 64 is already accepted.",
+      "evidence": "https://raw.githubusercontent.com/KhronosGroup/glTF/main/specification/2.0/schema/bufferView.schema.json"
+    },
+    {
+      "source": "Muse",
+      "item": 7,
+      "verdict": "deferred",
+      "reason": "Offline operator-selected converter is not a service input boundary. Invented byte/count limits based on one CAD revision would break valid inputs; Python bounds checks already precede array views. Deep recursion remains a converter limitation, with no live-control reachability.",
+      "evidence": "arm_gltf.py; offline CLI design"
+    },
+    {
+      "source": "Muse",
+      "item": 11,
+      "verdict": "corrected",
+      "reason": "Published docs identify provisional zero and attribute screw removal to operator.",
+      "evidence": "ff4ff5f; final 35 docs checks"
+    },
+    {
+      "source": "Muse",
+      "item": 12,
+      "verdict": "corrected",
+      "reason": "Removed runtime credit/quota prose.",
+      "evidence": "ff4ff5f; final docs checks"
+    },
+    {
+      "source": "Muse",
+      "item": 13,
+      "verdict": "partially accepted",
+      "reason": "Scope/base/dependency validation is useful at coordinator integration; separate checkouts and one parent writer already remove shared edits. No distributed registry locks added. Existing launcher existence checks apply when operator guide exists.",
+      "evidence": "AGENTS.md; isolated copies; parent op-validate"
+    },
+    {
+      "source": "Muse",
+      "item": 14,
+      "verdict": "rejected broad rewrite",
+      "reason": "Pinned v3 hashes and source counts deliberately certify the chosen operator revision; generic parser and geometry behavior also has independent synthetic tests. Future exports require a new identity certificate.",
+      "evidence": "tools/test_build_manual_arm.py; independent-arm-model.py"
+    },
+    {
+      "source": "Muse",
+      "item": 15,
+      "verdict": "deferred",
+      "reason": "Canonical joints array is already serialized; no physical route consumes generator motor hints. Consider a single ordered table in future model revisions.",
+      "evidence": "RobotModel.get_body; model schema"
+    },
+    {
+      "source": "Gemini",
+      "item": "2.1",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Opposite-winding face loss reproduced.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "2.2",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Compact unused centroids while retaining displacement definition against pre-compaction occupied-cell centroids.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "2.3",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Filter quantization-collapsed triangles, compact referenced vertices and serialize actual counts.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "3.1",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Reject invalid quaternion rather than normalize malformed source.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "3.2",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Correct winding on reflected accumulated transforms.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "3.3",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Validate component/POSITION offset alignment; claimed hardware bus fault is overstated for NumPy but malformed glTF is real.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "4.3",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Replace source limits exactly once.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "5.1",
+      "verdict": "accepted repair pending parent verification",
+      "reason": "Remove dead hint and record unknown fallback; do not guess Part_1_7/8 structural material.",
+      "evidence": "source and parent reproductions"
+    },
+    {
+      "source": "Gemini",
+      "item": "2.4",
+      "verdict": "rejected",
+      "reason": "A fixed display cap that fails closed is intentional policy, not a runtime-control defect. Adaptive coarsening would change the visual error authority.",
+      "evidence": "model converter docs; strict 50k source cap"
+    },
+    {
+      "source": "Gemini",
+      "item": "3.4",
+      "verdict": "deferred",
+      "reason": "Deep-recursion limitation retained; parser is offline and this revision has shallow valid graph. No arbitrary maximum depth introduced.",
+      "evidence": "arm_gltf.py"
+    },
+    {
+      "source": "Gemini",
+      "item": "4.1/4.2",
+      "verdict": "docs accepted; invented controls rejected",
+      "reason": "URDF is inert kinematic display input. Zero effort/velocity explicitly withholds actuator/planner authority; J2/J3 CAD continuous does not establish physical travel. Do not guess finite ceilings or travel. Document it cannot be used for physics or planning.",
+      "evidence": "user uncommissioned limits; arm-model.md"
+    },
+    {
+      "source": "Gemini",
+      "item": "4.4",
+      "verdict": "rejected",
+      "reason": "Unity scale is validated before generation; omitted collision scale equals unity. No behavioral inconsistency.",
+      "evidence": "RobotModel validation"
+    },
+    {
+      "source": "Gemini",
+      "item": "6.1/6.2",
+      "verdict": "accepted parent integration task",
+      "reason": "Document separate converter environment and add generator CI suite; keep NumPy outside dashboard runtime.",
+      "evidence": "manual-arm-requirements.txt; current CI"
+    },
+    {
+      "source": "Gemini",
+      "item": "6.3",
+      "verdict": "partially accepted",
+      "reason": "Document dedicated model suite; milestone script purpose remains B11-C15, not every task ID. Generator source hashes and checks retained separately.",
+      "evidence": "scripts/check_milestone.py; M01 manifests"
+    },
+    {
+      "source": "Gemini",
+      "item": "7.1",
+      "verdict": "corrected",
+      "reason": "Session quota prose removed.",
+      "evidence": "ff4ff5f"
+    },
+    {
+      "source": "Gemini",
+      "item": "7.2",
+      "verdict": "rejected after source-grounded reconsideration",
+      "reason": "No active independent writer owns station_step.py; the parent assigns isolated scopes. Narrow optional pre-write hook is necessary in canonical coordinator; adapter after claim would lose cancellation semantics, and duplicating coordinator increases risk. Earlier docs restriction will be corrected before A03 dispatch. Existing default path and full baseline retained.",
+      "evidence": "station_step.py before_write and unconditional stop after cancellation; arm-design-synthesis.md"
+    },
+    {
+      "source": "Gemini",
+      "item": "7.3",
+      "verdict": "corrected naming; claimed policy conflict overstated",
+      "reason": "Generic REVIEW-01/DOC-01 avoids assumptions about invited collaborator; model names in task IDs were not executable routing.",
+      "evidence": "ff4ff5f"
+    }
+  ]
+}

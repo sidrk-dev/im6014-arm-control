@@ -1,0 +1,72 @@
+{
+  "baseHead": "ff4ff5faea42dc3c42634cfb49e8dee5ab4c3b03",
+  "sourceHashes": [
+    {
+      "path": "tools/build_manual_arm.py",
+      "sha256": "3df0e24c1394a1f2b84b46d5009e2e037dee12ad31497e5c5d8ff0679dcf75da"
+    },
+    {
+      "path": "tools/arm_gltf.py",
+      "sha256": "5c1068d770183f990122d60b8cb2e54bbd943f0cd733a1a42a904baf6667ea6a"
+    },
+    {
+      "path": "tools/test_build_manual_arm.py",
+      "sha256": "430d05a2f67f08a5e717dfe96726aac55e2380ea0ed39e39ccbf8b3319631b12"
+    },
+    {
+      "path": "tools/manual-arm-requirements.txt",
+      "sha256": "7bd6b8946940b79948c548c8048e545684b91c8edc9444d8dfc0c8f76a97c0a7"
+    },
+    {
+      "path": "docs/arm-model.md",
+      "sha256": "a5270494b010603e90a74288d1bb25b6807285fdf623871827bd39303ea620b6"
+    }
+  ],
+  "checks": [
+    {
+      "name": "M01-generator-unit",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/model-tools/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "tools.test_build_manual_arm",
+        "-v"
+      ],
+      "exitCode": 0,
+      "log": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/M01-generator-unit.log"
+    },
+    {
+      "name": "M01-v3-build",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/model-tools/bin/python",
+        "-B",
+        "tools/build_manual_arm.py",
+        "--source",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/cad-export-v3",
+        "--archive",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/mainAssem (3).zip",
+        "--output",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/arm_assets"
+      ],
+      "exitCode": 0,
+      "log": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/M01-v3-build.log"
+    },
+    {
+      "name": "M01-independent-model",
+      "argv": [
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/model-tools/bin/python",
+        "-B",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/independent-arm-model.py",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/cad-export-v3/mainassem/urdf/mainassem.urdf",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/arm_assets",
+        "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/M01-independent-model.json"
+      ],
+      "exitCode": 0,
+      "log": "/home/sid/Documents/code/im6014Workbench-runs/arm-priority-20261009/M01-parent-checks/20261009T115348357419Z/M01-independent-model.log"
+    }
+  ],
+  "physicalIO": "none; files/geometry and synthetic fixtures",
+  "sourceUnchanged": true,
+  "passedChecks": true
+}

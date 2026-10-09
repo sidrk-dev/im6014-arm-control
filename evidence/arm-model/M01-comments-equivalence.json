@@ -1,0 +1,14 @@
+[
+  {
+    "path": "tools/build_manual_arm.py",
+    "astEquivalent": true
+  },
+  {
+    "path": "tools/arm_gltf.py",
+    "astEquivalent": true
+  },
+  {
+    "path": "tools/test_build_manual_arm.py",
+    "astEquivalent": true
+  }
+]

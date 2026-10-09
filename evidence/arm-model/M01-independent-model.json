@@ -1,0 +1,1439 @@
+{
+  "checks": [
+    {
+      "name": "one root and 76 resolved links",
+      "passed": true
+    },
+    {
+      "name": "three intended active joints",
+      "passed": true
+    },
+    {
+      "name": "passive weld",
+      "passed": true
+    },
+    {
+      "name": "fastened_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_10 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_10 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_10 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_10__1_ unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_10__1_ unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_10__1_ unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_11 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_11 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_11 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_12 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_12 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_12 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_12_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_10 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_10 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_10 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_11 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_11 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_11 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_4 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_4 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_4 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_5 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_5 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_5 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_6 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_6 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_6 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_7 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_7 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_7 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_8 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_8 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_8 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_9 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_9 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_13_9 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_14 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_14 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_14 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_14_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_15 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_15 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_15 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_15_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_10 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_10 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_10 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_11 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_11 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_11 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_12 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_12 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_12 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_13 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_13 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_13 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_14 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_14 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_14 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_15 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_15 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_15 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_16 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_16 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_16 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_17 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_17 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_17 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_18 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_18 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_18 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_4 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_4 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_4 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_5 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_5 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_5 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_6 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_6 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_6 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_7 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_7 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_7 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_8 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_8 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_8 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_9 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_9 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_16_9 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_17 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_17 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_17 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_1_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_4 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_4 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_4 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_5 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_5 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_5 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_6 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_6 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_4_6 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_5 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_5 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_5 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_6 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_6 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_6 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_7 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_7 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_7 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_7_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_8 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_8 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_8 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_8__1_ unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_8__1_ unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_8__1_ unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_9 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_9 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_9 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fastened_9__1_ unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fastened_9__1_ unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fastened_9__1_ unchanged child",
+      "passed": true
+    },
+    {
+      "name": "fixed_node_to_root_joint unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "fixed_node_to_root_joint unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "fixed_node_to_root_joint unchanged child",
+      "passed": true
+    },
+    {
+      "name": "revolute_1 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_1 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "revolute_1 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "revolute_2 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_2 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "revolute_2 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "revolute_3 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_3 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "revolute_3 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "revolute_4 unchanged origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_4 unchanged parent",
+      "passed": true
+    },
+    {
+      "name": "revolute_4 unchanged child",
+      "passed": true
+    },
+    {
+      "name": "all structural links retained",
+      "passed": true
+    },
+    {
+      "name": "J1 exact180deg total limit",
+      "passed": true
+    },
+    {
+      "name": "single shared model J1 cap",
+      "passed": true
+    },
+    {
+      "name": "ordered joint IDs",
+      "passed": true
+    },
+    {
+      "name": "base motor retained",
+      "passed": true
+    },
+    {
+      "name": "moving duplicate only visual removed",
+      "passed": true
+    },
+    {
+      "name": "CAD up rotation",
+      "passed": true
+    },
+    {
+      "name": "revolute_2 exact source origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_2 exact source axis",
+      "passed": true
+    },
+    {
+      "name": "revolute_1 exact source origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_1 exact source axis",
+      "passed": true
+    },
+    {
+      "name": "revolute_3 exact source origin",
+      "passed": true
+    },
+    {
+      "name": "revolute_3 exact source axis",
+      "passed": true
+    },
+    {
+      "name": "fixed base motor motion membership",
+      "passed": true
+    },
+    {
+      "name": "independent source FK vs nested rendering axes",
+      "passed": true,
+      "pointComparisons": 2432,
+      "maxErrorMM": 3.410605131648481e-13
+    },
+    {
+      "name": "source URDF hash",
+      "passed": true
+    },
+    {
+      "name": "cleaned URDF hash",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_Thin_Nylock_Nut__32_02_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_Thin_Nylock_Nut__32_02_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_Thin_Nylock_Nut__32_02_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/NONE.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/NONE.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/NONE.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_2.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_4.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_7.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_9.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_3.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_10.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_2.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_9.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_7.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_4.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_11.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_7.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_9.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_1.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_2.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_3.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_4.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_4.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Part_1_5.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "URDF relative asset meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/NONE.stl",
+      "passed": true
+    },
+    {
+      "name": "LOD cap meshes/NONE.stl",
+      "passed": true,
+      "observed": 44590,
+      "requiredMax": 50000
+    },
+    {
+      "name": "STL meshes/Part_1.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_1.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_10.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_11.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_2.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_3.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_4.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_5.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_6.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_7.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_8.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Part_1_9.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/_8_32_Thin_Nylock_Nut__32_02_.stl",
+      "passed": true
+    },
+    {
+      "name": "STL meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/base.frame.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/base.hardware.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/base.motor.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j1.frame.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j1.hardware.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j1.hub.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j1.motor.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j1.tube.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.frame.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.hardware.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.hub.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.link.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.motor.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j2.tube.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j3.hub.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j3.link.bin",
+      "passed": true
+    },
+    {
+      "name": "render bin meshes/j3.tube.bin",
+      "passed": true
+    },
+    {
+      "name": "world origin derives original unsimplified source floor",
+      "passed": true,
+      "expectedOriginCADMM": [
+        -59.39421740443184,
+        62.468168087005175,
+        -110.0571187765357
+      ],
+      "sourceFloorMM": 110.0571187765357
+    },
+    {
+      "name": "truthful nonphysical flags",
+      "passed": true
+    }
+  ],
+  "passedChecks": true,
+  "checkCount": 355,
+  "pointComparisons": 2432,
+  "maxFrameErrorMM": 3.410605131648481e-13,
+  "physicalIO": "none; independent standard-library FK and asset validation"
+}

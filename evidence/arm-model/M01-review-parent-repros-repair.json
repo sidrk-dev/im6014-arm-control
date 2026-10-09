@@ -1,0 +1,37 @@
+[
+  {
+    "check": "opposite winding faces preserved",
+    "expected": 2,
+    "actual": 2,
+    "passed": true
+  },
+  {
+    "check": "zero quaternion rejected",
+    "passed": true,
+    "actual": "Node 0 rotation quaternion must be unit length"
+  },
+  {
+    "check": "nonunit quaternion rejected",
+    "passed": true,
+    "actual": "Node 0 rotation quaternion must be unit length"
+  },
+  {
+    "check": "zero scale rejected",
+    "passed": true,
+    "actual": "Node 0 scale components must be nonzero"
+  },
+  {
+    "check": "mirrored winding preserved",
+    "passed": true,
+    "actual_normal": [
+      0.0,
+      -0.0,
+      9.999999747378752e-05
+    ]
+  },
+  {
+    "check": "empty geometry rejected",
+    "passed": true,
+    "actual": "glTF contains no reachable triangle geometry in /tmp/arm-review-s_lrzyf1/fixture.gltf"
+  }
+]

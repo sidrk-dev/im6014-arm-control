@@ -53,3 +53,7 @@ The arm design sets J1's intended travel to 180 degrees total, from -90 to +90 a
 - [Milestones](docs/milestones.tsv) and [decisions](docs/decisions.tsv): actual acceptance and evidence.
 
 The original bench source comes from [im6014Development](https://github.com/sidrk-dev/im6014Development). Development checkout and the user plan remain separate from this private workbench.
+
+## Arm model tools
+
+The [model guide](docs/arm-model.md) describes the separate converter environment, the updated CAD revision, and the source-dependent checks. The generated `arm_assets/` model is for visualization; it supplies no live limits or physics/planning authority.
