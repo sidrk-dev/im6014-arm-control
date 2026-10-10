@@ -32,10 +32,16 @@ The correction removes `/api/claim`; opening another tab creates an observer. A 
 
 Serial dropdown and Refresh enumerate bounded device metadata without opening or probing a port. The verified Channel D uses its stable by-id path when present. Missing Channel D is reported even if unrelated serial ports exist. Enumeration is not a healthy motor reply. Calibration requires measured Stop feedback on every connection; a stored software zero is not trusted after reconnect.
 
-### Current verification status
+### Checkpoint before final PR review
 
 The first repaired artifact passed 30 manual and 15 HTTP checks, two Node groups, six independent parent checks and two actual allocated pySerial PTY cases. A fake browser session completed Connect, timeout acknowledgment, zero declaration, Enable, automatic Figure-8 following on simulated J1, confirmed Stop and observer isolation. Momentary key injection did not establish sustained keyboard motion; physical Xbox motion was not demonstrated. Browser screenshot capture was unavailable.
 
 Muse and Gemini reviewed that frozen artifact. Accepted presentation, controller selection, transient-session and bounded-port findings were corrected. The revised source passed 45 Python checks, three Node groups, six independent checks, two bounded port/static-module checks and two allocated PTY cases. The first revised presentation test had an incorrect zero-label expectation and caught a real uncleared hidden-gauge fill; both corrections and the failed log are retained. A parent PTY invocation passed its two cases but omitted its receipt argument; the corrected invocation passed and wrote the receipt. An actual visible browser session followed the Figure-8 on simulated J1 to −7.73°, then confirmed mode-0 Stop. Hidden-tab ticket expiry and browser input timeouts are retained; no protection deadlines were relaxed. A stale post-Stop preview caption was reproduced and corrected. MiMo's HTTP 502 is a retained failed seat, with no retry or substitute for that artifact. Final-artifact checks and independent verification must supersede this provisional record before shipping.
 
 At the latest passive hardware observation, the USB Channel D adapter was absent. The old server had stale feedback and repeated serial I/O errors; cached voltage and angles were not fresh communication proof. It was stopped. No motor movement or fresh physical connection was performed during this usability correction. Replug the USB adapter and use Refresh before attempting Connect; J2/J3 remain virtual.
+
+### Final software release
+
+Private PR #5 merged as `8b6a66d` after exact-head green checks and a fresh independent nonwriter Sol PASS+NOTES verdict. The merged tree matches the reviewed candidate. Muse and Gemini completed the final review; their findings were triaged. MiMo returned HTTP 502 with no review output and was neither retried nor substituted. Two additional independent fake production-HTTP cases passed. Merged-main CI passed.
+
+The local dashboard was launched disconnected; passive startup still found no Channel D adapter. This release does not claim a new physical connection or physical Xbox/held-key result. Three nonblocking display/documentation notes are addressed in this follow-up: the zero-marker color, separate velocity-recipe scope and browser-duplicate owner-session wording.
