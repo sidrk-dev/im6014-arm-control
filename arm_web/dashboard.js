@@ -846,6 +846,7 @@ window.addEventListener('gamepaddisconnected', () => {
 function pollGamepad() {
   if (typeof navigator.getGamepads !== 'function') {
     gamepadStatus.textContent = 'This browser cannot read controllers. Open this address in Chrome or Firefox.';
+    gamepadStatus.dataset.state = 'unsupported';
     reduceGamepad(inputState, null);
     serviceReducerStop();
     return;
@@ -858,14 +859,14 @@ function pollGamepad() {
     gamepadStatus.textContent = validation.valid
       ? `Standard gamepad connected: ${pad.id.slice(0, 48)}. Jog J1 with left stick. Press B to Stop.`
       : `Selected controller cannot jog: ${validation.reason}. Select a standard mapping after Stop/Check.`;
-    gamepadStatus.style.color = validation.valid ? '#166534' : '#b91c1c';
+    gamepadStatus.dataset.state = validation.valid ? 'ready' : 'error';
   } else {
     const unsupported = gamepads.find(candidate => candidate && candidate.connected === true);
     const reason = unsupported ? validateGamepad(unsupported).reason : null;
     gamepadStatus.textContent = reason
       ? `No supported standard controller found: ${reason}. Use a standard-mapped controller in Chrome or Firefox.`
       : 'Controller not visible yet. Focus this page and press a controller button. If needed, open this address in Chrome or Firefox.';
-    gamepadStatus.style.color = reason ? '#b91c1c' : '#64748b';
+    gamepadStatus.dataset.state = reason ? 'error' : 'idle';
     reduceGamepad(inputState, null);
   }
   serviceReducerStop();
