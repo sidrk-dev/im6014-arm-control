@@ -77,7 +77,9 @@ If the adapter disappears or feedback becomes stale, keep the motor in Stop, rec
 Hybrid control formula:
 $$\tau = \tau_{ff} + K_p \times (p_{des} - p) + K_d \times (\omega_{des} - \omega)$$
 
-### Velocity Mode (Spinning Slowly)
+### Separate protocol and legacy bench velocity recipe
+
+This recipe is for the separate protocol/legacy bench surface. It is not an arm-dashboard setting, and it was not revalidated in the current usability release. The J1 dashboard defaults to 0.5 rpm and applies a 1 rpm maximum through position control; use `docs/arm-quickstart.md` for that flow. The values below must not be treated as its commissioning defaults.
 - `mode = 1` (FOC), `timeout = 1` (watchdog active)
 - `outputSpd = 1.0` to `2.0` rad/s ($\approx 9.5$ to $19$ RPM)
 - `Kd = 1.5` to `3.0` $\text{N}\cdot\text{m}/(\text{rad/s})$ (recommended no-load range $0.5$–$6.0$)
