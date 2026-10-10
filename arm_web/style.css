@@ -281,7 +281,7 @@ input[type="checkbox"] {
 }
 
 .workflow-stepper-bar {
-  grid-column: 1 / -1;
+  grid-area: workflow;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -366,7 +366,7 @@ input[type="checkbox"] {
 }
 
 .alert-banner {
-  grid-column: 1 / -1;
+  grid-area: alert;
   padding: 10px 14px;
   border-radius: var(--radius-md);
   font-size: 13px;
@@ -413,6 +413,11 @@ input[type="checkbox"] {
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(360px, 1fr);
+  grid-template-areas:
+    "workflow workflow"
+    "alert alert"
+    "preview controls"
+    "telemetry controls";
   gap: 16px;
   padding: 16px 24px;
   align-items: start;
@@ -420,8 +425,7 @@ input[type="checkbox"] {
 }
 
 .center-column {
-  grid-column: 1;
-  grid-row: 2;
+  grid-area: preview;
   position: sticky;
   top: 76px;
   display: flex;
@@ -508,13 +512,12 @@ canvas {
   box-shadow: var(--shadow-card);
 }
 
-.dashboard-grid > .card:nth-of-type(2) {
-  grid-column: 2;
-  grid-row: 2 / 4;
+#arm-controls {
+  grid-area: controls;
 }
 
-.dashboard-grid > .card:last-of-type {
-  grid-column: 1;
+#arm-telemetry {
+  grid-area: telemetry;
 }
 
 .card-header {
@@ -560,6 +563,109 @@ canvas {
 .section-title-sub {
   font-size: 11px;
   font-weight: 600;
+}
+
+.port-status {
+  margin: 4px 0 8px;
+  padding: 7px 9px;
+  border-left: 3px solid var(--border-hover);
+  border-radius: 2px;
+  background: var(--bg-card-sub);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.port-status[data-state="missing"],
+.port-status[data-state="error"] {
+  border-left-color: var(--accent-blue);
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.port-status[data-state="ready"] {
+  border-left-color: var(--text-main);
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.port-status[data-state="other"] {
+  border-left-style: dashed;
+  border-left-color: var(--text-muted);
+  background: var(--bg-card-sub);
+}
+
+.connection-note,
+.plain-help,
+.optional-settings p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.optional-settings {
+  margin: 4px 0 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+
+.optional-settings summary {
+  font-size: 12px;
+}
+
+.optional-settings p {
+  margin-bottom: 8px;
+}
+
+.timeout-recovery {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent-blue);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+}
+
+.timeout-recovery[hidden] {
+  display: none;
+}
+
+.timeout-recovery p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.timeout-recovery label {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.input-help {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.input-help p {
+  margin: 0 0 4px;
+}
+
+.input-help p:last-of-type {
+  margin-bottom: 8px;
 }
 
 .form-group {
@@ -686,18 +792,6 @@ summary:focus-visible {
   color: #fff !important;
   box-shadow: none !important;
   transform: scale(0.97);
-}
-
-.jog-guide-table {
-  font-size: 11px;
-  width: 100%;
-  margin: 10px 0;
-  border-collapse: collapse;
-}
-
-.jog-guide-table td {
-  padding: 5px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .jog-key {
@@ -875,19 +969,21 @@ summary:focus-visible {
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "workflow"
+      "alert"
+      "controls"
+      "preview"
+      "telemetry";
     padding: 12px;
   }
   .center-column, .card {
     width: 100%;
     position: static;
   }
-  .dashboard-grid > .card:nth-of-type(2) {
-    grid-column: 1;
-    grid-row: auto;
-  }
   .canvas-container {
-    height: 50vh;
-    min-height: 320px;
+    height: min(50vh, 440px);
+    min-height: 300px;
   }
 }
 
@@ -902,6 +998,22 @@ summary:focus-visible {
     padding-bottom: 4px;
   }
   .stepper-steps {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .step-arrow {
+    display: none;
+  }
+  .step-node {
+    padding: 4px;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .timeout-recovery {
+    grid-template-columns: auto 1fr;
+  }
+  .timeout-recovery button {
+    grid-column: 1 / -1;
   }
 }

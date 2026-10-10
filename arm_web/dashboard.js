@@ -16,7 +16,7 @@ import {
 } from './input_reducer.js';
 
 import { ArmScene } from './arm_scene.js';
-import { deriveDashboardPresentation, finiteNumber as finiteValue, j1GaugePresentation, jointPositionPresentation, jointVelocityText, serialPortStatus } from './presentation.js';
+import { canAcknowledgeStartupTimeout, deriveDashboardPresentation, deriveWorkflowSteps, finiteNumber as finiteValue, j1GaugePresentation, jointPositionPresentation, jointVelocityText, serialPortStatus } from './presentation.js';
 import { PreviewPlayer, validateModel, figureEight, followAxis } from './presets.js';
 const badgeMode = document.getElementById('badge-mode');
 const badgeConnection = document.getElementById('badge-connection');
@@ -88,7 +88,7 @@ function showAlert(message, type = 'info', durationMs = 0) {
   }, durationMs) : null;
 }
 
-let knownPorts = [];
+let knownPorts = null;
 
 function updatePortOptions(ports, defaultPort) {
   if (!Array.isArray(ports)) return;
@@ -102,7 +102,8 @@ function updatePortOptions(ports, defaultPort) {
   selectPort.innerHTML = '';
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = ports.length === 0 ? 'No serial ports detected' : 'Select a serial port';
+  placeholder.textContent = isDemoMode === true ? 'Simulated motor — no USB adapter required'
+    : ports.length === 0 ? 'No USB adapter detected' : 'Choose the motor adapter';
   selectPort.appendChild(placeholder);
   let selectedValue = '';
   for (const p of ports) {
@@ -121,7 +122,14 @@ function updatePortOptions(ports, defaultPort) {
 }
 
 function updatePortStatus(ports, error = null) {
-  if (portStatus) portStatus.textContent = serialPortStatus(ports, error);
+  const records = Array.isArray(ports) ? ports.filter(Boolean) : [];
+  const message = serialPortStatus(records, error, isDemoMode === true);
+  if (!portStatus) return message;
+  portStatus.dataset.state = isDemoMode === true ? 'demo' : error ? 'error'
+    : records.length === 0 ? 'missing'
+      : records.some(port => port.channel_d === true) ? 'ready' : 'other';
+  portStatus.textContent = message;
+  return message;
 }
 
 btnRefreshPorts.addEventListener('click', async () => {
@@ -132,7 +140,12 @@ btnRefreshPorts.addEventListener('click', async () => {
       const data = await res.json();
       updatePortOptions(data.ports, data.default);
       updatePortStatus(data.ports, data.error);
-      logEvent(data.error || `Refreshed serial ports (${data.ports.length} found)`);
+      const ports = Array.isArray(data.ports) ? data.ports.filter(Boolean) : [];
+      const channelDListed = ports.some(port => port.channel_d === true);
+      const summary = data.error ? `Adapter scan failed: ${data.error}`
+        : ports.length === 0 ? 'No USB adapters found; Channel D not listed.'
+          : `${ports.length} USB adapter${ports.length === 1 ? '' : 's'} listed; Channel D ${channelDListed ? 'found' : 'not identified'}.`;
+      logEvent(summary);
     } else {
       updatePortStatus(null, `Port refresh failed (HTTP ${res.status})`);
       logEvent(`Failed to refresh ports: HTTP ${res.status}`, 'error');
@@ -150,6 +163,7 @@ const btnConnect = document.getElementById('btn-connect');
 const btnDisconnect = document.getElementById('btn-disconnect');
 const btnCheck = document.getElementById('btn-check');
 const btnAck = document.getElementById('btn-ack');
+const timeoutRecovery = document.getElementById('timeout-recovery');
 const chkAck = document.getElementById('chk-ack-fault');
 
 const inputCalAngle = document.getElementById('input-cal-angle');
@@ -212,6 +226,7 @@ let connectionKnown = false;
 let armedKnown = false;
 let statePollController = null;
 let statePollGeneration = 0;
+let statePollUnavailable = false;
 let lastKnownState = null;
 let lastStateData = null;
 let freshFeedback = false;
@@ -295,12 +310,19 @@ async function pollState() {
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
-    if (generation === statePollGeneration && statePollController === controller) updateDashboardState(data);
+    if (generation === statePollGeneration && statePollController === controller) {
+      if (statePollUnavailable) logEvent('Dashboard server connection restored.');
+      statePollUnavailable = false;
+      updateDashboardState(data);
+    }
   } catch (err) {
-    if (generation === statePollGeneration && err.name === 'AbortError') {
-      logEvent('State poll timed out (deadline 2s)', 'error');
-    } else if (generation === statePollGeneration) {
-      logEvent(`State poll failed: ${err.message}`, 'error');
+    if (generation === statePollGeneration) {
+      if (!statePollUnavailable) {
+        logEvent(`Dashboard server is not responding (${err.name === 'AbortError' ? 'response timed out' : err.message}). Check the terminal running ./start_arm.sh.`, 'error');
+      }
+      statePollUnavailable = true;
+      updateActionControls();
+      updateStatusPresentation();
     }
   } finally {
     clearTimeout(timeoutId);
@@ -340,17 +362,27 @@ function updateJ1Gauges(positionRad, torque, applied) {
 
 function updateActionControls() {
   const latest = lastStateData?.latest;
-  const readyStop = Boolean(freshFeedback && lastStateData?.stop_confirmed === true
+  const readyStop = Boolean(!statePollUnavailable && freshFeedback && lastStateData?.stop_confirmed === true
     && lastStateData?.state === 'Ready · Stop' && latest?.mode === 0
     && (latest?.timeout === false || latest?.timeout === 0));
-  const activeTimeout = Boolean(freshFeedback && lastStateData?.stop_confirmed === true
-    && latest?.mode === 0 && (latest?.timeout === true || latest?.timeout === 1));
+  const canAcknowledgeTimeout = !statePollUnavailable && canAcknowledgeStartupTimeout({
+    connected: isConnected,
+    owner: ownsMotor,
+    fresh: freshFeedback,
+    stopConfirmed: lastStateData?.stop_confirmed,
+    latest,
+    armed: isArmed
+  });
   const hasPort = Boolean(inputPortPath?.value.trim() || selectPort.value);
   const canConnect = isDemoMode === true || hasPort;
-  btnConnect.disabled = isConnected || !inputClient.session || !canConnect;
+  selectPort.disabled = isDemoMode === true || isConnected;
+  if (inputPortPath) inputPortPath.disabled = selectPort.disabled;
+  btnConnect.disabled = statePollUnavailable || isConnected || !inputClient.session || !canConnect;
   btnDisconnect.disabled = !ownsMotor || !isConnected;
-  btnCheck.disabled = !ownsMotor || !isConnected || isArmed;
-  btnAck.disabled = !ownsMotor || !isConnected || isArmed || !chkAck.checked || !activeTimeout;
+  btnCheck.disabled = statePollUnavailable || !ownsMotor || !isConnected || isArmed;
+  btnAck.disabled = !canAcknowledgeTimeout || !chkAck.checked;
+  if (timeoutRecovery) timeoutRecovery.hidden = !canAcknowledgeTimeout;
+  if (!canAcknowledgeTimeout) chkAck.checked = false;
   btnCalibrate.disabled = !ownsMotor || !isConnected || isArmed || !readyStop;
   btnZeroJ1.disabled = btnCalibrate.disabled;
   btnConfigure.disabled = !ownsMotor || !isConnected || isArmed || !readyStop;
@@ -368,8 +400,18 @@ function updateActionControls() {
 
 function updateStatusPresentation(data = lastStateData) {
   const presentation = deriveDashboardPresentation({
+    serverUnavailable: statePollUnavailable,
+    demo: isDemoMode === true,
     connectionKnown, connected: isConnected, owner: ownsMotor, armedKnown, armed: isArmed,
     fresh: freshFeedback, timeout: String(data?.state || lastKnownState || '').startsWith('Timeout'),
+    timeoutAcknowledgementAvailable: !statePollUnavailable && canAcknowledgeStartupTimeout({
+      connected: isConnected,
+      owner: ownsMotor,
+      fresh: freshFeedback,
+      stopConfirmed: data?.stop_confirmed,
+      latest: data?.latest,
+      armed: isArmed
+    }),
     stopLatched: inputState.stopLatched, stopReason: inputState.stopReason || data?.reason,
     motionActive: Boolean(inputState.motionEnergized || inputState.isEnergized || followMotion),
     axes: inputState.effectiveAxes, source: inputState.activeDevice,
@@ -479,26 +521,20 @@ function updateDashboardState(data) {
   updateActionControls();
 
   if (stepConnect && stepCheck && stepZero && stepJog) {
-    const isConn = Boolean(isConnected);
-    const isTimeout = isConn && String(data.state).startsWith('Timeout');
-    const isCalib = Boolean(data.calibrated);
-    const isArm = Boolean(isArmed);
-
-    stepConnect.className = `step-node ${isConn ? 'completed' : 'active'}`;
-    if (!isConn) {
-      stepCheck.className = 'step-node';
-      stepZero.className = 'step-node';
-      stepJog.className = 'step-node';
-    } else {
-      stepCheck.className = `step-node ${isTimeout || inputState.stopLatched ? 'active' : 'completed'}`;
-      if (isTimeout) {
-        stepZero.className = 'step-node';
-        stepJog.className = 'step-node';
-      } else {
-        stepZero.className = `step-node ${isCalib ? 'completed' : 'active'}`;
-        stepJog.className = `step-node ${!isCalib ? '' : isArm ? 'completed active' : 'active'}`;
-      }
-    }
+    const steps = deriveWorkflowSteps({
+      connected: isConnected,
+      fresh: freshFeedback,
+      stopConfirmed: data.stop_confirmed,
+      motorState: data.state,
+      latest: data.latest,
+      calibrated: data.calibrated,
+      armed: isArmed,
+      stopLatched: inputState.stopLatched
+    });
+    stepConnect.className = `step-node ${steps.connect}`;
+    stepCheck.className = `step-node ${steps.check}`;
+    stepZero.className = `step-node ${steps.zero}`;
+    stepJog.className = `step-node ${steps.jog}`;
   }
 
   updateStatusPresentation(data);
@@ -712,7 +748,7 @@ btnZeroJ1.addEventListener('click', () => {
 
 btnCalibrate.addEventListener('click', async () => {
   try {
-    const angle = readBounded(inputCalAngle, 'Measured current angle', -90, 90);
+    const angle = readBounded(inputCalAngle, 'J1 angle at this pose', -90, 90);
     const dir = Number(selectCalDir.value);
     const lower = readBounded(inputCalLower, 'Lower limit', -90, 90);
     const upper = readBounded(inputCalUpper, 'Upper limit', -90, 90);

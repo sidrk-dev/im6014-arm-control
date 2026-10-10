@@ -1,5 +1,7 @@
 # Arm control: one real J1, two virtual joints
 
+> **Physical scope:** this dashboard sends motor commands to J1 at ID 0. J2 and J3 move only in the colored CAD preview; they have no physical motor, health feedback, or Stop confirmation here.
+
 ## Start
 
 From this repository, run:
@@ -20,23 +22,23 @@ python3 -m venv .venv
 
 ## Connect and move J1
 
-1. Secure the unloaded motor, clear its output, supply power, and keep the physical E-stop reachable. Close the old development controller. This dashboard controls **ID 0 only** at 6,000,000 baud. The dropdown lists detected ports; Channel D uses its stable by-id path when adapter metadata identifies it. Listing and Refresh are passive and do not open or probe a port. If the list is empty, reconnect the adapter and Refresh. A custom path can be entered, but its adapter identity remains unverified until Connect and Health Check return current feedback.
-2. If a fresh status reports startup timeout in mode 0, confirm the secured-motor checkbox and select **Acknowledge Timeout**. It acknowledges only the timeout bit in Stop, then restores watchdog protection. Other motor faults are not cleared. Stale feedback disables acknowledgment and Enable; the dashboard labels cached values as stale and shows the last reply age.
-3. With the motor stopped, point it along your chosen zero direction and click **Set J1 zero here (no movement)**. Alternatively, enter its measured angle and click **Use measured angle for J1**. This declares a software reference; it does not discover a mechanical home. Default travel is **−90° to +90°**, the software ceiling; choose a narrower window when your setup needs it. The dashboard performs the required Check after calibration.
-4. While disarmed, select **Keyboard and on-screen buttons** or a detected standard Xbox controller. Release all jog keys and center both sticks. Confirm your setup with the jogging checkbox, then click **Enable jogging**. Arm requires fresh Ready/Stop feedback and sends a neutral sample; release keys or center sticks once after Enable before motion is accepted.
-5. Press **A / D** for J1, click its on-screen **− / +** buttons, or use the selected Xbox stick directly. Releasing keys/buttons or centering the stick holds the current position. **Esc, Xbox B, or STOP removes torque**. Press **Health Check** and explicitly enable again after Stop. W/S and Q/E move virtual J2/J3, which have no attached motor or health feedback.
+1. Secure the unloaded motor, clear its output, supply power, and keep the physical E-stop reachable. Close the old development controller. This dashboard controls **ID 0 only** at 6,000,000 baud. Select the USB adapter marked **Channel D · Recommended**, then select **Connect**. Listing and Refresh are passive: they do not open or probe a port. Built-in `/dev/ttyS0`, `/dev/ttyS1`, and similar laptop ports are hidden so they cannot be mistaken for the USB motor adapter. If no adapter appears, reconnect the USB-RS485 adapter and select **Refresh**. For a different adapter, open **Using a different adapter?** and enter its **Port path**.
+2. Select **Check motor** and wait for the fresh-feedback status. A listed path alone is not a connection. If fresh feedback reports a startup timeout, keep the motor stopped, confirm the setup is secure and you can cut power, then select **Acknowledge timeout**. It acknowledges only the timeout bit in Stop, then restores watchdog protection. Other motor faults are not cleared. Stale feedback disables acknowledgment and movement; the dashboard labels cached values as stale and shows the last reply age.
+3. With the motor stopped, point it along your chosen zero direction and click **Set J1 zero here (0°)**. Alternatively, enter the motor's known angle at its current pose and click **Use entered angle**. This declares a software reference; it does not discover a mechanical home. Default travel is **−90° to +90°**, the software ceiling; choose a narrower window when your setup needs it.
+4. While stopped, select **Keyboard and on-screen buttons** or a detected standard Xbox controller. Release all jog keys and center both sticks. Confirm the setup checkbox, then click **Enable J1 movement**. Enable requires fresh Ready/Stop feedback and sends a neutral sample; release keys or center sticks once after enabling before motion is accepted.
+5. Press **A / D** for J1, click its on-screen **− / +** buttons, or use the selected Xbox stick directly. **Enable J1 movement** is the explicit start action; no key or button must be held as a deadman. Releasing a jog key/button or centering the stick holds position. **Esc, Xbox B, or STOP sends Stop and disarms**. Select **Check motor**, then enable movement again after Stop. W/S and Q/E move virtual J2/J3 only.
 
 Do not navigate away while moving: hiding or closing the owner tab requests Stop. An independently opened tab starts as an observer; only an explicit successful Connect with a new session can take ownership after the current owner disconnects. Browser Duplicate Tab or an opener can copy sessionStorage and reuse the same authenticated owner session. Use one controlling tab and open another independently to observe; do not duplicate the controlling tab. A resumed owner is confirmed through authenticated session status. An observer cannot send jog input or claim an armed motor. If the owner tab is lost, use the visible owner session or restart the server after confirming the motor is physically safe; do not assume a new tab has taken control.
 
 ## Xbox
 
-Focus the dashboard and press **A once** to let the browser detect the controller. A newly detected or replaced controller requires **Health Check**. Select Xbox as the input source while disarmed. If the in-app browser cannot read controllers, open the same address in Chrome or Firefox. Center both sticks, then explicitly **Enable jogging** and center once more to satisfy the post-Arm neutral gate.
+Focus the dashboard and press **A once** to let the browser detect the controller. A newly detected or replaced controller requires **Check motor**. Select Xbox as the input source while stopped. If the in-app browser cannot read controllers, open the same address in Chrome or Firefox. Center both sticks, then explicitly **Enable J1 movement** and center once more before moving.
 
 Use a standard-mapped controller: left stick X jogs J1 directly, left stick Y is virtual J2, and right stick Y is virtual J3. **B stops**. The input source cannot be changed while armed; stop, Check, and select another source while disarmed. Small stick drift is filtered. The software mapping is checked; a physical Xbox controller has not been tested on this laptop.
 
 ## Calibration, limits and PD tuning
 
-Open **Advanced: gains and motion limits** while disarmed. Draft fields accept any finite number and show warnings outside recommendations. **Save draft without applying** stores the draft in backend memory, without changing motor commands; drafts are discarded when the server stops. **Apply settings** applies only values accepted by physical command limits. The displayed **Applied** line is authoritative.
+Open **Advanced: PD Gains & Motion Limits** while disarmed. Draft fields accept any finite number and show warnings outside recommendations. **Save draft** stores the draft in backend memory without changing motor commands; drafts are discarded when the server stops. **Apply settings** applies only values accepted by physical command limits. The displayed **Applied** line is authoritative.
 
 Current physical command limits are Kp > 0 up to 30, Kd 0–6, speed up to 1 rpm, effort up to 1 Nm, and J1 travel within ±90°. The UI defaults to the full ±90° software window; narrow it before arming if your setup needs less travel. Your wire-management requirement limits J1 to 180° total even though the unloaded output can rotate farther. Ordered limits must contain the declared current angle. A reconnect requires a new angle declaration; power-cycle absolute-reference behavior remains unverified.
 
@@ -48,11 +50,12 @@ Earlier recorded unloaded J1 runs moved **2.71°** and **0.52°** in bounded ben
 
 ## If Connect fails
 
-- **Port missing:** reconnect the FTDI adapter and Refresh. When identified as Channel D, its stable path is `/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0` on this laptop. Adapter identities differ on another computer; an unknown adapter is not verified by appearing in the list.
+- **No compatible adapter found:** reconnect the FTDI USB-RS485 adapter and select **Refresh**. The Channel D path on this laptop is `/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0`. Adapter identities differ on other computers; seeing a path in the list does not prove motor communication.
+- **Channel D is missing but another adapter appears:** do not guess. Check the FTDI adapter and cable. Open **Using a different adapter?** and enter its **Port path** only if you know your adapter exposes a different path.
 - **Already owned:** close/disconnect the old dashboard or development controller first. Restart this server if its controlling tab was lost.
 - **Permission denied:** use your normal serial-device access setup; do not run the whole dashboard as root.
-- **No healthy reply:** verify power, motor ID 0, Channel D wiring and 6M baud. Do not change IDs, firmware or baud by trial and error.
-- **Check required / stale feedback:** the dashboard labels stale telemetry and locks acknowledgment and Enable. Reconnect the adapter, Refresh and select Channel D, verify motor power and ID 0, then run Health Check. The dashboard never silently rearms.
+- **Adapter appears but no fresh J1 feedback:** verify the motor has separate DC power, motor ID 0, Channel D wiring and 6M baud. Port listing alone is not a connection. Do not change IDs, firmware or baud by trial and error.
+- **Check required / stale feedback:** the dashboard marks feedback stale and locks movement. Reconnect the adapter, select Refresh and Channel D, verify motor power and ID 0, then select **Check motor**. The dashboard never silently enables movement.
 
 ## Ready pose, Calibration pose and Figure-8
 
