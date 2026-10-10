@@ -468,6 +468,16 @@ class ArmHttpServerTests(unittest.TestCase):
         status, _, _ = self._request("GET", "/arm_assets/meshes/Part_1.stl")
         self.assertEqual(status, 200)
 
+    def test_get_ports_endpoint(self) -> None:
+        status, headers, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        self.assertIn("application/json", headers.get("Content-Type", ""))
+        data = json.loads(body.decode("utf-8"))
+        self.assertIn("ports", data)
+        self.assertIn("default", data)
+        self.assertIsInstance(data["ports"], list)
+        self.assertTrue(all("device" in p and "label" in p for p in data["ports"]))
+
     def test_concurrency_semaphore_quick_reject(self) -> None:
         acquired = []
         deadline = time.monotonic() + 0.5

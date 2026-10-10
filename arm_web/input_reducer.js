@@ -21,7 +21,8 @@ export function createInputState() {
     gamepadConnected: false,
     activeDevice: 'keyboard',
     effectiveAxes: ZERO_AXES(),
-    effectiveDeadman: false
+    effectiveDeadman: false,
+    isEnergized: false
   };
 }
 
@@ -32,6 +33,7 @@ function clearHeldInput(state) {
   state.gamepadAxes = ZERO_AXES();
   state.gamepadDeadman = false;
   state.motionEnergized = false;
+  state.isEnergized = false;
 }
 
 export function updateEffectiveState(state) {
@@ -41,6 +43,7 @@ export function updateEffectiveState(state) {
     if (!state.armed || state.stopLatched) {
       state.neutralLatched = false;
       state.motionEnergized = false;
+      state.isEnergized = false;
     }
     return state;
   }
@@ -48,23 +51,25 @@ export function updateEffectiveState(state) {
   const gamepadActive = state.activeDevice === 'gamepad' && state.gamepadConnected;
   const rawDeadman = gamepadActive ? state.gamepadDeadman : state.keyboardDeadman;
   const rawAxes = gamepadActive ? state.gamepadAxes : state.keyboardAxes;
-  const isNeutral = !rawDeadman && rawAxes.every(axis => axis === 0);
+  const hasAxisInput = rawAxes.some(axis => axis !== 0);
+  const isNeutral = !rawDeadman && !hasAxisInput;
 
   if (!state.neutralLatched) {
     if (!isNeutral) {
       state.effectiveAxes = ZERO_AXES();
       state.effectiveDeadman = false;
       state.motionEnergized = false;
+      state.isEnergized = false;
       return state;
     }
     state.neutralLatched = true;
   }
 
-  if (rawDeadman) state.motionEnergized = true;
-  else state.motionEnergized = false;
-
-  state.effectiveDeadman = state.motionEnergized && rawDeadman;
-  state.effectiveAxes = state.effectiveDeadman ? [...rawAxes] : ZERO_AXES();
+  const isEnergized = state.neutralLatched && (hasAxisInput || rawDeadman);
+  state.motionEnergized = isEnergized;
+  state.isEnergized = isEnergized;
+  state.effectiveDeadman = isEnergized;
+  state.effectiveAxes = isEnergized ? [...rawAxes] : ZERO_AXES();
   return state;
 }
 
@@ -121,7 +126,7 @@ export function reduceKeyEvent(state, event) {
   if (type !== 'keydown' || isEditing || !JOG_KEYS.has(code)) return state;
 
   state.keysDown.add(code);
-  if (code === 'Space') state.activeDevice = 'keyboard';
+  state.activeDevice = 'keyboard';
   updateKeyboardAxes(state);
   return updateEffectiveState(state);
 }
@@ -129,6 +134,7 @@ export function reduceKeyEvent(state, event) {
 export function validateGamepad(pad) {
   if (!pad || typeof pad !== 'object') return { valid: false, reason: 'gamepad_invalid' };
   if (pad.connected !== true) return { valid: false, reason: 'gamepad_disconnected' };
+  if (pad.mapping !== 'standard') return { valid: false, reason: 'unsupported_mapping' };
   if (!Number.isInteger(pad.index) || pad.index < 0) return { valid: false, reason: 'gamepad_invalid_index' };
   if (typeof pad.id !== 'string' || !pad.id.trim()) return { valid: false, reason: 'gamepad_invalid_id' };
   if (!Array.isArray(pad.axes) || pad.axes.length < 4) return { valid: false, reason: 'unsupported_axes_count' };
@@ -182,7 +188,7 @@ export function reduceGamepad(state, pad) {
 
   if (pad.buttons[1].pressed) return latchStop(state, 'gamepad_b_stop');
 
-  state.gamepadDeadman = pad.buttons[5].pressed;
+  state.gamepadDeadman = Boolean(pad.buttons[5]?.pressed);
   state.gamepadAxes = [
     applyDeadzone(pad.axes[0]),
     applyDeadzone(-pad.axes[1]),
@@ -209,13 +215,15 @@ export function reduceArmState(state, isArmed) {
     return updateEffectiveState(state);
   }
   const next = isArmed === true;
-  if (!state.armed && next) {
-    state.neutralLatched = false;
-    state.motionEnergized = false;
-  }
   state.armed = next;
   if (!next) {
     state.neutralLatched = false;
+    state.motionEnergized = false;
+  } else {
+    const gamepadActive = state.activeDevice === 'gamepad' && state.gamepadConnected;
+    const rawDeadman = gamepadActive ? state.gamepadDeadman : state.keyboardDeadman;
+    const rawAxes = gamepadActive ? state.gamepadAxes : state.keyboardAxes;
+    state.neutralLatched = !rawDeadman && rawAxes.every(axis => axis === 0);
     state.motionEnergized = false;
   }
   return updateEffectiveState(state);
@@ -364,7 +372,7 @@ export class InputClient {
 
   async _sendInput(run) {
     try {
-      const ticketData = await this._post('/api/ticket', { session: this.session }, 150, run);
+      const ticketData = await this._post('/api/ticket', { session: this.session }, 1000, run);
       this._assertCurrent(run);
       if (typeof ticketData.ticket !== 'string' || !ticketData.ticket) {
         throw new Error('Ticket response did not contain a ticket');
@@ -381,7 +389,7 @@ export class InputClient {
         deadman: intent.deadman,
         axes: intent.axes,
         device: intent.device
-      }, 150, run);
+      }, 1000, run);
       this._assertCurrent(run);
       return true;
     } catch (error) {
@@ -405,7 +413,7 @@ export class InputClient {
 
     const run = this._startRun('action');
     try {
-      const ticketData = await this._post('/api/ticket', { session: this.session }, 150, run);
+      const ticketData = await this._post('/api/ticket', { session: this.session }, 1500, run);
       this._assertCurrent(run);
       if (typeof ticketData.ticket !== 'string' || !ticketData.ticket) {
         throw new Error('Ticket response did not contain a ticket');
@@ -415,7 +423,7 @@ export class InputClient {
         action,
         values: values || {},
         ticket: ticketData.ticket
-      }, 500, run);
+      }, 1500, run);
       this._assertCurrent(run);
       if (typeof actionData.operation !== 'string' || !actionData.operation) {
         throw new Error('Action response did not contain an operation');

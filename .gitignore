@@ -22,3 +22,4 @@ motor_run.json
 
 _arm_inputs/
 .model-venv/
+scratch/

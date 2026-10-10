@@ -15,6 +15,7 @@ function gamepad(overrides = {}) {
   return {
     index: 0,
     id: 'Xbox Controller',
+    mapping: 'standard',
     connected: true,
     axes: [0, 0, 0, 0],
     buttons: Array.from({ length: 6 }, () => ({ pressed: false, value: 0 })),
@@ -34,11 +35,10 @@ function testKeyboardAndPostArmGate() {
   reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
   reduceKeyEvent(state, { type: 'keyup', code: 'Space' });
   assert.equal(state.neutralLatched, true, 'fresh neutral after Arm opens the gate');
-  reduceKeyEvent(state, { type: 'keydown', code: 'Space' });
   reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
   assert.equal(state.effectiveDeadman, true);
   assert.deepEqual(state.effectiveAxes, [1, 0, 0]);
-  reduceKeyEvent(state, { type: 'keyup', code: 'Space' });
+  reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
   assert.deepEqual(state.effectiveAxes, [0, 0, 0]);
 
   // Keyup clears a previously held jog key even after focus enters an editor.
@@ -86,6 +86,8 @@ function testGamepadSelectionValidationAndStop() {
   assert.equal(state.stopLatched, true, 'identity replacement latches Stop');
   clearStopLatch(state);
 
+  assert.equal(validateGamepad(gamepad({ mapping: '' })).valid, false);
+  assert.equal(validateGamepad(gamepad({ mapping: 'standard' })).valid, true);
   assert.equal(validateGamepad(gamepad({ connected: false })).valid, false);
   assert.equal(validateGamepad(gamepad({ axes: [0, NaN, 0, 0] })).valid, false);
   assert.equal(validateGamepad(gamepad({ index: -1 })).valid, false);

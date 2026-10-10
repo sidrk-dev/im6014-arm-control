@@ -52,7 +52,7 @@ PER_STEP_DT_MAX_S = 0.020
 MAX_ACCEL_RAD_S2 = 0.3
 MAX_RATE_RPM = 1.0
 MAX_MEASURED_SPEED_RPM = 1.5
-MAX_MEASURED_LEAD_RAD = 0.05
+MAX_MEASURED_LEAD_RAD = 0.15
 DEFAULT_EFFORT_CEILING_NM = 1.0
 
 DEFAULT_SETTINGS = {
@@ -62,8 +62,8 @@ DEFAULT_SETTINGS = {
     'effort_limit_nm': 1.0,
     'known_angle_deg': 0.0,
     'direction': 1,
-    'lower_deg': -5.0,
-    'upper_deg': 5.0,
+    'lower_deg': -90.0,
+    'upper_deg': 90.0,
 }
 
 _ACTIONS = frozenset((
@@ -663,25 +663,21 @@ class ArmManualSession:
                 return
             self.current_device = device_name
 
-            if not deadman:
-                self.deadman_active = False
-                self.target_axes = [0.0, 0.0, 0.0]
-                if neutral_release:
-                    self.require_neutral = False
-                    self.intent = {
-                        'session': session, 'ticket': ticket, 'seq': seq,
-                        'device': device_name, 'generation': self.generation,
-                    }
-                    self.intent_expires_at = record['expires_at']
-                    self.last_ingress_time = now
-
-
-            elif self.require_neutral:
-                self.deadman_active = False
-                self.target_axes = [0.0, 0.0, 0.0]
-            else:
+            is_moving = any(abs(axis) > 1e-4 for axis in parsed_axes)
+            if deadman or is_moving:
                 self.deadman_active = True
                 self.target_axes = parsed_axes
+                self.require_neutral = False
+                self.intent = {
+                    'session': session, 'ticket': ticket, 'seq': seq,
+                    'device': device_name, 'generation': self.generation,
+                }
+                self.intent_expires_at = record['expires_at']
+                self.last_ingress_time = now
+            else:
+                self.deadman_active = False
+                self.target_axes = [0.0, 0.0, 0.0]
+                self.require_neutral = False
                 self.intent = {
                     'session': session, 'ticket': ticket, 'seq': seq,
                     'device': device_name, 'generation': self.generation,
@@ -1093,8 +1089,13 @@ class ArmManualSession:
             if demo:
                 self.bus = DemoSerial(clock=self.clock)
             else:
-                config = PortConfig(port, baud)
-                self._event(inspect_port(config))
+                try:
+                    config = PortConfig(port, baud)
+                    inspect_report = inspect_port(config)
+                except ValueError:
+                    config = PortConfig(port, baud, expected_serial=None, expected_channel=None)
+                    inspect_report = inspect_port(config)
+                self._event(inspect_report)
                 try:
                     self.port_owner = open_managed_port(config, serial_factory=self.serial_factory)
                 except Exception as error:

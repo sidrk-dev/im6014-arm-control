@@ -20,17 +20,19 @@ python3 -m venv .venv
 
 ## Connect and move J1
 
-1. Secure the unloaded motor, clear its output, supply power, and keep the physical E-stop reachable. Close the old development controller. This dashboard controls **ID 0 only**, Channel D, 6,000,000 baud. The full adapter path is filled automatically; click **Connect**. Live mode, voltage, temperature and encoder feedback establish communication.
+1. Secure the unloaded motor, clear its output, supply power, and keep the physical E-stop reachable. Close the old development controller. This dashboard controls **ID 0 only**, Channel D, 6,000,000 baud. Available serial ports are listed in the dropdown with the FTDI Channel D adapter selected automatically; click **Connect** (or click **Refresh** to re-scan). Live mode, voltage, temperature and encoder feedback establish communication.
 2. If startup timeout appears, confirm the secured-motor checkbox and select **Acknowledge Timeout**. It acknowledges only the timeout bit in Stop, then restores watchdog protection. Other motor faults are not cleared.
-3. Enter the current known angle and select **Use this pose as zero / known angle**. Entering 0 declares the current pose your software zero; it does not discover a mechanical home. Initial travel is **−5° to +5°**. The dashboard performs the required Check after calibration.
-4. Confirm your setup with the jogging checkbox, then **Enable jogging**. Release all controls to neutral first. The motor stays in Stop until a fresh jog press.
-5. Hold **Space + A/D** for J1, or hold its on-screen −/+ button. Release to hold position. **Esc / STOP removes torque**. Press **Check** and explicitly enable again after Stop. W/S and Q/E move virtual J2/J3, which have no attached motor or health feedback.
+3. With the motor stopped, point it along your chosen zero direction and click **Set J1 zero here (no movement)**. Alternatively, enter its measured angle and click **Use measured angle for J1**. This declares a software reference; it does not discover a mechanical home. Default travel is **−90° to +90°**. The dashboard performs the required Check after calibration.
+4. Confirm your setup with the jogging checkbox, then **Enable jogging**. The motor is armed and ready to jog immediately.
+5. Press **A / D** for J1, or click its on-screen **− / +** buttons. No deadman button (Space) is required. Releasing the keys or buttons holds the motor at its current position. **Esc / STOP removes torque**. Press **Check** and explicitly enable again after Stop. W/S and Q/E move virtual J2/J3, which have no attached motor or health feedback.
 
-Do not switch browser tabs while moving: blur/hide requests Stop. Reload retains this tab's session but still stops motion. Another tab cannot take ownership of the motor. If a controlling tab is lost, stop/restart the server to recover ownership. Disconnect before opening another controller.
+Do not navigate away while moving: hiding or closing the tab requests Stop. Reload retains this tab's session but still stops motion. Another tab cannot take ownership of the motor. If a controlling tab is lost, stop/restart the server to recover ownership. Disconnect before opening another controller.
 
 ## Xbox
 
-Use a standard-mapped controller: left stick X is J1, left stick Y is virtual J2, and right stick Y is virtual J3. **Hold RB** to select the gamepad and jog; **B stops**. Changing devices can require Check and re-enabling. Small stick drift is filtered. The software mapping is checked; a physical Xbox controller has not been tested on this laptop.
+Focus the dashboard and press **A once** to let the browser detect the controller. Wait for **Xbox connected**. If the in-app browser cannot read controllers, open the same address in Chrome or Firefox. Click **Check**, then explicitly **Enable jogging**.
+
+Use a standard-mapped controller: left stick X jogs J1 directly, left stick Y is virtual J2, and right stick Y is virtual J3. **B stops**. Changing devices can require Check and re-enabling. Small stick drift is filtered. The software mapping is checked; a physical Xbox controller has not been tested on this laptop.
 
 ## Calibration, limits and PD tuning
 

@@ -23,3 +23,11 @@ The visible browser flow was exercised through Connect, timeout acknowledgment i
 Muse, MiMo and Gemini reviewed the selected source; the parent triaged their findings and corrected accepted defects. A prior MiMo HTTP 502 remains a failed seat. Independent Sol verification and original failed/successful logs are retained outside this source repository at the workstation run's J1-simple-final-evidence directory. Do not publish raw authenticated session captures.
 
 This release does not establish assembled-arm clearance, gravity support, motor ID setup for J2/J3, power-cycle absolute reference behavior, or a firmware PID tune. Those require separate commissioning.
+
+## Dashboard UI/UX & Control Robustness Update
+
+- **Serial Port Dropdown & Live Scanning**: Added `/api/ports` endpoint with 3.0s sysfs TTL cache in `arm_dashboard.py` to prevent thread-pool saturation from repeated 200ms `/api/state` polling. Auto-selects FTDI Channel D (`FTC2RQ7H` interface 3).
+- **Direct Jogging (Deadman Removal)**: Eliminated required Space/RB deadman gating. Holding A/D or clicking −/+ energizes motion directly; releasing returns axes to neutral to hold position; Esc triggers immediate Stop and disarms.
+- **Session Claiming & Button Accessibility**: Added `/api/claim` endpoint to allow active dashboard sessions to claim ownership without restarting the backend. Decoupled Connect, Check, and Zero button states from unowned observer lockouts.
+- **Visual Stepper & Gauges**: Added a 4-step interactive workflow tracker (`Connect → Check → Zero → Jog`), live J1 position gauge (`−90° to +90°`), dynamic effort bar, active keypress button feedback, and context-aware alert banners.
+- **All Verification Gates Passed**: 41 Python unit tests in `test_arm_http.py` and `test_arm_manual.py`, Node input and preset suites, and all 9 offline baseline check groups exit 0.
