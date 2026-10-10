@@ -378,6 +378,7 @@ function updateActionControls() {
     fresh: freshFeedback,
     stopConfirmed: lastStateData?.stop_confirmed,
     latest,
+    stopLatched: inputState.stopLatched,
     armed: isArmed
   });
   const hasPort = Boolean(inputPortPath?.value.trim() || selectPort.value);
@@ -417,6 +418,7 @@ function updateStatusPresentation(data = lastStateData) {
       fresh: freshFeedback,
       stopConfirmed: data?.stop_confirmed,
       latest: data?.latest,
+      stopLatched: inputState.stopLatched,
       armed: isArmed
     }),
     stopLatched: inputState.stopLatched, stopReason: inputState.stopReason || data?.reason,

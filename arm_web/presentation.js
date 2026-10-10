@@ -78,7 +78,7 @@ export function canAcknowledgeStartupTimeout(state = {}) {
   const timeout = state.latest?.timeout === true || state.latest?.timeout === 1;
   return state.connected === true && state.owner === true && state.fresh === true
     && state.stopConfirmed === true && state.latest?.mode === 0 && timeout
-    && state.armed !== true;
+    && state.armed !== true && state.stopLatched !== true;
 }
 
 export function deriveWorkflowSteps(state = {}) {

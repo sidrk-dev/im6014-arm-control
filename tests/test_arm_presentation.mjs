@@ -221,6 +221,7 @@ function testTimeoutAcknowledgementRequiresFreshConfirmedStoppedOwner() {
   assert.equal(canAcknowledgeStartupTimeout({ ...ready, latest: { mode: 1, timeout: true } }), false);
   assert.equal(canAcknowledgeStartupTimeout({ ...ready, armed: true }), false);
   assert.equal(canAcknowledgeStartupTimeout({ ...ready, owner: false }), false);
+  assert.equal(canAcknowledgeStartupTimeout({ ...ready, stopLatched: true }), false);
 }
 
 testPreviewFollowIsVisibleAndClearAboutStopping();
