@@ -1,0 +1,531 @@
+{
+  "schema": 1,
+  "units": "mm",
+  "source": {
+    "archive_file": "mainAssem (3).zip",
+    "archive_sha256": "ebb0777628e318e27eca25686adefed16dabc92daec44229f51913b915d6cd72",
+    "urdf_file": "mainassem.urdf",
+    "urdf_sha256": "8c3b60f2bc8c19b6843143f491b92fe4365a9ce9928f39e3566ae3903b05666c"
+  },
+  "cleaned_urdf": {
+    "file": "arm.urdf",
+    "units": "m",
+    "sha256": "72444bc6efafed2118ee5757f533ab1480e4beeb9b28765d4b3050d7445eef8f"
+  },
+  "joints": [
+    {
+      "name": "J1 base",
+      "role": "base",
+      "urdf": "revolute_2",
+      "motor_id": 0,
+      "origin": [
+        0.0,
+        0.0,
+        64.30018005546242
+      ],
+      "axis": [
+        2.6536033450455103e-06,
+        1.0034875571538702e-06,
+        -0.9999999999959758
+      ],
+      "limits_deg": [
+        -90.0,
+        90.0
+      ],
+      "limit_provenance": "provisional kinematic display bound centered on uncommissioned zero"
+    },
+    {
+      "name": "J2 shoulder",
+      "role": "shoulder",
+      "urdf": "revolute_1",
+      "motor_id": 1,
+      "origin": [
+        26.85597264817047,
+        -1.573349450334426,
+        137.20053761248954
+      ],
+      "axis": [
+        0.998289362934436,
+        -0.05846663878694477,
+        9.564189689977149e-07
+      ],
+      "limits_deg": null,
+      "limit_provenance": "continuous CAD type does not establish physical clearance; commissioning required"
+    },
+    {
+      "name": "J3 elbow",
+      "role": "elbow",
+      "urdf": "revolute_3",
+      "motor_id": 2,
+      "origin": [
+        -35.52518542717065,
+        -278.1261287962206,
+        348.44279015887537
+      ],
+      "axis": [
+        0.9982892552945816,
+        -0.05846847502693078,
+        1.38352798837552e-05
+      ],
+      "limits_deg": null,
+      "limit_provenance": "continuous CAD type does not establish physical clearance; commissioning required"
+    }
+  ],
+  "bodies": {
+    "base": {
+      "frame": {
+        "file": "meshes/base.frame.bin",
+        "vertices": 17242,
+        "triangles": 35000,
+        "sha256": "ac5ee035dbab69c329089d32e7646a49c58ce4653982a7d7a607efcb70f9a1e8"
+      },
+      "hardware": {
+        "file": "meshes/base.hardware.bin",
+        "vertices": 67084,
+        "triangles": 134738,
+        "sha256": "43756a15a8af87ca7a743bda31b1eb771a8ea923ca1ec3a2d1747b2413edacf0"
+      },
+      "motor": {
+        "file": "meshes/base.motor.bin",
+        "vertices": 20763,
+        "triangles": 44590,
+        "sha256": "338d50a1d39055eed9e9e9a9671f60db27931a88778ba0d415640d5fce53386f"
+      }
+    },
+    "j1": {
+      "frame": {
+        "file": "meshes/j1.frame.bin",
+        "vertices": 21193,
+        "triangles": 42886,
+        "sha256": "7eea8f44548c7708adf483a8c15600812ed74da646108ce7cc964fa58cc1dea4"
+      },
+      "hardware": {
+        "file": "meshes/j1.hardware.bin",
+        "vertices": 129618,
+        "triangles": 259776,
+        "sha256": "022bf0c5f8b4dea90b42321c48f778e6b56ab3636a6ee35daafcc72774f81f01"
+      },
+      "hub": {
+        "file": "meshes/j1.hub.bin",
+        "vertices": 3010,
+        "triangles": 6052,
+        "sha256": "937ab984078854ba1906109f0fe3b6a80a277045f180010654f7c54cd00b3b1a"
+      },
+      "motor": {
+        "file": "meshes/j1.motor.bin",
+        "vertices": 20763,
+        "triangles": 44590,
+        "sha256": "dcd2ba6d3ca378297e689123e2ec6588bce92a08af9ac6eb7f669d7597c7054f"
+      },
+      "tube": {
+        "file": "meshes/j1.tube.bin",
+        "vertices": 4820,
+        "triangles": 9672,
+        "sha256": "2048ce803d16871d95c02c748ed5a681a9e8743f46592324c0d4edb741e4ef31"
+      }
+    },
+    "j2": {
+      "frame": {
+        "file": "meshes/j2.frame.bin",
+        "vertices": 20581,
+        "triangles": 41652,
+        "sha256": "7b30cc914f6f3eddefff1c0899623ffe7aaa9a5b36ea03dbf1c9b0deb0ebe6a6"
+      },
+      "hardware": {
+        "file": "meshes/j2.hardware.bin",
+        "vertices": 67082,
+        "triangles": 134726,
+        "sha256": "6300e6b55ef1b221599bdf4be5b7204a1219123a2859d929ed0a0984e14583f0"
+      },
+      "hub": {
+        "file": "meshes/j2.hub.bin",
+        "vertices": 8236,
+        "triangles": 16826,
+        "sha256": "601abeca065fa6e6619c3d56c60d76dd79dd2b00321f93e4d068212e61eac5c4"
+      },
+      "link": {
+        "file": "meshes/j2.link.bin",
+        "vertices": 5919,
+        "triangles": 11880,
+        "sha256": "7bfc078e31a96a9f844eb0d09452cfdb854dd5d8ef86a41026b03c77535f678a"
+      },
+      "motor": {
+        "file": "meshes/j2.motor.bin",
+        "vertices": 20763,
+        "triangles": 44590,
+        "sha256": "3655f46d02b55badc2d174e057bf184eaf35761b371719b876c1a1c30f717fad"
+      },
+      "tube": {
+        "file": "meshes/j2.tube.bin",
+        "vertices": 4821,
+        "triangles": 9674,
+        "sha256": "f1db308a7ac543730de1cb726b9c62b3065f21e657bb283a77ef7079957ef715"
+      }
+    },
+    "j3": {
+      "hub": {
+        "file": "meshes/j3.hub.bin",
+        "vertices": 8373,
+        "triangles": 16826,
+        "sha256": "11110542a9788baa4edad10600c674d67ff8737be6a38610eb630aa8904bca8f"
+      },
+      "link": {
+        "file": "meshes/j3.link.bin",
+        "vertices": 5920,
+        "triangles": 11882,
+        "sha256": "fa40abea7f144035d4b125e3b22ce3cd4b92db498d4c9b329e75e25913b17a53"
+      },
+      "tube": {
+        "file": "meshes/j3.tube.bin",
+        "vertices": 4821,
+        "triangles": 9674,
+        "sha256": "315619c2be7e634d649baafc0f6b51e1474fc2073212822628ec0303653283e5"
+      }
+    }
+  },
+  "cad_to_world": {
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        59.39421740443185
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0,
+        62.468168087005175
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0,
+        -110.0571187765357
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "origin": [
+      -59.39421740443185,
+      62.468168087005175,
+      -110.0571187765357
+    ],
+    "r_up": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        -1.0
+      ]
+    ]
+  },
+  "portable_meshes": {
+    "meshes/NONE.stl": {
+      "source_file": "NONE.gltf",
+      "source_vertices": 785048,
+      "source_triangles": 1226332,
+      "generated_vertices": 20763,
+      "generated_triangles": 44590,
+      "lod_approximation": true,
+      "lod": {
+        "method": "floor_grid_vertex_centroid",
+        "grid_meters": 0.0004,
+        "max_vertex_displacement_meters": 0.0004566798844124314,
+        "purpose": "visualization_only",
+        "collision_validated": false,
+        "dynamics_validated": false
+      },
+      "file": "meshes/NONE.stl",
+      "units": "m",
+      "sha256": "71645531749bccd5a159ac0b1e961c6bd4e91e60e667eecfb3ade30401dcc548"
+    },
+    "meshes/Part_1.stl": {
+      "source_file": "Part_1.gltf",
+      "source_vertices": 5366,
+      "source_triangles": 5368,
+      "generated_vertices": 5366,
+      "generated_triangles": 5368,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1.stl",
+      "units": "m",
+      "sha256": "ea834a2197bb07f230392a3ed6d9684eaf01a323f0888d274fcfdd82ac653635"
+    },
+    "meshes/Part_1_1.stl": {
+      "source_file": "Part_1_1.gltf",
+      "source_vertices": 578,
+      "source_triangles": 576,
+      "generated_vertices": 578,
+      "generated_triangles": 576,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_1.stl",
+      "units": "m",
+      "sha256": "07214b92c349fd7f8e15943c58964089aa0fda0cfc40aacc2315345c4a21f561"
+    },
+    "meshes/Part_1_10.stl": {
+      "source_file": "Part_1_10.gltf",
+      "source_vertices": 7901,
+      "source_triangles": 7882,
+      "generated_vertices": 7901,
+      "generated_triangles": 7882,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_10.stl",
+      "units": "m",
+      "sha256": "9d3f68465ee94f9a503c11cf9ae589a4c98ec5f7f548a38d0d587d0dbc440389"
+    },
+    "meshes/Part_1_11.stl": {
+      "source_file": "Part_1_11.gltf",
+      "source_vertices": 6612,
+      "source_triangles": 6664,
+      "generated_vertices": 6612,
+      "generated_triangles": 6664,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_11.stl",
+      "units": "m",
+      "sha256": "17c174aa6a8c9e452458b354ec756715f62ffc56878d07a0c568117ebeec1d2c"
+    },
+    "meshes/Part_1_2.stl": {
+      "source_file": "Part_1_2.gltf",
+      "source_vertices": 9536,
+      "source_triangles": 9676,
+      "generated_vertices": 9536,
+      "generated_triangles": 9676,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_2.stl",
+      "units": "m",
+      "sha256": "a863156c680cba6266a4d222801212e0dc0719b044ef62cc135c22d182d096d7"
+    },
+    "meshes/Part_1_3.stl": {
+      "source_file": "Part_1_3.gltf",
+      "source_vertices": 5962,
+      "source_triangles": 6052,
+      "generated_vertices": 5962,
+      "generated_triangles": 6052,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_3.stl",
+      "units": "m",
+      "sha256": "2bd058994713cae2a78d1071eed9c31fb1a7c12392119b1316e5985c9b4d619a"
+    },
+    "meshes/Part_1_4.stl": {
+      "source_file": "Part_1_4.gltf",
+      "source_vertices": 5384,
+      "source_triangles": 5396,
+      "generated_vertices": 5384,
+      "generated_triangles": 5396,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_4.stl",
+      "units": "m",
+      "sha256": "fdbf3bdcaeea6be21299f3496e6d9a958516ce149ec4ceeddccca5d0ad3d8dc2"
+    },
+    "meshes/Part_1_5.stl": {
+      "source_file": "Part_1_5.gltf",
+      "source_vertices": 5962,
+      "source_triangles": 6052,
+      "generated_vertices": 5962,
+      "generated_triangles": 6052,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_5.stl",
+      "units": "m",
+      "sha256": "648f6ae7959d14424afc7536c4356c846c56d0cb6b952e740b32aec1f4597acc"
+    },
+    "meshes/Part_1_6.stl": {
+      "source_file": "Part_1_6.gltf",
+      "source_vertices": 1152,
+      "source_triangles": 1152,
+      "generated_vertices": 1152,
+      "generated_triangles": 1152,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_6.stl",
+      "units": "m",
+      "sha256": "6aa3264d6dc34e382129c4c23e2cfcf495977ee17c9a5a94d77320a004bdac43"
+    },
+    "meshes/Part_1_7.stl": {
+      "source_file": "Part_1_7.gltf",
+      "source_vertices": 11014,
+      "source_triangles": 10812,
+      "generated_vertices": 11014,
+      "generated_triangles": 10812,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_7.stl",
+      "units": "m",
+      "sha256": "3286e1cf97b8a62e785034f156dc26acdc3a00aa48086abf1214079742fc986a"
+    },
+    "meshes/Part_1_8.stl": {
+      "source_file": "Part_1_8.gltf",
+      "source_vertices": 1152,
+      "source_triangles": 1152,
+      "generated_vertices": 1152,
+      "generated_triangles": 1152,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_8.stl",
+      "units": "m",
+      "sha256": "0d5987a9efa0fe317ec40990468a3caad0c5cee4b6205e240a020d0b45b06f14"
+    },
+    "meshes/Part_1_9.stl": {
+      "source_file": "Part_1_9.gltf",
+      "source_vertices": 25502,
+      "source_triangles": 30458,
+      "generated_vertices": 25502,
+      "generated_triangles": 30458,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Part_1_9.stl",
+      "units": "m",
+      "sha256": "6c566aa05813d0deffdb6e65c8e6ede231a95da31e5964f126c97e097a4c2291"
+    },
+    "meshes/Socket_button_head_screw_M4x0_7_x_16.stl": {
+      "source_file": "Socket_button_head_screw_M4x0_7_x_16.gltf",
+      "source_vertices": 9553,
+      "source_triangles": 16728,
+      "generated_vertices": 9553,
+      "generated_triangles": 16728,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/Socket_button_head_screw_M4x0_7_x_16.stl",
+      "units": "m",
+      "sha256": "c0970e118ad97392bb3432ecfbf76132e33bc39d351279b0bec4597c57faa773"
+    },
+    "meshes/_8_32_Thin_Nylock_Nut__32_02_.stl": {
+      "source_file": "_8_32_Thin_Nylock_Nut__32_02_.gltf",
+      "source_vertices": 5798,
+      "source_triangles": 8234,
+      "generated_vertices": 5798,
+      "generated_triangles": 8234,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/_8_32_Thin_Nylock_Nut__32_02_.stl",
+      "units": "m",
+      "sha256": "1c31776a7b0d5fb833703fc5c05c25b0497333907244543683666094c1a753f3"
+    },
+    "meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl": {
+      "source_file": "_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.gltf",
+      "source_vertices": 14508,
+      "source_triangles": 20290,
+      "generated_vertices": 14508,
+      "generated_triangles": 20290,
+      "lod_approximation": false,
+      "lod": null,
+      "file": "meshes/_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.stl",
+      "units": "m",
+      "sha256": "1b2acdea61cdae481228fbd28b84d2b9ce050ebe2b9b6848dc2a2181a04e5684"
+    }
+  },
+  "cleanup_provenance": {
+    "dropped_visual": {
+      "link": "none_1",
+      "source_mesh": "meshes/NONE.gltf",
+      "parent_joint": "fastened_2",
+      "parent_link": "part_1_24",
+      "body": "j1",
+      "transform_cad": [
+        [
+          2.6536033450455103e-06,
+          -0.9982891481657493,
+          0.058470305689815996,
+          -0.059394119751828754
+        ],
+        [
+          -1.0034875571538702e-06,
+          -0.05847030569265072,
+          -0.9982891481686058,
+          0.06246813115866308
+        ],
+        [
+          0.9999999999959758,
+          2.5903891986801317e-06,
+          -1.1569277373979179e-06,
+          -0.13755729883214624
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "nominal_origin_cad_mm": [
+        -59.394119751828754,
+        62.46813115866308,
+        -137.55729883214624
+      ],
+      "yaw_difference_deg": 3.351803101515516,
+      "structural_link_preserved": true,
+      "structural_joint_preserved": true,
+      "reason": "Duplicate base motor visual on moving J1 link; removed visual while keeping structural link and joint"
+    },
+    "retained_base_motor": {
+      "link": "none_2",
+      "source_mesh": "meshes/NONE.gltf",
+      "parent_joint": "fastened_12_1",
+      "parent_link": "part_1_25",
+      "body": "base",
+      "transform_cad": [
+        [
+          2.653603345045527e-06,
+          -0.9999999999897329,
+          3.6732023975637474e-06,
+          -0.059394119751828754
+        ],
+        [
+          -1.003487557153778e-06,
+          -3.673205060432769e-06,
+          -0.9999999999927501,
+          0.06246813115866307
+        ],
+        [
+          0.9999999999959758,
+          2.653599659013388e-06,
+          -1.0034973043727112e-06,
+          -0.13755729883214624
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "reason": "Stationary base motor firmly attached to base link part_1_25"
+    },
+    "passive_joint": {
+      "joint": "revolute_4",
+      "parent": "part_1_9",
+      "child": "part_1_2",
+      "action": "converted continuous to fixed; removed axis element; exported transform preserved"
+    },
+    "unmapped_material_meshes": [
+      "Part_1_7.gltf",
+      "Part_1_8.gltf",
+      "Socket_button_head_screw_M4x0_7_x_16.gltf",
+      "_8_32_Thin_Nylock_Nut__32_02_.gltf",
+      "_8_32_x________2_1_2______Star_Drive_Screw______276_8016_.gltf"
+    ]
+  },
+  "placeholder_inertials": true,
+  "dynamics_validated": false,
+  "collision_validated": false
+}

@@ -9,8 +9,19 @@ from unittest.mock import patch
 import serial
 import spin_5rpm as s
 import im6014_serial as transport
+from im6014_transport import PartialWriteTimeout, PosixDeadlineSerial
 from fake_serial import FakeClock, FakeChunk, FakeSerial
 from test_protocol import CAPTURED
+
+
+class CountingSerial(serial.Serial):
+    def __init__(self, *args, **kwargs):
+        self.reconfigure_calls = 0
+        super().__init__(*args, **kwargs)
+
+    def _reconfigure_port(self, *args, **kwargs):
+        self.reconfigure_calls += 1
+        return super()._reconfigure_port(*args, **kwargs)
 
 
 class B09Deadline(unittest.TestCase):
@@ -64,12 +75,19 @@ class B09Deadline(unittest.TestCase):
                 setattr(bus, operation + "_error", OSError(operation))
             elif operation == "partial":
                 bus.write_result = 19
+            write_results = []
             with self.subTest(operation=operation), patch.object(transport, "_monotonic", clock.monotonic):
                 if operation == "success":
-                    self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+                    self.assertEqual(s.exchange(bus, s.command(0), 0,
+                                                on_write=write_results.append)["raw"], CAPTURED.hex())
                 else:
                     with self.assertRaises((RuntimeError, OSError)):
-                        s.exchange(bus, s.command(0), 0)
+                        s.exchange(bus, s.command(0), 0, on_write=write_results.append)
+            expected_results = ([] if operation == "reset" else
+                                [transport.WriteResult.PARTIAL] if operation == "partial" else
+                                [transport.WriteResult.FAILED] if operation == "write" else
+                                [transport.WriteResult.COMPLETE])
+            self.assertEqual(write_results, expected_results)
             self.assertEqual((bus.timeout, bus.write_timeout), (.5, 0))
 
 
@@ -150,16 +168,135 @@ class B09Deadline(unittest.TestCase):
                 s.exchange(bus, s.command(0), 0, deadline)
             self.assertEqual(bus.writes, ())
 
+    def test_prewrite_hook_consumes_the_budget_without_transmitting(self):
+        clock = FakeClock()
+        bus = FakeSerial(clock=clock, timeout=.5, write_timeout=.5)
+        write_results = []
+
+        def late_but_allowed():
+            clock.advance(.021)
+            return True
+
+        with patch.object(transport, "_monotonic", clock.monotonic):
+            with self.assertRaisesRegex(RuntimeError, "deadline"):
+                s.exchange(bus, s.command(0), 0, .02,
+                           before_write=late_but_allowed, on_write=write_results.append)
+        self.assertEqual(write_results, [transport.WriteResult.PREWRITE_DEADLINE])
+        self.assertEqual(bus.writes, ())
+        self.assertEqual((bus.timeout, bus.write_timeout), (.5, .5))
+
+    def test_cancelled_prewrite_gate_does_not_write_or_claim_a_result(self):
+        bus = FakeSerial()
+        write_results = []
+        with self.assertRaises(transport.WriteCancelledError):
+            s.exchange(bus, s.command(0), 0, before_write=lambda: False,
+                       on_write=write_results.append)
+        self.assertEqual(bus.writes, ())
+        self.assertEqual(write_results, [])
+
 
 class B09PseudoTerminal(unittest.TestCase):
     def open_bus(self, timeout, write_timeout):
         master, slave = pty.openpty()
         self.addCleanup(os.close, master)
         self.addCleanup(os.close, slave)
-        bus = serial.Serial(os.ttyname(slave), baudrate=6000000,
-                            timeout=timeout, write_timeout=write_timeout, exclusive=True)
+        physical = CountingSerial(os.ttyname(slave), baudrate=6000000,
+                                  timeout=timeout, write_timeout=write_timeout, exclusive=True)
+        bus = PosixDeadlineSerial(physical)
         self.addCleanup(bus.close)
         return master, bus
+
+    def test_timeout_setters_require_finite_nonnegative_values(self):
+        _, bus = self.open_bus(None, None)
+        for name in ('timeout', 'write_timeout'):
+            for value in (-.1, float('nan'), float('inf'), float('-inf')):
+                with self.subTest(name=name, value=value), self.assertRaises(ValueError):
+                    setattr(bus, name, value)
+        bus.timeout = 0
+        bus.write_timeout = .25
+        self.assertEqual((bus.timeout, bus.write_timeout), (0, .25))
+
+    def test_mocked_read_and_partial_write_stop_at_post_select_cutoff(self):
+        master, bus = self.open_bus(None, None)
+        clock = FakeClock()
+        fd = bus._serial.fileno()
+
+        def late_read_select(readers, writers, errors, timeout):
+            self.assertEqual((readers, writers, errors), ([fd], [], []))
+            self.assertEqual(timeout, .01)
+            clock.advance(.011)
+            return [fd], [], []
+
+        with patch('im6014_transport.select.select', side_effect=late_read_select), \
+             patch('im6014_transport.os.read') as read:
+            self.assertEqual(bus.read_with_deadline(1, 1.0, clock.monotonic, .01), b'')
+        read.assert_not_called()
+
+        clock = FakeClock()
+        select_calls = []
+        writes = []
+
+        def raced_write_select(readers, writers, errors, timeout):
+            self.assertEqual((readers, errors), ([], []))
+            select_calls.append(timeout)
+            clock.advance(.009 if len(select_calls) == 1 else .012)
+            return [], writers, []
+
+        def partial_os_write(descriptor, payload):
+            writes.append(bytes(payload))
+            return 2
+
+        with patch('im6014_transport.select.select', side_effect=raced_write_select), \
+             patch('im6014_transport.os.write', side_effect=partial_os_write):
+            with self.assertRaises(PartialWriteTimeout) as caught:
+                bus.write_with_deadline(b'abcdef', .02, clock.monotonic)
+        self.assertEqual(caught.exception.bytes_written, 2)
+        self.assertEqual(len(writes), 1)
+        self.assertEqual(len(select_calls), 2)
+
+    def test_repeated_real_exchanges_do_not_reconfigure_open_port(self):
+        master, bus = self.open_bus(None, None)
+        reconfigures_after_open = bus._serial.reconfigure_calls
+        requests = []
+        failures = []
+
+        def motor_reply():
+            try:
+                request = bytearray()
+                until = time.monotonic() + .2
+                while len(request) < 20 and time.monotonic() < until:
+                    ready, _, _ = select.select(
+                        [master], [], [], max(0, until - time.monotonic()))
+                    if ready:
+                        request.extend(os.read(master, 20 - len(request)))
+                requests.append(bytes(request))
+                if len(request) != 20:
+                    return
+                os.write(master, CAPTURED)
+            except BaseException as error:
+                failures.append(error)
+
+        for _ in range(3):
+            thread = threading.Thread(target=motor_reply)
+            thread.start()
+            self.assertEqual(s.exchange(bus, s.command(0), 0)["raw"], CAPTURED.hex())
+            thread.join(.5)
+            self.assertFalse(thread.is_alive())
+            self.assertEqual(bus._serial.reconfigure_calls, reconfigures_after_open)
+
+        self.assertEqual(failures, [])
+        self.assertEqual(requests, [s.command(0)] * 3)
+
+    def test_direct_zero_timeout_read_and_write_poll_once(self):
+        master, bus = self.open_bus(0, 0)
+        incoming = b'zero-read'
+        os.write(master, incoming)
+        self.assertEqual(bus.read(len(incoming)), incoming)
+        self.assertEqual(bus.read(1), b'')
+
+        outgoing = b'zero-write'
+        self.assertEqual(bus.write(outgoing), len(outgoing))
+        self.assertEqual(os.read(master, len(outgoing)), outgoing)
 
     def test_real_missing_reply_five_runs_per_timeout(self):
         for original in (None, 0, .5):
@@ -211,7 +348,7 @@ class B09PseudoTerminal(unittest.TestCase):
         for original in (None, 0, .5):
             _, bus = self.open_bus(.5, original)
             start = time.monotonic()
-            with self.subTest(write_timeout=original), self.assertRaises((serial.SerialTimeoutException, RuntimeError)):
+            with self.subTest(write_timeout=original), self.assertRaises((TimeoutError, RuntimeError)):
                 s.exchange(bus, b"x" * 1000000, 0, .02)
             elapsed = time.monotonic() - start
             self.assertLess(elapsed, .07)

@@ -1,0 +1,226 @@
+
+:root  {
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#111;
+  background:#fff;
+  --text-muted:#555;
+  --bg-card-sub:#f5f5f5;
+  --accent-blue:#777;
+  --accent-amber:#555;
+  --accent-cyan:#333}
+ * {
+  box-sizing:border-box}
+body {
+  margin:0}
+button,input,select {
+  font:inherit;
+  font-size:14px;
+  color:#111}
+button {
+  cursor:pointer;
+  padding:8px 12px;
+  border:1px solid #999;
+  background:#eee;
+  border-radius:3px}
+button:hover:not(:disabled) {
+  background:#ddd}
+button:disabled {
+  opacity:.45;
+  cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible {
+  outline:2px solid #222;
+  outline-offset:2px}
+input,select {
+  padding:7px;
+  border:1px solid #aaa;
+  background:#fff;
+  width:100%}
+input[type=checkbox] {
+  width:auto}
+.top-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  border-bottom:1px solid #bbb;
+  gap:16px}
+.app-title {
+  font-size:18px;
+  margin:0 0 6px}
+.header-badges {
+  display:flex;
+  gap:12px;
+  font-size:12px;
+  flex-wrap:wrap}
+.btn-emergency-stop {
+  background:#a00;
+  color:#fff;
+  font-weight:bold;
+  font-size:18px;
+  padding:12px 24px}
+.kbd-hint {
+  font-size:12px}
+.dashboard-grid {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 350px;
+  gap:18px;
+  padding:18px;
+  align-items:start}
+.workflow-help {
+  grid-column:1/-1;
+  margin:0;
+  padding:10px;
+  background:#f4f4f4;
+  border:1px solid #ccc}
+.center-column {
+  grid-column:1;
+  grid-row:2;
+  position:sticky;
+  top:12px}
+.canvas-container {
+  height:65vh;
+  min-height:400px;
+  position:relative;
+  background:#e7e8e9;
+  border:1px solid #bbb;
+  overflow:hidden}
+canvas {
+  display:block}
+.canvas-hud {
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:1;
+  pointer-events:none;
+  font-size:11px}
+.hud-pill {
+  padding:3px 6px;
+  background:#ffffffde;
+  margin-bottom:3px;
+  width:fit-content}
+.canvas-controls {
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  z-index:1}
+.card {
+  border:1px solid #bbb;
+  padding:12px}
+.dashboard-grid>.card:nth-of-type(2) {
+  grid-column:2;
+  grid-row:2/4}
+.dashboard-grid>.card:last-of-type {
+  grid-column:1}
+.card-header {
+  font-weight:600;
+  margin-bottom:12px}
+.control-section {
+  border-bottom:1px solid #ddd;
+  padding:12px 0}
+.section-title {
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+  font-size:13px;
+  margin-bottom:8px}
+.form-group {
+  flex:1;
+  min-width:0;
+  margin-bottom:8px}
+.form-row,.btn-group {
+  display:flex;
+  gap:8px}
+.btn-group button {
+  flex:1}
+.form-label {
+  display:block;
+  font-size:12px;
+  margin-bottom:4px}
+.secured-arm-box {
+  display:flex;
+  align-items:start;
+  gap:7px;
+  font-size:12px;
+  margin-top:8px}
+.secured-arm-box input {
+  margin-top:3px;
+  flex:none}
+summary {
+  cursor:pointer;
+  font-weight:600;
+  font-size:13px;
+  margin-bottom:10px}
+.telemetry-row {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:4px 0;
+  font-size:12px}
+.telemetry-val {
+  text-align:right;
+  overflow-wrap:anywhere}
+.jog-guide-table {
+  font-size:12px;
+  width:100%;
+  margin:10px 0}
+.jog-guide-table td {
+  padding:4px}
+.jog-buttons>div {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px}
+.jog-buttons span {
+  flex:1;
+  font-size:13px}
+.jog-buttons button {
+  min-width:50px;
+  touch-action:none;
+  font-size:20px}
+.event-log-box {
+  max-height:160px;
+  overflow:auto;
+  font:11px monospace}
+.event-entry {
+  border-bottom:1px solid #eee;
+  padding:4px}
+.error,.warn,#parameter-warning {
+  color:#900}
+#parameter-warning {
+  font-size:12px;
+  margin:8px 0;
+  white-space:pre-line}
+.bottom-banner {
+  padding:15px 20px;
+  border-top:1px solid #ccc;
+  font-size:12px}
+.control-section [style*="color:"] {
+  color:inherit!important}
+@media(max-width:850px) {
+  .dashboard-grid {
+  display:flex;
+  flex-direction:column;
+  padding:10px}
+.center-column,.card {
+  width:100%;
+  position:static}
+.canvas-container {
+  height:45vh;
+  min-height:300px}
+.top-header {
+  padding:10px}
+}
+
+.top-header  {
+   position:sticky;
+   top:0;
+   z-index:10;
+   background:#fff;
+   }
+ .hud-model-source  {
+   display:none;
+   }
+ #applied-settings, #draft-status  {
+   font-size:12px;
+   margin:8px 0;
+   }

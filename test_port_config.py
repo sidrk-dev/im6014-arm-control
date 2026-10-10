@@ -1,13 +1,32 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
+import os
+import pty
 import unittest
 from unittest.mock import patch
 
-from im6014_port import PortConfig, inspect_port
+import serial
+from im6014_port import PortConfig, inspect_port, open_managed_port
+from im6014_transport import PosixDeadlineSerial
 
 
 class B13PortConfig(unittest.TestCase):
+    def test_managed_pyserial_open_uses_deadline_adapter(self):
+        master, slave = pty.openpty()
+        try:
+            owner = open_managed_port(
+                PortConfig(os.ttyname(slave), 6_000_000, None, None), serial.Serial)
+            try:
+                self.assertIsInstance(owner.bus, PosixDeadlineSerial)
+                self.assertIsInstance(owner.bus._serial, serial.Serial)
+                self.assertTrue(owner.bus.is_open)
+            finally:
+                self.assertTrue(owner.close())
+        finally:
+            os.close(master)
+            os.close(slave)
+
     def test_supported_baud_is_an_exact_integer(self):
         for baud in (4_000_000.0, 6_000_000.0, True, False, 5_000_000):
             with self.subTest(baud=baud), self.assertRaisesRegex(ValueError, 'Baud'):
