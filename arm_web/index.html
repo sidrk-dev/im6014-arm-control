@@ -11,9 +11,10 @@
     <div class="header-left">
       <h1 class="app-title">
         IM6014 Arm Dashboard
-        <span class="app-title-tag">J1 physical · J2/J3 preview</span>
+        <span id="app-title-tag" class="app-title-tag">J1 physical · J2/J3 preview</span>
       </h1>
       <div class="header-badges">
+        <span id="badge-profile" class="badge">Profile: J1 only</span>
         <span id="badge-mode" class="badge">Mode Awaiting Status</span>
         <span id="badge-connection" class="badge badge-disconnected">Status Awaiting</span>
         <span id="badge-state" class="badge">Awaiting Status</span>
@@ -42,7 +43,7 @@
         <span class="step-arrow">→</span>
         <div id="step-zero" class="step-node">
           <span class="step-num">3</span>
-          <span>Set J1 zero</span>
+          <span id="step-zero-title">Set J1 zero</span>
         </div>
         <span class="step-arrow">→</span>
         <div id="step-jog" class="step-node">
@@ -58,9 +59,9 @@
     <section id="arm-preview" class="center-column">
       <div id="canvas-container" class="canvas-container">
         <div class="canvas-hud">
-        <div class="hud-pill hud-j1">J1 · physical when connected · ID 0</div>
-          <div class="hud-pill hud-j2">J2 Shoulder · Virtual Simulation</div>
-          <div class="hud-pill hud-j3">J3 Elbow · Virtual Simulation</div>
+          <div id="hud-j1" class="hud-pill hud-j1">J1 · physical when connected · ID 0</div>
+          <div id="hud-j2" class="hud-pill hud-j2">J2 Shoulder · Virtual Simulation</div>
+          <div id="hud-j3" class="hud-pill hud-j3">J3 Elbow · Virtual Simulation</div>
           <div id="model-status" class="hud-pill hud-model-status">Loading CAD preview…</div>
           <div id="model-source" class="hud-pill hud-model-source">CAD preview only · motor status comes from Check</div>
         </div>
@@ -73,7 +74,7 @@
       <div class="card">
         <div class="card-header">
           <span>Pose presets & path preview</span>
-          <span class="section-title-sub">J2/J3 virtual</span>
+          <span id="presets-card-sub" class="section-title-sub">J2/J3 virtual</span>
         </div>
         <div class="card-scrollable">
           <div class="control-section">
@@ -85,9 +86,9 @@
             </div>
             <label class="secured-arm-box" style="margin-top: 10px;">
               <input type="checkbox" id="chk-follow-preview">
-              After Enable, let the physical J1 motor follow this path
+              <span id="lbl-follow-preview">After Enable, let the physical J1 motor follow this path</span>
             </label>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+            <div id="note-follow-preview" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
               Presets move only the colored preview. If path follow is checked, J1 moves automatically after Enable; press STOP, Esc, or controller B to stop it.
             </div>
           </div>
@@ -97,14 +98,22 @@
 
     <section id="arm-controls" class="card">
       <div class="card-header">
-          <span>Connect and move J1</span>
-          <span class="section-title-sub">One motor · ID 0</span>
+          <span id="controls-card-title">Connect and move arm</span>
+          <span id="controls-card-sub" class="section-title-sub">One motor · ID 0</span>
       </div>
       <div class="card-scrollable">
         <div class="control-section">
           <div class="section-title">
             <span>1. Connect the motor</span>
             <span class="section-title-sub">USB-RS485 · Channel D</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="select-profile">Arm profile</label>
+            <select id="select-profile" class="form-select">
+              <option value="arm_j1">J1 only · 1 motor (ID 0)</option>
+              <option value="arm_j1_j2_j3">3-joint daisychain · 3 motors (IDs 0, 1, 2)</option>
+            </select>
+            <div class="plain-help">Select while disconnected. Fixed profile sets bus motor IDs (0 for J1; 0, 1, 2 for daisychain). Assign IDs one at a time using vendor tool before connecting.</div>
           </div>
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -116,6 +125,13 @@
             </select>
           </div>
           <div id="serial-port-status" class="port-status" role="status" aria-live="polite">Connect the USB-RS485 adapter, then select Refresh.</div>
+          <div id="group-three-support" class="form-group" style="display: none; margin-top: 8px;">
+            <label class="secured-arm-box">
+              <input type="checkbox" id="chk-three-support">
+              <span>Arm is mechanically supported (Stop releases motor torque on all joints)</span>
+            </label>
+            <div class="plain-help">Required for physical 3-joint daisychain connection. Stop requests torque disable on every motor; only valid replies from all IDs confirm Stop. Support the links because a received Stop releases torque.</div>
+          </div>
           <details class="optional-settings">
             <summary>Using a different adapter?</summary>
             <p>Enter its port path only if you know which adapter is connected to the motor.</p>
@@ -124,7 +140,7 @@
           </details>
           <input type="hidden" id="input-baud" value="6000000">
           <input type="hidden" id="input-id" value="0">
-          <p class="connection-note">Motor ID 0 · 6 Mbaud. Connection is confirmed only by fresh J1 feedback.</p>
+          <p id="connection-note" class="connection-note">Motor ID 0 · 6 Mbaud. Connection is confirmed only by fresh J1 feedback.</p>
           <div class="btn-group">
             <button id="btn-connect" class="btn btn-primary">Connect</button>
             <button id="btn-disconnect" class="btn" disabled>Disconnect</button>
@@ -150,12 +166,20 @@
 
         <div class="control-section">
           <div class="section-title">
-            <span>3. Set J1 zero</span>
-            <span class="section-title-sub">No movement</span>
+            <span id="section-zero-title">3. Set joint zero & travel</span>
+            <span id="section-zero-sub" class="section-title-sub">No movement</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="select-joint">Target joint</label>
+            <select id="select-joint" class="form-select">
+              <option value="J1">J1 · Base Yaw (ID 0)</option>
+              <option value="J2">J2 · Shoulder Pitch (ID 1)</option>
+              <option value="J3">J3 · Elbow Pitch (ID 2)</option>
+            </select>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="input-cal-angle">J1 angle at this pose (°)</label>
+              <label class="form-label" for="input-cal-angle" id="lbl-cal-angle">J1 angle at this pose (°)</label>
               <input type="number" id="input-cal-angle" class="form-input" value="0" step="0.5">
             </div>
             <div class="form-group">
@@ -176,13 +200,20 @@
               <input type="number" id="input-cal-upper" class="form-input" value="90.0" step="0.5">
             </div>
           </div>
-          <div class="plain-help">
-            Point J1 where you want 0° to be, then choose <strong>Set J1 zero here</strong>. This changes the software reference only; it does not move the motor. Default travel is −90° to +90°.
+          <div id="travel-span-warning" class="parameter-warning" role="alert" style="display: none; color: #b91c1c; font-size: 11px; margin-top: 4px;"></div>
+          <div id="cal-help-text" class="plain-help">
+            Point J1 where you want 0° to be, then choose <strong>Set J1 zero here</strong>. This changes the software reference only; it does not move the motor. Default travel is −90° to +90°. J2/J3 travel is operator-configured.
           </div>
           <div class="btn-group">
             <button id="btn-zero-j1" class="btn btn-primary" style="flex: 1;" disabled>Set J1 zero here (0°)</button>
             <button id="btn-calibrate" class="btn" style="flex: 1;" disabled>Use entered angle</button>
           </div>
+          <div class="btn-group" style="margin-top: 6px;">
+            <button id="btn-preview-min" class="btn" type="button">Preview min limit</button>
+            <button id="btn-preview-max" class="btn" type="button">Preview max limit</button>
+          </div>
+          <div class="plain-help" style="margin-top: 4px;">Preview min/max moves only the 3D visual preview to verify limits. It NEVER submits motor commands. Range preview persists until Live view, Stop, Enable, or joint change.</div>
+          <div id="joints-cal-summary" style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;"></div>
         </div>
 
         <details class="control-section">
@@ -222,7 +253,7 @@
             <span class="section-title-sub">Requires fresh motor feedback</span>
           </div>
           <div class="form-group">
-            <label class="form-label" for="select-input-device">How to control J1</label>
+            <label id="input-device-label" class="form-label" for="select-input-device">How to control J1</label>
             <select id="select-input-device" class="form-select">
               <option value="keyboard">Keyboard and on-screen buttons</option>
               <option value="gamepad" disabled>Xbox controller (standard mapping)</option>
@@ -231,7 +262,7 @@
           </div>
           <div class="secured-arm-box">
             <input type="checkbox" id="chk-enable-arm">
-            <label for="chk-enable-arm">The base is secure, J1 travel is clear, and I can reach the E-stop</label>
+            <label id="enable-support-label" for="chk-enable-arm">The base is secure, J1 travel is clear, and I can reach the E-stop</label>
           </div>
           <div class="btn-group" style="margin-top: 8px;">
             <button id="btn-arm" class="btn btn-warning" disabled>Enable J1 movement</button>
@@ -247,8 +278,8 @@
             <span>Move the arm</span>
             <span id="motion-indicator" class="section-title-sub" style="color: var(--text-muted);">Holding position</span>
           </div>
-          <div class="plain-help">
-            Move J1 with <strong>A / D</strong>, the on-screen buttons, or the selected Xbox stick. Release to hold. J2 and J3 move only in the preview.
+          <div class="plain-help" id="plain-help-jog">
+            Move J1 with <strong>A / D</strong>, the on-screen buttons, or the selected Xbox stick. Release to hold. J2 and J3 move only in the preview when in J1 profile, or move physical motors when in 3-joint daisychain profile.
           </div>
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -260,24 +291,24 @@
           </div>
           <div class="jog-buttons">
             <div>
-              <span>J1 · Physical Base Yaw</span>
+              <span id="label-jog-j1">J1 · Physical Base Yaw (ID 0)</span>
               <button class="btn" id="btn-jog-j1-neg" data-jog="KeyA" aria-label="Hold to jog J1 negative (A)">− [A]</button>
               <button class="btn" id="btn-jog-j1-pos" data-jog="KeyD" aria-label="Hold to jog J1 positive (D)">+ [D]</button>
             </div>
             <div>
-              <span>J2 · Virtual Shoulder</span>
+              <span id="label-jog-j2">J2 · Virtual Shoulder</span>
               <button class="btn" data-jog="KeyS" aria-label="Hold to jog J2 negative (S)">− [S]</button>
               <button class="btn" data-jog="KeyW" aria-label="Hold to jog J2 positive (W)">+ [W]</button>
             </div>
             <div>
-              <span>J3 · Virtual Elbow</span>
+              <span id="label-jog-j3">J3 · Virtual Elbow</span>
               <button class="btn" data-jog="KeyQ" aria-label="Hold to jog J3 negative (Q)">− [Q]</button>
               <button class="btn" data-jog="KeyE" aria-label="Hold to jog J3 positive (E)">+ [E]</button>
             </div>
           </div>
           <div class="input-help">
-            <p><strong>Keyboard:</strong> A / D move J1 · W / S move preview J2 · Q / E move preview J3 · Esc stops.</p>
-            <p><strong>Xbox:</strong> Left stick X moves J1 · left Y and right Y move preview J2/J3 · B stops.</p>
+            <p id="kbd-jog-help"><strong>Keyboard:</strong> A / D move J1 · W / S move preview J2 · Q / E move preview J3 · Esc stops.</p>
+            <p id="xbox-jog-help"><strong>Xbox:</strong> Left stick X moves J1 · left Y and right Y move preview J2/J3 · B stops.</p>
             <div id="input-status" role="status" style="color: var(--accent-cyan); font-weight: 600;">Controls released</div>
             <div id="gamepad-status" data-state="idle" style="margin-top: 3px; font-weight: 500;">Focus this page and press A on your Xbox controller.</div>
           </div>
@@ -291,17 +322,10 @@
           <span class="section-title-sub">Updates automatically</span>
       </div>
       <div class="card-scrollable">
-        <div class="control-section telemetry-card-physical">
+        <div id="gauge-card-section" class="control-section">
           <div class="section-title">
-            <span class="joint-heading physical" style="font-size: 14px;">Joint 1 · Physical Motor (ID 0)</span>
-            <span id="tel-j1-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
+            <span id="gauge-joint-title">Travel gauge · Selected joint (J1)</span>
           </div>
-
-          <div class="telemetry-row">
-            <span class="telemetry-label">J1 angle</span>
-            <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; font-weight: 700;">Awaiting known angle</span>
-          </div>
-
           <div id="j1-pos-gauge-container" class="pos-gauge-container" hidden>
             <div id="j1-gauge-status" style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;"></div>
             <div class="pos-gauge-track">
@@ -314,12 +338,21 @@
               <span id="j1-limit-max">Upper limit</span>
             </div>
           </div>
+        </div>
 
+        <div class="control-section telemetry-card-physical" id="tel-card-j1">
+          <div class="section-title">
+            <span class="joint-heading physical" id="tel-heading-j1" style="font-size: 14px;">Joint 1 · Base Yaw (ID 0)</span>
+            <span id="tel-j1-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">J1 angle</span>
+            <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; font-weight: 700;">Awaiting known angle</span>
+          </div>
           <div class="telemetry-row">
             <span class="telemetry-label">Motor speed</span>
             <span id="tel-j1-vel" class="telemetry-val">Awaiting status</span>
           </div>
-
           <div class="telemetry-row">
             <span class="telemetry-label">Motor effort</span>
             <span id="tel-j1-torque" class="telemetry-val">Awaiting status</span>
@@ -327,9 +360,8 @@
           <div id="j1-effort-track" class="effort-meter-track" hidden>
             <div id="j1-effort-bar" class="effort-meter-fill" style="width: 0%;"></div>
           </div>
-
           <div class="telemetry-row" style="margin-top: 8px;">
-            <span class="telemetry-label">Motor mode</span>
+            <span class="telemetry-label">Motor mode / timeout</span>
             <span id="tel-j1-mode" class="telemetry-val">-</span>
           </div>
           <div class="telemetry-row">
@@ -337,13 +369,98 @@
             <span id="tel-j1-volt" class="telemetry-val" style="color: var(--accent-cyan); font-weight: 700;">-</span>
           </div>
           <div class="telemetry-row">
-            <span class="telemetry-label">Driver / winding temperature</span>
+            <span class="telemetry-label">Driver / winding temp</span>
             <span id="tel-j1-temp" class="telemetry-val">- / -</span>
           </div>
           <div class="telemetry-row">
             <span class="telemetry-label">Faults / warnings</span>
             <span id="tel-j1-errors" class="telemetry-val ok">None reported</span>
           </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Stop result</span>
+            <span id="tel-j1-stop-result" class="telemetry-val">not attempted</span>
+          </div>
+          <div id="tel-j1-health-msg" class="plain-help" style="margin-top: 4px; display: none;"></div>
+        </div>
+
+        <div class="control-section" id="tel-card-j2">
+          <div class="section-title">
+            <span class="joint-heading" id="tel-heading-j2" style="font-size: 14px;">Joint 2 · Shoulder (ID 1)</span>
+            <span id="tel-j2-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">J2 angle</span>
+            <span id="tel-j2-pos" class="telemetry-val" style="font-size: 14px; font-weight: 700;">Awaiting known angle</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor speed</span>
+            <span id="tel-j2-vel" class="telemetry-val">Awaiting status</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor effort</span>
+            <span id="tel-j2-torque" class="telemetry-val">Awaiting status</span>
+          </div>
+          <div class="telemetry-row" style="margin-top: 8px;">
+            <span class="telemetry-label">Motor mode / timeout</span>
+            <span id="tel-j2-mode" class="telemetry-val">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor voltage</span>
+            <span id="tel-j2-volt" class="telemetry-val">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Driver / winding temp</span>
+            <span id="tel-j2-temp" class="telemetry-val">- / -</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Faults / warnings</span>
+            <span id="tel-j2-errors" class="telemetry-val ok">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Stop result</span>
+            <span id="tel-j2-stop-result" class="telemetry-val">not attempted</span>
+          </div>
+          <div id="tel-j2-health-msg" class="plain-help" style="margin-top: 4px; display: none;"></div>
+        </div>
+
+        <div class="control-section" id="tel-card-j3">
+          <div class="section-title">
+            <span class="joint-heading" id="tel-heading-j3" style="font-size: 14px;">Joint 3 · Elbow (ID 2)</span>
+            <span id="tel-j3-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">J3 angle</span>
+            <span id="tel-j3-pos" class="telemetry-val" style="font-size: 14px; font-weight: 700;">Awaiting known angle</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor speed</span>
+            <span id="tel-j3-vel" class="telemetry-val">Awaiting status</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor effort</span>
+            <span id="tel-j3-torque" class="telemetry-val">Awaiting status</span>
+          </div>
+          <div class="telemetry-row" style="margin-top: 8px;">
+            <span class="telemetry-label">Motor mode / timeout</span>
+            <span id="tel-j3-mode" class="telemetry-val">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Motor voltage</span>
+            <span id="tel-j3-volt" class="telemetry-val">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Driver / winding temp</span>
+            <span id="tel-j3-temp" class="telemetry-val">- / -</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Faults / warnings</span>
+            <span id="tel-j3-errors" class="telemetry-val ok">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Stop result</span>
+            <span id="tel-j3-stop-result" class="telemetry-val">not attempted</span>
+          </div>
+          <div id="tel-j3-health-msg" class="plain-help" style="margin-top: 4px; display: none;"></div>
         </div>
 
         <div class="control-section">
@@ -372,32 +489,6 @@
           </div>
         </div>
 
-        <div class="control-section telemetry-card-virtual">
-          <div class="section-title">
-            <span class="joint-heading virtual">J2 & J3 preview</span>
-            <span class="badge badge-virtual" style="font-size: 9px;">Virtual only</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">J2 Shoulder Pos</span>
-            <span id="tel-j2-pos" class="telemetry-val">Awaiting known angle</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">J2 Velocity</span>
-            <span id="tel-j2-vel" class="telemetry-val">Awaiting status</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">J3 Elbow Pos</span>
-            <span id="tel-j3-pos" class="telemetry-val">Awaiting known angle</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">J3 Velocity</span>
-            <span id="tel-j3-vel" class="telemetry-val">Awaiting status</span>
-          </div>
-          <div class="virtual-absent-notice">
-            J2 and J3 do not send commands to a motor. Only J1 is physical.
-          </div>
-        </div>
-
         <div class="control-section">
           <div class="section-title">
           <span>Recent activity</span>
@@ -412,7 +503,7 @@
   </main>
 
   <footer class="bottom-banner">
-    <div>Start: <code>./start_arm.sh</code> · USB-Free Preview: <code>./start_arm.sh --demo</code> · Single physical J1 at ID 0; J2/J3 virtual.</div>
+    <div>Start: <code>./start_arm.sh</code> · USB-Free Preview: <code>./start_arm.sh --demo</code> · <span id="footer-profile-help">Single physical J1 at ID 0; J2/J3 virtual.</span></div>
     <div style="color: var(--text-secondary); font-size: 11px;">Press <span class="jog-key">Esc</span> anytime for immediate E-Stop.</div>
   </footer>
 

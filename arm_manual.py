@@ -1,4 +1,4 @@
-"""Single-owner, single-motor J1 manual authority.
+"""Single-owner manual authority for one fixed physical arm profile.
 
 The owner thread is the only code that opens, writes, reads, or closes the
 serial connection. HTTP and input threads may only validate bounded requests,
@@ -6,6 +6,7 @@ update authority under the lock, and wake that thread.
 """
 
 from collections import OrderedDict, deque
+from dataclasses import dataclass, field
 import math
 import queue
 import secrets
@@ -66,8 +67,51 @@ DEFAULT_SETTINGS = {
     'upper_deg': 90.0,
 }
 
+
+@dataclass(frozen=True)
+class ManualJointSpec:
+    name: str
+    motor_id: int
+
+
+@dataclass(frozen=True)
+class ManualProfile:
+    profile_id: str
+    joints: tuple[ManualJointSpec, ...]
+
+
+@dataclass
+class ManualJointRuntime:
+    spec: ManualJointSpec
+    settings: dict = field(default_factory=lambda: dict(DEFAULT_SETTINGS))
+    calibrated: bool = False
+    q_zero: float = 0.0
+    latest: dict | None = None
+    received_at: float | None = None
+    stop_confirmed: bool = False
+    stop_result: str = 'not attempted'
+    stop_error: str | None = None
+    q_ref: float = 0.0
+    q_ideal: float = 0.0
+    v_ref: float = 0.0
+    last_reference_raw: int | None = None
+    last_step_host_s: float | None = None
+    last_poll_host_s: float = 0.0
+    reference_history: deque = field(default_factory=lambda: deque(maxlen=MAX_REFERENCE_HISTORY))
+    protection_fault: str | None = None
+    foc_entered: bool = False
+
+
+_JOINT_SPECS = (
+    ManualJointSpec('J1', 0), ManualJointSpec('J2', 1), ManualJointSpec('J3', 2),
+)
+MANUAL_PROFILES = {
+    'arm_j1': ManualProfile('arm_j1', (_JOINT_SPECS[0],)),
+    'arm_j1_j2_j3': ManualProfile('arm_j1_j2_j3', _JOINT_SPECS),
+}
+
 _ACTIONS = frozenset((
-    'connect', 'disconnect', 'check', 'ack', 'calibrate', 'configure', 'arm', 'release'
+    'select_profile', 'connect', 'disconnect', 'check', 'ack', 'calibrate', 'configure', 'arm', 'release'
 ))
 
 
@@ -91,14 +135,15 @@ class DemoSerial:
     timeout = 0.005
     write_timeout = 0.05
 
-    def __init__(self, initial_pos=0.0, clock=time.monotonic):
+    def __init__(self, initial_pos=0.0, clock=time.monotonic, motor_ids=(0,)):
         self.clock = clock
         self.data = b''
         self.states = {
-            0: dict(
+            motor_id: dict(
                 mode=0, timeout=1, rpm=0.0, pos=float(initial_pos), torque=0.0,
                 voltage=48.0, driver_c=35, winding_c=31, errors=0, warnings=0,
             )
+            for motor_id in motor_ids
         }
         self.previous = self._sim_time()
         self.inject = None
@@ -111,7 +156,6 @@ class DemoSerial:
                 raise ValueError('invalid simulation clock')
             return float(value)
         except Exception:
-
 
 
             return time.monotonic()
@@ -190,7 +234,7 @@ class DemoSerial:
 
 
 class ArmManualSession:
-    """One serialized authority for J1, with bounded session and ticket state."""
+    """One serialized authority for the selected fixed IM6014 joint profile."""
 
     def __init__(self, physical_opt_in=False, serial_factory=None, clock=time.monotonic):
         if type(physical_opt_in) is not bool:
@@ -226,8 +270,11 @@ class ArmManualSession:
         self.last_seq = -1
         self.current_device = None
 
-        self.calibrated = False
-        self.q_zero = 0.0
+        self.profile_id = 'arm_j1'
+        self.profile = MANUAL_PROFILES[self.profile_id]
+        self.joint_states = {
+            spec.name: ManualJointRuntime(spec) for spec in _JOINT_SPECS
+        }
         self.armed = False
         self.stop_confirmed = False
         self.stop_latched = True
@@ -238,29 +285,20 @@ class ArmManualSession:
         self.intent = None
         self.intent_expires_at = None
 
-        self.settings = dict(DEFAULT_SETTINGS)
         self.settings_revision = 0
         self.checked_revision = -1
-        self.q_ref = 0.0
-        self.q_ideal = 0.0
-        self.v_ref = 0.0
         self.q_j2 = 0.0
         self.v_j2 = 0.0
         self.q_j3 = 0.0
         self.v_j3 = 0.0
-        self.last_reference_raw = None
-        self.reference_history = deque(maxlen=MAX_REFERENCE_HISTORY)
-
         self._last_clock_value = None
         self.clock_fault = None
-        self.last_reply_time = None
         self.last_ingress_time = None
         self.last_poll_host_s = 0.0
         self.last_step_host_s = None
 
         self.protection_fault = None
         self.protection_history = []
-        self.latest = None
         self.events = deque(maxlen=MAX_EVENTS)
 
 
@@ -286,6 +324,124 @@ class ArmManualSession:
             name='ArmManual serial owner',
         )
         self.thread.start()
+
+    @property
+    def configured_joints(self):
+        return tuple(self.joint_states[spec.name] for spec in self.profile.joints)
+
+    @property
+    def settings(self):
+        return self.joint_states['J1'].settings
+
+    @property
+    def calibrated(self):
+        return self.joint_states['J1'].calibrated
+
+    @calibrated.setter
+    def calibrated(self, value):
+        self.joint_states['J1'].calibrated = bool(value)
+
+    @property
+    def q_zero(self):
+        return self.joint_states['J1'].q_zero
+
+    @q_zero.setter
+    def q_zero(self, value):
+        self.joint_states['J1'].q_zero = float(value)
+
+    @property
+    def latest(self):
+        return self.joint_states['J1'].latest
+
+    @latest.setter
+    def latest(self, value):
+        self.joint_states['J1'].latest = value
+
+    @property
+    def last_reply_time(self):
+        return self.joint_states['J1'].received_at
+
+    @last_reply_time.setter
+    def last_reply_time(self, value):
+        self.joint_states['J1'].received_at = value
+
+    @property
+    def q_ref(self):
+        return self.joint_states['J1'].q_ref
+
+    @q_ref.setter
+    def q_ref(self, value):
+        self.joint_states['J1'].q_ref = value
+
+    @property
+    def q_ideal(self):
+        return self.joint_states['J1'].q_ideal
+
+    @q_ideal.setter
+    def q_ideal(self, value):
+        self.joint_states['J1'].q_ideal = value
+
+    @property
+    def v_ref(self):
+        return self.joint_states['J1'].v_ref
+
+    @v_ref.setter
+    def v_ref(self, value):
+        self.joint_states['J1'].v_ref = value
+
+    @property
+    def last_reference_raw(self):
+        return self.joint_states['J1'].last_reference_raw
+
+    @last_reference_raw.setter
+    def last_reference_raw(self, value):
+        self.joint_states['J1'].last_reference_raw = value
+
+    @property
+    def reference_history(self):
+        return self.joint_states['J1'].reference_history
+
+    def _select_profile(self, profile_id):
+        if profile_id not in MANUAL_PROFILES:
+            raise ValueError('Unknown arm profile')
+        with self.lock:
+            if self.bus is not None or self.port_owner is not None or self.data['connected']:
+                raise ValueError('Disconnect before changing arm profile')
+            self.profile_id = profile_id
+            self.profile = MANUAL_PROFILES[profile_id]
+            self._reset_joint_authority(clear_settings=False)
+
+    def _reset_joint_authority(self, *, clear_settings):
+        for joint in self.joint_states.values():
+            if clear_settings:
+                joint.settings = dict(DEFAULT_SETTINGS)
+            joint.calibrated = False
+            joint.q_zero = 0.0
+            joint.latest = None
+            joint.received_at = None
+            joint.stop_confirmed = False
+            joint.stop_result = 'not attempted'
+            joint.stop_error = None
+            joint.q_ref = joint.q_ideal = joint.v_ref = 0.0
+            joint.last_reference_raw = None
+            joint.last_step_host_s = None
+            joint.last_poll_host_s = 0.0
+            joint.reference_history.clear()
+            joint.foc_entered = False
+
+    def _joint(self, name=None):
+        name = 'J1' if name is None else name
+        if type(name) is not str or name not in self.joint_states:
+            raise ValueError('Joint must be J1, J2, or J3')
+        if name not in {spec.name for spec in self.profile.joints}:
+            raise ValueError(f'{name} is not configured in {self.profile_id}')
+        return self.joint_states[name]
+
+    def _joint_for_id(self, motor_id):
+        for joint in self.configured_joints:
+            if joint.spec.motor_id == motor_id:
+                return joint
+        raise RuntimeError(f'Motor ID {motor_id} is not in the selected profile')
 
     def _event(self, text):
         with self.lock:
@@ -326,6 +482,13 @@ class ArmManualSession:
         self.deadman_active = False
         self.target_axes = [0.0, 0.0, 0.0]
         self.v_j2 = self.v_j3 = 0.0
+        for joint in self.joint_states.values():
+            joint.v_ref = 0.0
+            joint.foc_entered = False
+        for joint in self.configured_joints:
+            joint.stop_confirmed = False
+            joint.stop_result = 'pending'
+            joint.stop_error = None
         self.intent = None
         self.intent_expires_at = None
         self.tickets.clear()
@@ -335,9 +498,11 @@ class ArmManualSession:
         self._event('STOP LATCHED: ' + str(reason)[:180])
         self.wake.set()
 
-    def _record_overload(self, reason):
+    def _record_overload(self, reason, joint=None):
         with self.lock:
             self.protection_fault = str(reason)[:240]
+            if joint is not None:
+                joint.protection_fault = self.protection_fault
             self.protection_history.append(
                 {'time_s': time.monotonic(), 'reason': self.protection_fault}
             )
@@ -383,7 +548,7 @@ class ArmManualSession:
                 raise ValueError('Unknown session')
             return self.last_seq if session == self.owner else -1
 
-    def edit_parameters(self, session, values):
+    def edit_parameters(self, session, values, joint='J1'):
         """Save finite drafts without changing applied settings or motion authority."""
         if not isinstance(values, dict) or not values or not set(values) <= set(DEFAULT_SETTINGS):
             raise ValueError('Unknown parameter draft fields')
@@ -391,7 +556,10 @@ class ArmManualSession:
         with self.lock:
             if session not in self.sessions:
                 raise ValueError('Unknown session')
-            self.parameter_drafts[session] = draft
+            if type(joint) is not str or joint not in self.joint_states:
+                raise ValueError('Joint must be J1, J2, or J3')
+            drafts = self.parameter_drafts.setdefault(session, {})
+            drafts[joint] = draft
         return dict(draft)
 
     def retire_session(self, session: str) -> bool:
@@ -420,21 +588,33 @@ class ArmManualSession:
         if type(values) is not dict:
             raise ValueError('Action values must be an object')
         v = dict(values)
+        if action == 'select_profile':
+            profile_id = v.get('profile_id')
+            if set(v) != {'profile_id'} or type(profile_id) is not str or profile_id not in MANUAL_PROFILES:
+                raise ValueError('Select a known fixed arm profile')
+            return {'profile_id': profile_id}
         if action == 'connect':
             demo = v.get('demo')
             port = v.get('port', '')
             baud = v.get('baud', 6000000)
             motor_id = v.get('id', 0)
+            profile_id = v.get('profile_id', 'arm_j1')
             if type(demo) is not bool:
                 raise ValueError('demo must be an exact bool')
             if type(motor_id) is not int or motor_id != 0:
-                raise ValueError('Manual J1 accepts motor ID 0 only')
+                raise ValueError('The legacy id field accepts ID 0 only; select a fixed profile for more joints')
+            if type(profile_id) is not str or profile_id not in MANUAL_PROFILES:
+                raise ValueError('Unknown arm profile')
+            support_confirmed = v.get('support_confirmed') is True
+            if not demo and profile_id == 'arm_j1_j2_j3' and not support_confirmed:
+                raise ValueError('Physical three-joint Connect requires confirmation that the arm is supported')
             if type(baud) is not int or baud not in (4000000, 6000000):
                 raise ValueError('Baud must be integer 4000000 or 6000000')
             if type(port) is not str:
                 raise ValueError('Port must be a string')
             if demo:
-                return {'demo': True, 'port': '', 'baud': baud, 'id': 0}
+                return {'demo': True, 'port': '', 'baud': baud, 'id': 0,
+                        'profile_id': profile_id, 'support_confirmed': support_confirmed}
             if not self.physical_opt_in:
                 raise ValueError('Physical mode requires physical_opt_in=True')
             if baud != 6000000:
@@ -443,7 +623,8 @@ class ArmManualSession:
                 raise ValueError('Physical port must be a non-empty string')
             if len(port) > 240:
                 raise ValueError('Physical port path is too long')
-            return {'demo': False, 'port': port.strip(), 'baud': 6000000, 'id': 0}
+            return {'demo': False, 'port': port.strip(), 'baud': 6000000, 'id': 0,
+                    'profile_id': profile_id, 'support_confirmed': support_confirmed}
         if action in ('disconnect', 'check', 'release'):
             if v:
                 raise ValueError(f'{action} does not accept values')
@@ -453,21 +634,27 @@ class ArmManualSession:
                 raise ValueError('Supported acknowledgment must be the exact bool true')
             return {'supported': True}
         if action == 'calibrate':
+            joint_name = v.get('joint', 'J1')
+            selected = self._joint(joint_name)
             known = _finite_number(v.get('known_angle_deg'), 'known_angle_deg')
             direction = v.get('direction')
             lower = _finite_number(v.get('lower_deg'), 'lower_deg')
             upper = _finite_number(v.get('upper_deg'), 'upper_deg')
             if type(direction) is not int or direction not in (-1, 1):
                 raise ValueError('Direction must be the integer +1 or -1')
-            if lower < -90.0 or upper > 90.0 or lower >= upper:
-                raise ValueError('Travel limits must satisfy -90 <= lower < upper <= 90 degrees')
+            if selected.spec.name == 'J1' and (lower < -90.0 or upper > 90.0):
+                raise ValueError('J1 travel must remain within the existing -90 to +90 degree wire limit')
+            if lower >= upper:
+                raise ValueError('Travel limits must be ordered with lower < upper')
             if not lower <= known <= upper:
                 raise ValueError('known_angle_deg must be within the travel limits')
             return {
+                'joint': selected.spec.name,
                 'known_angle_deg': known, 'direction': direction,
                 'lower_deg': lower, 'upper_deg': upper,
             }
         if action == 'configure':
+            selected = self._joint(v.get('joint', 'J1'))
             kp = _finite_number(v.get('kp'), 'kp')
             kd = _finite_number(v.get('kd'), 'kd')
             max_rpm = _finite_number(v.get('max_rpm'), 'max_rpm')
@@ -481,7 +668,10 @@ class ArmManualSession:
                 raise ValueError(f'max_rpm must be in (0, {MAX_RATE_RPM}]')
             if not 0 < effort <= DEFAULT_EFFORT_CEILING_NM:
                 raise ValueError(f'effort_limit_nm must be in (0, {DEFAULT_EFFORT_CEILING_NM}]')
-            return {'kp': kp, 'kd': kd, 'max_rpm': max_rpm, 'effort_limit_nm': effort}
+            return {
+                'joint': selected.spec.name,
+                'kp': kp, 'kd': kd, 'max_rpm': max_rpm, 'effort_limit_nm': effort,
+            }
         raise ValueError('Unknown action')
 
     def _prune_tickets_locked(self, now):
@@ -501,7 +691,6 @@ class ArmManualSession:
                 return op_id
 
 
-
             if self.jobs.full():
                 self._record_receipt(session, op_id, 'rejected', 'Queue full')
                 return op_id
@@ -514,7 +703,7 @@ class ArmManualSession:
                 if self.owner not in (None, session):
                     self._record_receipt(session, op_id, 'rejected', 'Another session owns the bus')
                     return op_id
-                if self.bus is not None or self.port_owner is not None:
+                if action == 'connect' and (self.bus is not None or self.port_owner is not None):
                     self._record_receipt(session, op_id, 'rejected', 'Disconnect before reconnecting')
                     return op_id
                 if self.owner is None:
@@ -593,7 +782,6 @@ class ArmManualSession:
                 raise ValueError('Unknown session')
 
 
-
             if self.owner is not None and session != self.owner:
                 raise ValueError('Session is not owner')
             if self.closing.is_set():
@@ -650,7 +838,6 @@ class ArmManualSession:
             if deadman != moving:
                 raise ValueError('Motion intent must match nonzero axes')
             neutral_release = not deadman and not moving
-
 
 
             now = self._clock_now_locked()
@@ -721,52 +908,81 @@ class ArmManualSession:
                     now = self._clock_now_locked()
                 except ValueError:
                     now = None
-            age = None
-            if now is not None and self.last_reply_time is not None:
-                age = max(0.0, now - self.last_reply_time)
-
-            latest = None
-            if self.latest is not None and self.data['connected']:
-                latest = {
-                    key: self.latest[key]
-                    for key in (
-                        'id', 'mode', 'timeout', 'voltage', 'driver_c', 'winding_c',
-                        'errors', 'warnings', 'torque_nm', 'rpm', 'position_rad', 'raw',
-                    )
-                }
-                latest['source'] = 'demo' if self.data['demo'] else 'physical'
-
-            calibrated = bool(self.calibrated and self.data['connected'])
-            if calibrated and latest is not None:
-                direction = self.settings['direction']
-                j1_position = direction * (latest['position_rad'] - self.q_zero)
-                j1_velocity = direction * latest['rpm'] * math.tau / 60
-            else:
-                j1_position = None
-                j1_velocity = None
             source = ('demo' if self.data['demo'] else 'physical') if self.data['connected'] else 'unknown'
-            j1 = {
-                'name': 'J1', 'source': source,
-                'position_rad': j1_position, 'velocity_rad_s': j1_velocity,
-                'mode': latest['mode'] if latest else None,
-                'timeout': latest['timeout'] if latest else None,
-                'voltage': latest['voltage'] if latest else None,
-                'driver_temp': latest['driver_c'] if latest else None,
-                'winding_temp': latest['winding_c'] if latest else None,
-                'errors': latest['errors'] if latest else None,
-                'warnings': latest['warnings'] if latest else None,
-                'torque_nm': latest['torque_nm'] if latest else None,
-            }
-            joints = [
-                j1,
-                {'name': 'J2', 'source': 'virtual', 'position_rad': self.q_j2,
-                 'velocity_rad_s': self.v_j2},
-                {'name': 'J3', 'source': 'virtual', 'position_rad': self.q_j3,
-                 'velocity_rad_s': self.v_j3},
-            ]
+            joints = []
+            ages = []
+            for name in ('J1', 'J2', 'J3'):
+                runtime = self.joint_states[name]
+                configured = name in {spec.name for spec in self.profile.joints}
+                if not configured:
+                    joints.append({
+                        'name': name, 'source': 'virtual',
+                        'position_rad': self.q_j2 if name == 'J2' else self.q_j3 if name == 'J3' else None,
+                        'velocity_rad_s': self.v_j2 if name == 'J2' else self.v_j3 if name == 'J3' else None,
+                        'configured': False, 'calibrated': False,
+                    })
+                    continue
+                age = None
+                if now is not None and runtime.received_at is not None:
+                    age = max(0.0, now - runtime.received_at)
+                ages.append(age)
+                latest = runtime.latest if self.data['connected'] else None
+                if latest is not None:
+                    latest_view = self._sanitize_feedback(latest)
+                    latest_view['source'] = source
+                else:
+                    latest_view = None
+                calibrated = bool(runtime.calibrated and self.data['connected'])
+                position = (runtime.settings['direction'] * (latest['position_rad'] - runtime.q_zero)
+                            if calibrated and latest is not None else None)
+                velocity = (runtime.settings['direction'] * latest['rpm'] * math.tau / 60
+                            if calibrated and latest is not None else None)
+                unhealthy = bool(latest is not None and (
+                    latest['errors'] or latest['warnings'] or latest['timeout']
+                    or not 24 <= latest['voltage'] <= 72
+                    or not -10 <= latest['driver_c'] <= 70
+                    or latest['winding_c'] > 90
+                    or abs(latest['torque_nm']) > runtime.settings['effort_limit_nm']
+                ))
+                joints.append({
+                    'name': name, 'id': runtime.spec.motor_id, 'source': source,
+                    'configured': True, 'calibrated': calibrated,
+                    'position_rad': position, 'velocity_rad_s': velocity,
+                    'mode': latest['mode'] if latest else None,
+                    'timeout': latest['timeout'] if latest else None,
+                    'voltage': latest['voltage'] if latest else None,
+                    'driver_temp': latest['driver_c'] if latest else None,
+                    'winding_temp': latest['winding_c'] if latest else None,
+                    'errors': latest['errors'] if latest else None,
+                    'warnings': latest['warnings'] if latest else None,
+                    'torque_nm': latest['torque_nm'] if latest else None,
+                    'feedback_age_s': age,
+                    'stop_confirmed': runtime.stop_confirmed,
+                    'stop_result': runtime.stop_result,
+                    'stop_error': runtime.stop_error,
+                    'protection_fault': runtime.protection_fault,
+                    'health': ('missing' if latest is None else
+                               'stale' if age is None or age > FEEDBACK_MAX_AGE_S else
+                               'fault' if unhealthy else
+                               'healthy'),
+                    'settings': dict(runtime.settings),
+                    'latest': latest_view,
+                })
+            configured = [joint for joint in joints if joint.get('configured')]
+            all_fresh = bool(configured) and all(joint['feedback_age_s'] is not None for joint in configured)
+            age = max(ages) if ages and all_fresh else None
+            calibrated = bool(self.data['connected'] and configured
+                              and all(joint['calibrated'] for joint in configured))
+            latest = self._sanitize_feedback(self.latest) if self.latest is not None and self.data['connected'] else None
+            if latest is not None:
+                latest['source'] = source
+            j1 = next(joint for joint in joints if joint['name'] == 'J1')
             return {
                 'state': self.data['state'], 'reason': self.data['reason'],
                 'connected': bool(self.data['connected']), 'demo': bool(self.data['demo']),
+                'profile_id': self.profile_id,
+                'profiles': [{'id': profile.profile_id, 'joints': [spec.name for spec in profile.joints]}
+                             for profile in MANUAL_PROFILES.values()],
                 'calibrated': calibrated, 'armed': bool(self.armed),
                 'stop_confirmed': bool(self.stop_confirmed and self.data['connected']),
                 'feedback_age_s': age, 'settings': dict(self.settings), 'joints': joints,
@@ -798,19 +1014,19 @@ class ArmManualSession:
             port='' if source == 'demo' else self.data['port'],
             baud=self.data['baud'],
         )
+        joint = self._joint_for_id(motor_id)
         with self.lock:
-            self.latest = self._sanitize_feedback(result)
+            joint.latest = self._sanitize_feedback(result)
             try:
-                self.last_reply_time = self._clock_now_locked()
+                joint.received_at = self._clock_now_locked()
             except ValueError:
-
-
-                self.last_reply_time = None
+                joint.received_at = None
         return result
 
     def _record_stop_result(self, confirmed):
         with self.lock:
-            self.stop_confirmed = bool(confirmed and self.data['connected'])
+            self.stop_confirmed = bool(confirmed and all(joint.stop_confirmed for joint in self.configured_joints)
+                                       and self.data['connected'])
             self.data['stop_confirmed'] = self.stop_confirmed
 
     def _stop(self):
@@ -824,6 +1040,10 @@ class ArmManualSession:
             self.target_axes = [0.0, 0.0, 0.0]
             self.intent = None
             self.intent_expires_at = None
+        for joint in self.configured_joints:
+            joint.stop_confirmed = False
+            joint.stop_result = 'pending'
+            joint.stop_error = None
         if self.bus is None or not getattr(self.bus, 'is_open', False):
             self._record_stop_result(False)
             return False
@@ -832,22 +1052,37 @@ class ArmManualSession:
         ):
             self._record_stop_result(False)
             return False
-        packet = command(0, 0, 0, 0, 0, True)
-        last_error = None
+        failures = {}
         for _ in range(3):
-            try:
-                reply = self._transact_raw(packet, motor_id=0)
-                if reply['mode'] == 0:
-                    self._record_stop_result(True)
-                    self.last_poll_host_s = time.monotonic()
-                    return True
-                last_error = RuntimeError('Motor has not confirmed Stop')
-            except Exception as error:
-                last_error = error
-        self._record_stop_result(False)
-        self._event('STOP NOT CONFIRMED: ' + (str(last_error) or type(last_error).__name__))
+            for joint in self.configured_joints:
+                if joint.stop_confirmed:
+                    continue
+                try:
+                    reply = self._transact_raw(
+                        command(joint.spec.motor_id, 0, 0, 0, 0, True),
+                        motor_id=joint.spec.motor_id,
+                    )
+                    if reply['mode'] != 0:
+                        raise RuntimeError('Motor has not confirmed mode-0 Stop')
+                    joint.stop_confirmed = True
+                    joint.stop_result = 'confirmed'
+                    joint.stop_error = None
+                    failures.pop(joint.spec.name, None)
+                    joint.last_poll_host_s = time.monotonic()
+                except Exception as error:
+                    failures[joint.spec.name] = error
+                    joint.stop_confirmed = False
+                    joint.stop_result = 'unconfirmed'
+                    joint.stop_error = (str(error) or type(error).__name__)[:160]
         self.last_poll_host_s = time.monotonic()
-        return False
+        result = all(joint.stop_confirmed for joint in self.configured_joints)
+        with self.lock:
+            self.stop_confirmed = bool(result and self.data['connected'])
+            self.data['stop_confirmed'] = self.stop_confirmed
+        if not result:
+            summary = '; '.join(f'{name}: {error}' for name, error in failures.items())
+            self._event('STOP NOT CONFIRMED: ' + summary[:200])
+        return result
 
     def _close_resource(self):
         self._assert_owner_thread()
@@ -878,8 +1113,16 @@ class ArmManualSession:
             self.generation += 1
             self.tickets.clear()
             self.owner = None
-            self.calibrated = False
-            self.q_zero = 0.0
+            stop_outcomes = {
+                name: (joint.stop_confirmed, joint.stop_result, joint.stop_error)
+                for name, joint in self.joint_states.items()
+            }
+            self._reset_joint_authority(clear_settings=False)
+            for name, (confirmed, result, error) in stop_outcomes.items():
+                joint = self.joint_states[name]
+                joint.stop_confirmed = confirmed
+                joint.stop_result = result
+                joint.stop_error = error
             self.armed = False
             self.deadman_active = False
             self.require_neutral = True
@@ -889,16 +1132,13 @@ class ArmManualSession:
             self.current_device = None
             self.last_seq = -1
             self.v_j2 = self.v_j3 = 0.0
-            self.last_reply_time = None
-            self.latest = None
+            self.last_step_host_s = None
             self.stop_confirmed = False
             self.data.update(
                 connected=False, demo=False, calibrated=False, armed=False,
                 stop_confirmed=False, state='Disconnected', reason=str(reason)[:240],
                 port='',
             )
-            self.last_reference_raw = None
-            self.q_ref = self.q_ideal = self.v_ref = 0.0
 
     def _disconnect(self):
         self._assert_owner_thread()
@@ -922,38 +1162,46 @@ class ArmManualSession:
         self._mark_disconnected(reason)
         self._event('Disconnected.')
 
-    def _validate_feedback(self, reply, mode, *, allow_timeout=False):
-        if reply.get('id') != 0 or reply.get('mode') != mode:
+    def _validate_feedback(self, reply, mode, *, allow_timeout=False, joint=None):
+        joint = self._joint('J1') if joint is None else joint
+        if reply.get('id') != joint.spec.motor_id or reply.get('mode') != mode:
             raise RuntimeError(f'Unexpected motor ID or mode in feedback: {reply.get("mode")}')
         if reply.get('errors') or reply.get('warnings'):
-            self._record_overload('Motor reported errors or warnings')
+            self._record_overload(f'{joint.spec.name} reported errors or warnings', joint)
             raise RuntimeError('Motor reports errors or warnings')
         if reply.get('timeout') and not allow_timeout:
             raise RuntimeError('Motor watchdog timeout is active')
         if not 24 <= reply.get('voltage', -math.inf) <= 72:
             raise RuntimeError('Motor voltage is outside the allowed range')
         if not -10 <= reply.get('driver_c', math.inf) <= 70:
-            self._record_overload('Driver temperature is outside the allowed range')
+            self._record_overload(f'{joint.spec.name} driver temperature is outside the allowed range', joint)
             raise RuntimeError('Driver temperature is outside the allowed range')
         if reply.get('winding_c', math.inf) > 90:
-            self._record_overload('Winding temperature exceeds 90 C')
+            self._record_overload(f'{joint.spec.name} winding temperature exceeds 90 C', joint)
             raise RuntimeError('Winding temperature exceeds 90 C')
-        if abs(reply.get('torque_nm', math.inf)) > self.settings['effort_limit_nm']:
-            self._record_overload('Measured motor effort exceeds the configured ceiling')
+        if abs(reply.get('torque_nm', math.inf)) > joint.settings['effort_limit_nm']:
+            self._record_overload(f'{joint.spec.name} measured motor effort exceeds its configured ceiling', joint)
             raise RuntimeError('Measured torque exceeds the configured effort ceiling')
         healthy(reply, mode, allow_timeout=allow_timeout)
         return True
 
-    def _fresh_feedback_age(self, now=None):
+    def _fresh_feedback_age(self, now=None, joint=None):
+        joint = self._joint('J1') if joint is None else joint
         if now is None:
             with self.lock:
                 now = self._clock_now_locked()
-        if self.last_reply_time is None:
+        if joint.received_at is None:
             return None
-        age = now - self.last_reply_time
+        age = now - joint.received_at
         if not math.isfinite(age) or age < 0:
             return None
         return age
+
+    def _joint_position_in_limits(self, joint, reply):
+        if not joint.calibrated or reply is None:
+            return False
+        measured = joint.settings['direction'] * (reply['position_rad'] - joint.q_zero)
+        return math.radians(joint.settings['lower_deg']) <= measured <= math.radians(joint.settings['upper_deg'])
 
     def _require_fresh_stop(self):
         if not self.data['connected'] or self.bus is None:
@@ -961,12 +1209,13 @@ class ArmManualSession:
         if self.armed or not self.stop_confirmed:
             raise ValueError('Requires confirmed Stop and disarmed state')
         now = self._clock_now_locked()
-        age = self._fresh_feedback_age(now)
-        if age is None or age > FEEDBACK_MAX_AGE_S:
-            raise ValueError('Feedback stale; check connection again')
-        if self.latest is None or self.latest['mode'] != 0:
-            raise ValueError('Motor must be in mode 0')
-        self._validate_feedback(self.latest, 0)
+        for joint in self.configured_joints:
+            age = self._fresh_feedback_age(now, joint)
+            if age is None or age > FEEDBACK_MAX_AGE_S:
+                raise ValueError(f'{joint.spec.name} feedback stale; check connection again')
+            if not joint.stop_confirmed or joint.latest is None or joint.latest['mode'] != 0:
+                raise ValueError(f'{joint.spec.name} must have a confirmed mode-0 Stop')
+            self._validate_feedback(joint.latest, 0, joint=joint)
 
     def _invalidate_settings(self, reason):
         with self.lock:
@@ -982,13 +1231,22 @@ class ArmManualSession:
             self._latch_stop_locked('Check requested')
             check_generation = self.generation
         if not self._stop():
-            raise RuntimeError('Cannot verify Stop; check adapter, ID, baud and motor power')
-        reply = self._transact_raw(command(0, 0, 0, 0, 0, True), motor_id=0)
-        self._validate_feedback(reply, 0, allow_timeout=True)
+            missing = ', '.join(f'{joint.spec.name} (ID {joint.spec.motor_id})'
+                                for joint in self.configured_joints if not joint.stop_confirmed)
+            raise RuntimeError(f'Cannot verify Stop for {missing}; check unique motor IDs, wiring, 6 Mbaud and motor power')
+        replies = {}
+        for joint in self.configured_joints:
+            reply = self._transact_raw(
+                command(joint.spec.motor_id, 0, 0, 0, 0, True),
+                motor_id=joint.spec.motor_id,
+            )
+            self._validate_feedback(reply, 0, allow_timeout=True, joint=joint)
+            replies[joint.spec.name] = reply
         now = self._clock_now_locked()
-        age = self._fresh_feedback_age(now)
-        if age is None or age > FEEDBACK_MAX_AGE_S:
-            raise RuntimeError('Fresh mode-0 feedback was not available')
+        for joint in self.configured_joints:
+            age = self._fresh_feedback_age(now, joint)
+            if age is None or age > FEEDBACK_MAX_AGE_S:
+                raise RuntimeError(f'Fresh {joint.spec.name} mode-0 feedback was not available')
         with self.lock:
             if self.generation != check_generation:
                 raise WriteCancelledError('Stop arrived while Check was in progress')
@@ -1002,56 +1260,78 @@ class ArmManualSession:
                 self.data['state'] = 'Fault — retained protection fault'
                 self.data['reason'] = 'Retained protection fault: ' + self.protection_fault
                 raise RuntimeError(self.data['reason'])
-            if reply['timeout']:
+            self.stop_confirmed = all(joint.stop_confirmed for joint in self.configured_joints)
+            self.data['stop_confirmed'] = self.stop_confirmed
+            timeouts = [joint.spec.name for joint in self.configured_joints if replies[joint.spec.name]['timeout']]
+            if timeouts:
                 self.data['state'] = 'Timeout — disarmed'
-                self.data['reason'] = 'Click Acknowledge timeout while the motor is supported.'
+                self.data['reason'] = 'Startup timeout on ' + ', '.join(timeouts) + '; acknowledge only while each is in Stop.'
             else:
                 self.data['state'] = 'Ready · Stop'
-                self.data['reason'] = 'Healthy feedback. Motor stopped. Arm before jogging.'
+                self.data['reason'] = 'All configured motors returned fresh healthy mode-0 feedback.'
 
     def _ack(self, supported):
         self._assert_owner_thread()
         if supported is not True:
             raise ValueError('Supported acknowledgment required')
-        if self.bus is None or not self.stop_confirmed or self.latest is None:
+        if self.bus is None or not self.stop_confirmed:
             raise ValueError('Check a connected Stop state first')
         if self.stop_latched or self.stop_requested.is_set():
             raise ValueError('Check again after Stop before acknowledging the watchdog')
-        if self.armed or self.latest.get('mode') != 0:
+        if self.armed:
             raise ValueError('Acknowledge requires actual mode-0 Stop')
-        self._validate_feedback(self.latest, 0, allow_timeout=True)
         now = self._clock_now_locked()
-        age = self._fresh_feedback_age(now)
-        if age is None or age > FEEDBACK_MAX_AGE_S:
-            raise ValueError('Feedback stale; check connection again')
-        if self.latest.get('timeout') is not True and self.latest.get('timeout') != 1:
+        timeout_joints = []
+        for joint in self.configured_joints:
+            age = self._fresh_feedback_age(now, joint)
+            if age is None or age > FEEDBACK_MAX_AGE_S or joint.latest is None:
+                raise ValueError(f'{joint.spec.name} feedback stale; check connection again')
+            if joint.latest.get('mode') != 0 or not joint.stop_confirmed:
+                raise ValueError(f'{joint.spec.name} must have actual mode-0 Stop')
+            self._validate_feedback(joint.latest, 0, allow_timeout=True, joint=joint)
+            if joint.latest.get('timeout') in (True, 1):
+                timeout_joints.append(joint)
+        if not timeout_joints:
             raise ValueError('There is no active startup timeout to acknowledge')
 
         start_generation = self.generation
-        no_watchdog = command(0, 0, 0, 0, 0, False)
-        watchdog = command(0, 0, 0, 0, 0, True)
-        failure = None
-        restored = None
-        try:
-            reply = self._transact_raw(no_watchdog, motor_id=0)
-            self._validate_feedback(reply, 0, allow_timeout=True)
-        except Exception as error:
-            failure = error
-        finally:
+        failures = []
+        for joint in timeout_joints:
+            no_watchdog = command(joint.spec.motor_id, 0, 0, 0, 0, False)
+            watchdog = command(joint.spec.motor_id, 0, 0, 0, 0, True)
             try:
-                restored = self._transact_raw(watchdog, motor_id=0)
-                self._validate_feedback(restored, 0, allow_timeout=False)
+                reply = self._transact_raw(no_watchdog, motor_id=joint.spec.motor_id)
+                self._validate_feedback(reply, 0, allow_timeout=True, joint=joint)
             except Exception as error:
-                if failure is None:
-                    failure = error
-        if failure is not None:
-            raise RuntimeError('Watchdog acknowledgment failed; mode-0 watchdog restore attempted') from failure
+                failures.append(f'{joint.spec.name} acknowledge: {str(error) or type(error).__name__}')
+            finally:
+                try:
+                    restored = self._transact_raw(watchdog, motor_id=joint.spec.motor_id)
+                    self._validate_feedback(restored, 0, allow_timeout=False, joint=joint)
+                    joint.stop_confirmed = True
+                    joint.stop_result = 'confirmed'
+                except Exception as error:
+                    failures.append(f'{joint.spec.name} watchdog restore: {str(error) or type(error).__name__}')
+                    joint.stop_confirmed = False
+                    joint.stop_result = 'unconfirmed'
+                    joint.stop_error = str(error)[:160]
+        for joint in self.configured_joints:
+            age = self._fresh_feedback_age(now=None, joint=joint)
+            if joint.latest is None or joint.latest.get('mode') != 0 or joint.latest.get('timeout') or age is None or age > FEEDBACK_MAX_AGE_S:
+                failures.append(f'{joint.spec.name} did not return fresh mode-0 feedback with watchdog active')
+                joint.stop_confirmed = False
+        if failures:
+            self._record_stop_result(False)
+            raise RuntimeError('Watchdog acknowledgment failed; mode-0 watchdog restore attempted: '
+                               + '; '.join(failures)[:240])
         self._clock_now_locked()
         with self.lock:
             if self.generation != start_generation:
                 raise WriteCancelledError('Stop arrived during watchdog acknowledgment')
-            self.stop_confirmed = True
-            self.data['stop_confirmed'] = True
+            self.stop_confirmed = all(joint.stop_confirmed for joint in self.configured_joints)
+            self.data['stop_confirmed'] = self.stop_confirmed
+            if not self.stop_confirmed:
+                raise RuntimeError('Not every configured motor has confirmed Stop')
             self.checked_revision = self.settings_revision
             self.stop_latched = False
             self.stop_requested.clear()
@@ -1065,12 +1345,18 @@ class ArmManualSession:
         with self.lock:
             if session not in self.sessions:
                 raise ValueError('Session retired before dispatch')
-            if session != self.owner:
+            if session != self.owner and not (action == 'select_profile' and self.owner is None):
                 raise ValueError('Session is no longer the bus owner')
+
+        if action == 'select_profile':
+            self._select_profile(values['profile_id'])
+            self._event(f'Arm profile selected: {self.profile_id}')
+            return
 
         if action == 'connect':
             if self.bus is not None or self.port_owner is not None:
                 raise ValueError('Disconnect before changing adapter')
+            self._select_profile(values['profile_id'])
             demo = values['demo']
             port = values['port']
             baud = values['baud']
@@ -1081,18 +1367,17 @@ class ArmManualSession:
                     connection=self.data['connection'] + 1, connected=False,
                     armed=False, calibrated=False, stop_confirmed=False,
                 )
-                self.calibrated = False
-                self.q_zero = 0.0
                 self.stop_confirmed = False
-                self.latest = None
-                self.last_reply_time = None
                 self.current_device = None
                 self.last_seq = -1
                 self.tickets.clear()
                 self.deadman_active = False
                 self.require_neutral = True
             if demo:
-                self.bus = DemoSerial(clock=self.clock)
+                self.bus = DemoSerial(
+                    clock=self.clock,
+                    motor_ids=tuple(joint.spec.motor_id for joint in self.configured_joints),
+                )
             else:
                 config = PortConfig(port, baud)
                 inspect_report = inspect_port(config)
@@ -1108,7 +1393,8 @@ class ArmManualSession:
                 self.bus = self.port_owner.bus
             with self.lock:
                 self.data['connected'] = True
-            self._event(f'{"DEMO" if demo else "REAL"} port open: {port} · ID 0 · {baud}')
+            ids = ','.join(str(joint.spec.motor_id) for joint in self.configured_joints)
+            self._event(f'{"DEMO" if demo else "REAL"} port open: {port} · IDs {ids} · {baud}')
             self._check()
             return
 
@@ -1123,32 +1409,40 @@ class ArmManualSession:
             return
         if action == 'calibrate':
             self._require_fresh_stop()
-
-            reply = self._transact_raw(command(0, 0, 0, 0, 0, True), motor_id=0)
-            self._validate_feedback(reply, 0)
+            joint = self._joint(values.get('joint', 'J1'))
+            reply = self._transact_raw(
+                command(joint.spec.motor_id, 0, 0, 0, 0, True),
+                motor_id=joint.spec.motor_id,
+            )
+            self._validate_feedback(reply, 0, joint=joint)
             known_rad = math.radians(values['known_angle_deg'])
             direction = values['direction']
+            q_zero = reply['position_rad'] - direction * known_rad
+            lower_motor = q_zero + direction * math.radians(values['lower_deg'])
+            upper_motor = q_zero + direction * math.radians(values['upper_deg'])
+            if min(lower_motor, upper_motor) < POSITION_MIN or max(lower_motor, upper_motor) > POSITION_MAX:
+                raise ValueError('Applied travel exceeds the actuator position codec envelope')
             with self.lock:
-                self.q_zero = reply['position_rad'] - direction * known_rad
-                self.settings.update(
+                joint.q_zero = q_zero
+                joint.settings.update(
                     known_angle_deg=values['known_angle_deg'], direction=direction,
                     lower_deg=values['lower_deg'], upper_deg=values['upper_deg'],
                 )
-                self.calibrated = True
-                self.data['calibrated'] = True
+                joint.calibrated = True
                 self._invalidate_settings('Calibration changed')
                 self._event(
-                    f'Calibrated: known={values["known_angle_deg"]}°, dir={direction}, '
+                    f'{joint.spec.name} calibrated: known={values["known_angle_deg"]}°, dir={direction}, '
                     f'limits=[{values["lower_deg"]}°, {values["upper_deg"]}°]'
                 )
             return
         if action == 'configure':
             self._require_fresh_stop()
+            joint = self._joint(values.get('joint', 'J1'))
             with self.lock:
-                self.settings.update(values)
+                joint.settings.update({key: value for key, value in values.items() if key != 'joint'})
                 self._invalidate_settings('Settings changed')
                 self._event(
-                    f'Configured: kp={values["kp"]}, kd={values["kd"]}, '
+                    f'{joint.spec.name} configured: kp={values["kp"]}, kd={values["kd"]}, '
                     f'max_rpm={values["max_rpm"]}, effort_limit={values["effort_limit_nm"]} Nm'
                 )
             return
@@ -1156,7 +1450,6 @@ class ArmManualSession:
             if values.get('supported') is not True:
                 raise ValueError('Supported arm acknowledgment required')
             with self.lock:
-
 
 
                 if self.stop_requested.is_set() or self.stop_latched:
@@ -1169,15 +1462,19 @@ class ArmManualSession:
                     raise ValueError('Arm requires Ready · Stop state')
                 if self.checked_revision != self.settings_revision:
                     raise ValueError('Arm requires Check after the latest settings or calibration change')
-                if not self.calibrated:
-                    raise ValueError('Arm requires calibration on the current connection')
-                if self.latest is None or self.latest.get('mode') != 0:
-                    raise ValueError('Motor must be in actual mode 0 before arming')
+                uncalibrated = [joint.spec.name for joint in self.configured_joints if not joint.calibrated]
+                if uncalibrated:
+                    raise ValueError('Arm requires current zero and applied travel for: ' + ', '.join(uncalibrated))
                 now = self._clock_now_locked()
-                age = self._fresh_feedback_age(now)
-                if age is None or age > FEEDBACK_MAX_AGE_S:
-                    raise ValueError('Feedback stale; check connection again')
-                self._validate_feedback(self.latest, 0)
+                for joint in self.configured_joints:
+                    age = self._fresh_feedback_age(now, joint)
+                    if age is None or age > FEEDBACK_MAX_AGE_S:
+                        raise ValueError(f'{joint.spec.name} feedback stale; check connection again')
+                    if not joint.stop_confirmed or joint.latest is None or joint.latest.get('mode') != 0:
+                        raise ValueError(f'{joint.spec.name} must confirm actual mode-0 Stop before Enable')
+                    self._validate_feedback(joint.latest, 0, joint=joint)
+                    if not self._joint_position_in_limits(joint, joint.latest):
+                        raise ValueError(f'{joint.spec.name} measured position is outside its applied travel')
                 self.armed = True
                 self.data['armed'] = True
                 self.current_device = None
@@ -1186,9 +1483,11 @@ class ArmManualSession:
                 self.intent = None
                 self.intent_expires_at = None
                 self.last_step_host_s = time.monotonic()
-                self.q_ref = self.q_ideal = 0.0
-                self.v_ref = 0.0
-                self.last_reference_raw = None
+                for joint in self.configured_joints:
+                    joint.q_ref = joint.q_ideal = joint.v_ref = 0.0
+                    joint.last_reference_raw = None
+                    joint.last_step_host_s = time.monotonic()
+                    joint.foc_entered = False
                 self.data['state'] = 'Armed · motor stopped'
                 self.data['reason'] = 'Armed for manual jogging. Release controls to neutral once, then move an input.'
                 self._event('Armed for manual jogging; motor remains stopped.')
@@ -1204,18 +1503,28 @@ class ArmManualSession:
             return
         raise ValueError('Unknown action')
 
-    def _mode1_gate(self, intent, expected_mode):
+    def _mode1_authority_matches_locked(self, intent):
+        current = self.intent
+        return (
+            intent is not None and current is not None
+            and intent['session'] == current['session'] == self.owner
+            and intent['session'] in self.sessions
+            and intent['generation'] == current['generation'] == self.generation
+            and intent['device'] == current['device'] == self.current_device
+        )
+
+    def _mode1_gate(self, joint, intent, expected_mode, kind, expected_axis):
         with self.lock:
             if (self.closing.is_set() or self.close_requested.is_set()
                     or self.stop_requested.is_set() or self.stop_latched):
                 return False
             if not self.armed or not self.data['connected'] or self.bus is None:
                 return False
-            if self.owner is None or intent is None or intent is not self.intent:
+            if not self._mode1_authority_matches_locked(intent):
+                self._latch_stop_locked('Manual input authority changed; Stop and re-check required')
                 return False
-            if intent['session'] != self.owner or intent['generation'] != self.generation:
-                return False
-            if not self.calibrated or self.checked_revision != self.settings_revision:
+            if (any(not item.calibrated for item in self.configured_joints)
+                    or self.checked_revision != self.settings_revision):
                 return False
             try:
                 now = self._clock_now_locked()
@@ -1224,86 +1533,136 @@ class ArmManualSession:
             if self.intent_expires_at is None or now >= self.intent_expires_at:
                 self._latch_stop_locked('Input ticket lease expired; Stop and re-check required')
                 return False
-            if self.last_reply_time is None or self.latest is None:
-                self._latch_stop_locked('Fresh feedback unavailable; Stop and re-check required')
+            if kind == 'foc-entry' and not self.deadman_active:
+                self._latch_stop_locked('Neutral input interrupted FOC entry; Stop and re-check required')
                 return False
-            age = now - self.last_reply_time
-            if age < 0 or age > FEEDBACK_MAX_AGE_S:
-                self._latch_stop_locked('Feedback stale; Stop and re-check required')
-                return False
-            if self.latest.get('mode') != expected_mode:
-                self._latch_stop_locked('Motor feedback mode changed; Stop and re-check required')
-                return False
-            try:
-                self._validate_feedback(self.latest, expected_mode)
-            except Exception:
-                self._latch_stop_locked('Feedback health gate failed; Stop and re-check required')
-                return False
+            if expected_axis is not None:
+                axis_index = next(
+                    (index for index, item in enumerate(self.configured_joints) if item is joint),
+                    None,
+                )
+                if axis_index is None or self.target_axes[axis_index] != expected_axis:
+                    return False
+            for item in self.configured_joints:
+                if item.latest is None or item.received_at is None:
+                    self._latch_stop_locked(f'{item.spec.name} feedback unavailable; Stop and re-check required')
+                    return False
+                age = now - item.received_at
+                if age < 0 or age > FEEDBACK_MAX_AGE_S:
+                    self._latch_stop_locked(f'{item.spec.name} feedback stale; Stop and re-check required')
+                    return False
+                item_mode = expected_mode if item is joint else (1 if item.foc_entered else 0)
+                if item_mode not in (0, 1) or item.latest.get('mode') != item_mode:
+                    self._latch_stop_locked(f'{item.spec.name} feedback mode changed; Stop and re-check required')
+                    return False
+                try:
+                    self._validate_feedback(item.latest, item_mode, joint=item)
+                except Exception:
+                    self._latch_stop_locked(f'{item.spec.name} feedback health gate failed; Stop and re-check required')
+                    return False
+                if not self._joint_position_in_limits(item, item.latest):
+                    self._latch_stop_locked(f'{item.spec.name} position is outside applied travel; Stop and re-check required')
+                    return False
             return True
 
-    def _send_mode1(self, packet, decoded, intent, expected_mode, kind):
+    def _send_mode1(self, joint, packet, decoded, intent, expected_mode, kind, expected_axis=None):
+        gate_lock_held = False
+
         def before_write():
-            return self._mode1_gate(intent, expected_mode)
+            nonlocal gate_lock_held
+            self.lock.acquire()
+            gate_lock_held = True
+            if self._mode1_gate(joint, intent, expected_mode, kind, expected_axis):
+                return True
+            self.lock.release()
+            gate_lock_held = False
+            return False
 
         def on_write(result):
-            if result is not WriteResult.COMPLETE:
-                return
-            host_time = time.monotonic()
-            joint_position = self.settings['direction'] * (decoded['position_rad'] - self.q_zero)
-            with self.lock:
-                self.reference_history.append({
-                    'time_s': host_time,
-                    'position_rad': joint_position,
-                    'raw_position': decoded['raw_position'],
-                    'rpm': self.settings['direction'] * decoded['rpm'],
-                    'kind': kind,
-                })
+            nonlocal gate_lock_held
+            try:
+                if result is WriteResult.COMPLETE:
+                    host_time = time.monotonic()
+                    joint_position = joint.settings['direction'] * (decoded['position_rad'] - joint.q_zero)
+                    joint.reference_history.append({
+                        'time_s': host_time,
+                        'position_rad': joint_position,
+                        'raw_position': decoded['raw_position'],
+                        'rpm': joint.settings['direction'] * decoded['rpm'],
+                        'kind': kind,
+                    })
+            finally:
+                if gate_lock_held:
+                    self.lock.release()
+                    gate_lock_held = False
 
-        return self._transact_raw(
-            packet, motor_id=0, before_write=before_write, on_write=on_write
-        )
+        try:
+            return self._transact_raw(
+                packet, motor_id=joint.spec.motor_id, before_write=before_write, on_write=on_write
+            )
+        finally:
+            if gate_lock_held:
+                self.lock.release()
+                gate_lock_held = False
 
-    def _enter_foc(self, intent):
-        if self.latest is None or self.latest.get('mode') != 0:
+    def _enter_foc(self, joint, intent):
+        if joint.latest is None or joint.latest.get('mode') != 0:
             raise RuntimeError('FOC entry requires a current mode-0 reply')
-        raw_position = position_to_raw(self.latest['position_rad'])
+        raw_position = position_to_raw(joint.latest['position_rad'])
         packet = command_with_raw_position(
-            0, raw_position, mode=1, rpm=0.0, kd=0.0, torque=0.0,
+            joint.spec.motor_id, raw_position, mode=1, rpm=0.0, kd=0.0, torque=0.0,
             watchdog=True, kp=0.0, raw_rpm=0,
         )
         decoded = decode_command(packet)
-        first = self._send_mode1(packet, decoded, intent, 0, 'foc-entry')
+        first = self._send_mode1(joint, packet, decoded, intent, 0, 'foc-entry')
         if first.get('mode') not in (0, 1):
             raise RuntimeError('FOC entry reply must show Stop or FOC')
-        self._validate_feedback(first, first['mode'])
+        self._validate_feedback(first, first['mode'], joint=joint)
         if self.stop_requested.is_set():
             raise WriteCancelledError('Stop arrived during FOC entry')
-        second = self._send_mode1(packet, decoded, intent, first['mode'], 'foc-entry')
+        second = self._send_mode1(joint, packet, decoded, intent, first['mode'], 'foc-entry')
         if second.get('mode') != 1:
             raise RuntimeError('FOC entry second reply must confirm mode 1')
-        self._validate_feedback(second, 1)
-        direction = self.settings['direction']
-        joint_q = direction * (decoded['position_rad'] - self.q_zero)
+        self._validate_feedback(second, 1, joint=joint)
+        direction = joint.settings['direction']
+        joint_q = direction * (decoded['position_rad'] - joint.q_zero)
         with self.lock:
-            if self.stop_requested.is_set() or intent is not self.intent:
-                raise WriteCancelledError('Stop arrived during FOC entry')
-            self.q_ref = joint_q
-            self.q_ideal = joint_q
-            self.v_ref = 0.0
-            self.last_reference_raw = decoded['raw_position']
+            joint.q_ref = joint_q
+            joint.q_ideal = joint_q
+            joint.v_ref = 0.0
+            joint.last_reference_raw = decoded['raw_position']
+            if self.stop_requested.is_set():
+                return
+            if not self._mode1_authority_matches_locked(intent):
+                self._latch_stop_locked('Manual input authority changed during FOC entry; Stop required')
+                return
+            try:
+                now = self._clock_now_locked()
+            except ValueError:
+                return
+            if self.intent_expires_at is None or now >= self.intent_expires_at:
+                self._latch_stop_locked('Input ticket lease expired during FOC entry; Stop required')
+                return
+            if (not self.deadman_active and any(
+                    item is not joint and not item.foc_entered for item in self.configured_joints
+            )):
+                self._latch_stop_locked('Neutral input interrupted FOC entry; Stop and re-check required')
+                return
+            joint.foc_entered = True
+            joint.stop_confirmed = False
             self.stop_confirmed = False
             self.data['stop_confirmed'] = False
             self.data['state'] = 'Jogging'
             self.data['reason'] = 'Manual jogging active'
 
-    def _candidate_position(self, ideal_joint_q, previous_raw, previous_joint_q, step_limit):
-        direction = self.settings['direction']
-        q_min = math.radians(self.settings['lower_deg'])
-        q_max = math.radians(self.settings['upper_deg'])
+    def _candidate_position(self, joint, ideal_joint_q, previous_raw, previous_joint_q, step_limit):
+        direction = joint.settings['direction']
+        q_min = math.radians(joint.settings['lower_deg'])
+        q_max = math.radians(joint.settings['upper_deg'])
         motor_low, motor_high = (
-            (self.q_zero + q_min, self.q_zero + q_max)
+            (joint.q_zero + q_min, joint.q_zero + q_max)
             if direction == 1 else
-            (self.q_zero - q_max, self.q_zero - q_min)
+            (joint.q_zero - q_max, joint.q_zero - q_min)
         )
         motor_low = max(motor_low, POSITION_MIN)
         motor_high = min(motor_high, POSITION_MAX)
@@ -1315,7 +1674,7 @@ class ArmManualSession:
         raw_high = min(2147483647, math.floor(move_high * scale))
         if raw_low > raw_high:
             return previous_raw, previous_joint_q
-        ideal_motor = self.q_zero + direction * ideal_joint_q
+        ideal_motor = joint.q_zero + direction * ideal_joint_q
         desired = ideal_motor * scale
         central = round(desired)
         candidates = {
@@ -1328,7 +1687,7 @@ class ArmManualSession:
         possible = []
         for raw in candidates:
             motor_q = raw_to_position(raw)
-            joint_q = direction * (motor_q - self.q_zero)
+            joint_q = direction * (motor_q - joint.q_zero)
             if not q_min <= joint_q <= q_max:
                 continue
             if abs(joint_q - previous_joint_q) > step_limit:
@@ -1339,38 +1698,39 @@ class ArmManualSession:
         _, selected_raw, selected_q = min(possible)
         return int(selected_raw), selected_q
 
-    def _build_motion_packet(self, dt):
-        direction = self.settings['direction']
-        max_rpm = self.settings['max_rpm']
+    def _build_motion_packet(self, joint, axis, dt):
+        settings = joint.settings
+        direction = settings['direction']
+        max_rpm = settings['max_rpm']
         max_speed = max_rpm * math.tau / 60
-        q_min = math.radians(self.settings['lower_deg'])
-        q_max = math.radians(self.settings['upper_deg'])
-        if self.last_reference_raw is None:
-            self.last_reference_raw = position_to_raw(self.latest['position_rad'])
-            self.q_ref = direction * (raw_to_position(self.last_reference_raw) - self.q_zero)
-            self.q_ideal = self.q_ref
-            self.v_ref = 0.0
+        q_min = math.radians(settings['lower_deg'])
+        q_max = math.radians(settings['upper_deg'])
+        if joint.last_reference_raw is None:
+            joint.last_reference_raw = position_to_raw(joint.latest['position_rad'])
+            joint.q_ref = direction * (raw_to_position(joint.last_reference_raw) - joint.q_zero)
+            joint.q_ideal = joint.q_ref
+            joint.v_ref = 0.0
 
         if self.deadman_active:
-            v_target = self.target_axes[0] * max_speed
+            v_target = axis * max_speed
         else:
             v_target = 0.0
         a_max = MAX_ACCEL_RAD_S2
-        if self.v_ref > 0:
-            available = q_max - self.q_ref
-            if self.v_ref * self.v_ref / (2 * a_max) >= available:
+        if joint.v_ref > 0:
+            available = q_max - joint.q_ref
+            if joint.v_ref * joint.v_ref / (2 * a_max) >= available:
                 v_target = min(v_target, math.sqrt(max(0.0, 2 * a_max * available)))
-        elif self.v_ref < 0:
-            available = self.q_ref - q_min
-            if self.v_ref * self.v_ref / (2 * a_max) >= available:
+        elif joint.v_ref < 0:
+            available = joint.q_ref - q_min
+            if joint.v_ref * joint.v_ref / (2 * a_max) >= available:
                 v_target = max(v_target, -math.sqrt(max(0.0, 2 * a_max * available)))
         delta_v = a_max * dt
-        if v_target > self.v_ref:
-            next_v = min(v_target, self.v_ref + delta_v)
+        if v_target > joint.v_ref:
+            next_v = min(v_target, joint.v_ref + delta_v)
         else:
-            next_v = max(v_target, self.v_ref - delta_v)
+            next_v = max(v_target, joint.v_ref - delta_v)
         next_v = max(-max_speed, min(max_speed, next_v))
-        ideal_q = max(q_min, min(q_max, self.q_ideal + next_v * dt))
+        ideal_q = max(q_min, min(q_max, joint.q_ideal + next_v * dt))
 
         raw_rpm_limit = math.floor(max_rpm / 60 * RATIO * 64)
         wanted_rpm = direction * next_v * 60 / math.tau
@@ -1382,48 +1742,48 @@ class ArmManualSession:
         accel_position_step = abs(next_v) * dt
         step_limit = min(max_position_step, accel_position_step)
         raw_position, decoded_joint_q = self._candidate_position(
-            ideal_q, self.last_reference_raw, self.q_ref, step_limit
+            joint, ideal_q, joint.last_reference_raw, joint.q_ref, step_limit
         )
         packet = command_with_raw_position(
-            0, raw_position, mode=1, rpm=decoded_rpm,
-            kd=self.settings['kd'], torque=0.0, watchdog=True,
-            kp=self.settings['kp'], raw_rpm=raw_rpm,
+            joint.spec.motor_id, raw_position, mode=1, rpm=decoded_rpm,
+            kd=settings['kd'], torque=0.0, watchdog=True,
+            kp=settings['kp'], raw_rpm=raw_rpm,
         )
         decoded = decode_command(packet)
-        decoded_joint_q = direction * (decoded['position_rad'] - self.q_zero)
+        decoded_joint_q = direction * (decoded['position_rad'] - joint.q_zero)
         decoded_joint_v = direction * decoded['rpm'] * math.tau / 60
         if not q_min <= decoded_joint_q <= q_max:
             raise RuntimeError('Decoded position exceeds the inclusive travel limits')
-        if abs(decoded_joint_q - self.q_ref) > step_limit:
+        if abs(decoded_joint_q - joint.q_ref) > step_limit:
             raise RuntimeError('Decoded packet step exceeds configured speed and capped dt')
         if abs(decoded['rpm']) > max_rpm:
             raise RuntimeError('Decoded packet velocity exceeds configured maximum')
 
-        current_q = direction * (self.latest['position_rad'] - self.q_zero)
-        current_v = direction * self.latest['rpm'] * math.tau / 60
+        current_q = direction * (joint.latest['position_rad'] - joint.q_zero)
+        current_v = direction * joint.latest['rpm'] * math.tau / 60
         predicted_effort = abs(
             decoded['kp'] * (decoded_joint_q - current_q)
             + decoded['kd'] * (decoded_joint_v - current_v)
         )
-        if predicted_effort > self.settings['effort_limit_nm']:
+        if predicted_effort > settings['effort_limit_nm']:
             reason = (
                 f'Predicted effort {predicted_effort:.3f} Nm exceeds ceiling '
-                f'{self.settings["effort_limit_nm"]:.3f} Nm'
+                f'{settings["effort_limit_nm"]:.3f} Nm'
             )
-            self._record_overload(reason)
+            self._record_overload(f'{joint.spec.name}: {reason}', joint)
             raise RuntimeError(reason)
         return packet, decoded, next_v, ideal_q, decoded_joint_q
 
-    def _check_motion_reply(self, reply, decoded_joint_q):
-        self._validate_feedback(reply, 1)
+    def _check_motion_reply(self, joint, reply, decoded_joint_q):
+        self._validate_feedback(reply, 1, joint=joint)
         if abs(reply['rpm']) > MAX_MEASURED_SPEED_RPM:
             raise RuntimeError(
                 f'Measured speed {reply["rpm"]:.3f} rpm exceeds {MAX_MEASURED_SPEED_RPM} rpm'
             )
-        direction = self.settings['direction']
-        measured_q = direction * (reply['position_rad'] - self.q_zero)
-        q_min = math.radians(self.settings['lower_deg'])
-        q_max = math.radians(self.settings['upper_deg'])
+        direction = joint.settings['direction']
+        measured_q = direction * (reply['position_rad'] - joint.q_zero)
+        q_min = math.radians(joint.settings['lower_deg'])
+        q_max = math.radians(joint.settings['upper_deg'])
         if measured_q < q_min or measured_q > q_max:
             raise RuntimeError(f'Measured position {measured_q:.4f} rad exceeds travel limits')
         if abs(decoded_joint_q - measured_q) > MAX_MEASURED_LEAD_RAD:
@@ -1431,12 +1791,12 @@ class ArmManualSession:
                 f'Measured position lead {abs(decoded_joint_q - measured_q):.4f} rad '
                 f'exceeds {MAX_MEASURED_LEAD_RAD} rad'
             )
-        if abs(reply['torque_nm']) > self.settings['effort_limit_nm']:
+        if abs(reply['torque_nm']) > joint.settings['effort_limit_nm']:
             reason = (
                 f'Measured torque {reply["torque_nm"]:.3f} Nm exceeds ceiling '
-                f'{self.settings["effort_limit_nm"]:.3f} Nm'
+                f'{joint.settings["effort_limit_nm"]:.3f} Nm'
             )
-            self._record_overload(reason)
+            self._record_overload(f'{joint.spec.name}: {reason}', joint)
             raise RuntimeError(reason)
 
     def _trip_loss(self, reason):
@@ -1484,40 +1844,71 @@ class ArmManualSession:
             intent = self.intent
             if not self.armed or not self.data['connected'] or self.bus is None:
                 return None
-            if intent is None or intent['session'] != self.owner:
-                return None
-            if intent['generation'] != self.generation:
+            if not self._mode1_authority_matches_locked(intent):
                 return None
             if self.intent_expires_at is None or now >= self.intent_expires_at:
                 return None
             if self.stop_requested.is_set() or self.stop_latched or self.closing.is_set():
                 return None
-            if self.last_reply_time is None or self.latest is None:
-                return None
-            age = now - self.last_reply_time
-            if age < 0 or age > FEEDBACK_MAX_AGE_S:
-                return None
+            for joint in self.configured_joints:
+                if joint.received_at is None or joint.latest is None:
+                    return None
+                age = now - joint.received_at
+                if age < 0 or age > FEEDBACK_MAX_AGE_S:
+                    return None
             return intent
 
     def _poll_stop(self):
-        reply = self._transact_raw(command(0, 0, 0, 0, 0, True), motor_id=0)
+        joints = self.configured_joints
+        if self.stop_requested.is_set() or self.stop_work.is_set():
+            return
+        startup_timeouts = []
+        for joint in joints:
+            if self.stop_requested.is_set() or self.stop_work.is_set():
+                return
+            reply = self._transact_raw(
+                command(joint.spec.motor_id, 0, 0, 0, 0, True),
+                motor_id=joint.spec.motor_id,
+            )
+            joint.last_poll_host_s = time.monotonic()
+            if reply.get('mode') != 0:
+                joint.stop_confirmed = False
+                joint.stop_result = 'unconfirmed'
+                joint.stop_error = 'Idle mode-0 poll did not confirm Stop'
+                with self.lock:
+                    self._record_stop_result(False)
+                raise RuntimeError(f'{joint.spec.name} idle mode-0 poll did not confirm Stop')
+            joint.stop_confirmed = True
+            joint.stop_result = 'confirmed'
+            joint.stop_error = None
+            self._validate_feedback(reply, 0, allow_timeout=True, joint=joint)
+            if reply['timeout']:
+                startup_timeouts.append(joint.spec.name)
+
         self.last_poll_host_s = time.monotonic()
-        if reply.get('mode') != 0:
-            with self.lock:
-                self.stop_confirmed = False
-                self.data['stop_confirmed'] = False
-            raise RuntimeError('Idle mode-0 poll did not confirm Stop')
-        self._record_stop_result(True)
-        self._validate_feedback(reply, 0, allow_timeout=True)
         with self.lock:
+            self.stop_confirmed = bool(all(item.stop_confirmed for item in joints) and self.data['connected'])
+            self.data['stop_confirmed'] = self.stop_confirmed
             if self.data['state'].startswith(('Fault', 'Timeout', 'Stopped')):
                 return
-        if reply['timeout']:
-            with self.lock:
+            if startup_timeouts:
                 if self.armed:
                     self._latch_stop_locked('Watchdog timeout while armed; acknowledge in Stop')
                 self.data['state'] = 'Timeout — disarmed'
-                self.data['reason'] = 'Click Acknowledge timeout while the motor is supported.'
+                self.data['reason'] = (
+                    ', '.join(startup_timeouts)
+                    + ' startup timeout; acknowledge only while each motor is supported.'
+                )
+
+    def _advance_virtual_joints(self, axes, moving, dt):
+        if self.profile_id != 'arm_j1':
+            return
+        max_speed = self.settings['max_rpm'] * math.tau / 60
+        v2 = axes[1] * max_speed if moving else 0.0
+        v3 = axes[2] * max_speed if moving else 0.0
+        self.q_j2 = max(-math.pi / 2, min(math.pi / 2, self.q_j2 + v2 * dt))
+        self.q_j3 = max(-math.pi / 2, min(math.pi / 2, self.q_j3 + v3 * dt))
+        self.v_j2, self.v_j3 = v2, v3
 
     def _tick(self):
         self._assert_owner_thread()
@@ -1530,76 +1921,96 @@ class ArmManualSession:
         if self.armed:
             if self.last_step_host_s is None:
                 self.last_step_host_s = host_now
-            gap = host_now - self.last_step_host_s
+            cycle_gap = host_now - self.last_step_host_s
             self.last_step_host_s = host_now
-            if gap > SCHEDULE_GAP_MAX_S:
+            if cycle_gap > SCHEDULE_GAP_MAX_S:
                 self._trip_fault(RuntimeError(
                     f'Schedule gap exceeded {SCHEDULE_GAP_MAX_S * 1000:.0f}ms'
                 ))
                 return
-            dt = min(PER_STEP_DT_MAX_S, max(0.0, gap))
+            cycle_dt = min(PER_STEP_DT_MAX_S, max(0.0, cycle_gap))
             with self.lock:
                 now = self._clock_now_locked()
                 intent = self._fresh_mode1_intent(now)
-                current = self.latest
-            if current is None:
-                self._trip_loss('Fresh feedback unavailable; Stop and re-check required')
-                return
-            age = self._fresh_feedback_age(now)
-            if age is None or age > FEEDBACK_MAX_AGE_S:
-                self._trip_fault(RuntimeError('Feedback stale; Stop and re-check required'))
-                return
+                axes = tuple(self.target_axes)
+                deadman = self.deadman_active
+            for joint in self.configured_joints:
+                age = self._fresh_feedback_age(now, joint)
+                if joint.latest is None or age is None or age > FEEDBACK_MAX_AGE_S:
+                    self._trip_fault(RuntimeError(f'Feedback stale for {joint.spec.name}; Stop and re-check required'))
+                    return
+                if joint.latest.get('mode') not in (0, 1):
+                    self._trip_fault(RuntimeError(f'{joint.spec.name} reported unsupported feedback mode'))
+                    return
+                if joint.foc_entered and joint.latest['mode'] != 1:
+                    self._trip_fault(RuntimeError(f'{joint.spec.name} left FOC; Stop and re-check required'))
+                    return
             if self.intent is not None and self.intent_expires_at is not None and now >= self.intent_expires_at:
                 self._trip_loss('Input ticket lease expired; Stop and re-check required')
                 return
-            if current['mode'] == 0:
-                if self.deadman_active and intent is not None:
-                    self._enter_foc(intent)
-                    self.last_step_host_s = time.monotonic()
+
+            modes = [joint.latest['mode'] for joint in self.configured_joints]
+            if any(mode == 0 for mode in modes):
+                if any(mode == 1 for mode in modes) and not deadman:
+                    self._trip_loss('FOC entry was interrupted before every selected joint entered mode 1')
                     return
-                if host_now - self.last_poll_host_s >= 0.050:
+                physical_moving = deadman and any(abs(axes[index]) > 1e-4
+                                                  for index in range(len(self.configured_joints)))
+                if physical_moving and intent is not None:
+                    for joint in self.configured_joints:
+                        if joint.latest['mode'] == 0:
+                            self._enter_foc(joint, intent)
+                            joint.last_step_host_s = time.monotonic()
+                            if self.stop_requested.is_set():
+                                return
+                    return
+                if intent is not None:
+                    self._advance_virtual_joints(axes, deadman, cycle_dt)
+                if all(mode == 0 for mode in modes) and host_now - self.last_poll_host_s >= 0.050:
                     self._poll_stop()
                 return
-            if current['mode'] != 1:
-                raise RuntimeError('Unexpected feedback mode while armed')
+
             if intent is None:
                 self._trip_loss('Valid live input intent unavailable; Stop and re-check required')
                 return
-            if dt <= 0:
-                return
-
-            packet, decoded, next_v, ideal_q, joint_q = self._build_motion_packet(dt)
-            reply = self._send_mode1(packet, decoded, intent, 1, 'jog')
-            if self.stop_requested.is_set() or intent is not self.intent:
-                return
-            self._check_motion_reply(reply, joint_q)
-            direction = self.settings['direction']
-            with self.lock:
-                if self.stop_requested.is_set() or intent is not self.intent:
+            for index, joint in enumerate(self.configured_joints):
+                last_step = joint.last_step_host_s if joint.last_step_host_s is not None else host_now
+                gap = host_now - last_step
+                if gap > SCHEDULE_GAP_MAX_S:
+                    self._trip_fault(RuntimeError(
+                        f'{joint.spec.name} schedule gap exceeded {SCHEDULE_GAP_MAX_S * 1000:.0f}ms'
+                    ))
                     return
-                self.q_ref = joint_q
-                self.q_ideal = ideal_q
-                self.v_ref = next_v
-                self.last_reference_raw = decoded['raw_position']
-                if self.deadman_active:
-                    self.data['state'] = 'Jogging'
-                    self.data['reason'] = 'Manual jogging active'
-                elif abs(self.v_ref) > 1e-5:
-                    self.data['state'] = 'Armed · braking'
-                    self.data['reason'] = 'Motion input released; braking to zero'
-                else:
-                    self.data['state'] = 'Armed · holding'
-                    self.data['reason'] = 'Motion input released; holding position'
-                max_speed = self.settings['max_rpm'] * math.tau / 60
-                v2 = self.target_axes[1] * max_speed if self.deadman_active else 0.0
-                v3 = self.target_axes[2] * max_speed if self.deadman_active else 0.0
-                self.q_j2 = max(-math.pi / 2, min(math.pi / 2, self.q_j2 + v2 * dt))
-                self.q_j3 = max(-math.pi / 2, min(math.pi / 2, self.q_j3 + v3 * dt))
-                self.v_j2 = v2
-                self.v_j3 = v3
+                dt = min(PER_STEP_DT_MAX_S, max(0.0, gap))
+                if dt <= 0:
+                    continue
+                packet, decoded, next_v, ideal_q, joint_q = self._build_motion_packet(
+                    joint, axes[index], dt,
+                )
+                reply = self._send_mode1(
+                    joint, packet, decoded, intent, 1, 'jog', expected_axis=axes[index]
+                )
+                self._check_motion_reply(joint, reply, joint_q)
+                with self.lock:
+                    joint.q_ref = joint_q
+                    joint.q_ideal = ideal_q
+                    joint.v_ref = next_v
+                    joint.last_reference_raw = decoded['raw_position']
+                    joint.last_step_host_s = time.monotonic()
+                    if self.stop_requested.is_set():
+                        return
+            self._advance_virtual_joints(axes, deadman, cycle_dt)
+            with self.lock:
+                moving = any(abs(axis) > 1e-4 for axis in self.target_axes)
+                braking = any(abs(joint.v_ref) > 1e-5 for joint in self.configured_joints)
+                self.data['state'] = 'Jogging' if moving else 'Armed · braking' if braking else 'Armed · holding'
+                self.data['reason'] = ('Manual jogging active' if moving else
+                                       'Motion input released; braking to zero' if braking else
+                                       'Motion input released; holding position')
             return
 
-        if host_now - self.last_poll_host_s >= 0.050:
+        poll_interval = 0.050
+        if host_now - self.last_poll_host_s >= poll_interval:
             self._poll_stop()
 
     def _process_stop_work(self):
@@ -1647,7 +2058,10 @@ class ArmManualSession:
                         if action == 'connect' and self.bus is None and self.port_owner is None and self.owner == session:
                             self.owner = None
                         return
-                if action != 'connect' and session != self.owner:
+                if action == 'select_profile' and self.owner not in (None, session):
+                    self._record_receipt(session, op_id, 'rejected', 'Another session owns the bus')
+                    return
+                if action not in ('connect', 'select_profile') and session != self.owner:
                     self._record_receipt(session, op_id, 'rejected', 'Session no longer owns the bus')
                     return
                 if action == 'connect' and self.owner != session:

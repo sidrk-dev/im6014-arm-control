@@ -26,7 +26,7 @@ export function jointVelocityText(joint, includeRpm = false) {
     : `${radiansPerSecond.toFixed(3)} rad/s`;
 }
 
-export function j1GaugePresentation({ positionRad, lowerDeg, upperDeg, connected, fresh }) {
+export function jointGaugePresentation({ positionRad, lowerDeg, upperDeg, connected, fresh, jointName = 'J1' }) {
   const validBounds = Number.isFinite(lowerDeg) && Number.isFinite(upperDeg) && lowerDeg < upperDeg;
   const validPosition = Number.isFinite(positionRad);
   const visible = connected === true && validBounds && validPosition;
@@ -45,7 +45,7 @@ export function j1GaugePresentation({ positionRad, lowerDeg, upperDeg, connected
   const formatLimit = value => (value > 0 ? '+' : '') + Number(value.toFixed(1)) + '°';
   return {
     visible,
-    status: !connected ? 'Disconnected' : !validPosition ? 'J1 feedback unavailable'
+    status: !connected ? 'Disconnected' : !validPosition ? `${jointName} feedback unavailable`
       : fresh ? 'Fresh measured feedback' : 'STALE · cached feedback',
     lowerLabel: formatLimit(lowerDeg),
     upperLabel: formatLimit(upperDeg),
@@ -54,6 +54,47 @@ export function j1GaugePresentation({ positionRad, lowerDeg, upperDeg, connected
     fillLeftPercent: visible ? Math.min(zeroPercent, positionPercent) : zeroPercent,
     fillWidthPercent: visible ? Math.abs(positionPercent - zeroPercent) : 0
   };
+}
+
+export function j1GaugePresentation({ positionRad, lowerDeg, upperDeg, connected, fresh }) {
+  return jointGaugePresentation({ positionRad, lowerDeg, upperDeg, connected, fresh, jointName: 'J1' });
+}
+
+export function checkTravelSpan(lowerDeg, upperDeg) {
+  if (!Number.isFinite(lowerDeg) || !Number.isFinite(upperDeg) || lowerDeg >= upperDeg) return null;
+  const span = upperDeg - lowerDeg;
+  if (span > 360) {
+    return `Warning: Travel span (${span.toFixed(1)}°) exceeds one full turn (360°). Save finite values as draft; verify mechanical limits.`;
+  }
+  return null;
+}
+
+export function formatJointHealth(joint) {
+  if (!joint) return { status: 'unknown', text: 'Awaiting feedback' };
+  const health = joint.health || (joint.latest ? 'healthy' : 'missing');
+  if (health === 'missing') {
+    return {
+      status: 'missing',
+      text: `Motor ID ${joint.id ?? joint.name} missing (no reply). Set IDs 0/1/2 one at a time using vendor tool before connecting daisychain; check 485 wiring & DC power.`
+    };
+  }
+  if (health === 'stale') {
+    const age = typeof joint.feedback_age_s === 'number' ? ` (${joint.feedback_age_s.toFixed(3)}s age)` : '';
+    return {
+      status: 'stale',
+      text: `STALE · cached feedback${age}. Check bus communication.`
+    };
+  }
+  if (health === 'fault' && joint.timeout && !joint.errors && !joint.warnings) {
+    return { status: 'timeout', text: 'Startup timeout. Confirm support, then acknowledge in Stop.' };
+  }
+  if (health === 'fault') {
+    return {
+      status: 'fault',
+      text: `Motor fault (errors: ${joint.errors ?? 'yes'}, warnings: ${joint.warnings ?? 0}). Check hardware & power.`
+    };
+  }
+  return { status: 'healthy', text: 'Fresh measured feedback' };
 }
 
 export function serialPortStatus(ports, error = null, demo = false) {
@@ -75,9 +116,14 @@ export function serialPortStatus(ports, error = null, demo = false) {
 }
 
 export function canAcknowledgeStartupTimeout(state = {}) {
-  const timeout = state.latest?.timeout === true || state.latest?.timeout === 1;
+  const selected = Array.isArray(state.joints)
+    ? state.joints.filter(joint => joint.configured === true) : [];
+  const replies = selected.length ? selected.map(joint => joint.latest) : [state.latest];
+  const timeout = replies.some(reply => reply?.timeout === true || reply?.timeout === 1);
+  const stopped = replies.every(reply => reply?.mode === 0);
+  const confirmed = selected.every(joint => joint.stop_confirmed === true);
   return state.connected === true && state.owner === true && state.fresh === true
-    && state.stopConfirmed === true && state.latest?.mode === 0 && timeout
+    && state.stopConfirmed === true && stopped && confirmed && timeout
     && state.armed !== true && state.stopLatched !== true;
 }
 
@@ -112,12 +158,13 @@ export function deriveDashboardPresentation(state) {
   const stopLatched = state.stopLatched === true;
   const timeout = state.timeout === true;
   const timeoutAcknowledgementAvailable = state.timeoutAcknowledgementAvailable === true;
-  const followSelected = state.followSelected === true;
+  const followSelected = state.followSelected === true && state.profileId !== 'arm_j1_j2_j3';
   const followActive = state.followActive === true;
   const followBlocked = state.followBlocked === true;
   const axes = Array.isArray(state.axes) ? state.axes : [0, 0, 0];
   const moving = state.motionActive === true;
   const source = state.source === 'gamepad' ? 'the selected controller' : 'keyboard or on-screen controls';
+  const isThreeJoint = state.profileId === 'arm_j1_j2_j3';
   let alert = null;
 
   if (state.serverUnavailable === true) {
@@ -162,11 +209,17 @@ export function deriveDashboardPresentation(state) {
       message: followState + ' Once active, releasing keys does not pause it. ' + STOP_KEYS + ' to stop automatic following.'
     };
   } else if (armed && moving) {
-    alert = Math.abs(axes[0]) > 0.01
-      ? { type: 'info', message: 'J1 is jogging from ' + source + '. Release the selected controls to hold position; ' + STOP_KEYS + ' to stop.' }
-      : { type: 'info', message: 'Virtual J2/J3 are moving in the preview. Release the selected controls to hold the preview; Stop, Esc, or controller B to stop motor authority.' };
+    if (isThreeJoint) {
+      alert = { type: 'info', message: 'Arm is jogging from ' + source + '. Release the selected controls to hold position; ' + STOP_KEYS + ' to stop.' };
+    } else {
+      alert = Math.abs(axes[0]) > 0.01
+        ? { type: 'info', message: 'J1 is jogging from ' + source + '. Release the selected controls to hold position; ' + STOP_KEYS + ' to stop.' }
+        : { type: 'info', message: 'Virtual J2/J3 are moving in the preview. Release the selected controls to hold the preview; Stop, Esc, or controller B to stop motor authority.' };
+    }
   } else if (armed) {
-    alert = { type: 'success', message: 'J1 is ready. Use A/D, the on-screen buttons, or the selected Xbox stick. Release to hold. STOP or Esc stops the motor.' };
+    alert = isThreeJoint
+      ? { type: 'success', message: 'All 3 joints are ready. Use A/D (J1), W/S (J2), Q/E (J3), or Xbox sticks. Release to hold. STOP or Esc stops all motors.' }
+      : { type: 'success', message: 'J1 is ready. Use A/D, the on-screen buttons, or the selected Xbox stick. Release to hold. STOP or Esc stops the motor.' };
   }
 
   let motion;
@@ -180,6 +233,8 @@ export function deriveDashboardPresentation(state) {
       : { text: state.followBlocked ? 'Preview follow paused · J1' : 'Preview follow ready · J1', tone: 'amber' };
   } else if (!moving) {
     motion = { text: 'Holding position', tone: 'cyan' };
+  } else if (isThreeJoint) {
+    motion = { text: 'Jogging 3-Joint Arm', tone: 'emerald' };
   } else if (axes[0] > 0.01) {
     motion = { text: 'J1 Jogging CW ▶', tone: 'emerald' };
   } else if (axes[0] < -0.01) {
@@ -195,8 +250,8 @@ export function deriveDashboardPresentation(state) {
     guidance = stopLatched
       ? 'Reconnect the controlling session, then Check motor.'
       : state.demo === true
-        ? 'Select Connect to start simulated J1. No USB adapter is needed.'
-      : 'Select the USB adapter, then Connect. If none appears, reconnect it and select Refresh.';
+        ? (isThreeJoint ? 'Select Connect to start simulated 3-joint arm. No USB adapter is needed.' : 'Select Connect to start simulated J1. No USB adapter is needed.')
+      : (isThreeJoint ? 'Select the USB adapter, confirm mechanical support acknowledgment, then Connect.' : 'Select the USB adapter, then Connect. If none appears, reconnect it and select Refresh.');
   } else if (!owner) {
     guidance = 'Another tab controls this motor. Use that tab to check or disconnect; this tab cannot move it.';
   } else if (!fresh) {
@@ -208,7 +263,9 @@ export function deriveDashboardPresentation(state) {
       ? 'The motor stays stopped. Confirm it is secure, then select Acknowledge timeout.'
       : 'The motor stays stopped. Select Check motor; acknowledgement appears only after fresh Stop feedback in mode 0.';
   } else if (!state.calibrated) {
-    guidance = 'Point J1 at the pose you want to call 0°, then select Set J1 zero here. If you know its angle, enter it and select Use entered angle. Neither action moves the motor.';
+    guidance = isThreeJoint
+      ? 'Declare zero and travel limits for each joint (J1, J2, J3). All three joints must be calibrated before enabling movement. Neither action moves the motor.'
+      : 'Point J1 at the pose you want to call 0°, then select Set J1 zero here. If you know its angle, enter it and select Use entered angle. Neither action moves the motor.';
   } else if (armed && followSelected) {
     guidance = followActive
       ? 'Preview follow is active: it automatically follows the preview on J1 using fresh measured feedback. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.'
@@ -216,7 +273,9 @@ export function deriveDashboardPresentation(state) {
         ? 'Preview follow is paused by its safety gate. Confirm fresh J1 feedback, applied travel limits, and neutral input. Once active, releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.'
         : 'Preview follow is selected and ready to follow the preview on J1 using fresh measured feedback. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.';
   } else if (armed) {
-    guidance = 'Move J1 with A/D, the on-screen buttons, or the Xbox stick. Release to hold. Press STOP, Esc, or B to stop the motor. J2/J3 are preview only.';
+    guidance = isThreeJoint
+      ? 'Move arm with A/D (J1), W/S (J2), Q/E (J3), or Xbox sticks. Release to hold. Press STOP, Esc, or B to stop all motors.'
+      : 'Move J1 with A/D, the on-screen buttons, or the Xbox stick. Release to hold. Press STOP, Esc, or B to stop the motor. J2/J3 are preview only.';
   } else if (followSelected) {
     guidance = 'Preview follow is selected. After Enable and the fresh-neutral gate, it automatically follows the preview on J1. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.';
   } else {

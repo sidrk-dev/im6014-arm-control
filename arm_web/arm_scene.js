@@ -25,6 +25,12 @@ export class ArmScene {
     this.spherical = { radius: 1.2, theta: Math.PI / 4, phi: Math.PI / 3 };
     this.maxZoomRadius = 3;
     this.target = new THREE.Vector3(0, -0.1, 0.2);
+    this.limitsGroup = null;
+    this.limitsJoint = null;
+    this.pendingLimits = null;
+    this.j1Angle = 0;
+    this.j2Angle = 0;
+    this.j3Angle = 0;
 
     this.init();
   }
@@ -135,6 +141,10 @@ export class ArmScene {
       }
       this.fitCameraToModel();
       this.setModelStatus(`CAD meshes loaded · ${loaded} parts · visualization only`);
+      if (this.pendingLimits) {
+        const { jointName, lowerDeg, upperDeg, currentAngleDeg } = this.pendingLimits;
+        this.setJointLimits(jointName, lowerDeg, upperDeg, currentAngleDeg);
+      }
     } catch (error) {
       this.setModelStatus(`CAD preview failed: ${error.message}`, true);
       if (this.sourceEl) this.sourceEl.textContent = 'CAD unavailable · motor status comes from Check';
@@ -213,6 +223,9 @@ export class ArmScene {
   }
 
   updateJoints(q1 = 0, q2 = 0, q3 = 0) {
+    this.j1Angle = q1;
+    this.j2Angle = q2;
+    this.j3Angle = q3;
     if (this.j1Pivot) {
       this.j1Pivot.setRotationFromAxisAngle(this.j1Axis, q1);
     }
@@ -222,6 +235,167 @@ export class ArmScene {
     if (this.j3Pivot) {
       this.j3Pivot.setRotationFromAxisAngle(this.j3Axis, q3);
     }
+  }
+
+  clearJointLimits() {
+    if (this.limitsGroup) {
+      if (this.limitsGroup.parent) {
+        this.limitsGroup.parent.remove(this.limitsGroup);
+      }
+      this.limitsGroup.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (child.material.map) child.material.map.dispose();
+          child.material.dispose();
+        }
+      });
+      this.limitsGroup = null;
+      this.limitsJoint = null;
+    }
+  }
+
+  setJointLimits(jointName = 'J1', lowerDeg = -90, upperDeg = 90, currentAngleDeg = 0) {
+    this.pendingLimits = { jointName, lowerDeg, upperDeg, currentAngleDeg };
+    this.clearJointLimits();
+
+    if (!this.baseGroup || !this.j1Pivot || !this.j2Pivot || !this.j3Pivot) {
+      return;
+    }
+    if (!Number.isFinite(lowerDeg) || !Number.isFinite(upperDeg) || lowerDeg >= upperDeg) {
+      return;
+    }
+
+    let parentGroup;
+    let pivotPos;
+    let axis;
+    let radius;
+    let refZero;
+
+    if (jointName === 'J1') {
+      parentGroup = this.baseGroup;
+      pivotPos = this.j1Origin.clone();
+      axis = this.j1Axis.clone().normalize();
+      radius = 0.14;
+      const j2Rel = this.j2Pivot.position.clone();
+      refZero = j2Rel.sub(axis.clone().multiplyScalar(j2Rel.dot(axis))).normalize();
+      if (refZero.lengthSq() < 1e-4) refZero.set(0, -1, 0);
+    } else if (jointName === 'J2') {
+      parentGroup = this.j1Pivot;
+      pivotPos = this.j2Pivot.position.clone();
+      axis = this.j2Axis.clone().normalize();
+      radius = 0.12;
+      const j3Rel = this.j3Pivot.position.clone();
+      refZero = j3Rel.sub(axis.clone().multiplyScalar(j3Rel.dot(axis))).normalize();
+      if (refZero.lengthSq() < 1e-4) refZero.set(0, 0, 1);
+    } else if (jointName === 'J3') {
+      parentGroup = this.j2Pivot;
+      pivotPos = this.j3Pivot.position.clone();
+      axis = this.j3Axis.clone().normalize();
+      radius = 0.10;
+      refZero = new THREE.Vector3(0, 0, 1).sub(axis.clone().multiplyScalar(new THREE.Vector3(0, 0, 1).dot(axis))).normalize();
+      if (refZero.lengthSq() < 1e-4) refZero.set(0, -1, 0);
+    } else {
+      return;
+    }
+
+    const group = new THREE.Group();
+    group.name = `limits_${jointName}`;
+
+    const spanDeg = upperDeg - lowerDeg;
+    const lowerRad = ((lowerDeg % 360) * Math.PI) / 180;
+    const upperRad = ((upperDeg % 360) * Math.PI) / 180;
+    const spanRad = (Math.min(360, spanDeg) * Math.PI) / 180;
+
+    const maxSegments = 128;
+    const minSegments = 16;
+    const numSegments = Math.min(maxSegments, Math.max(minSegments, Math.round(Math.abs(spanDeg) / 5)));
+
+    const arcPoints = [];
+    for (let i = 0; i <= numSegments; i++) {
+      const t = i / numSegments;
+      const theta = lowerRad + t * spanRad;
+      const v = refZero.clone().applyAxisAngle(axis, theta).multiplyScalar(radius);
+      arcPoints.push(pivotPos.clone().add(v));
+    }
+
+    const arcGeom = new THREE.BufferGeometry().setFromPoints(arcPoints);
+    const arcMat = new THREE.LineBasicMaterial({ color: 0x555555, linewidth: 2 });
+    const arcLine = new THREE.Line(arcGeom, arcMat);
+    group.add(arcLine);
+
+    const markerMat = new THREE.LineBasicMaterial({ color: 0x333333, linewidth: 2 });
+
+    const minDir = refZero.clone().applyAxisAngle(axis, lowerRad);
+    const minP1 = pivotPos.clone().add(minDir.clone().multiplyScalar(radius * 0.85));
+    const minP2 = pivotPos.clone().add(minDir.clone().multiplyScalar(radius * 1.15));
+    const minGeom = new THREE.BufferGeometry().setFromPoints([minP1, minP2]);
+    const minLine = new THREE.Line(minGeom, markerMat);
+    group.add(minLine);
+
+    const maxDir = refZero.clone().applyAxisAngle(axis, upperRad);
+    const maxP1 = pivotPos.clone().add(maxDir.clone().multiplyScalar(radius * 0.85));
+    const maxP2 = pivotPos.clone().add(maxDir.clone().multiplyScalar(radius * 1.15));
+    const maxGeom = new THREE.BufferGeometry().setFromPoints([maxP1, maxP2]);
+    const maxLine = new THREE.Line(maxGeom, markerMat);
+    group.add(maxLine);
+
+    if (lowerDeg <= 0 && 0 <= upperDeg) {
+      const zeroDir = refZero.clone();
+      const zeroP1 = pivotPos.clone().add(zeroDir.clone().multiplyScalar(radius * 0.90));
+      const zeroP2 = pivotPos.clone().add(zeroDir.clone().multiplyScalar(radius * 1.10));
+      const zeroGeom = new THREE.BufferGeometry().setFromPoints([zeroP1, zeroP2]);
+      const zeroMat = new THREE.LineBasicMaterial({ color: 0x777777, linewidth: 1 });
+      const zeroLine = new THREE.Line(zeroGeom, zeroMat);
+      group.add(zeroLine);
+    }
+
+    const makeLabelSprite = (text) => {
+      if (typeof document === 'undefined') return null;
+      const canvas = document.createElement('canvas');
+      canvas.width = 160;
+      canvas.height = 40;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.fillRect(0, 0, 160, 40);
+      ctx.strokeStyle = '#777777';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, 158, 38);
+      ctx.fillStyle = '#111111';
+      ctx.font = 'bold 18px monospace, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 80, 20);
+      const texture = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(0.065, 0.01625, 1);
+      return sprite;
+    };
+
+    const minLabel = makeLabelSprite(`Min ${lowerDeg > 0 ? '+' : ''}${lowerDeg.toFixed(1)}°`);
+    if (minLabel) {
+      minLabel.position.copy(pivotPos.clone().add(minDir.clone().multiplyScalar(radius * 1.30)));
+      group.add(minLabel);
+    }
+
+    const maxLabel = makeLabelSprite(`Max ${upperDeg > 0 ? '+' : ''}${upperDeg.toFixed(1)}°`);
+    if (maxLabel) {
+      maxLabel.position.copy(pivotPos.clone().add(maxDir.clone().multiplyScalar(radius * 1.30)));
+      group.add(maxLabel);
+    }
+
+    if (lowerDeg <= 0 && 0 <= upperDeg && Math.abs(lowerDeg) > 8 && Math.abs(upperDeg) > 8) {
+      const zeroLabel = makeLabelSprite('0°');
+      if (zeroLabel) {
+        zeroLabel.position.copy(pivotPos.clone().add(refZero.clone().multiplyScalar(radius * 1.25)));
+        group.add(zeroLabel);
+      }
+    }
+
+    parentGroup.add(group);
+    this.limitsGroup = group;
+    this.limitsJoint = jointName;
   }
 
   updateCameraPosition() {
