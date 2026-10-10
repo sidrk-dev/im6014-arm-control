@@ -1,7 +1,7 @@
 /** Pure input reducer and bounded HTTP client for the arm dashboard. */
 
 const ZERO_AXES = () => [0, 0, 0];
-const JOG_KEYS = new Set(['KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyQ', 'KeyE', 'Space']);
+const JOG_KEYS = new Set(['KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyQ', 'KeyE']);
 
 export function createInputState() {
   return {
@@ -14,9 +14,7 @@ export function createInputState() {
     keysDown: new Set(),
     isEditing: false,
     keyboardAxes: ZERO_AXES(),
-    keyboardDeadman: false,
     gamepadAxes: ZERO_AXES(),
-    gamepadDeadman: false,
     lastGamepadIdentity: null,
     gamepadConnected: false,
     activeDevice: 'keyboard',
@@ -29,11 +27,14 @@ export function createInputState() {
 function clearHeldInput(state) {
   state.keysDown.clear();
   state.keyboardAxes = ZERO_AXES();
-  state.keyboardDeadman = false;
   state.gamepadAxes = ZERO_AXES();
-  state.gamepadDeadman = false;
   state.motionEnergized = false;
   state.isEnergized = false;
+}
+
+function allInputsNeutral(state) {
+  return state.keysDown.size === 0 && state.keyboardAxes.every(axis => axis === 0)
+    && state.gamepadAxes.every(axis => axis === 0);
 }
 
 export function updateEffectiveState(state) {
@@ -49,13 +50,11 @@ export function updateEffectiveState(state) {
   }
 
   const gamepadActive = state.activeDevice === 'gamepad' && state.gamepadConnected;
-  const rawDeadman = gamepadActive ? state.gamepadDeadman : state.keyboardDeadman;
   const rawAxes = gamepadActive ? state.gamepadAxes : state.keyboardAxes;
-  const hasAxisInput = rawAxes.some(axis => axis !== 0);
-  const isNeutral = !rawDeadman && !hasAxisInput;
+  const hasAxisInput = rawAxes.some(axis => Math.abs(axis) > 1e-4);
 
   if (!state.neutralLatched) {
-    if (!isNeutral) {
+    if (!allInputsNeutral(state)) {
       state.effectiveAxes = ZERO_AXES();
       state.effectiveDeadman = false;
       state.motionEnergized = false;
@@ -65,7 +64,7 @@ export function updateEffectiveState(state) {
     state.neutralLatched = true;
   }
 
-  const isEnergized = state.neutralLatched && (hasAxisInput || rawDeadman);
+  const isEnergized = state.neutralLatched && hasAxisInput;
   state.motionEnergized = isEnergized;
   state.isEnergized = isEnergized;
   state.effectiveDeadman = isEnergized;
@@ -79,7 +78,6 @@ function updateKeyboardAxes(state) {
     Number(state.keysDown.has('KeyW')) - Number(state.keysDown.has('KeyS')),
     Number(state.keysDown.has('KeyE')) - Number(state.keysDown.has('KeyQ'))
   ];
-  state.keyboardDeadman = state.keysDown.has('Space');
 }
 
 export function latchStop(state, reason = 'operator_stop') {
@@ -126,7 +124,6 @@ export function reduceKeyEvent(state, event) {
   if (type !== 'keydown' || isEditing || !JOG_KEYS.has(code)) return state;
 
   state.keysDown.add(code);
-  state.activeDevice = 'keyboard';
   updateKeyboardAxes(state);
   return updateEffectiveState(state);
 }
@@ -152,6 +149,15 @@ export function validateGamepad(pad) {
   return { valid: true };
 }
 
+export function selectGamepadCandidate(gamepads, currentIdentity = null) {
+  const connected = Array.from(gamepads || []).filter(pad => pad && pad.connected === true);
+  if (currentIdentity) {
+    const current = connected.find(pad => `${pad.index}:${pad.id}` === currentIdentity);
+    if (current) return current;
+  }
+  return connected.find(pad => validateGamepad(pad).valid) || null;
+}
+
 function applyDeadzone(axis, deadzone = 0.12) {
   const magnitude = Math.abs(axis);
   if (magnitude <= deadzone) return 0;
@@ -164,7 +170,6 @@ export function reduceGamepad(state, pad) {
     state.gamepadConnected = false;
     state.lastGamepadIdentity = null;
     state.gamepadAxes = ZERO_AXES();
-    state.gamepadDeadman = false;
     return wasConnected ? latchStop(state, 'gamepad_disconnected') : updateEffectiveState(state);
   }
 
@@ -173,7 +178,6 @@ export function reduceGamepad(state, pad) {
     state.gamepadConnected = false;
     state.lastGamepadIdentity = null;
     state.gamepadAxes = ZERO_AXES();
-    state.gamepadDeadman = false;
     return latchStop(state, validation.reason);
   }
 
@@ -182,26 +186,22 @@ export function reduceGamepad(state, pad) {
     state.gamepadConnected = true;
     state.lastGamepadIdentity = identity;
     state.gamepadAxes = ZERO_AXES();
-    state.gamepadDeadman = false;
     return latchStop(state, 'gamepad_connected_or_replaced');
   }
 
   if (pad.buttons[1].pressed) return latchStop(state, 'gamepad_b_stop');
 
-  state.gamepadDeadman = Boolean(pad.buttons[5]?.pressed);
-  state.gamepadAxes = [
+  const axes = [
     applyDeadzone(pad.axes[0]),
     applyDeadzone(-pad.axes[1]),
     applyDeadzone(-pad.axes[3])
   ];
-
-  if (state.gamepadDeadman) state.activeDevice = 'gamepad';
+  state.gamepadAxes = axes;
   return updateEffectiveState(state);
 }
 
 export function reduceBlur(state) {
   clearHeldInput(state);
-  state.activeDevice = 'keyboard';
   return updateEffectiveState(state);
 }
 
@@ -215,18 +215,31 @@ export function reduceArmState(state, isArmed) {
     return updateEffectiveState(state);
   }
   const next = isArmed === true;
+  const wasArmed = state.armed;
   state.armed = next;
   if (!next) {
     state.neutralLatched = false;
     state.motionEnergized = false;
-  } else {
-    const gamepadActive = state.activeDevice === 'gamepad' && state.gamepadConnected;
-    const rawDeadman = gamepadActive ? state.gamepadDeadman : state.keyboardDeadman;
-    const rawAxes = gamepadActive ? state.gamepadAxes : state.keyboardAxes;
-    state.neutralLatched = !rawDeadman && rawAxes.every(axis => axis === 0);
+  } else if (!wasArmed) {
+    state.neutralLatched = false;
     state.motionEnergized = false;
+    state.isEnergized = false;
+    state.effectiveAxes = ZERO_AXES();
+    state.effectiveDeadman = false;
+    return state;
   }
   return updateEffectiveState(state);
+}
+
+export function selectInputDevice(state, device) {
+  if (!['keyboard', 'gamepad'].includes(device)) throw new Error('Invalid input device');
+  if (state.armed || state.stopLatched || !allInputsNeutral(state)) return false;
+  if (device === 'gamepad' && !state.gamepadConnected) return false;
+  clearHeldInput(state);
+  state.activeDevice = device;
+  state.neutralLatched = false;
+  updateEffectiveState(state);
+  return true;
 }
 
 function currentOrigin(apiBase) {

@@ -24,10 +24,18 @@ Muse, MiMo and Gemini reviewed the selected source; the parent triaged their fin
 
 This release does not establish assembled-arm clearance, gravity support, motor ID setup for J2/J3, power-cycle absolute reference behavior, or a firmware PID tune. Those require separate commissioning.
 
-## Dashboard UI/UX & Control Robustness Update
+## Contributor update and usability correction
 
-- **Serial Port Dropdown & Live Scanning**: Added `/api/ports` endpoint with 3.0s sysfs TTL cache in `arm_dashboard.py` to prevent thread-pool saturation from repeated 200ms `/api/state` polling. Auto-selects FTDI Channel D (`FTC2RQ7H` interface 3).
-- **Direct Jogging (Deadman Removal)**: Eliminated required Space/RB deadman gating. Holding A/D or clicking −/+ energizes motion directly; releasing returns axes to neutral to hold position; Esc triggers immediate Stop and disarms.
-- **Session Claiming & Button Accessibility**: Added `/api/claim` endpoint to allow active dashboard sessions to claim ownership without restarting the backend. Decoupled Connect, Check, and Zero button states from unowned observer lockouts.
-- **Visual Stepper & Gauges**: Added a 4-step interactive workflow tracker (`Connect → Check → Zero → Jog`), live J1 position gauge (`−90° to +90°`), dynamic effort bar, active keypress button feedback, and context-aware alert banners.
-- **All Verification Gates Passed**: 41 Python unit tests in `test_arm_http.py` and `test_arm_manual.py`, Node input and preset suites, and all 9 offline baseline check groups exit 0.
+The later contributor UI commit `7250547` added a serial dropdown, workflow tracker and gauges. Its reported 41 checks and physical auto-selection were contributor claims, not parent verification of that artifact. Parent reproduction found ownership bypass, a missing post-Enable neutral gate, an identity fallback and misleading connection/control guidance. That artifact was not accepted as a physical control release.
+
+The correction removes `/api/claim`; opening another tab creates an observer. A successful explicit Connect establishes ownership. Each tab keeps its own authenticated session. Direct keys, on-screen buttons and selected standard-controller axes request movement only after explicit Enable and a new neutral observation. Space and RB are no longer required. Stop, Esc, B, lost focus, expired input, stale feedback and physical command limits retain their authority.
+
+Serial dropdown and Refresh enumerate bounded device metadata without opening or probing a port. The verified Channel D uses its stable by-id path when present. Missing Channel D is reported even if unrelated serial ports exist. Enumeration is not a healthy motor reply. Calibration requires measured Stop feedback on every connection; a stored software zero is not trusted after reconnect.
+
+### Current verification status
+
+The first repaired artifact passed 30 manual and 15 HTTP checks, two Node groups, six independent parent checks and two actual allocated pySerial PTY cases. A fake browser session completed Connect, timeout acknowledgment, zero declaration, Enable, automatic Figure-8 following on simulated J1, confirmed Stop and observer isolation. Momentary key injection did not establish sustained keyboard motion; physical Xbox motion was not demonstrated. Browser screenshot capture was unavailable.
+
+Muse and Gemini reviewed that frozen artifact. Accepted presentation, controller selection, transient-session and bounded-port findings were corrected. The revised source passed 45 Python checks, three Node groups, six independent checks, two bounded port/static-module checks and two allocated PTY cases. The first revised presentation test had an incorrect zero-label expectation and caught a real uncleared hidden-gauge fill; both corrections and the failed log are retained. A parent PTY invocation passed its two cases but omitted its receipt argument; the corrected invocation passed and wrote the receipt. An actual visible browser session followed the Figure-8 on simulated J1 to −7.73°, then confirmed mode-0 Stop. Hidden-tab ticket expiry and browser input timeouts are retained; no protection deadlines were relaxed. A stale post-Stop preview caption was reproduced and corrected. MiMo's HTTP 502 is a retained failed seat, with no retry or substitute for that artifact. Final-artifact checks and independent verification must supersede this provisional record before shipping.
+
+At the latest passive hardware observation, the USB Channel D adapter was absent. The old server had stale feedback and repeated serial I/O errors; cached voltage and angles were not fresh communication proof. It was stopped. No motor movement or fresh physical connection was performed during this usability correction. Replug the USB adapter and use Refresh before attempting Connect; J2/J3 remain virtual.

@@ -52,7 +52,7 @@ PER_STEP_DT_MAX_S = 0.020
 MAX_ACCEL_RAD_S2 = 0.3
 MAX_RATE_RPM = 1.0
 MAX_MEASURED_SPEED_RPM = 1.5
-MAX_MEASURED_LEAD_RAD = 0.15
+MAX_MEASURED_LEAD_RAD = 0.05
 DEFAULT_EFFORT_CEILING_NM = 1.0
 
 DEFAULT_SETTINGS = {
@@ -632,7 +632,7 @@ class ArmManualSession:
             if seq <= self.last_seq:
                 raise ValueError('Sequence must be strictly increasing')
             if type(deadman) is not bool:
-                raise ValueError('Deadman must be an exact bool')
+                raise ValueError('Motion-intent flag must be an exact bool')
             if type(axes) not in (list, tuple) or len(axes) != 3:
                 raise ValueError('Axes must be a 3-vector')
             parsed_axes = []
@@ -646,7 +646,10 @@ class ArmManualSession:
             if type(device) is not str or not device.strip() or len(device) > 64:
                 raise ValueError('Device must be a bounded non-empty string')
             device_name = device.strip()
-            neutral_release = (not deadman and all(axis == 0.0 for axis in parsed_axes))
+            moving = any(abs(axis) > 1e-4 for axis in parsed_axes)
+            if deadman != moving:
+                raise ValueError('Motion intent must match nonzero axes')
+            neutral_release = not deadman and not moving
 
 
 
@@ -663,11 +666,14 @@ class ArmManualSession:
                 return
             self.current_device = device_name
 
-            is_moving = any(abs(axis) > 1e-4 for axis in parsed_axes)
-            if deadman or is_moving:
+            if self.require_neutral and not neutral_release:
+                raise ValueError('Neutral input required after arming')
+            if neutral_release:
+                self.require_neutral = False
+
+            if moving:
                 self.deadman_active = True
                 self.target_axes = parsed_axes
-                self.require_neutral = False
                 self.intent = {
                     'session': session, 'ticket': ticket, 'seq': seq,
                     'device': device_name, 'generation': self.generation,
@@ -677,7 +683,6 @@ class ArmManualSession:
             else:
                 self.deadman_active = False
                 self.target_axes = [0.0, 0.0, 0.0]
-                self.require_neutral = False
                 self.intent = {
                     'session': session, 'ticket': ticket, 'seq': seq,
                     'device': device_name, 'generation': self.generation,
@@ -1089,12 +1094,8 @@ class ArmManualSession:
             if demo:
                 self.bus = DemoSerial(clock=self.clock)
             else:
-                try:
-                    config = PortConfig(port, baud)
-                    inspect_report = inspect_port(config)
-                except ValueError:
-                    config = PortConfig(port, baud, expected_serial=None, expected_channel=None)
-                    inspect_report = inspect_port(config)
+                config = PortConfig(port, baud)
+                inspect_report = inspect_port(config)
                 self._event(inspect_report)
                 try:
                     self.port_owner = open_managed_port(config, serial_factory=self.serial_factory)
@@ -1179,6 +1180,7 @@ class ArmManualSession:
                 self._validate_feedback(self.latest, 0)
                 self.armed = True
                 self.data['armed'] = True
+                self.current_device = None
                 self.deadman_active = False
                 self.require_neutral = True
                 self.intent = None
@@ -1188,7 +1190,7 @@ class ArmManualSession:
                 self.v_ref = 0.0
                 self.last_reference_raw = None
                 self.data['state'] = 'Armed · motor stopped'
-                self.data['reason'] = 'Armed for manual jogging. Neutral release then press deadman.'
+                self.data['reason'] = 'Armed for manual jogging. Release controls to neutral once, then move an input.'
                 self._event('Armed for manual jogging; motor remains stopped.')
             return
         if action == 'release':
@@ -1584,10 +1586,10 @@ class ArmManualSession:
                     self.data['reason'] = 'Manual jogging active'
                 elif abs(self.v_ref) > 1e-5:
                     self.data['state'] = 'Armed · braking'
-                    self.data['reason'] = 'Deadman released; braking to zero'
+                    self.data['reason'] = 'Motion input released; braking to zero'
                 else:
                     self.data['state'] = 'Armed · holding'
-                    self.data['reason'] = 'Deadman released; holding position'
+                    self.data['reason'] = 'Motion input released; holding position'
                 max_speed = self.settings['max_rpm'] * math.tau / 60
                 v2 = self.target_axes[1] * max_speed if self.deadman_active else 0.0
                 v3 = self.target_axes[2] * max_speed if self.deadman_active else 0.0

@@ -28,7 +28,6 @@
   </header>
 
   <main class="dashboard-grid">
-    <!-- Workflow Stepper & Guidance Bar -->
     <div class="workflow-stepper-bar">
       <div class="stepper-steps">
         <div id="step-connect" class="step-node active">
@@ -51,13 +50,11 @@
           <span>Enable & Jog</span>
         </div>
       </div>
-      <p id="workflow-help" class="workflow-help">1. Select serial port and Connect (Channel D adapter prioritized).</p>
+      <p id="workflow-help" class="workflow-help">1. Select a detected serial port or enter a custom path, then Connect.</p>
     </div>
 
-    <!-- Dynamic Alert Banner -->
     <div id="alert-banner" class="alert-banner" style="display: none;"></div>
 
-    <!-- 3D Arm CAD Viewport Column -->
     <section class="center-column">
       <div id="canvas-container" class="canvas-container">
         <div class="canvas-hud">
@@ -73,7 +70,6 @@
         </div>
       </div>
 
-      <!-- Presets and Virtual Path Card -->
       <div class="card">
         <div class="card-header">
           <span>Arm Poses & Path Previews</span>
@@ -89,17 +85,16 @@
             </div>
             <label class="secured-arm-box" style="margin-top: 10px;">
               <input type="checkbox" id="chk-follow-preview">
-              Follow preview trajectory with real J1 while armed
+              Follow preview trajectory with real J1 after Enable
             </label>
             <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-              Pose buttons preview CAD kinematics. J2 and J3 remain virtual. Stop removes torque before changing paths.
+              Pose buttons preview CAD kinematics. J2 and J3 remain virtual. Preview follow uses fresh measured J1 feedback after Enable, then follows automatically until Stop, Esc, or controller B; releasing keys does not pause it.
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Motor Control Column -->
     <section class="card">
       <div class="card-header">
         <span>Motor Control & Operations</span>
@@ -110,7 +105,6 @@
           Starts disconnected. No USB port opened until explicit connect. Controls <strong>ID 0 only</strong> at 6,000,000 baud.
         </div>
 
-        <!-- 1. Serial Connection -->
         <div class="control-section">
           <div class="section-title">
             <span>1. Serial Connection</span>
@@ -122,9 +116,15 @@
               <button id="btn-refresh-ports" type="button" class="btn" style="padding: 2px 8px; font-size: 11px;">Refresh</button>
             </div>
             <select id="select-port" class="form-select">
-              <option value="/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0">Channel D · FTDI FTC2RQ7H (Default)</option>
+              <option value="">Loading detected serial ports…</option>
             </select>
           </div>
+          <div id="serial-port-status" role="status" style="font-size: 11px; color: var(--text-muted); margin-top: -8px; margin-bottom: 8px;">Serial port listing is passive; Refresh checks for the recommended Channel D adapter without opening or probing devices.</div>
+          <div class="form-group">
+            <label class="form-label" for="input-port-path">Custom device path (optional; overrides the list)</label>
+            <input type="text" id="input-port-path" class="form-input" placeholder="/dev/serial/by-id/… or COM port">
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: -4px; margin-bottom: 8px;">Channel D is recommended. Unknown adapter metadata remains unverified; selecting a path does not verify motor communication.</div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="input-baud">Baud Rate</label>
@@ -149,7 +149,6 @@
           </div>
         </div>
 
-        <!-- 2. Align J1 Software Zero -->
         <div class="control-section">
           <div class="section-title">
             <span>2. Align J1 Software Zero</span>
@@ -187,7 +186,6 @@
           </div>
         </div>
 
-        <!-- Advanced PD Gains & Limits -->
         <details class="control-section">
           <summary>Advanced: PD Gains & Motion Limits</summary>
           <div id="applied-settings" role="status" style="margin-top: 6px; font-size: 11px; color: var(--text-secondary);">Applied settings awaiting status.</div>
@@ -219,11 +217,18 @@
           <div id="draft-status" role="status" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
         </details>
 
-        <!-- 3. Enable Jogging -->
         <div class="control-section">
           <div class="section-title">
             <span>3. Enable Jog Authority</span>
             <span class="section-title-sub" style="color: var(--accent-amber);">Arming Control</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="select-input-device">Input source for the next Arm</label>
+            <select id="select-input-device" class="form-select">
+              <option value="keyboard">Keyboard and on-screen buttons</option>
+              <option value="gamepad" disabled>Xbox controller (standard mapping)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Choose while disarmed. Release keys and center both sticks before Enable, then release or center once after Enable.</div>
           </div>
           <div class="secured-arm-box">
             <input type="checkbox" id="chk-enable-arm">
@@ -234,25 +239,25 @@
             <button id="btn-release" class="btn btn-danger" disabled>Stop motor</button>
           </div>
           <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-            Arm enters closed-loop control. Releasing controls holds position. Stop removes torque and requires a Health Check before arming again.
+            Arm enters closed-loop control. In direct jog, releasing controls holds position. Preview follow runs automatically until Stop, Esc, or controller B; releasing keys does not pause it.
           </div>
         </div>
 
-        <!-- 4. Move the Arm -->
         <div class="control-section">
           <div class="section-title">
             <span>4. Move the Arm</span>
             <span id="motion-indicator" class="section-title-sub" style="color: var(--text-muted);">Holding position</span>
           </div>
           <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
-            Hold <strong>A / D</strong> (or click −/+) to move J1 directly. Release keys to hold position. Press <strong>Esc</strong> to Stop instantly.
+            Direct jog: hold <strong>A / D</strong>, click −/+, or move the selected controller stick to jog J1. Release or center to hold position. Preview follow runs automatically until Stop, Esc, or controller B; releasing keys does not pause it.
           </div>
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <label class="form-label" for="slider-jog-speed" style="margin: 0;">Jog Rate Multiplier</label>
               <span id="lbl-jog-speed" style="color: var(--accent-cyan); font-weight: 700; font-size: 12px;">50%</span>
             </div>
-            <input type="range" id="slider-jog-speed" value="50" min="5" max="100" step="5" style="width: 100%; accent-color: var(--accent-cyan);">
+            <input type="number" id="slider-jog-speed" class="form-input" value="50" step="any" style="width: 100%;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Finite draft multipliers are accepted; jog commands clamp the applied rate to 0–100%.</div>
           </div>
           <div class="jog-buttons">
             <div>
@@ -290,7 +295,7 @@
             </tr>
           </table>
           <div style="margin-top: 6px; font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 4px;">
-            <div style="font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Xbox Gamepad: Left Stick X for J1 · Left Stick Y for J2 · Right Stick Y for J3 · B to Stop</div>
+            <div style="font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Standard gamepad: Left Stick X for J1 · Left Stick Y for J2 · Right Stick Y for J3 · B to Stop</div>
             <div id="input-status" role="status" style="color: var(--accent-cyan); font-weight: 600;">Controls released</div>
             <div id="gamepad-status" style="margin-top: 3px; font-weight: 500; color: #94a3b8;">Focus this page and press A on your Xbox controller.</div>
           </div>
@@ -298,14 +303,12 @@
       </div>
     </section>
 
-    <!-- Observational Telemetry Column -->
     <section class="card">
       <div class="card-header">
         <span>Observational Telemetry</span>
-        <span class="section-title-sub" style="color: var(--accent-emerald);">Live 200ms Feed</span>
+        <span class="section-title-sub" style="color: var(--accent-emerald);">200ms Poll · freshness shown</span>
       </div>
       <div class="card-scrollable">
-        <!-- Physical J1 Card with Visual Gauges -->
         <div class="control-section telemetry-card-physical">
           <div class="section-title">
             <span style="color: #34d399; font-size: 14px;">Joint 1 · Physical Motor (ID 0)</span>
@@ -317,15 +320,16 @@
             <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; color: #34d399; font-weight: 700;">Awaiting known angle</span>
           </div>
 
-          <!-- Position Range Gauge -->
-          <div class="pos-gauge-container">
+          <div id="j1-pos-gauge-container" class="pos-gauge-container" hidden>
+            <div id="j1-gauge-status" style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;"></div>
             <div class="pos-gauge-track">
               <div id="j1-pos-gauge" class="pos-gauge-fill" style="left: 50%; width: 0%;"></div>
+              <div id="j1-zero-marker" aria-hidden="true" style="position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-1px); background: var(--text-primary);"></div>
             </div>
             <div class="pos-gauge-labels">
-              <span id="j1-limit-min">-90°</span>
-              <span>0° (Center)</span>
-              <span id="j1-limit-max">+90°</span>
+              <span id="j1-limit-min">Lower limit</span>
+              <span id="j1-zero-label">Zero anchor</span>
+              <span id="j1-limit-max">Upper limit</span>
             </div>
           </div>
 
@@ -338,7 +342,7 @@
             <span class="telemetry-label">Torque / Effort (Max 1.0 Nm)</span>
             <span id="tel-j1-torque" class="telemetry-val">Awaiting status</span>
           </div>
-          <div class="effort-meter-track">
+          <div id="j1-effort-track" class="effort-meter-track" hidden>
             <div id="j1-effort-bar" class="effort-meter-fill" style="width: 0%;"></div>
           </div>
 
@@ -360,7 +364,6 @@
           </div>
         </div>
 
-        <!-- System State Summary -->
         <div class="control-section">
           <div class="section-title">
             <span>System State</span>
@@ -374,7 +377,7 @@
             <span id="tel-reason" class="telemetry-val">-</span>
           </div>
           <div class="telemetry-row">
-            <span class="telemetry-label">Feedback Age</span>
+            <span class="telemetry-label">Last Motor Reply</span>
             <span id="tel-feedback-age" class="telemetry-val">-</span>
           </div>
           <div class="telemetry-row">
@@ -387,7 +390,6 @@
           </div>
         </div>
 
-        <!-- Virtual Joints Telemetry -->
         <div class="control-section telemetry-card-virtual">
           <div class="section-title">
             <span style="color: #fbbf24;">Joints 2 & 3 · Virtual CAD</span>
@@ -414,7 +416,6 @@
           </div>
         </div>
 
-        <!-- Event History -->
         <div class="control-section">
           <div class="section-title">
             <span>Event History (Max 100)</span>

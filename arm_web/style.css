@@ -101,7 +101,6 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-/* Header */
 .top-header {
   display: flex;
   justify-content: space-between;
@@ -251,7 +250,6 @@ input[type="checkbox"] {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Workflow Stepper Bar */
 .workflow-stepper-bar {
   grid-column: 1 / -1;
   background: var(--bg-card);
@@ -332,7 +330,6 @@ input[type="checkbox"] {
   border-left: 3px solid var(--accent-cyan);
 }
 
-/* Notification & Alert Banner */
 .alert-banner {
   grid-column: 1 / -1;
   padding: 10px 14px;
@@ -375,7 +372,6 @@ input[type="checkbox"] {
   color: #86efac;
 }
 
-/* Dashboard Grid Layout */
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(360px, 1fr);
@@ -395,7 +391,6 @@ input[type="checkbox"] {
   gap: 14px;
 }
 
-/* 3D Viewport */
 .canvas-container {
   height: 60vh;
   min-height: 400px;
@@ -468,7 +463,6 @@ canvas {
   border-radius: var(--radius-sm);
 }
 
-/* Cards */
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -504,7 +498,6 @@ canvas {
   gap: 12px;
 }
 
-/* Control Sections */
 .control-section {
   border: 1px solid var(--border-color);
   background: var(--bg-card-sub);
@@ -615,7 +608,6 @@ summary:hover {
   color: var(--text-main);
 }
 
-/* Jog Buttons & Direction Indicator */
 .jog-buttons > div {
   display: flex;
   align-items: center;
@@ -673,7 +665,6 @@ summary:hover {
   color: var(--accent-cyan);
 }
 
-/* Telemetry Cards & Visual Bars */
 .telemetry-row {
   display: flex;
   justify-content: space-between;
@@ -720,7 +711,6 @@ summary:hover {
   font-style: italic;
 }
 
-/* Visual Position Gauge */
 .pos-gauge-container {
   margin: 8px 0;
   background: rgba(0, 0, 0, 0.3);
@@ -756,7 +746,6 @@ summary:hover {
   margin-top: 4px;
 }
 
-/* Effort / Torque Meter */
 .effort-meter-track {
   height: 6px;
   background: #1e293b;
@@ -772,7 +761,6 @@ summary:hover {
   transition: width 0.1s ease, background 0.2s ease;
 }
 
-/* Event Log */
 .event-log-box {
   max-height: 160px;
   overflow-y: auto;
@@ -809,7 +797,6 @@ summary:hover {
   white-space: pre-line;
 }
 
-/* Footer Banner */
 .bottom-banner {
   padding: 12px 24px;
   border-top: 1px solid var(--border-color);
@@ -828,7 +815,6 @@ summary:hover {
   border-radius: 3px;
 }
 
-/* Responsive Grid */
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;

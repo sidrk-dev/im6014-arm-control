@@ -13,8 +13,10 @@ import math
 import socket
 import threading
 import time
+from types import SimpleNamespace
 from typing import Any
 import unittest
+from unittest.mock import patch
 
 from arm_dashboard import ArmDashboardHandler, ArmDashboardServer, MAX_BODY_BYTES
 
@@ -28,6 +30,7 @@ class MockArmManualSession:
         self.operations: dict[str, dict[str, Any]] = {}
         self.tickets: set[str] = set()
         self.ticket_counter = 0
+        self.owner_session: str | None = None
         self.submitted_inputs: list[dict[str, Any]] = []
         self.stopped = False
         self.stop_reason: str | None = None
@@ -41,7 +44,7 @@ class MockArmManualSession:
     def controls_motor(self, session: str) -> bool:
         if session not in self.sessions:
             raise ValueError("Unknown session")
-        return False
+        return session == self.owner_session
 
     def input_sequence(self, session: str) -> int:
         if session not in self.sessions:
@@ -335,6 +338,31 @@ class ArmHttpServerTests(unittest.TestCase):
         status, _, _ = self._request("POST", "/api/session-status", body=b'{"session":"unknown"}')
         self.assertEqual(status, 400)
 
+    def test_session_create_and_removed_claim_cannot_change_owner(self) -> None:
+        owner = self.session.create_session()
+        self.session.owner_session = owner
+
+        status, _, body = self._request("POST", "/api/session", body=b'{}')
+        self.assertEqual(status, 200)
+        observer = json.loads(body)["session"]
+        self.assertNotEqual(observer, owner)
+        self.assertEqual(self.session.owner_session, owner)
+
+        status, _, body = self._request(
+            "POST", "/api/session-status", body=json.dumps({"session": owner}).encode()
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(json.loads(body)["controls_motor"])
+        status, _, body = self._request(
+            "POST", "/api/session-status", body=json.dumps({"session": observer}).encode()
+        )
+        self.assertEqual(status, 200)
+        self.assertFalse(json.loads(body)["controls_motor"])
+
+        status, _, _ = self._request("POST", "/api/claim", body=json.dumps({"session": observer}).encode())
+        self.assertEqual(status, 404)
+        self.assertEqual(self.session.owner_session, owner)
+
     def test_session_capacity_reports_a_clear_error(self) -> None:
         from unittest.mock import patch
         with patch.object(self.session, 'create_session', side_effect=RuntimeError('Maximum sessions reached')):
@@ -476,7 +504,57 @@ class ArmHttpServerTests(unittest.TestCase):
         self.assertIn("ports", data)
         self.assertIn("default", data)
         self.assertIsInstance(data["ports"], list)
-        self.assertTrue(all("device" in p and "label" in p for p in data["ports"]))
+        self.assertTrue(all("device" in p and "path" in p and "label" in p for p in data["ports"]))
+        self.assertTrue(all(set(p) <= {"device", "path", "label", "description", "channel_d"} for p in data["ports"]))
+
+    def test_empty_and_failed_port_enumeration_return_no_fabricated_port(self) -> None:
+        with patch("serial.tools.list_ports.comports", return_value=[]):
+            status, _, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertEqual(data["ports"], [])
+        self.assertEqual(data["default"], "")
+        self.assertIsNone(data["error"])
+
+        with patch("serial.tools.list_ports.comports", side_effect=OSError("enumeration failed")):
+            status, _, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertEqual(data["ports"], [])
+        self.assertEqual(data["default"], "")
+        self.assertEqual(data["error"], "Port enumeration failed (OSError)")
+
+    def test_channel_d_without_by_id_uses_enumerated_path_and_bounded_fields(self) -> None:
+        port = SimpleNamespace(
+            device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2.3",
+            description="FTDI USB Serial", manufacturer="private manufacturer", hwid="unbounded metadata",
+        )
+        with patch("serial.tools.list_ports.comports", return_value=[port]), patch(
+            "arm_dashboard.Path.exists", return_value=False
+        ):
+            status, _, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertEqual(data["default"], "/dev/ttyUSB3")
+        self.assertEqual(data["ports"][0]["path"], "/dev/ttyUSB3")
+        self.assertTrue(data["ports"][0]["channel_d"])
+        self.assertNotIn("manufacturer", data["ports"][0])
+        self.assertNotIn("hwid", data["ports"][0])
+
+    def test_channel_d_uses_by_id_when_path_exists(self) -> None:
+        port = SimpleNamespace(
+            device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2.3",
+            description="FTDI USB Serial",
+        )
+        with patch("serial.tools.list_ports.comports", return_value=[port]), patch(
+            "arm_dashboard.Path.exists", return_value=True
+        ):
+            status, _, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        stable_path = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0"
+        self.assertEqual(data["default"], stable_path)
+        self.assertEqual(data["ports"][0]["path"], stable_path)
 
     def test_concurrency_semaphore_quick_reject(self) -> None:
         acquired = []

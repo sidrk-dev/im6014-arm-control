@@ -33,32 +33,9 @@ Running commands against `/dev/ttyUSB0` will fail to reach the motor.
 
 ## 3. Linux Driver & Kernel Troubleshooting
 
-### ModemManager Interference
-By default on Linux (e.g. Fedora / Ubuntu), `ModemManager` detects newly plugged FTDI serial ports and sends cellular `AT` probe strings at 115200 baud, which can corrupt the motor's packet parser and cause lockouts.
+The previously suggested ModemManager probe and FTDI flow-control explanations are **unverified hypotheses**, not established causes of a stale or missing reply. Do not use a world-writable (`0666`) device rule or privileged USB sysfs reset commands as a workaround.
 
-**Fix:** Add `ID_MM_DEVICE_IGNORE` to udev rules (`/etc/udev/rules.d/99-ftdi.rules`):
-```udev
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", MODE="0666", GROUP="dialout", ENV{ID_MM_DEVICE_IGNORE}="1"
-ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ENV{ID_MM_DEVICE_IGNORE}="1"
-```
-
-### Flow Control & Baudrate Timeout (`-110` / `-71`)
-When opening the port using PySerial without explicit flags, the kernel `ftdi_sio` driver attempts to send `FTDI_SIO_SET_FLOW_CTRL_REQUEST` on Endpoint 0. Because Channel D only connects TX/RX (no modem handshake lines), the control transfer can stall:
-```text
-ftdi_sio ttyUSB3: failed to set flow control: -71 (EPROTO) or -110 (ETIMEDOUT)
-```
-**Fix in Software:**
-Always open the port with `rtscts=False, dsrdtr=False, xonxoff=False`.
-
-**Fix for USB PHY Latch-up:**
-When 36V DC power is switched on or cables are connected, ground transients can cause the FT4232H USB PHY to enter an unresponsive state. Because motherboard USB ports do not power-gate 5V VBUS on software resets:
-1. Physically unplug the USB adapter for 3 seconds and plug it back in; or
-2. Power cycle the port via sysfs:
-   ```bash
-   echo 1 | sudo tee /sys/bus/usb/devices/usb3/3-0:1.0/usb3-port2/disable
-   sleep 1
-   echo 0 | sudo tee /sys/bus/usb/devices/usb3/3-0:1.0/usb3-port2/disable
-   ```
+If the adapter disappears or feedback becomes stale, keep the motor in Stop, reconnect the USB adapter, Refresh the passive port list, select the identified Channel D path, and run Health Check. Verify motor power and ID 0 before attempting another connection. A detected serial path alone does not confirm adapter identity or motor communication; only current protocol feedback does.
 
 ---
 

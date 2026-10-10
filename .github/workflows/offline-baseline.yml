@@ -24,7 +24,7 @@ jobs:
       - name: Check browser arm controls
         run: |
           .venv/bin/python -m unittest discover -s tests -p 'test_arm_*.py'
-          node --test tests/test_arm_input.mjs tests/test_arm_presets.mjs
+          node --test tests/test_arm_*.mjs
       - name: Run hardware-independent baseline
         run: scripts/check_offline_baseline.sh
       - name: Preserve logs and rendered evidence
