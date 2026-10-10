@@ -268,7 +268,7 @@ async function initSession() {
         if (Number.isSafeInteger(resume.last_sequence)) inputClient.seq = Math.max(0, resume.last_sequence + 1);
         logEvent(ownsMotor ? 'Controlling tab session resumed.' : 'Observer session resumed; motor controls are disabled.');
         updateActionControls();
-        return;
+        return true;
       }
       if (check.status === 400) sessionStorage.removeItem('arm-session');
       else throw new Error(`HTTP ${check.status}; saved session retained for retry`);
@@ -289,9 +289,11 @@ async function initSession() {
     ownsMotor = false;
     logEvent('Observer session created. Connect explicitly to take motor ownership.');
     updateActionControls();
+    return true;
   } catch (err) {
     logEvent(`Session connection error: ${err.message}`, 'error');
     setTimeout(initSession, 1500);
+    return false;
   } finally {
     clearTimeout(timeout);
   }
@@ -311,7 +313,12 @@ async function pollState() {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     if (generation === statePollGeneration && statePollController === controller) {
-      if (statePollUnavailable) logEvent('Dashboard server connection restored.');
+      if (statePollUnavailable) {
+        ownsMotor = false;
+        updateActionControls();
+        if (!await initSession()) throw new Error('Session recovery failed; retrying');
+        logEvent('Dashboard server connection restored; session checked.');
+      }
       statePollUnavailable = false;
       updateDashboardState(data);
     }

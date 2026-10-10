@@ -426,8 +426,7 @@ input[type="checkbox"] {
 
 .center-column {
   grid-area: preview;
-  position: sticky;
-  top: 76px;
+  position: static;
   display: flex;
   flex-direction: column;
   gap: 14px;
