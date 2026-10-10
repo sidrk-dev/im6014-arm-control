@@ -32,6 +32,7 @@ ARM_WEB_DIR = ROOT / "arm_web"
 ARM_ASSETS_DIR = ROOT / "arm_assets"
 MAX_BODY_BYTES = 16384
 MAX_CONCURRENT_REQUESTS = 16
+MAX_PORT_RECORDS = 32
 HTTP_READ_TIMEOUT_S = 2.0
 CONTENT_LENGTH_RE = re.compile(r"[0-9]+\Z")
 MESH_PATH_RE = re.compile(r"meshes/[A-Za-z0-9._-]+\.(?:bin|stl)\Z")
@@ -41,12 +42,17 @@ WEB_STATIC_FILES = frozenset({
     "dashboard.js",
     "arm_scene.js",
     "input_reducer.js",
+    "presentation.js",
     "presets.js",
     "vendor/three.module.js",
     "vendor/LICENSE.three",
 })
+DEFAULT_PORT_PATH = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0"
+_cached_ports: list[dict[str, Any]] = []
+_cached_ports_time: float = 0.0
+_cached_ports_error: str | None = None
 TOP_LEVEL_FIELDS = frozenset({
-    "physical_enabled", "default_port", "state", "reason", "connected", "demo", "calibrated", "armed", "stop_confirmed",
+    "physical_enabled", "default_port", "ports", "port_error", "state", "reason", "connected", "demo", "calibrated", "armed", "stop_confirmed",
     "feedback_age_s", "settings", "joints", "latest", "latest_feedback", "events",
 })
 SETTING_FIELDS = frozenset({
@@ -60,6 +66,7 @@ JOINT_FIELDS = frozenset({
 })
 LATEST_FIELDS = JOINT_FIELDS | frozenset({"time_s", "sequence", "measured_at_s"})
 EVENT_FIELDS = frozenset({"time_s", "kind", "severity", "action", "status"})
+PORT_FIELDS = frozenset({"device", "path", "label", "description", "channel_d"})
 SECRET_ASSIGNMENT_RE = re.compile(r"(?i)\b(session|ticket|owner|csrf|authorization|access[_ -]?token)\b\s*[:=]\s*[^\s,;]+")
 
 
@@ -151,6 +158,23 @@ def _project_fields(data: Any, fields: frozenset[str]) -> dict[str, Any] | None:
                         if event is not None:
                             events.append(event)
                 projected[key] = events
+        elif key == "ports":
+            if isinstance(value, list):
+                ports: list[dict[str, Any]] = []
+                for item in value[:32]:
+                    if not isinstance(item, dict):
+                        continue
+                    port: dict[str, Any] = {}
+                    for field in PORT_FIELDS:
+                        field_value = item.get(field)
+                        if field == "channel_d" and type(field_value) is bool:
+                            port[field] = field_value
+                        elif field in ("device", "path", "label", "description"):
+                            safe = _safe_text(field_value, 256 if field != "description" else 160)
+                            if safe is not None:
+                                port[field] = safe
+                    ports.append(port)
+                projected[key] = ports
         elif key in ("errors", "warnings"):
             if type(value) is int and 0 <= value <= (0xFFFFFFFF if key == "errors" else 7):
                 projected[key] = value
@@ -314,6 +338,56 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.BAD_REQUEST, "Malformed or non-finite JSON")
             return None
 
+    def _get_serial_ports(self, force: bool = False) -> list[dict[str, Any]]:
+        global _cached_ports, _cached_ports_time, _cached_ports_error
+        now = time.monotonic()
+        if not force and now - _cached_ports_time < 3.0:
+            return [dict(port) for port in _cached_ports]
+
+        ports_list = []
+        ports_error = None
+        try:
+            from serial.tools import list_ports
+            by_id_exists = Path(DEFAULT_PORT_PATH).exists()
+            comports = sorted(
+                list_ports.comports(),
+                key=lambda p: (
+                    not (
+                        (p.serial_number == 'FTC2RQ7H' and p.location and p.location.endswith('.3'))
+                        or (by_id_exists and Path(p.device).resolve() == Path(DEFAULT_PORT_PATH).resolve())
+                    ),
+                    p.device
+                )
+            )
+            for p in comports[:MAX_PORT_RECORDS]:
+                device = _safe_text(p.device, 256)
+                if device is None:
+                    continue
+                serial_number = _safe_text(p.serial_number or "", 64) or ""
+                location = _safe_text(p.location or "", 64) or ""
+                description = _safe_text(p.description or device, 160) or device
+                is_channel_d = bool(
+                    (serial_number == 'FTC2RQ7H' and location.endswith('.3'))
+                    or (by_id_exists and Path(device).resolve() == Path(DEFAULT_PORT_PATH).resolve())
+                )
+                path = DEFAULT_PORT_PATH if is_channel_d and by_id_exists else device
+                label = f"{device} · {description}" if description != device else device
+                if is_channel_d:
+                    label += " (Channel D · Recommended)"
+                ports_list.append({
+                    "device": device,
+                    "path": path,
+                    "label": _safe_text(label, 256) or device,
+                    "description": description,
+                    "channel_d": is_channel_d,
+                })
+        except Exception as error:
+            ports_error = f"Port enumeration failed ({type(error).__name__})"
+        _cached_ports = ports_list
+        _cached_ports_time = now
+        _cached_ports_error = ports_error
+        return [dict(port) for port in ports_list]
+
     def do_GET(self) -> None:
         if not self._validate_host():
             return
@@ -322,6 +396,11 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
 
         if path == "/api/state":
             self._handle_get_state()
+            return
+        if path == "/api/ports":
+            ports = self._get_serial_ports(force=True)
+            default_p = next((port["path"] for port in ports if port["channel_d"]), "")
+            self._send_json(HTTPStatus.OK, {"ports": ports, "default": default_p, "error": _cached_ports_error})
             return
 
         self._handle_static_file(path)
@@ -338,7 +417,10 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.INTERNAL_SERVER_ERROR, "Backend state is unavailable")
             return
         observational["physical_enabled"] = getattr(self.server.session, "physical_opt_in", False) is True
-        observational["default_port"] = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0"
+        ports = self._get_serial_ports()
+        observational["ports"] = ports
+        observational["port_error"] = _cached_ports_error
+        observational["default_port"] = next((port["path"] for port in ports if port["channel_d"]), "")
         self._send_json(HTTPStatus.OK, observational)
 
     def _handle_static_file(self, raw_path: str) -> None:
@@ -490,7 +572,7 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
             self._send_error_json(HTTPStatus.BAD_REQUEST, "Invalid session or ticket")
             return
         if not isinstance(deadman, bool):
-            self._send_error_json(HTTPStatus.BAD_REQUEST, "deadman must be an exact boolean")
+            self._send_error_json(HTTPStatus.BAD_REQUEST, "motion-intent flag must be an exact boolean")
             return
         if not isinstance(seq, int) or isinstance(seq, bool) or seq < 0:
             self._send_error_json(HTTPStatus.BAD_REQUEST, "seq must be a nonnegative integer")

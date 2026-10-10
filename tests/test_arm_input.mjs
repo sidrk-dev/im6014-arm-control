@@ -6,8 +6,11 @@ import {
   reduceKeyEvent,
   reduceGamepad,
   reduceArmState,
+  reduceBlur,
   clearStopLatch,
+  selectInputDevice,
   validateGamepad,
+  selectGamepadCandidate,
   InputClient
 } from '../arm_web/input_reducer.js';
 
@@ -15,6 +18,7 @@ function gamepad(overrides = {}) {
   return {
     index: 0,
     id: 'Xbox Controller',
+    mapping: 'standard',
     connected: true,
     axes: [0, 0, 0, 0],
     buttons: Array.from({ length: 6 }, () => ({ pressed: false, value: 0 })),
@@ -24,21 +28,23 @@ function gamepad(overrides = {}) {
 
 function testKeyboardAndPostArmGate() {
   const state = createInputState();
-  reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
   reduceKeyEvent(state, { type: 'keydown', code: 'Space' });
+  assert.deepEqual(state.keyboardAxes, [0, 0, 0], 'Space is not an input modifier');
+  assert.equal(state.effectiveDeadman, false, 'Space alone cannot request motion');
+
+  reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
   assert.deepEqual(state.keyboardAxes, [1, 0, 0]);
-  assert.equal(state.keyboardDeadman, true);
 
   reduceArmState(state, true);
   assert.equal(state.effectiveDeadman, false, 'held controls cannot energize on Arm');
+  reduceArmState(state, true);
+  assert.equal(state.neutralLatched, false, 'repeated arm-state polling cannot reset the fresh-neutral gate');
   reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
-  reduceKeyEvent(state, { type: 'keyup', code: 'Space' });
   assert.equal(state.neutralLatched, true, 'fresh neutral after Arm opens the gate');
-  reduceKeyEvent(state, { type: 'keydown', code: 'Space' });
   reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
   assert.equal(state.effectiveDeadman, true);
   assert.deepEqual(state.effectiveAxes, [1, 0, 0]);
-  reduceKeyEvent(state, { type: 'keyup', code: 'Space' });
+  reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
   assert.deepEqual(state.effectiveAxes, [0, 0, 0]);
 
   // Keyup clears a previously held jog key even after focus enters an editor.
@@ -59,16 +65,22 @@ function testGamepadSelectionValidationAndStop() {
   assert.equal(state.gamepadConnected, true);
   clearStopLatch(state);
 
-  // Stick jitter alone does not take control from the keyboard.
-  reduceGamepad(state, gamepad({ axes: [0.5, 0, 0, 0] }));
-  assert.equal(state.activeDevice, 'keyboard');
-  assert.equal(state.stopLatched, false);
+  assert.equal(selectInputDevice(state, 'gamepad'), true, 'Xbox is explicitly selected while disarmed and neutral');
 
-  const buttons = gamepad().buttons;
-  buttons[5] = { pressed: true, value: 1 };
-  reduceGamepad(state, gamepad({ axes: [0.6, 0.4, 0, 0.8], buttons }));
-  assert.equal(state.activeDevice, 'gamepad', 'RB explicitly selects the gamepad');
-  assert.equal(state.gamepadDeadman, true);
+  const rb = gamepad().buttons;
+  rb[5] = { pressed: true, value: 1 };
+  reduceGamepad(state, gamepad({ buttons: rb }));
+  assert.equal(state.activeDevice, 'gamepad', 'RB does not change the selected source');
+  assert.equal(state.effectiveDeadman, false);
+
+  reduceArmState(state, true);
+  reduceGamepad(state, gamepad({ buttons: rb }));
+  assert.equal(state.effectiveDeadman, false, 'holding RB alone never requests motion after Arm');
+  reduceGamepad(state, gamepad());
+  assert.equal(state.neutralLatched, true, 'post-Arm center opens the neutral gate');
+
+  reduceGamepad(state, gamepad({ axes: [0.6, 0.4, 0, 0.8] }));
+  assert.equal(state.effectiveDeadman, true, 'nonzero stick axes request motion directly');
   assert.ok(Math.abs(state.gamepadAxes[0] - ((0.6 - 0.12) / 0.88)) < 1e-9);
   assert.ok(Math.abs(state.gamepadAxes[1] - (-(0.4 - 0.12) / 0.88)) < 1e-9);
   assert.ok(Math.abs(state.gamepadAxes[2] - (-(0.8 - 0.12) / 0.88)) < 1e-9);
@@ -86,9 +98,74 @@ function testGamepadSelectionValidationAndStop() {
   assert.equal(state.stopLatched, true, 'identity replacement latches Stop');
   clearStopLatch(state);
 
+  assert.equal(validateGamepad(gamepad({ mapping: '' })).valid, false);
+  assert.equal(validateGamepad(gamepad({ mapping: 'standard' })).valid, true);
   assert.equal(validateGamepad(gamepad({ connected: false })).valid, false);
   assert.equal(validateGamepad(gamepad({ axes: [0, NaN, 0, 0] })).valid, false);
   assert.equal(validateGamepad(gamepad({ index: -1 })).valid, false);
+  const mappingState = createInputState();
+  reduceGamepad(mappingState, gamepad());
+  clearStopLatch(mappingState);
+  reduceGamepad(mappingState, gamepad({ mapping: '' }));
+  assert.equal(mappingState.stopLatched, true, 'selected controller mapping changes still latch Stop');
+
+  const unsupported = gamepad({ index: 0, id: 'Unsupported device', mapping: '' });
+  const secondStandard = gamepad({ index: 1, id: 'Xbox Controller at index 1' });
+  assert.equal(selectGamepadCandidate([unsupported, secondStandard]), secondStandard,
+    'selects a supported standard controller beyond index zero');
+  const preferred = gamepad({ index: 2, id: 'Already selected' });
+  assert.equal(selectGamepadCandidate([secondStandard, preferred], '2:Already selected'), preferred,
+    'keeps the selected controller while it remains connected');
+  assert.equal(selectGamepadCandidate([unsupported]), null,
+    'does not select an unsupported controller when no standard pad is available');
+  assert.equal(selectGamepadCandidate([gamepad({ mapping: '' })], '0:Xbox Controller').mapping, '',
+    'returns the selected identity even when its mapping becomes invalid so the reducer can Stop');
+}
+
+function testBlurClearsHeldInputAndPreservesSelectedSource() {
+  const state = createInputState();
+  reduceGamepad(state, gamepad());
+  clearStopLatch(state);
+  assert.equal(selectInputDevice(state, 'gamepad'), true);
+  reduceArmState(state, true);
+  reduceGamepad(state, gamepad());
+  reduceGamepad(state, gamepad({ axes: [0.7, 0, 0, 0] }));
+  assert.equal(state.effectiveDeadman, true);
+
+  reduceBlur(state);
+  assert.equal(state.activeDevice, 'gamepad', 'blur does not silently change the selected source');
+  assert.deepEqual(state.gamepadAxes, [0, 0, 0], 'blur clears held controller axes');
+  assert.deepEqual(state.effectiveAxes, [0, 0, 0], 'blur clears effective motion intent');
+  assert.equal(state.effectiveDeadman, false);
+  assert.equal(state.keysDown.size, 0);
+}
+
+function testInputSelectionRequiresDisarmedNeutralInputs() {
+  const state = createInputState();
+  reduceGamepad(state, gamepad());
+  clearStopLatch(state);
+  assert.equal(selectInputDevice(state, 'gamepad'), true);
+  reduceArmState(state, true);
+  reduceGamepad(state, gamepad());
+  assert.equal(state.neutralLatched, true, 'both inputs neutral after Arm opens the gate');
+  reduceGamepad(state, gamepad({ axes: [0.5, 0, 0, 0] }));
+  assert.equal(state.effectiveDeadman, true);
+
+  assert.equal(selectInputDevice(state, 'keyboard'), false, 'input source cannot be changed while armed');
+  reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
+  assert.equal(state.activeDevice, 'gamepad', 'keyboard input does not switch sources during Arm');
+  assert.equal(state.effectiveDeadman, true, 'only the selected controller source reaches the axes');
+  assert.equal(state.gamepadAxes[0] > 0, true);
+
+  clearStopLatch(state);
+  reduceGamepad(state, gamepad());
+  reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
+  assert.equal(selectInputDevice(state, 'keyboard'), true, 'source can change after Stop while all inputs are neutral');
+  reduceArmState(state, true);
+  reduceKeyEvent(state, { type: 'keyup', code: 'KeyD' });
+  assert.equal(state.neutralLatched, true, 'post-Arm release opens the gate');
+  reduceKeyEvent(state, { type: 'keydown', code: 'KeyD' });
+  assert.deepEqual(state.effectiveAxes, [1, 0, 0], 'fresh keyboard input works after neutral');
 }
 
 function deferred() {
@@ -212,4 +289,6 @@ await testTicketedActionAndStopRace();
 await testRejectedTicketTriggersIndependentStop();
 testKeyboardAndPostArmGate();
 testGamepadSelectionValidationAndStop();
+testBlurClearsHeldInputAndPreservesSelectedSource();
+testInputSelectionRequiresDisarmedNeutralInputs();
 console.log('Input reducer and request lifecycle behavior tests passed.');

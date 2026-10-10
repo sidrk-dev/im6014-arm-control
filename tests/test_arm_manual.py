@@ -226,12 +226,20 @@ class TestArmManualWireHistory(unittest.TestCase):
             op = session.request(sid, 'arm', {'supported': True})
             _wait_receipt(session, sid, op)
 
-            # Deadman sequence: neutral then press
-            t1 = session.issue_ticket(sid)
-            session.submit(sid, t1, seq=1, deadman=False, axes=[0.0, 0.0, 0.0], device='dev1')
+            inconsistent = session.issue_ticket(sid)
+            with self.assertRaisesRegex(ValueError, 'Motion intent'):
+                session.submit(sid, inconsistent, seq=1, deadman=False, axes=[0.2, 0.0, 0.0], device='dev1')
+            pre_neutral = session.issue_ticket(sid)
+            with self.assertRaisesRegex(ValueError, 'Neutral input required'):
+                session.submit(sid, pre_neutral, seq=1, deadman=True, axes=[0.2, 0.0, 0.0], device='dev1')
+            self.assertTrue(session.require_neutral)
+            self.assertFalse(session.deadman_active)
 
+            t1 = session.issue_ticket(sid)
+            session.submit(sid, t1, seq=2, deadman=False, axes=[0.0, 0.0, 0.0], device='dev1')
+            self.assertFalse(session.require_neutral)
             t2 = session.issue_ticket(sid)
-            session.submit(sid, t2, seq=2, deadman=True, axes=[0.2, 0.0, 0.0], device='dev1')
+            session.submit(sid, t2, seq=3, deadman=True, axes=[0.2, 0.0, 0.0], device='dev1')
 
             time.sleep(0.15)
 

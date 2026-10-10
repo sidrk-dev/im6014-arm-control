@@ -9,7 +9,10 @@
 <body>
   <header class="top-header">
     <div class="header-left">
-      <h1 class="app-title">IM6014 Arm Dashboard</h1>
+      <h1 class="app-title">
+        IM6014 Arm Dashboard
+        <span class="app-title-tag">Base J1 Motor · Channel D 6M</span>
+      </h1>
       <div class="header-badges">
         <span id="badge-mode" class="badge">Mode Awaiting Status</span>
         <span id="badge-connection" class="badge badge-disconnected">Status Awaiting</span>
@@ -23,7 +26,35 @@
       </button>
     </div>
   </header>
-  <main class="dashboard-grid"><p id="workflow-help" class="workflow-help">Connect → set the current pose → confirm your setup → enable jogging.</p>
+
+  <main class="dashboard-grid">
+    <div class="workflow-stepper-bar">
+      <div class="stepper-steps">
+        <div id="step-connect" class="step-node active">
+          <span class="step-num">1</span>
+          <span>Connect Serial</span>
+        </div>
+        <span class="step-arrow">→</span>
+        <div id="step-check" class="step-node">
+          <span class="step-num">2</span>
+          <span>Ack Timeout & Check</span>
+        </div>
+        <span class="step-arrow">→</span>
+        <div id="step-zero" class="step-node">
+          <span class="step-num">3</span>
+          <span>Set Software Zero</span>
+        </div>
+        <span class="step-arrow">→</span>
+        <div id="step-jog" class="step-node">
+          <span class="step-num">4</span>
+          <span>Enable & Jog</span>
+        </div>
+      </div>
+      <p id="workflow-help" class="workflow-help">1. Select a detected serial port or enter a custom path, then Connect.</p>
+    </div>
+
+    <div id="alert-banner" class="alert-banner" style="display: none;"></div>
+
     <section class="center-column">
       <div id="canvas-container" class="canvas-container">
         <div class="canvas-hud">
@@ -33,28 +64,67 @@
           <div id="model-status" class="hud-pill hud-model-status">Loading CAD preview…</div>
           <div id="model-source" class="hud-pill hud-model-source">CAD preview only · motor status comes from Check</div>
         </div>
-        <div class="canvas-controls"><span id="preview-status">Live / disconnected pose</span>
-          <button id="btn-reset-cam" class="btn-canvas">Reset Camera</button>
+        <div class="canvas-controls">
+          <span id="preview-status">Live / disconnected pose</span>
+          <button id="btn-reset-cam" class="btn">Reset Camera</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span>Arm Poses & Path Previews</span>
+          <span class="section-title-sub" style="color: var(--accent-amber);">J2/J3 Virtual Simulation</span>
+        </div>
+        <div class="card-scrollable">
+          <div class="control-section">
+            <div class="btn-group">
+              <button id="btn-ready">Ready pose</button>
+              <button id="btn-cal-pose">Calibration pose</button>
+              <button id="btn-figure8">Figure-8 preview</button>
+              <button id="btn-live-view">Live view</button>
+            </div>
+            <label class="secured-arm-box" style="margin-top: 10px;">
+              <input type="checkbox" id="chk-follow-preview">
+              Follow preview trajectory with real J1 after Enable
+            </label>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+              Pose buttons preview CAD kinematics. J2 and J3 remain virtual. Preview follow uses fresh measured J1 feedback after Enable, then follows automatically until Stop, Esc, or controller B; releasing keys does not pause it.
+            </div>
+          </div>
         </div>
       </div>
     </section>
+
     <section class="card">
       <div class="card-header">
-        <span>Motor control</span>
+        <span>Motor Control & Operations</span>
+        <span class="section-title-sub" style="color: var(--accent-cyan);">Single-Owner Bus</span>
       </div>
-      <div class="card-scrollable"><div class="control-section"><div class="section-title">Poses and paths</div><div class="btn-group"><button id="btn-ready">Ready pose</button><button id="btn-cal-pose">Calibration pose</button></div><div class="btn-group" style="margin-top:8px"><button id="btn-figure8">Figure-8</button><button id="btn-live-view">Live view</button></div><label class="secured-arm-box"><input type="checkbox" id="chk-follow-preview">Follow preview with real J1 while holding Space / RB</label><p style="font-size:11px">Pose buttons preview only. J2/J3 stay virtual. Calibration pose does not perform motor calibration. Stop before changing paths.</p></div>
-        <div style="font-size: 11px; color: var(--text-muted); background: var(--bg-card-sub); padding: 6px; border-radius: 4px; border-left: 2px solid var(--accent-blue);">
-          Starts disconnected. No USB port opened until explicit connect.
+      <div class="card-scrollable">
+        <div style="font-size: 11px; color: var(--text-secondary); background: var(--bg-card-sub); padding: 8px 10px; border-radius: 4px; border-left: 3px solid var(--accent-blue);">
+          Starts disconnected. No USB port opened until explicit connect. Controls <strong>ID 0 only</strong> at 6,000,000 baud.
         </div>
+
         <div class="control-section">
           <div class="section-title">
-            <span>1. Connect</span>
-            <span style="color: #60a5fa;">Channel D · 6M</span>
+            <span>1. Serial Connection</span>
+            <span class="section-title-sub" style="color: var(--accent-cyan);">Channel D · 6M Baud</span>
           </div>
           <div class="form-group">
-            <label class="form-label" for="input-port">Serial Port</label>
-            <input type="text" id="input-port" class="form-input" value="" placeholder="Channel D adapter selected automatically">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="form-label" for="select-port" style="margin: 0;">Serial Port</label>
+              <button id="btn-refresh-ports" type="button" class="btn" style="padding: 2px 8px; font-size: 11px;">Refresh</button>
+            </div>
+            <select id="select-port" class="form-select">
+              <option value="">Loading detected serial ports…</option>
+            </select>
           </div>
+          <div id="serial-port-status" role="status" style="font-size: 11px; color: var(--text-muted); margin-top: -8px; margin-bottom: 8px;">Serial port listing is passive; Refresh checks for the recommended Channel D adapter without opening or probing devices.</div>
+          <div class="form-group">
+            <label class="form-label" for="input-port-path">Custom device path (optional; overrides the list)</label>
+            <input type="text" id="input-port-path" class="form-input" placeholder="/dev/serial/by-id/… or COM port">
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: -4px; margin-bottom: 8px;">Channel D is recommended. Unknown adapter metadata remains unverified; selecting a path does not verify motor communication.</div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="input-baud">Baud Rate</label>
@@ -69,8 +139,8 @@
             <button id="btn-connect" class="btn btn-primary">Connect</button>
             <button id="btn-disconnect" class="btn" disabled>Disconnect</button>
           </div>
-          <div class="btn-group" style="margin-top: 6px;">
-            <button id="btn-check" class="btn" disabled title="Query motor mode-0 health">Check</button>
+          <div class="btn-group" style="margin-top: 8px;">
+            <button id="btn-check" class="btn" disabled title="Query motor mode-0 health">Health Check</button>
             <button id="btn-ack" class="btn" disabled title="Acknowledge startup watchdog timeout only in Stop">Acknowledge Timeout</button>
           </div>
           <div class="secured-arm-box">
@@ -78,9 +148,11 @@
             <label for="chk-ack-fault">Motor secured, power cut available; acknowledge startup timeout in Stop</label>
           </div>
         </div>
+
         <div class="control-section">
           <div class="section-title">
-            <span>2. Set the current angle</span>
+            <span>2. Align J1 Software Zero</span>
+            <span class="section-title-sub" style="color: var(--accent-emerald);">Reference Only</span>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -98,24 +170,27 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="input-cal-lower">Lower Bound (°)</label>
-              <input type="number" id="input-cal-lower" class="form-input" value="-5.0" step="0.5">
+              <input type="number" id="input-cal-lower" class="form-input" value="-90.0" step="0.5">
             </div>
             <div class="form-group">
               <label class="form-label" for="input-cal-upper">Upper Bound (°)</label>
-              <input type="number" id="input-cal-upper" class="form-input" value="5.0" step="0.5">
+              <input type="number" id="input-cal-upper" class="form-input" value="90.0" step="0.5">
             </div>
           </div>
-          <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">
-            Enter a measured current pose. Initial software limits are ±5°; no firmware or power-cycle encoder calibration is claimed.
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+            Point J1 along your chosen zero direction. Clicking below sets this pose as 0° without moving the motor. Default travel is −90° to +90°.
           </div>
-          <button id="btn-calibrate" class="btn" style="width: 100%;" disabled>Use this pose as zero / known angle</button>
+          <div class="btn-group">
+            <button id="btn-zero-j1" class="btn btn-primary" style="flex: 1;" disabled>Set J1 zero here (0°)</button>
+            <button id="btn-calibrate" class="btn" style="flex: 1;" disabled>Use measured angle</button>
+          </div>
         </div>
-        <details class="control-section"><summary>Advanced: gains and motion limits</summary><div id="applied-settings" role="status">Applied settings awaiting status.</div><div id="parameter-warning" role="status"></div><button id="btn-save-draft" class="btn">Save draft without applying</button><div id="draft-status" role="status"></div>
-          <div class="section-title">
-            <span>PD Gains & Limits</span>
-            <span style="color: var(--accent-amber);">No I Control</span>
-          </div>
-          <div class="form-row">
+
+        <details class="control-section">
+          <summary>Advanced: PD Gains & Motion Limits</summary>
+          <div id="applied-settings" role="status" style="margin-top: 6px; font-size: 11px; color: var(--text-secondary);">Applied settings awaiting status.</div>
+          <div id="parameter-warning" role="status"></div>
+          <div class="form-row" style="margin-top: 8px;">
             <div class="form-group">
               <label class="form-label" for="input-kp">Kp (Proportional)</label>
               <input type="number" id="input-kp" class="form-input" value="15.0" step="0.1">
@@ -135,40 +210,73 @@
               <input type="number" id="input-effort" class="form-input" value="1.0" step="0.1">
             </div>
           </div>
-          <button id="btn-configure" class="btn" style="width: 100%;" disabled>Apply settings</button>
+          <div class="btn-group" style="margin-top: 6px;">
+            <button id="btn-configure" class="btn" disabled>Apply settings</button>
+            <button id="btn-save-draft" class="btn">Save draft</button>
+          </div>
+          <div id="draft-status" role="status" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;"></div>
         </details>
+
         <div class="control-section">
           <div class="section-title">
-            <span>3. Enable jogging</span>
+            <span>3. Enable Jog Authority</span>
+            <span class="section-title-sub" style="color: var(--accent-amber);">Arming Control</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="select-input-device">Input source for the next Arm</label>
+            <select id="select-input-device" class="form-select">
+              <option value="keyboard">Keyboard and on-screen buttons</option>
+              <option value="gamepad" disabled>Xbox controller (standard mapping)</option>
+            </select>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Choose while disarmed. Release keys and center both sticks before Enable, then release or center once after Enable.</div>
           </div>
           <div class="secured-arm-box">
             <input type="checkbox" id="chk-enable-arm">
-            <label for="chk-enable-arm">I verified the setup and explicitly authorize jog authority</label>
+            <label for="chk-enable-arm">I verified the bench setup and explicitly authorize motion control</label>
           </div>
           <div class="btn-group" style="margin-top: 8px;">
-            <button id="btn-arm" class="btn btn-warning" disabled>Enable jogging</button>
+            <button id="btn-arm" class="btn btn-warning" disabled>Enable jogging (Arm)</button>
             <button id="btn-release" class="btn btn-danger" disabled>Stop motor</button>
           </div>
-          <div style="font-size: 10px; color: var(--text-muted); margin-top: 5px;">
-            Arm retains mode 0 until a fresh deadman press after neutral. Stop requires a successful Check before arming again.
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+            Arm enters closed-loop control. In direct jog, releasing controls holds position. Preview follow runs automatically until Stop, Esc, or controller B; releasing keys does not pause it.
           </div>
         </div>
+
         <div class="control-section">
           <div class="section-title">
-            <span>Move the arm</span>
+            <span>4. Move the Arm</span>
+            <span id="motion-indicator" class="section-title-sub" style="color: var(--text-muted);">Holding position</span>
           </div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
-            Hold a joint button, or hold Space and the keys below. Release to hold position; Stop removes torque.
+          <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+            Direct jog: hold <strong>A / D</strong>, click −/+, or move the selected controller stick to jog J1. Release or center to hold position. Preview follow runs automatically until Stop, Esc, or controller B; releasing keys does not pause it.
           </div>
           <div class="form-group">
-            <label class="form-label" for="slider-jog-speed">Jog Rate Multiplier: <span id="lbl-jog-speed" style="color: var(--accent-cyan); font-weight: 700;">50%</span></label>
-            <input type="number" id="slider-jog-speed" value="50" step="5" style="width: 100%; accent-color: var(--accent-cyan);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="form-label" for="slider-jog-speed" style="margin: 0;">Jog Rate Multiplier</label>
+              <span id="lbl-jog-speed" style="color: var(--accent-cyan); font-weight: 700; font-size: 12px;">50%</span>
+            </div>
+            <input type="number" id="slider-jog-speed" class="form-input" value="50" step="any" style="width: 100%;">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Finite draft multipliers are accepted; jog commands clamp the applied rate to 0–100%.</div>
           </div>
-          <div class="jog-buttons"><div><span>J1 · base motor</span><button class="btn" data-jog="KeyA" aria-label="Hold to jog J1 negative">−</button><button class="btn" data-jog="KeyD" aria-label="Hold to jog J1 positive">+</button></div><div><span>J2 · virtual shoulder</span><button class="btn" data-jog="KeyS" aria-label="Hold to jog J2 negative">−</button><button class="btn" data-jog="KeyW" aria-label="Hold to jog J2 positive">+</button></div><div><span>J3 · virtual elbow</span><button class="btn" data-jog="KeyQ" aria-label="Hold to jog J3 negative">−</button><button class="btn" data-jog="KeyE" aria-label="Hold to jog J3 positive">+</button></div></div><table class="jog-guide-table">
-            <tr>
-              <td><span class="jog-key">Space</span></td>
-              <td><strong>Held Deadman</strong> (Must be held during jog)</td>
-            </tr>
+          <div class="jog-buttons">
+            <div>
+              <span>J1 · Physical Base Yaw</span>
+              <button class="btn" id="btn-jog-j1-neg" data-jog="KeyA" aria-label="Hold to jog J1 negative (A)">− [A]</button>
+              <button class="btn" id="btn-jog-j1-pos" data-jog="KeyD" aria-label="Hold to jog J1 positive (D)">+ [D]</button>
+            </div>
+            <div>
+              <span>J2 · Virtual Shoulder</span>
+              <button class="btn" data-jog="KeyS" aria-label="Hold to jog J2 negative (S)">− [S]</button>
+              <button class="btn" data-jog="KeyW" aria-label="Hold to jog J2 positive (W)">+ [W]</button>
+            </div>
+            <div>
+              <span>J3 · Virtual Elbow</span>
+              <button class="btn" data-jog="KeyQ" aria-label="Hold to jog J3 negative (Q)">− [Q]</button>
+              <button class="btn" data-jog="KeyE" aria-label="Hold to jog J3 positive (E)">+ [E]</button>
+            </div>
+          </div>
+          <table class="jog-guide-table">
             <tr>
               <td><span class="jog-key">A</span> / <span class="jog-key">D</span></td>
               <td>Joint 1 Yaw (<span style="color: #34d399; font-weight: 700;">Physical J1</span>)</td>
@@ -183,38 +291,93 @@
             </tr>
             <tr>
               <td><span class="jog-key">Esc</span></td>
-              <td><strong>Immediate Stop</strong> (Always active)</td>
+              <td><strong>Immediate Stop</strong> (Removes torque)</td>
             </tr>
           </table>
-          <div style="font-size: 10px; color: #fbbf24; margin-top: 6px; background: rgba(245, 158, 11, 0.1); padding: 4px; border-radius: 3px;">
-            Post-Arm gate: Held keys before Arm do not energize motion. Release all keys to neutral, then press.
-          </div>
-          <div style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">
-            Xbox: Left Stick (Axes 0, -1) · Right Stick (-3) · RB (5 Deadman) · B (1 Stop)
-            <div id="input-status" role="status">Controls released</div><div id="gamepad-status" style="margin-top: 2px; font-weight: 600; color: #94a3b8;">No Gamepad Detected</div>
+          <div style="margin-top: 6px; font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 4px;">
+            <div style="font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Standard gamepad: Left Stick X for J1 · Left Stick Y for J2 · Right Stick Y for J3 · B to Stop</div>
+            <div id="input-status" role="status" style="color: var(--accent-cyan); font-weight: 600;">Controls released</div>
+            <div id="gamepad-status" style="margin-top: 3px; font-weight: 500; color: #94a3b8;">Focus this page and press A on your Xbox controller.</div>
           </div>
         </div>
       </div>
     </section>
+
     <section class="card">
       <div class="card-header">
         <span>Observational Telemetry</span>
+        <span class="section-title-sub" style="color: var(--accent-emerald);">200ms Poll · freshness shown</span>
       </div>
       <div class="card-scrollable">
+        <div class="control-section telemetry-card-physical">
+          <div class="section-title">
+            <span style="color: #34d399; font-size: 14px;">Joint 1 · Physical Motor (ID 0)</span>
+            <span id="tel-j1-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
+          </div>
+
+          <div class="telemetry-row">
+            <span class="telemetry-label">Calibrated Angle</span>
+            <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; color: #34d399; font-weight: 700;">Awaiting known angle</span>
+          </div>
+
+          <div id="j1-pos-gauge-container" class="pos-gauge-container" hidden>
+            <div id="j1-gauge-status" style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;"></div>
+            <div class="pos-gauge-track">
+              <div id="j1-pos-gauge" class="pos-gauge-fill" style="left: 50%; width: 0%;"></div>
+              <div id="j1-zero-marker" aria-hidden="true" style="position: absolute; z-index: 2; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-1px); background: var(--text-primary);"></div>
+            </div>
+            <div class="pos-gauge-labels">
+              <span id="j1-limit-min">Lower limit</span>
+              <span id="j1-zero-label">Zero anchor</span>
+              <span id="j1-limit-max">Upper limit</span>
+            </div>
+          </div>
+
+          <div class="telemetry-row">
+            <span class="telemetry-label">Angular Velocity</span>
+            <span id="tel-j1-vel" class="telemetry-val">Awaiting status</span>
+          </div>
+
+          <div class="telemetry-row">
+            <span class="telemetry-label">Torque / Effort (Max 1.0 Nm)</span>
+            <span id="tel-j1-torque" class="telemetry-val">Awaiting status</span>
+          </div>
+          <div id="j1-effort-track" class="effort-meter-track" hidden>
+            <div id="j1-effort-bar" class="effort-meter-fill" style="width: 0%;"></div>
+          </div>
+
+          <div class="telemetry-row" style="margin-top: 8px;">
+            <span class="telemetry-label">Operating Mode</span>
+            <span id="tel-j1-mode" class="telemetry-val">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Bus Voltage</span>
+            <span id="tel-j1-volt" class="telemetry-val" style="color: var(--accent-cyan); font-weight: 700;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Driver / Winding Temp</span>
+            <span id="tel-j1-temp" class="telemetry-val">- / -</span>
+          </div>
+          <div class="telemetry-row">
+            <span class="telemetry-label">Errors / Warnings</span>
+            <span id="tel-j1-errors" class="telemetry-val ok">None reported</span>
+          </div>
+        </div>
+
         <div class="control-section">
           <div class="section-title">
             <span>System State</span>
           </div>
           <div class="telemetry-row">
-            <span class="telemetry-label">Lifecycle</span>
-            <span id="tel-lifecycle" class="telemetry-val">DISCONNECTED</span>
+            <span class="telemetry-label">Lifecycle State</span>
+            <span id="tel-lifecycle" class="telemetry-val" style="color: var(--accent-cyan);">DISCONNECTED</span>
           </div>
           <div class="telemetry-row">
-            <span class="telemetry-label">Reason</span>
+            <span class="telemetry-label">State Reason</span>
             <span id="tel-reason" class="telemetry-val">-</span>
           </div>
           <div class="telemetry-row">
-            <span class="telemetry-label">Feedback Age</span>
+            <span class="telemetry-label">Last Motor Reply</span>
             <span id="tel-feedback-age" class="telemetry-val">-</span>
           </div>
           <div class="telemetry-row">
@@ -226,43 +389,10 @@
             <span id="tel-stop-confirmed" class="telemetry-val">Awaiting status</span>
           </div>
         </div>
-        <div class="control-section telemetry-card-physical">
-          <div class="section-title">
-            <span style="color: #34d399;">Joint 1 · Physical J1</span>
-            <span id="tel-j1-source" class="badge" style="font-size: 9px;">Awaiting Feedback</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Position</span>
-            <span id="tel-j1-pos" class="telemetry-val">Awaiting known angle</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Velocity</span>
-            <span id="tel-j1-vel" class="telemetry-val">Awaiting status</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Torque / Effort</span>
-            <span id="tel-j1-torque" class="telemetry-val">Awaiting status</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Motor Mode</span>
-            <span id="tel-j1-mode" class="telemetry-val">-</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Bus Voltage</span>
-            <span id="tel-j1-volt" class="telemetry-val">-</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Driver / Winding Temp</span>
-            <span id="tel-j1-temp" class="telemetry-val">- / -</span>
-          </div>
-          <div class="telemetry-row">
-            <span class="telemetry-label">Errors / Warnings</span>
-            <span id="tel-j1-errors" class="telemetry-val ok">None</span>
-          </div>
-        </div>
+
         <div class="control-section telemetry-card-virtual">
           <div class="section-title">
-            <span style="color: #fbbf24;">Joints 2 & 3 · Virtual</span>
+            <span style="color: #fbbf24;">Joints 2 & 3 · Virtual CAD</span>
             <span class="badge" style="font-size: 9px; background: rgba(245, 158, 11, 0.2); color: #fbbf24;">CAD Only</span>
           </div>
           <div class="telemetry-row">
@@ -282,12 +412,14 @@
             <span id="tel-j3-vel" class="telemetry-val">Awaiting status</span>
           </div>
           <div class="virtual-absent-notice">
-            Absent J2/J3 have no health, status, or Stop confirmation in physical mode.
+            Absent J2/J3 have no physical motor, health, or Stop confirmation in physical mode.
           </div>
         </div>
+
         <div class="control-section">
           <div class="section-title">
             <span>Event History (Max 100)</span>
+            <button id="btn-clear-log" class="btn" style="padding: 2px 8px; font-size: 11px;">Clear</button>
           </div>
           <div id="event-log" class="event-log-box">
             <div class="event-entry info">System initialized. Awaiting user action.</div>
@@ -296,7 +428,11 @@
       </div>
     </section>
   </main>
-  <footer class="bottom-banner">Start: <code>./start_arm.sh</code> · Preview: <code>./start_arm.sh --demo</code> · J1 motor only; J2/J3 virtual.</footer>
+
+  <footer class="bottom-banner">
+    <div>Start: <code>./start_arm.sh</code> · USB-Free Preview: <code>./start_arm.sh --demo</code> · Single physical J1 at ID 0; J2/J3 virtual.</div>
+    <div style="color: var(--text-secondary); font-size: 11px;">Press <span class="jog-key">Esc</span> anytime for immediate E-Stop.</div>
+  </footer>
 
   <script type="module" src="./dashboard.js"></script>
 </body>

@@ -3,16 +3,20 @@ import {
   createInputState,
   reduceKeyEvent,
   reduceGamepad,
+  validateGamepad,
+  selectGamepadCandidate,
   reduceBlur,
   reduceVisibilityChange,
   reduceArmState,
   clearStopLatch,
   clearStopRequest,
   latchStop,
-  InputClient
+  InputClient,
+  selectInputDevice as selectInputSource
 } from './input_reducer.js';
 
 import { ArmScene } from './arm_scene.js';
+import { deriveDashboardPresentation, finiteNumber as finiteValue, j1GaugePresentation, jointPositionPresentation, jointVelocityText, serialPortStatus } from './presentation.js';
 import { PreviewPlayer, validateModel, figureEight, followAxis } from './presets.js';
 const badgeMode = document.getElementById('badge-mode');
 const badgeConnection = document.getElementById('badge-connection');
@@ -20,7 +24,126 @@ const badgeState = document.getElementById('badge-state');
 const badgeJ1Source = document.getElementById('badge-j1-source');
 const btnStop = document.getElementById('btn-stop');
 
-const inputPort = document.getElementById('input-port');
+const selectPort = document.getElementById('select-port');
+const selectInputDevice = document.getElementById('select-input-device');
+const btnRefreshPorts = document.getElementById('btn-refresh-ports');
+const inputPortPath = document.getElementById('input-port-path');
+const portStatus = document.getElementById('serial-port-status');
+
+const alertBanner = document.getElementById('alert-banner');
+const stepConnect = document.getElementById('step-connect');
+const stepCheck = document.getElementById('step-check');
+const stepZero = document.getElementById('step-zero');
+const stepJog = document.getElementById('step-jog');
+const workflowHelp = document.getElementById('workflow-help');
+const motionIndicator = document.getElementById('motion-indicator');
+const j1PosGauge = document.getElementById('j1-pos-gauge');
+const j1EffortBar = document.getElementById('j1-effort-bar');
+const j1Gauge = {
+  container: document.getElementById('j1-pos-gauge-container'),
+  status: document.getElementById('j1-gauge-status'),
+  zeroMarker: document.getElementById('j1-zero-marker'),
+  zeroLabel: document.getElementById('j1-zero-label'),
+  minimum: document.getElementById('j1-limit-min'),
+  maximum: document.getElementById('j1-limit-max'),
+  effortTrack: document.getElementById('j1-effort-track')
+};
+const btnJogJ1Neg = document.getElementById('btn-jog-j1-neg');
+const btnJogJ1Pos = document.getElementById('btn-jog-j1-pos');
+const btnClearLog = document.getElementById('btn-clear-log');
+
+let alertHideTimeout = null;
+let stateAlert = null;
+let transientAlert = null;
+let visibleAlert = null;
+function renderAlert() {
+  if (!alertBanner) return;
+  const next = stateAlert || transientAlert;
+  if (!next) {
+    visibleAlert = null;
+    alertBanner.style.display = 'none';
+    return;
+  }
+  if (visibleAlert?.message === next.message && visibleAlert?.type === next.type) return;
+  visibleAlert = next;
+  alertBanner.textContent = next.message;
+  alertBanner.className = `alert-banner ${next.type}`;
+  alertBanner.style.display = 'flex';
+}
+
+function setStateAlert(alert) {
+  stateAlert = alert || null;
+  renderAlert();
+}
+
+function showAlert(message, type = 'info', durationMs = 0) {
+  if (!alertBanner) return;
+  if (alertHideTimeout) clearTimeout(alertHideTimeout);
+  transientAlert = { message, type };
+  renderAlert();
+  alertHideTimeout = durationMs > 0 ? setTimeout(() => {
+    transientAlert = null;
+    alertHideTimeout = null;
+    renderAlert();
+  }, durationMs) : null;
+}
+
+let knownPorts = [];
+
+function updatePortOptions(ports, defaultPort) {
+  if (!Array.isArray(ports)) return;
+  const currentVal = selectPort.value;
+  const portsJson = JSON.stringify(ports);
+  if (portsJson === JSON.stringify(knownPorts) && selectPort.options.length > 0) {
+    return;
+  }
+  knownPorts = ports;
+
+  selectPort.innerHTML = '';
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = ports.length === 0 ? 'No serial ports detected' : 'Select a serial port';
+  selectPort.appendChild(placeholder);
+  let selectedValue = '';
+  for (const p of ports) {
+    if (!p || typeof p.path !== 'string' || !p.path) continue;
+    const opt = document.createElement('option');
+    const path = p.path;
+    opt.value = path;
+    opt.dataset.channelD = p.channel_d === true ? 'true' : 'false';
+    const label = typeof p.label === 'string' ? p.label : path;
+    opt.textContent = label;
+    if (path === currentVal) selectedValue = path;
+    else if (!selectedValue && defaultPort && path === defaultPort) selectedValue = path;
+    selectPort.appendChild(opt);
+  }
+  selectPort.value = selectedValue;
+}
+
+function updatePortStatus(ports, error = null) {
+  if (portStatus) portStatus.textContent = serialPortStatus(ports, error);
+}
+
+btnRefreshPorts.addEventListener('click', async () => {
+  try {
+    btnRefreshPorts.disabled = true;
+    const res = await fetch('/api/ports');
+    if (res.ok) {
+      const data = await res.json();
+      updatePortOptions(data.ports, data.default);
+      updatePortStatus(data.ports, data.error);
+      logEvent(data.error || `Refreshed serial ports (${data.ports.length} found)`);
+    } else {
+      updatePortStatus(null, `Port refresh failed (HTTP ${res.status})`);
+      logEvent(`Failed to refresh ports: HTTP ${res.status}`, 'error');
+    }
+  } catch (err) {
+    updatePortStatus(null, `Port refresh failed: ${err.message}`);
+    logEvent(`Failed to refresh ports: ${err.message}`, 'error');
+  } finally {
+    btnRefreshPorts.disabled = false;
+  }
+});
 const inputBaud = document.getElementById('input-baud');
 const inputId = document.getElementById('input-id');
 const btnConnect = document.getElementById('btn-connect');
@@ -34,6 +157,7 @@ const selectCalDir = document.getElementById('select-cal-dir');
 const inputCalLower = document.getElementById('input-cal-lower');
 const inputCalUpper = document.getElementById('input-cal-upper');
 const btnCalibrate = document.getElementById('btn-calibrate');
+const btnZeroJ1 = document.getElementById('btn-zero-j1');
 
 const inputKp = document.getElementById('input-kp');
 const inputKd = document.getElementById('input-kd');
@@ -77,6 +201,7 @@ const armScene = new ArmScene(canvasContainer);
 const preview=new PreviewPlayer();
 const followPreview=document.getElementById('chk-follow-preview');
 let measuredJ1=null, appliedSettings=null, observedPose=[0,0,0];
+let followMotion=false, followBlocked=false;
 
 let isDemoMode = null;
 let modeKnown = false;
@@ -88,6 +213,9 @@ let armedKnown = false;
 let statePollController = null;
 let statePollGeneration = 0;
 let lastKnownState = null;
+let lastStateData = null;
+let freshFeedback = false;
+let lastStateReceivedAt = 0;
 
 function logEvent(msg, level = 'info') {
   const entry = document.createElement('div');
@@ -101,19 +229,36 @@ function logEvent(msg, level = 'info') {
     eventLogBox.removeChild(eventLogBox.firstChild);
   }
 }
+async function ensureAction(action, values = {}) {
+  if (!ownsMotor && action !== 'connect') throw new Error('This tab is observing; connect here after the current owner disconnects.');
+  return inputClient.requestAction(action, values);
+}
+
 async function initSession() {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 500);
+  const timeout = setTimeout(() => controller.abort(), 3000);
   try {
     const saved = sessionStorage.getItem('arm-session');
     if (saved) {
-      const check = await fetch('/api/session-status', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({session:saved}), signal:controller.signal});
-      if (check.ok) { const resume=await check.json(); inputClient.setSession(saved); ownsMotor=resume.controls_motor===true; if(Number.isSafeInteger(resume.last_sequence)) inputClient.seq=Math.max(0,resume.last_sequence+1); return; }
-      const failure = await check.json();
-      if (check.status !== 400 || failure.reason !== 'Unknown session') throw new Error(failure.reason || 'Session temporarily unavailable; keeping connection identity');
-      sessionStorage.removeItem('arm-session');
+      const check = await fetch('/api/session-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session: saved }),
+        signal: controller.signal
+      });
+      if (check.ok) {
+        const resume = await check.json();
+        inputClient.setSession(saved);
+        ownsMotor = resume.controls_motor === true;
+        if (Number.isSafeInteger(resume.last_sequence)) inputClient.seq = Math.max(0, resume.last_sequence + 1);
+        logEvent(ownsMotor ? 'Controlling tab session resumed.' : 'Observer session resumed; motor controls are disabled.');
+        updateActionControls();
+        return;
+      }
+      if (check.status === 400) sessionStorage.removeItem('arm-session');
+      else throw new Error(`HTTP ${check.status}; saved session retained for retry`);
     }
-    const resp = await fetch('/api/session' , {
+    const resp = await fetch('/api/session', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -126,10 +271,12 @@ async function initSession() {
     if (typeof data.session !== 'string' || !data.session) throw new Error('Invalid session response');
     inputClient.setSession(data.session);
     sessionStorage.setItem('arm-session', data.session);
-    logEvent('Dashboard connected.');
+    ownsMotor = false;
+    logEvent('Observer session created. Connect explicitly to take motor ownership.');
+    updateActionControls();
   } catch (err) {
     logEvent(`Session connection error: ${err.message}`, 'error');
-    setTimeout(initSession, 1000);
+    setTimeout(initSession, 1500);
   } finally {
     clearTimeout(timeout);
   }
@@ -161,51 +308,128 @@ async function pollState() {
   }
 }
 
-function finiteValue(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function showPosition(element, joint) {
-  const radians = finiteValue(joint?.position_rad);
-  if (radians === null) {
-    element.textContent = 'Awaiting known angle';
-    return null;
+function updateJ1Gauges(positionRad, torque, applied) {
+  const gauge = j1GaugePresentation({
+    positionRad, lowerDeg: applied?.lower_deg, upperDeg: applied?.upper_deg,
+    connected: isConnected, fresh: freshFeedback
+  });
+  if (j1Gauge.container) j1Gauge.container.hidden = !gauge.visible;
+  if (j1Gauge.status) j1Gauge.status.textContent = gauge.status;
+  if (j1Gauge.minimum) j1Gauge.minimum.textContent = gauge.lowerLabel;
+  if (j1Gauge.maximum) j1Gauge.maximum.textContent = gauge.upperLabel;
+  if (j1Gauge.zeroLabel) j1Gauge.zeroLabel.textContent = gauge.zeroLabel;
+  if (j1Gauge.zeroMarker) j1Gauge.zeroMarker.style.left = `${gauge.zeroPercent}%`;
+  if (j1PosGauge) {
+    j1PosGauge.style.left = `${gauge.visible ? gauge.fillLeftPercent : gauge.zeroPercent}%`;
+    j1PosGauge.style.width = `${gauge.visible ? gauge.fillWidthPercent : 0}%`;
   }
-  element.textContent = `${radians.toFixed(3)} rad (${(radians * 180 / Math.PI).toFixed(2)}°)`;
-  return radians;
-}
 
-function showVelocity(element, joint, includeRpm = false) {
-  const radiansPerSecond = finiteValue(joint?.velocity_rad_s);
-  if (radiansPerSecond === null) {
-    element.textContent = 'Awaiting status';
+  const effortVisible = isConnected && torque !== null;
+  if (j1Gauge.effortTrack) j1Gauge.effortTrack.hidden = !effortVisible;
+  if (!j1EffortBar) return;
+  if (!effortVisible) {
+    j1EffortBar.style.width = '0%';
     return;
   }
-  const rpm = radiansPerSecond * 60 / (2 * Math.PI);
-  element.textContent = includeRpm
-    ? `${radiansPerSecond.toFixed(3)} rad/s (${rpm.toFixed(2)} rpm)`
-    : `${radiansPerSecond.toFixed(3)} rad/s`;
+  const maxEffort = applied?.effort_limit_nm ?? 1.0;
+  const effortPct = Math.min(100, (Math.abs(torque) / maxEffort) * 100);
+  j1EffortBar.style.width = `${effortPct.toFixed(1)}%`;
+  j1EffortBar.style.background = effortPct >= 85 ? 'var(--accent-rose)'
+    : effortPct >= 60 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
 }
 
 function updateActionControls() {
-  btnConnect.disabled = !modeKnown || !connectionKnown || isConnected;
-  btnDisconnect.disabled = !connectionKnown || !isConnected || !ownsMotor;
-  btnCheck.disabled = !ownsMotor || !connectionKnown || !isConnected || !armedKnown || isArmed;
-  btnAck.disabled = !ownsMotor || !connectionKnown || !isConnected || isArmed || !chkAck.checked;
-  btnCalibrate.disabled = !ownsMotor || !connectionKnown || !isConnected || !armedKnown || isArmed;
-  btnConfigure.disabled = !ownsMotor || !connectionKnown || !isConnected || !armedKnown || isArmed;
-  btnArm.disabled = !ownsMotor || !connectionKnown || !isConnected || !armedKnown || isArmed
+  const latest = lastStateData?.latest;
+  const readyStop = Boolean(freshFeedback && lastStateData?.stop_confirmed === true
+    && lastStateData?.state === 'Ready · Stop' && latest?.mode === 0
+    && (latest?.timeout === false || latest?.timeout === 0));
+  const activeTimeout = Boolean(freshFeedback && lastStateData?.stop_confirmed === true
+    && latest?.mode === 0 && (latest?.timeout === true || latest?.timeout === 1));
+  const hasPort = Boolean(inputPortPath?.value.trim() || selectPort.value);
+  const canConnect = isDemoMode === true || hasPort;
+  btnConnect.disabled = isConnected || !inputClient.session || !canConnect;
+  btnDisconnect.disabled = !ownsMotor || !isConnected;
+  btnCheck.disabled = !ownsMotor || !isConnected || isArmed;
+  btnAck.disabled = !ownsMotor || !isConnected || isArmed || !chkAck.checked || !activeTimeout;
+  btnCalibrate.disabled = !ownsMotor || !isConnected || isArmed || !readyStop;
+  btnZeroJ1.disabled = btnCalibrate.disabled;
+  btnConfigure.disabled = !ownsMotor || !isConnected || isArmed || !readyStop;
+  btnArm.disabled = !isConnected || isArmed
+    || !ownsMotor || !lastStateData?.calibrated || !readyStop
     || !chkEnableArm.checked || inputState.stopLatched;
-  btnRelease.disabled = !ownsMotor || !connectionKnown || !isConnected || !armedKnown || !isArmed;
+  btnRelease.disabled = !ownsMotor || !isConnected || !isArmed;
+  if (selectInputDevice) {
+    const gamepadOption = selectInputDevice.querySelector('option[value="gamepad"]');
+    if (gamepadOption) gamepadOption.disabled = !inputState.gamepadConnected;
+    if (document.activeElement !== selectInputDevice) selectInputDevice.value = inputState.activeDevice;
+    selectInputDevice.disabled = !ownsMotor || isArmed || inputState.stopLatched;
+  }
+}
+
+function updateStatusPresentation(data = lastStateData) {
+  const presentation = deriveDashboardPresentation({
+    connectionKnown, connected: isConnected, owner: ownsMotor, armedKnown, armed: isArmed,
+    fresh: freshFeedback, timeout: String(data?.state || lastKnownState || '').startsWith('Timeout'),
+    stopLatched: inputState.stopLatched, stopReason: inputState.stopReason || data?.reason,
+    motionActive: Boolean(inputState.motionEnergized || inputState.isEnergized || followMotion),
+    axes: inputState.effectiveAxes, source: inputState.activeDevice,
+    followSelected: Boolean(preview.selected && followPreview.checked), followActive: followMotion, followBlocked,
+    calibrated: Boolean(data?.calibrated)
+  });
+  setStateAlert(presentation.alert);
+  if (motionIndicator) {
+    motionIndicator.textContent = presentation.motion.text;
+    motionIndicator.style.color = presentation.motion.color;
+  }
+  if (workflowHelp) workflowHelp.textContent = presentation.guidance;
+}
+
+followPreview.addEventListener('change', () => updateStatusPresentation());
+
+function markFeedbackStale() {
+  const elapsed = lastStateReceivedAt ? (performance.now() - lastStateReceivedAt) / 1000 : 0;
+  const reportedAge = finiteValue(lastStateData?.feedback_age_s);
+  const age = reportedAge === null ? null : reportedAge + elapsed;
+  freshFeedback = false;
+  badgeConnection.textContent = isConnected ? 'Connected · stale feedback' : 'Disconnected';
+  badgeConnection.className = `badge ${isConnected ? 'badge-fault' : 'badge-disconnected'}`;
+  telFeedbackAge.textContent = age === null ? 'STALE · no recent state response'
+    : `STALE · ${age.toFixed(3)} s since last motor reply`;
+  telStopConfirmed.textContent = 'Stale — cached result only';
+  badgeJ1Source.textContent = 'STALE feedback';
+  telJ1Source.textContent = 'STALE feedback · cached';
+  const cachedJ1 = lastStateData?.joints?.[0];
+  updateJ1Gauges(finiteValue(cachedJ1?.position_rad), finiteValue(cachedJ1?.torque_nm), lastStateData?.settings);
+  updateStatusPresentation(lastStateData);
+  updateActionControls();
+  if (ownsMotor && isArmed && !inputState.stopLatched) void stopNow('state_poll_stale');
+}
+
+function expireStateFreshness() {
+  if (freshFeedback && lastStateReceivedAt && performance.now() - lastStateReceivedAt > 1000) {
+    markFeedbackStale();
+  }
 }
 
 function updateDashboardState(data) {
+  lastStateData = data;
+  lastStateReceivedAt = performance.now();
   modeKnown = typeof data.physical_enabled === 'boolean';
   isDemoMode = modeKnown ? !data.physical_enabled : null;
-  if (!inputPort.value && typeof data.default_port === 'string') inputPort.value = data.default_port;
+  const portList = Array.isArray(data.ports) ? data.ports : null;
+  if (portList) {
+    updatePortOptions(portList, data.default_port);
+    updatePortStatus(portList, data.port_error);
+  }
   connectionKnown = typeof data.connected === 'boolean';
   isConnected = connectionKnown ? data.connected : false;
+  const feedbackAge = finiteValue(data.feedback_age_s);
+  freshFeedback = Boolean(isConnected && feedbackAge !== null && feedbackAge >= 0
+    && feedbackAge <= 0.1 && data.latest && typeof data.latest === 'object');
   const wasArmed = isArmed;
+  if (wasArmed && !freshFeedback && ownsMotor && !inputState.stopLatched) {
+    void stopNow('feedback_stale');
+  }
   armedKnown = typeof data.armed === 'boolean';
   if (armedKnown && !inputState.stopLatched) {
     isArmed = data.armed && ownsMotor;
@@ -233,28 +457,51 @@ function updateDashboardState(data) {
     badgeMode.className = 'badge badge-mode-physical';
   }
 
-  badgeConnection.textContent = !connectionKnown ? 'Status Awaiting' : (isConnected ? 'Connected' : 'Disconnected');
-  badgeConnection.className = `badge ${isConnected ? 'badge-connected' : 'badge-disconnected'}`;
+  badgeConnection.textContent = !connectionKnown ? 'Status Awaiting'
+    : !isConnected ? 'Disconnected' : freshFeedback ? 'Connected · fresh feedback' : 'Connected · stale feedback';
+  badgeConnection.className = `badge ${!isConnected ? 'badge-disconnected' : freshFeedback ? 'badge-connected' : 'badge-fault'}`;
 
+  const isMoving = Boolean(inputState.motionEnergized || inputState.isEnergized || followMotion);
   badgeState.textContent = inputState.stopLatched ? 'STOP LATCHED · Check required'
     : !armedKnown ? 'Awaiting status'
-      : (isArmed ? (inputState.effectiveDeadman ? 'JOG DEADMAN HELD' : 'ARMED · MODE 0 UNTIL JOG')
-        : (String(lastKnownState).startsWith('Fault') ? 'FAULT' : 'Disarmed'));
-  badgeState.className = `badge ${inputState.stopLatched ? 'badge-fault' : (isArmed ? 'badge-armed' : (String(lastKnownState).startsWith('Fault') ? 'badge-fault' : ''))}`;
+      : (isArmed ? (isMoving ? 'JOGGING' : 'ARMED · READY TO JOG')
+        : (!ownsMotor && data.armed === true ? 'ARMED · OBSERVER'
+          : (String(lastKnownState).startsWith('Fault') ? 'FAULT' : 'Disarmed')));
+  badgeState.className = `badge ${inputState.stopLatched ? 'badge-fault' : (isArmed ? (isMoving ? 'badge-jogging' : 'badge-armed') : (String(lastKnownState).startsWith('Fault') ? 'badge-fault' : ''))}`;
   telLifecycle.textContent = lastKnownState || 'Awaiting status';
   telReason.textContent = typeof data.reason === 'string' && data.reason ? data.reason : 'Awaiting status';
-  const feedbackAge = finiteValue(data.feedback_age_s);
-  telFeedbackAge.textContent = feedbackAge !== null && feedbackAge >= 0 ? `${feedbackAge.toFixed(3)} s` : 'Awaiting status';
-  telStopConfirmed.textContent = !isConnected ? 'Disconnected — see final Stop result below' : data.stop_confirmed === true ? 'Confirmed'
-    : data.stop_confirmed === false ? 'Not confirmed' : 'Awaiting status';
+  telFeedbackAge.textContent = !isConnected ? 'No active connection'
+    : feedbackAge === null ? 'No reply received'
+      : `${freshFeedback ? 'Fresh' : 'STALE'} · ${feedbackAge.toFixed(3)} s since last motor reply`;
+  telStopConfirmed.textContent = !isConnected ? 'Disconnected — see final Stop result below'
+    : !freshFeedback ? 'Stale — cached result only' : data.stop_confirmed === true ? 'Confirmed'
+      : data.stop_confirmed === false ? 'Not confirmed' : 'Awaiting status';
   updateActionControls();
-  const help=document.getElementById('workflow-help');
-  help.textContent=!isConnected ? '1. Connect. The Channel D adapter is selected automatically.'
-    : String(data.state).startsWith('Timeout') ? 'Confirm the secured-motor checkbox, then Acknowledge Timeout. The motor stays in Stop.'
-    : !data.calibrated ? '2. Set the current angle (0 means this pose is your zero), then Use this pose.'
-    : isArmed ? 'Hold a joint button, or Space + A/D. Release to hold; Stop removes torque. J2/J3 are virtual.'
-    : inputState.stopLatched ? 'Press Check to clear Stop, then confirm your setup and Enable jogging.'
-    : '3. Confirm your setup, then Enable jogging. Start with short movements.';
+
+  if (stepConnect && stepCheck && stepZero && stepJog) {
+    const isConn = Boolean(isConnected);
+    const isTimeout = isConn && String(data.state).startsWith('Timeout');
+    const isCalib = Boolean(data.calibrated);
+    const isArm = Boolean(isArmed);
+
+    stepConnect.className = `step-node ${isConn ? 'completed' : 'active'}`;
+    if (!isConn) {
+      stepCheck.className = 'step-node';
+      stepZero.className = 'step-node';
+      stepJog.className = 'step-node';
+    } else {
+      stepCheck.className = `step-node ${isTimeout || inputState.stopLatched ? 'active' : 'completed'}`;
+      if (isTimeout) {
+        stepZero.className = 'step-node';
+        stepJog.className = 'step-node';
+      } else {
+        stepZero.className = `step-node ${isCalib ? 'completed' : 'active'}`;
+        stepJog.className = `step-node ${!isCalib ? '' : isArm ? 'completed active' : 'active'}`;
+      }
+    }
+  }
+
+  updateStatusPresentation(data);
   const applied=data.settings;
   appliedSettings=applied;
   followPreview.disabled=isArmed;
@@ -262,14 +509,19 @@ function updateDashboardState(data) {
   if(applied) document.getElementById('applied-settings').textContent=`Applied: Kp ${applied.kp}, Kd ${applied.kd}, ${applied.max_rpm} rpm, ${applied.effort_limit_nm} Nm; travel ${applied.lower_deg}° to ${applied.upper_deg}°.`;
   const joints = Array.isArray(data.joints) ? data.joints : [];
   const [j1, j2, j3] = joints;
-  const positions = [showPosition(telJ1Pos, j1), showPosition(telJ2Pos, j2), showPosition(telJ3Pos, j3)];
-  showVelocity(telJ1Vel, j1, true);
-  showVelocity(telJ2Vel, j2);
-  showVelocity(telJ3Vel, j3);
+  const positionElements = [telJ1Pos, telJ2Pos, telJ3Pos];
+  const positionDisplays = [j1, j2, j3].map(jointPositionPresentation);
+  const positions = positionDisplays.map((display, index) => {
+    positionElements[index].textContent = display.text;
+    return display.radians;
+  });
+  for (const [element, joint, includeRpm] of [[telJ1Vel, j1, true], [telJ2Vel, j2, false], [telJ3Vel, j3, false]]) {
+    element.textContent = jointVelocityText(joint, includeRpm);
+  }
 
   const source = j1?.source;
-  const sourceText = source === 'physical' ? 'Encoder feedback'
-    : source === 'demo' ? 'Simulated feedback'
+  const sourceText = source === 'physical' ? (freshFeedback ? 'Fresh encoder feedback' : 'STALE encoder feedback')
+    : source === 'demo' ? (freshFeedback ? 'Fresh simulated feedback' : 'STALE simulated feedback')
       : 'Awaiting feedback source';
   badgeJ1Source.textContent = sourceText;
   telJ1Source.textContent = sourceText;
@@ -277,7 +529,8 @@ function updateDashboardState(data) {
   const voltage = finiteValue(j1?.voltage);
   const driverTemp = finiteValue(j1?.driver_temp);
   const windingTemp = finiteValue(j1?.winding_temp);
-  telJ1Torque.textContent = torque === null ? 'Awaiting status' : `${torque.toFixed(2)} Nm`;
+  telJ1Torque.textContent = !isConnected ? 'Disconnected' : torque === null ? 'Awaiting status'
+    : `${torque.toFixed(2)} Nm${freshFeedback ? '' : ' · cached'}`;
   telJ1Mode.textContent = Number.isInteger(j1?.mode) ? String(j1.mode) : 'Awaiting status';
   telJ1Volt.textContent = voltage === null ? 'Awaiting status' : `${voltage.toFixed(1)} V`;
   telJ1Temp.textContent = `${driverTemp === null ? 'Awaiting status' : `${driverTemp.toFixed(1)}°C`} / ${windingTemp === null ? 'Awaiting status' : `${windingTemp.toFixed(1)}°C`}`;
@@ -289,6 +542,9 @@ function updateDashboardState(data) {
     telJ1Errors.textContent = 'Awaiting status';
     telJ1Errors.className = 'telemetry-val';
   }
+
+  updateJ1Gauges(positions[0], torque, applied);
+
 
   measuredJ1=positions[0];
   if(positions.every(position=>position!==null))observedPose=positions;
@@ -311,6 +567,7 @@ function invalidateStatePoll() {
 
 function applyLocalStop(reason) {
   preview.stop();
+  followMotion = false;
   latchStop(inputState, reason);
   clearStopRequest(inputState);
   isArmed = false;
@@ -319,6 +576,7 @@ function applyLocalStop(reason) {
   badgeState.className = 'badge badge-fault';
   telStopConfirmed.textContent = 'Stop requested';
   updateActionControls();
+  updateStatusPresentation(lastStateData);
 }
 
 async function stopNow(reason, { keepalive = false, log = true } = {}) {
@@ -342,7 +600,11 @@ function serviceReducerStop() {
   if (!inputState.stopRequested) return;
   const reason = inputState.stopReason || 'input_stop';
   clearStopRequest(inputState);
-  if(ownsMotor || reason==='gamepad_b_stop')void stopNow(reason);
+  if (!ownsMotor && reason !== 'gamepad_b_stop') {
+    clearStopLatch(inputState);
+    return;
+  }
+  void stopNow(reason);
 }
 
 function readBounded(input, label, minimum, maximum) {
@@ -355,25 +617,41 @@ function readBounded(input, label, minimum, maximum) {
 
 btnStop.addEventListener('click', () => { void stopNow('operator_stop_button'); });
 
-btnConnect.addEventListener('click', async () => {
-  const port = inputPort.value.trim();
-  const baud = parseInt(inputBaud.value, 10);
-  const id = parseInt(inputId.value, 10);
+selectPort.addEventListener('change', () => {
+  if (inputPortPath) inputPortPath.value = '';
+  updateActionControls();
+});
+inputPortPath?.addEventListener('input', updateActionControls);
 
-  if (!modeKnown || typeof isDemoMode !== 'boolean') {
-    logEvent('Connect blocked: backend mode is not known yet', 'error');
+selectInputDevice?.addEventListener('change', () => {
+  const selected = selectInputDevice.value;
+  if (!selectInputSource(inputState, selected)) {
+    selectInputDevice.value = inputState.activeDevice;
+    showAlert('Choose an input while disarmed, with both sticks centered and all jog keys released.', 'warn', 5000);
     return;
   }
-  logEvent(`Connecting (port=${port}, baud=${baud}, id=${id}, demo=${isDemoMode})...`);
+  logEvent(`${selected === 'gamepad' ? 'Xbox controller' : 'Keyboard and on-screen buttons'} selected. Keep controls neutral through Enable.`);
+  document.getElementById('input-status').textContent = `${selected === 'gamepad' ? 'Xbox controller' : 'Keyboard and buttons'} selected`;
+  updateActionControls();
+});
+
+btnConnect.addEventListener('click', async () => {
+  const port = inputPortPath?.value.trim() || selectPort.value.trim();
+  const baud = parseInt(inputBaud.value, 10);
+  const id = parseInt(inputId.value, 10);
+  const demo = typeof isDemoMode === 'boolean' ? isDemoMode : false;
+
+  logEvent(`Connecting (port=${port}, baud=${baud}, id=${id}, demo=${demo})...`);
   try {
-    const res = await inputClient.requestAction('connect', {
-      demo: isDemoMode,
+    const res = await ensureAction('connect', {
+      demo,
       port,
       baud,
       id
     });
-    ownsMotor=res.status==='complete';
+    ownsMotor = res.status === 'complete';
     logEvent(`Connect result: ${res.status}${res.reason ? ' (' + res.reason + ')' : ''}`);
+    updateActionControls();
   } catch (err) {
     syncClientStopLatch();
     logEvent(`Connect rejected: ${err.message}`, 'error');
@@ -383,9 +661,10 @@ btnConnect.addEventListener('click', async () => {
 btnDisconnect.addEventListener('click', async () => {
   logEvent('Disconnecting...');
   try {
-    const res = await inputClient.requestAction('disconnect', {});
-    if(res.status==='complete')ownsMotor=false;
+    const res = await ensureAction('disconnect', {});
+    if (res.status === 'complete') ownsMotor = false;
     logEvent(`Disconnect result: ${res.status}`);
+    updateActionControls();
   } catch (err) {
     syncClientStopLatch();
     logEvent(`Disconnect rejected: ${err.message}`, 'error');
@@ -395,7 +674,7 @@ btnDisconnect.addEventListener('click', async () => {
 btnCheck.addEventListener('click', async () => {
   logEvent('Running health check...');
   try {
-    const res = await inputClient.requestAction('check', {});
+    const res = await ensureAction('check', {});
     logEvent(`Check result: ${res.status}`);
     if (res.status === 'complete') {
       clearStopLatch(inputState);
@@ -415,7 +694,7 @@ btnAck.addEventListener('click', async () => {
   }
   logEvent('Acknowledging fault...');
   try {
-    const res = await inputClient.requestAction('ack', { supported: chkAck.checked });
+    const res = await ensureAction('ack', { supported: chkAck.checked });
     logEvent(`Ack result: ${res.status}`);
     if (res.status === 'complete') chkAck.checked = false;
     updateActionControls();
@@ -423,6 +702,12 @@ btnAck.addEventListener('click', async () => {
     syncClientStopLatch();
     logEvent(`Ack rejected: ${err.message}`, 'error');
   }
+});
+
+btnZeroJ1.addEventListener('click', () => {
+  if (btnCalibrate.disabled) return;
+  inputCalAngle.value = '0';
+  btnCalibrate.click();
 });
 
 btnCalibrate.addEventListener('click', async () => {
@@ -435,14 +720,17 @@ btnCalibrate.addEventListener('click', async () => {
       throw new Error('Applied travel must stay within −90° to +90° and contain the measured angle. Save larger values as a draft.');
     }
     logEvent(`Setting software zero: measured angle=${angle}°, dir=${dir}, limits=[${lower}°, ${upper}°]...`);
-    const res = await inputClient.requestAction('calibrate', {
+    const res = await ensureAction('calibrate', {
       known_angle_deg: angle,
       direction: dir,
       lower_deg: lower,
       upper_deg: upper
     });
     logEvent(`Calibrate result: ${res.status}`);
-    if (res.status === 'complete') { const checked = await inputClient.requestAction('check', {}); if (checked.status === 'complete') clearStopLatch(inputState); }
+    if (res.status === 'complete') {
+      const checked = await ensureAction('check', {});
+      if (checked.status === 'complete') clearStopLatch(inputState);
+    }
   } catch (err) {
     syncClientStopLatch();
     logEvent(`Calibrate rejected: ${err.message}`, 'error');
@@ -456,14 +744,17 @@ btnConfigure.addEventListener('click', async () => {
     const maxRpm = readBounded(inputMaxRpm, 'Maximum RPM', 0.1, 1.0);
     const effort = readBounded(inputEffort, 'Effort limit', 0.1, 1.0);
     logEvent(`Configuring PD gains: Kp=${kp}, Kd=${kd}, MaxRPM=${maxRpm}, Effort=${effort}Nm...`);
-    const res = await inputClient.requestAction('configure', {
+    const res = await ensureAction('configure', {
       kp,
       kd,
       max_rpm: maxRpm,
       effort_limit_nm: effort
     });
     logEvent(`Configure result: ${res.status}`);
-    if (res.status === 'complete') { const checked = await inputClient.requestAction('check', {}); if (checked.status === 'complete') clearStopLatch(inputState); }
+    if (res.status === 'complete') {
+      const checked = await ensureAction('check', {});
+      if (checked.status === 'complete') clearStopLatch(inputState);
+    }
   } catch (err) {
     syncClientStopLatch();
     logEvent(`Configure rejected: ${err.message}`, 'error');
@@ -474,14 +765,16 @@ chkAck.addEventListener('change', updateActionControls);
 chkEnableArm.addEventListener('change', updateActionControls);
 
 btnArm.addEventListener('click', async () => {
-  if (!chkEnableArm.checked || inputState.stopLatched || !isConnected || isArmed) {
-    logEvent('Arm blocked: confirm the arm, clear Stop with Check, and verify connected status', 'error');
+  if (!ownsMotor || !chkEnableArm.checked || inputState.stopLatched || !isConnected || isArmed
+    || !freshFeedback || !lastStateData?.calibrated || lastStateData?.state !== 'Ready · Stop'
+    || lastStateData?.stop_confirmed !== true) {
+    logEvent('Arm blocked: this tab must own a calibrated connection with fresh Ready/Stop feedback; clear Stop with Check and confirm Enable.', 'error');
     updateActionControls();
     return;
   }
-  logEvent('Requesting jog authority; motor remains in mode 0 until a fresh deadman press', 'warn');
+  logEvent('Requesting jog authority; motor is armed and ready to jog.', 'info');
   try {
-    const res = await inputClient.requestAction('arm', { supported: chkEnableArm.checked });
+    const res = await ensureAction('arm', { supported: chkEnableArm.checked });
     logEvent(`Arm result: ${res.status}${res.reason ? ' (' + res.reason + ')' : ''}`);
     if (res.status === 'complete') await inputClient.submitJog(false, [0, 0, 0], inputState.activeDevice);
     chkEnableArm.checked = false;
@@ -512,30 +805,28 @@ function focusedInEditor() {
 
 window.addEventListener('keydown', (e) => {
   const isEditing = focusedInEditor();
-  reduceKeyEvent(inputState, { type: 'keydown', code: e.code || ({' ':'Space',a:'KeyA',d:'KeyD',w:'KeyW',s:'KeyS',q:'KeyQ',e:'KeyE',Escape:'Escape'}[e.key]), isEditing });
+  reduceKeyEvent(inputState, { type: 'keydown', code: e.code || ({a:'KeyA',d:'KeyD',w:'KeyW',s:'KeyS',q:'KeyQ',e:'KeyE',Escape:'Escape'}[e.key]), isEditing });
 
   if (e.code === 'Escape') {
     e.preventDefault();
     void stopNow('keyboard_escape');
-  } else if (e.code === 'Space' && !isEditing) {
-    e.preventDefault();
   }
 });
 
 window.addEventListener('keyup', (e) => {
   const isEditing = focusedInEditor();
-  reduceKeyEvent(inputState, { type: 'keyup', code: e.code || ({' ':'Space',a:'KeyA',d:'KeyD',w:'KeyW',s:'KeyS',q:'KeyQ',e:'KeyE',Escape:'Escape'}[e.key]), isEditing });
+  reduceKeyEvent(inputState, { type: 'keyup', code: e.code || ({a:'KeyA',d:'KeyD',w:'KeyW',s:'KeyS',q:'KeyQ',e:'KeyE',Escape:'Escape'}[e.key]), isEditing });
 });
 
 window.addEventListener('blur', () => {
   reduceBlur(inputState);
-  if(ownsMotor)void stopNow('window_blur');
+  if (ownsMotor && isArmed && !inputState.stopLatched) void stopNow('window_blur');
 });
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     reduceVisibilityChange(inputState, true);
-    if(ownsMotor)void stopNow('document_hidden');
+    if (ownsMotor && !inputState.stopLatched) void stopNow('document_hidden');
   }
 });
 
@@ -545,50 +836,94 @@ window.addEventListener('pagehide', () => {
   else if(inputClient.session)void fetch('/api/retire', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:inputClient.session}),keepalive:true}).catch(()=>{});
 });
 
-window.addEventListener('gamepadconnected', event => {
-  reduceGamepad(inputState, event.gamepad);
-  serviceReducerStop();
+window.addEventListener('gamepadconnected', () => {
+  pollGamepad();
 });
 
 window.addEventListener('gamepaddisconnected', () => {
-  reduceGamepad(inputState, null);
-  serviceReducerStop();
+  pollGamepad();
 });
 function pollGamepad() {
-  if (!navigator.getGamepads) return;
+  if (typeof navigator.getGamepads !== 'function') {
+    gamepadStatus.textContent = 'This browser cannot read controllers. Open this address in Chrome or Firefox.';
+    reduceGamepad(inputState, null);
+    serviceReducerStop();
+    return;
+  }
   const gamepads = Array.from(navigator.getGamepads() || []);
-  const pad = gamepads.find(candidate => candidate && candidate.index === 0 && candidate.connected === true) || null;
-
+  const pad = selectGamepadCandidate(gamepads, inputState.lastGamepadIdentity);
   if (pad) {
-    gamepadStatus.textContent = `Xbox mapping available: ${pad.id.slice(0, 32)} · hold RB to select`;
-    gamepadStatus.style.color = inputState.activeDevice === 'gamepad' ? '#34d399' : '#94a3b8';
+    const validation = validateGamepad(pad);
     reduceGamepad(inputState, pad);
-  } else if (inputState.gamepadConnected) {
-    gamepadStatus.textContent = 'Gamepad Disconnected';
-    gamepadStatus.style.color = '#94a3b8';
+    gamepadStatus.textContent = validation.valid
+      ? `Standard gamepad connected: ${pad.id.slice(0, 48)}. Jog J1 with left stick. Press B to Stop.`
+      : `Selected controller cannot jog: ${validation.reason}. Select a standard mapping after Stop/Check.`;
+    gamepadStatus.style.color = validation.valid ? '#166534' : '#b91c1c';
+  } else {
+    const unsupported = gamepads.find(candidate => candidate && candidate.connected === true);
+    const reason = unsupported ? validateGamepad(unsupported).reason : null;
+    gamepadStatus.textContent = reason
+      ? `No supported standard controller found: ${reason}. Use a standard-mapped controller in Chrome or Firefox.`
+      : 'Controller not visible yet. Focus this page and press a controller button. If needed, open this address in Chrome or Firefox.';
+    gamepadStatus.style.color = reason ? '#b91c1c' : '#64748b';
     reduceGamepad(inputState, null);
   }
   serviceReducerStop();
 }
 
 function jogLoop() {
+  expireStateFreshness();
   pollGamepad();
   syncClientStopLatch();
   serviceReducerStop();
-  if (!ownsMotor || !isArmed || inputState.stopLatched || !inputClient.session) return;
+  if (!ownsMotor || !isArmed || inputState.stopLatched || !inputClient.session) {
+    followMotion = false;
+    followBlocked = false;
+    document.getElementById('input-status').textContent = 'Disarmed · controls inactive';
+    if (preview.selected && followPreview.checked) {
+      document.getElementById('preview-status').textContent = 'Virtual preview · J1 following disarmed';
+    }
+    btnJogJ1Neg?.classList.remove('jog-active');
+    btnJogJ1Pos?.classList.remove('jog-active');
+    return;
+  }
 
-  document.getElementById('input-status').textContent=inputState.effectiveDeadman ? `Jog held · ${inputState.activeDevice}` : 'Controls released';
   const enteredScale = Number(sliderJogSpeed.value);
   if (!sliderJogSpeed.value.trim() || !Number.isFinite(enteredScale)) { void stopNow('invalid_jog_multiplier'); return; }
   const speedScale = Math.max(0,Math.min(1,enteredScale/100));
-  const axes = inputState.effectiveAxes.map(axis => axis * speedScale);
-  if(preview.selected && followPreview.checked){
-    const follow=followAxis(preview.q[0],measuredJ1,appliedSettings?.lower_deg,appliedSettings?.upper_deg);
-    axes[0]=inputState.effectiveDeadman ? follow.axis*speedScale : 0;
-    axes[1]=axes[2]=0;
-    document.getElementById('preview-status').textContent=follow.blocked ? 'J1 follow paused: target outside applied limits / feedback unavailable' : 'J1 measured; J2/J3 path preview · hold Space / RB to follow';
+  let axes = inputState.effectiveAxes.map(axis => axis * speedScale);
+
+  if (btnJogJ1Neg) {
+    const isA = inputState.keysDown.has('KeyA') || (axes[0] < -0.05);
+    btnJogJ1Neg.classList.toggle('jog-active', Boolean(isArmed && isA));
   }
-  inputClient.submitJog(inputState.effectiveDeadman, axes, inputState.activeDevice)
+  if (btnJogJ1Pos) {
+    const isD = inputState.keysDown.has('KeyD') || (axes[0] > 0.05);
+    btnJogJ1Pos.classList.toggle('jog-active', Boolean(isArmed && isD));
+  }
+
+  followBlocked = false;
+  if (preview.selected && followPreview.checked) {
+    const follow = freshFeedback && inputState.neutralLatched
+      ? followAxis(preview.q[0], measuredJ1, appliedSettings?.lower_deg, appliedSettings?.upper_deg)
+      : { axis: 0, blocked: true };
+    axes = [follow.axis * speedScale, 0, 0];
+    followBlocked = follow.blocked;
+    document.getElementById('preview-status').textContent = !freshFeedback
+      ? 'J1 follow paused: feedback is stale'
+      : !inputState.neutralLatched
+        ? 'J1 follow paused: release keyboard and center both sticks once after Enable'
+        : follow.blocked
+          ? 'J1 follow paused: target is outside applied limits or feedback is unavailable'
+          : 'Fresh J1 feedback · following within applied travel and rate limits';
+  }
+  const motionIntent = axes.some(axis => Math.abs(axis) > 1e-4);
+  followMotion = Boolean(preview.selected && followPreview.checked && motionIntent && !followBlocked);
+  document.getElementById('input-status').textContent = preview.selected && followPreview.checked
+    ? followMotion ? 'Automatic preview follow · J1'
+      : followBlocked ? 'Preview follow paused · J1' : 'Preview follow ready · J1'
+    : motionIntent ? `Jogging · ${inputState.activeDevice}` : 'Holding position';
+  inputClient.submitJog(motionIntent, axes, inputState.activeDevice)
     .catch(error => {
       const alreadyStopped=inputState.stopLatched;
       syncClientStopLatch();
@@ -606,17 +941,16 @@ function updateParameterWarnings() {
   }
   document.getElementById('parameter-warning').textContent=warnings.length?'WARNING — outside bench or wire-management recommendations. Physical command limits currently still apply.\n'+warnings.join('\n'):'';
 }
-for (const input of [inputKp,inputKd,inputMaxRpm,inputEffort,inputCalLower,inputCalUpper]) input.addEventListener('input',updateParameterWarnings);
+for (const input of [sliderJogSpeed,inputKp,inputKd,inputMaxRpm,inputEffort,inputCalLower,inputCalUpper]) input.addEventListener('input',updateParameterWarnings);
 updateParameterWarnings();
 for (const button of document.querySelectorAll('[data-jog]')) {
   let held=false;
   button.addEventListener('pointerdown',event=>{
     event.preventDefault(); if(!isArmed||held)return;
-    held=true;button.setPointerCapture(event.pointerId);document.activeElement?.blur();
-    reduceKeyEvent(inputState,{type:'keydown',code:'Space',isEditing:false});
+    held=true;button.setPointerCapture(event.pointerId);
     reduceKeyEvent(inputState,{type:'keydown',code:button.dataset.jog,isEditing:false});
   });
-  const release=()=>{if(!held)return;held=false;reduceKeyEvent(inputState,{type:'keyup',code:button.dataset.jog,isEditing:false});reduceKeyEvent(inputState,{type:'keyup',code:'Space',isEditing:false});};
+  const release=()=>{if(!held)return;held=false;reduceKeyEvent(inputState,{type:'keyup',code:button.dataset.jog,isEditing:false});};
   button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
 }
 
@@ -638,6 +972,7 @@ async function selectPreview(kind){
     if(isArmed)await stopNow('new_preview_selected');
     preview.select(kind,preview.selected ? preview.q : observedPose);
     armScene.showPath(kind==='figure8'?Array.from({length:201},(_,i)=>figureEight(i/20)):null);
+    updateStatusPresentation(lastStateData);
     document.getElementById('preview-status').textContent=`${kind==='figure8'?'Figure-8':kind==='ready'?'Ready pose':'Calibration pose'} · virtual preview`;
   }catch(error){logEvent(error.message,'error');}
 }
@@ -649,11 +984,20 @@ let previewFrame=performance.now();
 function animatePreview(now){
   const dt=(now-previewFrame)/1000;previewFrame=now;
   if(preview.selected){
-    try {preview.step(dt);}catch(error){logEvent(error.message,'error');}
+    if (!(followPreview.checked && isConnected && !freshFeedback)) {
+      try {preview.step(dt);}catch(error){logEvent(error.message,'error');}
+    }
     const q=[...preview.q];
     if(followPreview.checked&&isConnected&&Number.isFinite(measuredJ1))q[0]=measuredJ1;
     armScene.updateJoints(...q);
   }
   requestAnimationFrame(animatePreview);
 }
+if (btnClearLog) {
+  btnClearLog.addEventListener('click', () => {
+    eventLogBox.innerHTML = '';
+    logEvent('Log cleared.');
+  });
+}
+
 requestAnimationFrame(animatePreview);
