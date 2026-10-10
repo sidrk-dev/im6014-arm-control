@@ -279,15 +279,15 @@
           <table class="jog-guide-table">
             <tr>
               <td><span class="jog-key">A</span> / <span class="jog-key">D</span></td>
-              <td>Joint 1 Yaw (<span style="color: #34d399; font-weight: 700;">Physical J1</span>)</td>
+              <td>Joint 1 Yaw (<span class="joint-kind physical">Physical J1</span>)</td>
             </tr>
             <tr>
               <td><span class="jog-key">W</span> / <span class="jog-key">S</span></td>
-              <td>Joint 2 Shoulder (<span style="color: #fbbf24; font-weight: 700;">Virtual J2</span>)</td>
+              <td>Joint 2 Shoulder (<span class="joint-kind virtual">Virtual J2</span>)</td>
             </tr>
             <tr>
               <td><span class="jog-key">Q</span> / <span class="jog-key">E</span></td>
-              <td>Joint 3 Elbow (<span style="color: #fbbf24; font-weight: 700;">Virtual J3</span>)</td>
+              <td>Joint 3 Elbow (<span class="joint-kind virtual">Virtual J3</span>)</td>
             </tr>
             <tr>
               <td><span class="jog-key">Esc</span></td>
@@ -297,7 +297,7 @@
           <div style="margin-top: 6px; font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 8px; border-radius: 4px;">
             <div style="font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Standard gamepad: Left Stick X for J1 · Left Stick Y for J2 · Right Stick Y for J3 · B to Stop</div>
             <div id="input-status" role="status" style="color: var(--accent-cyan); font-weight: 600;">Controls released</div>
-            <div id="gamepad-status" style="margin-top: 3px; font-weight: 500; color: #94a3b8;">Focus this page and press A on your Xbox controller.</div>
+            <div id="gamepad-status" data-state="idle" style="margin-top: 3px; font-weight: 500;">Focus this page and press A on your Xbox controller.</div>
           </div>
         </div>
       </div>
@@ -311,13 +311,13 @@
       <div class="card-scrollable">
         <div class="control-section telemetry-card-physical">
           <div class="section-title">
-            <span style="color: #34d399; font-size: 14px;">Joint 1 · Physical Motor (ID 0)</span>
+            <span class="joint-heading physical" style="font-size: 14px;">Joint 1 · Physical Motor (ID 0)</span>
             <span id="tel-j1-source" class="badge" style="font-size: 10px;">Awaiting Feedback</span>
           </div>
 
           <div class="telemetry-row">
             <span class="telemetry-label">Calibrated Angle</span>
-            <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; color: #34d399; font-weight: 700;">Awaiting known angle</span>
+            <span id="tel-j1-pos" class="telemetry-val" style="font-size: 14px; font-weight: 700;">Awaiting known angle</span>
           </div>
 
           <div id="j1-pos-gauge-container" class="pos-gauge-container" hidden>
@@ -392,8 +392,8 @@
 
         <div class="control-section telemetry-card-virtual">
           <div class="section-title">
-            <span style="color: #fbbf24;">Joints 2 & 3 · Virtual CAD</span>
-            <span class="badge" style="font-size: 9px; background: rgba(245, 158, 11, 0.2); color: #fbbf24;">CAD Only</span>
+            <span class="joint-heading virtual">Joints 2 & 3 · Virtual CAD</span>
+            <span class="badge badge-virtual" style="font-size: 9px;">CAD Only</span>
           </div>
           <div class="telemetry-row">
             <span class="telemetry-label">J2 Shoulder Pos</span>
