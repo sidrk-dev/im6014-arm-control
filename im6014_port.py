@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 import stat
 
+from im6014_transport import PosixDeadlineSerial, UnsupportedSerialDeadlineAdapter
+
 
 SUPPORTED_BAUDS = (4_000_000, 6_000_000)
 BENCH_SERIAL = 'FTC2RQ7H'
@@ -269,6 +271,15 @@ def open_managed_port(config: PortConfig, serial_factory=None):
             raise PortOwnershipError('Serial file descriptor does not match the configured character device')
         if path_after_open.st_rdev != opened.st_rdev:
             raise PortOwnershipError('Configured path changed during serial open')
+        try:
+            from serial.serialutil import SerialBase
+            if isinstance(bus, SerialBase):
+                try:
+                    managed.bus = PosixDeadlineSerial(bus)
+                except UnsupportedSerialDeadlineAdapter:
+                    pass
+        except ImportError:
+            pass
         managed.verified = True
         return managed
     except BaseException as error:

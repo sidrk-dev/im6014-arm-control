@@ -5,6 +5,8 @@ import threading
 import time
 
 from im6014_codec import feedback
+from im6014_transport import WriteResult
+from im6014_transport import PartialWriteTimeout, WriteDeadlineExpired
 
 _monotonic = time.monotonic
 
@@ -54,6 +56,10 @@ class TransactionTimeoutError(RuntimeError):
 
 class InvalidFeedbackError(TransactionTimeoutError):
     """The transaction expired after rejecting one or more candidate frames."""
+
+
+class WriteCancelledError(RuntimeError):
+    """The serial write was cancelled before transmission by the pre-write hook."""
 
 
 @dataclass(frozen=True)
@@ -212,6 +218,8 @@ def _decoded_fields(result):
 
 
 def _outcome(error):
+    if isinstance(error, PartialWriteTimeout):
+        return 'DRIVER_FAILURE'
     if isinstance(error, InvalidFeedbackError):
         return 'INVALID_FEEDBACK'
     if isinstance(error, (TransactionTimeoutError, TimeoutError)):
@@ -220,7 +228,8 @@ def _outcome(error):
 
 
 def capture_exchange(capture, exchange_fn, bus, packet, motor_id, *,
-                     source, identity, connection, port, baud):
+                     source, identity, connection, port, baud,
+                     before_write=None, on_write=None):
     """Call the current caller's three-argument exchange and retain one safe record."""
     if not isinstance(capture, PacketCapture):
         raise ValueError('Capture must be a PacketCapture')
@@ -236,8 +245,16 @@ def capture_exchange(capture, exchange_fn, bus, packet, motor_id, *,
     rejected = 0
     crc_rejected = 0
     tail = b''
+    kwargs = {}
+    if before_write is not None:
+        kwargs['before_write'] = before_write
+    if on_write is not None:
+        kwargs['on_write'] = on_write
     try:
-        result = exchange_fn(bus, packet, motor_id)
+        if kwargs:
+            result = exchange_fn(bus, packet, motor_id, **kwargs)
+        else:
+            result = exchange_fn(bus, packet, motor_id)
         reply = _reply_prefix(result)
         decoded = _decoded_fields(result)
         outcome = 'OK'
@@ -284,11 +301,15 @@ def _receive(bus, motor_id, deadline, original_timeout):
     last_error = ''
     try:
         while True:
-            bus.timeout = _bounded_timeout(original_timeout, _remaining(deadline))
-            _remaining(deadline)
             size = min(26, max(1, bus.in_waiting))
             _remaining(deadline)
-            data.extend(bus.read(size))
+            read_with_deadline = getattr(bus, 'read_with_deadline', None)
+            if callable(read_with_deadline):
+                data.extend(read_with_deadline(size, deadline, _monotonic, original_timeout))
+            else:
+                bus.timeout = _bounded_timeout(original_timeout, _remaining(deadline))
+                _remaining(deadline)
+                data.extend(bus.read(size))
             _remaining(deadline)
             while True:
                 _remaining(deadline)
@@ -318,13 +339,16 @@ def _receive(bus, motor_id, deadline, original_timeout):
                          tail=data[-25:]) from error
 
 
-def exchange(bus, packet, motor_id, deadline_s=0.05):
+def exchange(bus, packet, motor_id, deadline_s=0.05, *, before_write=None, on_write=None):
     """Reset once, write once, and return requested feedback before expiry.
 
-    The bus has one owner. Its timeout setters, reset and I/O must obey their
-    driver contract. Objects without write_timeout must write immediately.
+    The bus has one owner. Deadline-aware POSIX adapters use the absolute
+    deadline directly; portable buses use their timeout properties.
+    Objects without write_timeout must write immediately.
     Synchronous driver calls and cleanup cannot be forcibly interrupted.
     Read/write settings are restored before any validated result is returned.
+    If the final deadline check expires after before_write allows dispatch,
+    on_write receives PREWRITE_DEADLINE even though bus.write was never called.
     """
     if type(motor_id) is not int or not 0 <= motor_id <= 14:
         raise ValueError('Expected motor ID must be an integer from 0 to 14')
@@ -336,6 +360,10 @@ def exchange(bus, packet, motor_id, deadline_s=0.05):
         raise ValueError('Transaction deadline must be finite and positive') from error
     if not math.isfinite(deadline_s) or deadline_s <= 0:
         raise ValueError('Transaction deadline must be finite and positive')
+    if before_write is not None and not callable(before_write):
+        raise ValueError('before_write hook must be callable')
+    if on_write is not None and not callable(on_write):
+        raise ValueError('on_write hook must be callable')
     deadline = _monotonic() + deadline_s
     if not math.isfinite(deadline):
         raise ValueError('Transaction deadline is not representable')
@@ -347,12 +375,53 @@ def exchange(bus, packet, motor_id, deadline_s=0.05):
         _remaining(deadline)
         bus.reset_input_buffer()
         _remaining(deadline)
-        if has_write_timeout:
+        if before_write is not None:
+            allowed = before_write()
+            if not allowed:
+                raise WriteCancelledError('Serial write cancelled by pre-write hook')
+        try:
+            _remaining(deadline)
+        except TransactionTimeoutError:
+            if on_write is not None:
+                on_write(WriteResult.PREWRITE_DEADLINE)
+            raise
+        write_with_deadline = getattr(bus, 'write_with_deadline', None)
+        if has_write_timeout and not callable(write_with_deadline):
             bus.write_timeout = _bounded_timeout(original_write_timeout, _remaining(deadline), writing=True)
+        try:
+            _remaining(deadline)
+        except TransactionTimeoutError:
+            if on_write is not None:
+                on_write(WriteResult.PREWRITE_DEADLINE)
+            raise
+        try:
+            if callable(write_with_deadline):
+                written = write_with_deadline(packet, deadline, _monotonic, original_write_timeout)
+            else:
+                written = bus.write(packet)
+        except Exception as error:
+            if on_write is not None:
+                try:
+                    if isinstance(error, WriteDeadlineExpired):
+                        result = WriteResult.PREWRITE_DEADLINE
+                    elif isinstance(error, PartialWriteTimeout):
+                        result = WriteResult.PARTIAL
+                    else:
+                        result = WriteResult.FAILED
+                    on_write(result)
+                except Exception:
+                    pass
+            raise
+        if type(written) is int and written == len(packet):
+            write_result = WriteResult.COMPLETE
+        elif type(written) is int and 0 < written < len(packet):
+            write_result = WriteResult.PARTIAL
+        else:
+            write_result = WriteResult.FAILED
+        if on_write is not None:
+            on_write(write_result)
         _remaining(deadline)
-        written = bus.write(packet)
-        _remaining(deadline)
-        if written != len(packet):
+        if write_result is not WriteResult.COMPLETE:
             raise RuntimeError('Incomplete serial write')
         result = _receive(bus, motor_id, deadline, original_timeout)
     except ValueError as error:

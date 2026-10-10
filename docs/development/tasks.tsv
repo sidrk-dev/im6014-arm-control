@@ -1,0 +1,4 @@
+task	status	owner	scope	note
+J1-simple-dashboard	active	Codex parent	arm_manual.py;arm_dashboard.py;arm_web;docs/arm-quickstart.md	Single physical J1, plain ARM2027 UI; parent owns hardware/Git
+C07-C16	paused	Codex parent	Historical arm branch	User prioritizes manual arm controls
+Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination

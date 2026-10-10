@@ -30,6 +30,15 @@ def _healthy_stop():
 
 
 class DiagnosticCapture(unittest.TestCase):
+    def test_partial_write_is_recorded_as_driver_failure(self):
+        capture = transport.PacketCapture()
+        error = transport.PartialWriteTimeout(2)
+        def partial(*args):
+            raise error
+        with self.assertRaises(transport.PartialWriteTimeout):
+            _capture(capture, partial, object(), spin_5rpm.command(0))
+        self.assertEqual(capture.snapshot()['records'][0]['outcome'], 'DRIVER_FAILURE')
+
     def test_dashboard_counts_typed_failures_without_message_matching(self):
         import threading
         cases = (
