@@ -56,24 +56,50 @@ export function j1GaugePresentation({ positionRad, lowerDeg, upperDeg, connected
   };
 }
 
-export function serialPortStatus(ports, error = null) {
+export function serialPortStatus(ports, error = null, demo = false) {
+  if (demo === true) return 'Demo mode uses a simulated J1 motor; no USB adapter is needed.';
   const records = Array.isArray(ports) ? ports.filter(Boolean) : [];
   const count = records.length;
-  const countText = count === 1 ? '1 serial port detected.' : count ? count + ' serial ports detected.' : 'No serial ports detected.';
   const channelDListed = records.some(port => port.channel_d === true);
-  const channelDText = count
-    ? channelDListed ? 'Recommended Channel D is listed.' : 'Recommended Channel D is missing.'
-    : '';
   if (error) {
-    return error + '. ' + countText + (channelDText ? ' ' + channelDText : '')
-      + ' Replug the USB adapter, then Refresh. Port listing is passive and does not open or probe devices.';
+    return `Could not list USB adapters (${error}). Reconnect the adapter, then select Refresh.`;
   }
   if (!count) {
-    return 'No serial ports detected. Replug the USB adapter, then Refresh. Port listing is passive and does not open or probe devices.';
+    return 'No USB adapter found. Reconnect the USB-RS485 adapter, then select Refresh.';
   }
-  return countText + ' ' + channelDText
-    + (channelDListed ? ' No device was opened.' : ' Replug the USB adapter, then Refresh.')
-    + ' Enumeration is passive and does not open or probe devices.';
+  if (channelDListed) {
+    return 'Channel D adapter found and marked Recommended. Select it, connect, then confirm fresh J1 feedback.';
+  }
+  const countText = count === 1 ? '1 USB adapter found' : `${count} USB adapters found`;
+  return `${countText}, but Channel D was not identified. Select only the adapter wired to J1, then connect and check for fresh feedback.`;
+}
+
+export function canAcknowledgeStartupTimeout(state = {}) {
+  const timeout = state.latest?.timeout === true || state.latest?.timeout === 1;
+  return state.connected === true && state.owner === true && state.fresh === true
+    && state.stopConfirmed === true && state.latest?.mode === 0 && timeout
+    && state.armed !== true && state.stopLatched !== true;
+}
+
+export function deriveWorkflowSteps(state = {}) {
+  const connected = state.connected === true;
+  if (!connected) return { connect: 'active', check: '', zero: '', jog: '' };
+
+  const fresh = state.fresh === true;
+  const stoppedAndChecked = fresh && state.stopConfirmed === true
+    && state.motorState === 'Ready · Stop' && state.latest?.mode === 0
+    && (state.latest?.timeout === false || state.latest?.timeout === 0);
+  const checked = state.stopLatched !== true
+    && (stoppedAndChecked || (fresh && state.armed === true));
+  if (!checked) return { connect: 'completed', check: 'active', zero: '', jog: '' };
+
+  const calibrated = state.calibrated === true;
+  return {
+    connect: 'completed',
+    check: 'completed',
+    zero: calibrated ? 'completed' : 'active',
+    jog: !calibrated ? '' : state.armed === true ? 'completed active' : 'active'
+  };
 }
 
 export function deriveDashboardPresentation(state) {
@@ -85,6 +111,7 @@ export function deriveDashboardPresentation(state) {
   const fresh = state.fresh === true;
   const stopLatched = state.stopLatched === true;
   const timeout = state.timeout === true;
+  const timeoutAcknowledgementAvailable = state.timeoutAcknowledgementAvailable === true;
   const followSelected = state.followSelected === true;
   const followActive = state.followActive === true;
   const followBlocked = state.followBlocked === true;
@@ -93,29 +120,36 @@ export function deriveDashboardPresentation(state) {
   const source = state.source === 'gamepad' ? 'the selected controller' : 'keyboard or on-screen controls';
   let alert = null;
 
-  if (stopLatched) {
-    const recovery = !owner
-      ? 'Use the owner tab to run Health Check; this tab cannot clear the Stop latch.'
-      : !connected
-        ? 'Reconnect this owner session before running Health Check.'
-        : 'Run Health Check here to clear the Stop latch, then Enable jogging again.';
-    alert = { type: 'error', message: 'Stop latched' + (state.stopReason ? ': ' + state.stopReason : '') + '. ' + recovery };
+  if (state.serverUnavailable === true) {
+    alert = {
+      type: 'error',
+      message: 'Dashboard server is not responding. Check the terminal running ./start_arm.sh. Motor feedback cannot be confirmed; waiting to reconnect.'
+    };
+  } else if (stopLatched) {
+    const recovery = !connected
+      ? 'Reconnect this session, then Check motor.'
+      : !owner
+        ? 'Use the controlling tab to Check motor; this tab cannot clear Stop.'
+        : 'Check motor to clear Stop, then enable movement again.';
+    alert = { type: 'error', message: 'STOP pressed' + (state.stopReason ? ': ' + state.stopReason : '') + '. ' + recovery };
   } else if (connectionKnown && connected && !owner) {
     const condition = timeout ? ' A startup timeout is active.' : !fresh ? ' Feedback is stale.' : '';
     alert = {
       type: timeout || !fresh ? 'warn' : 'info',
-      message: 'Observer: another tab owns this connection.' + condition
-        + ' Use the owner tab to run Health Check or disconnect; this tab cannot operate it.'
+      message: 'Another tab controls this motor.' + condition
+        + ' Use that tab to check or disconnect; this tab cannot move it.'
     };
   } else if (connectionKnown && connected && !fresh) {
     alert = {
       type: 'error',
-      message: 'STALE FEEDBACK — values below are cached. Reconnect the USB adapter, Refresh and select Channel D, verify motor power and ID 0, then run Health Check.'
+      message: 'No recent motor reply. Movement is locked. Check USB, motor power, ID 0, and Channel D, then select Check motor.'
     };
   } else if (connectionKnown && connected && timeout) {
     alert = {
       type: 'warn',
-      message: 'Startup watchdog timeout. Confirm the safety checkbox, then click Acknowledge Timeout. The motor stays in Stop.'
+      message: timeoutAcknowledgementAvailable
+        ? 'Startup timeout. The motor stays stopped. Confirm it is secure, then select Acknowledge timeout.'
+        : 'Startup timeout reported. Movement stays locked until fresh feedback confirms Stop in mode 0.'
     };
   } else if (armed && followSelected) {
     const followState = followActive
@@ -132,11 +166,13 @@ export function deriveDashboardPresentation(state) {
       ? { type: 'info', message: 'J1 is jogging from ' + source + '. Release the selected controls to hold position; ' + STOP_KEYS + ' to stop.' }
       : { type: 'info', message: 'Virtual J2/J3 are moving in the preview. Release the selected controls to hold the preview; Stop, Esc, or controller B to stop motor authority.' };
   } else if (armed) {
-    alert = { type: 'success', message: 'Motor armed and ready. Press A/D, click −/+, or use the selected controller to jog J1. Esc stops instantly.' };
+    alert = { type: 'success', message: 'J1 is ready. Use A/D, the on-screen buttons, or the selected Xbox stick. Release to hold. STOP or Esc stops the motor.' };
   }
 
   let motion;
-  if (!armed) {
+  if (state.serverUnavailable === true) {
+    motion = { text: 'Feedback unavailable', tone: 'muted' };
+  } else if (!armed) {
     motion = { text: followSelected ? 'Disarmed · preview follow selected' : 'Disarmed', tone: 'muted' };
   } else if (followSelected) {
     motion = followActive
@@ -153,20 +189,26 @@ export function deriveDashboardPresentation(state) {
   }
 
   let guidance;
-  if (!connected) {
+  if (state.serverUnavailable === true) {
+    guidance = 'Check the terminal running ./start_arm.sh. Waiting for the dashboard server to respond.';
+  } else if (!connected) {
     guidance = stopLatched
-      ? 'Reconnect this owner session before running Health Check.'
-      : '1. Select a detected serial port or enter a custom path, then Connect. Port listing is passive; adapter identity may remain unverified.';
+      ? 'Reconnect the controlling session, then Check motor.'
+      : state.demo === true
+        ? 'Select Connect to start simulated J1. No USB adapter is needed.'
+      : 'Select the USB adapter, then Connect. If none appears, reconnect it and select Refresh.';
   } else if (!owner) {
-    guidance = 'Observer mode: another tab owns this connection. Use the owner tab for Health Check or disconnect; this tab cannot take control.';
+    guidance = 'Another tab controls this motor. Use that tab to check or disconnect; this tab cannot move it.';
   } else if (!fresh) {
-    guidance = 'Feedback is stale; telemetry is cached and motion controls are locked. Reconnect the USB adapter, Refresh and select Channel D, verify power and ID 0, then run Health Check.';
+    guidance = 'No recent motor reply; movement is locked. Check USB, motor power, ID 0, and Channel D, then select Check motor.';
   } else if (stopLatched) {
-    guidance = 'Run Health Check to clear Stop, then confirm your setup and Enable jogging.';
+    guidance = 'Select Check motor to clear Stop, then confirm your setup and enable movement.';
   } else if (timeout) {
-    guidance = 'Confirm the secured-motor checkbox, then Acknowledge Timeout. The motor stays in Stop.';
+    guidance = timeoutAcknowledgementAvailable
+      ? 'The motor stays stopped. Confirm it is secure, then select Acknowledge timeout.'
+      : 'The motor stays stopped. Select Check motor; acknowledgement appears only after fresh Stop feedback in mode 0.';
   } else if (!state.calibrated) {
-    guidance = '2. Set the current angle (0 means this pose is your zero), then Use measured angle for J1.';
+    guidance = 'Point J1 at the pose you want to call 0°, then select Set J1 zero here. If you know its angle, enter it and select Use entered angle. Neither action moves the motor.';
   } else if (armed && followSelected) {
     guidance = followActive
       ? 'Preview follow is active: it automatically follows the preview on J1 using fresh measured feedback. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.'
@@ -174,11 +216,11 @@ export function deriveDashboardPresentation(state) {
         ? 'Preview follow is paused by its safety gate. Confirm fresh J1 feedback, applied travel limits, and neutral input. Once active, releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.'
         : 'Preview follow is selected and ready to follow the preview on J1 using fresh measured feedback. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.';
   } else if (armed) {
-    guidance = 'Press A/D, click −/+, or use the selected controller stick to jog J1. Release or center controls to hold position; Stop removes torque. J2/J3 are virtual.';
+    guidance = 'Move J1 with A/D, the on-screen buttons, or the Xbox stick. Release to hold. Press STOP, Esc, or B to stop the motor. J2/J3 are preview only.';
   } else if (followSelected) {
     guidance = 'Preview follow is selected. After Enable and the fresh-neutral gate, it automatically follows the preview on J1. Releasing keys does not pause it; press Stop, Esc, or controller B to stop. J2/J3 remain virtual.';
   } else {
-    guidance = '3. Confirm your setup, then Enable jogging. Start with short movements.';
+    guidance = 'Check the space around J1, confirm the setup is secure, then enable movement. Start with a short tap.';
   }
 
   motion.color = MOTION_COLORS[motion.tone];

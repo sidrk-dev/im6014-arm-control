@@ -33,6 +33,7 @@ ARM_ASSETS_DIR = ROOT / "arm_assets"
 MAX_BODY_BYTES = 16384
 MAX_CONCURRENT_REQUESTS = 16
 MAX_PORT_RECORDS = 32
+_BUILTIN_UART = re.compile(r"/dev/ttyS[0-9]+")
 HTTP_READ_TIMEOUT_S = 2.0
 CONTENT_LENGTH_RE = re.compile(r"[0-9]+\Z")
 MESH_PATH_RE = re.compile(r"meshes/[A-Za-z0-9._-]+\.(?:bin|stl)\Z")
@@ -349,8 +350,13 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
         try:
             from serial.tools import list_ports
             by_id_exists = Path(DEFAULT_PORT_PATH).exists()
+            candidates = []
+            for port in list_ports.comports():
+                device = _safe_text(getattr(port, "device", None), 256)
+                if device is not None and not _BUILTIN_UART.fullmatch(device):
+                    candidates.append(port)
             comports = sorted(
-                list_ports.comports(),
+                candidates,
                 key=lambda p: (
                     not (
                         (p.serial_number == 'FTC2RQ7H' and p.location and p.location.endswith('.3'))

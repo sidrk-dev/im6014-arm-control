@@ -524,6 +524,25 @@ class ArmHttpServerTests(unittest.TestCase):
         self.assertEqual(data["default"], "")
         self.assertEqual(data["error"], "Port enumeration failed (OSError)")
 
+    def test_builtin_linux_uart_is_hidden_but_usb_adapter_remains_selectable(self) -> None:
+        built_in = [
+            SimpleNamespace(
+                device=f"/dev/ttyS{index}", serial_number=None, location=None,
+                description="Built-in UART",
+            )
+            for index in range(40)
+        ]
+        usb = SimpleNamespace(
+            device="/dev/ttyUSB0", serial_number="OTHER", location="1-2.1",
+            description="USB Serial Adapter",
+        )
+        with patch("serial.tools.list_ports.comports", return_value=built_in + [usb]):
+            status, _, body = self._request("GET", "/api/ports")
+        self.assertEqual(status, 200)
+        data = json.loads(body)
+        self.assertEqual([port["device"] for port in data["ports"]], ["/dev/ttyUSB0"])
+        self.assertEqual(data["default"], "")
+
     def test_channel_d_without_by_id_uses_enumerated_path_and_bounded_fields(self) -> None:
         port = SimpleNamespace(
             device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2.3",

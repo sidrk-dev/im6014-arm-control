@@ -23,6 +23,7 @@ export class ArmScene {
     this.isDragging = false;
     this.prevMouse = { x: 0, y: 0 };
     this.spherical = { radius: 1.2, theta: Math.PI / 4, phi: Math.PI / 3 };
+    this.maxZoomRadius = 3;
     this.target = new THREE.Vector3(0, -0.1, 0.2);
 
     this.init();
@@ -132,6 +133,7 @@ export class ArmScene {
       if (this.sourceEl) {
         this.sourceEl.textContent = `CAD preview · ${archive} → ${urdf} · J1 physical option; J2/J3 virtual`;
       }
+      this.fitCameraToModel();
       this.setModelStatus(`CAD meshes loaded · ${loaded} parts · visualization only`);
     } catch (error) {
       this.setModelStatus(`CAD preview failed: ${error.message}`, true);
@@ -231,6 +233,31 @@ export class ArmScene {
     this.camera.lookAt(this.target);
   }
 
+  fitCameraToModel() {
+    if (!this.baseGroup || !this.camera || !Number.isFinite(this.camera.aspect) || this.camera.aspect <= 0) return false;
+    const bounds = new THREE.Box3().setFromObject(this.baseGroup);
+    if (bounds.isEmpty()) return false;
+
+    const sphere = bounds.getBoundingSphere(new THREE.Sphere());
+    const halfVerticalFov = THREE.MathUtils.degToRad(this.camera.fov / 2);
+    const halfHorizontalFov = Math.atan(Math.tan(halfVerticalFov) * this.camera.aspect);
+    const limitingHalfFov = Math.min(halfVerticalFov, halfHorizontalFov);
+    const distance = (sphere.radius / Math.sin(limitingHalfFov)) * 1.15;
+    if (!Number.isFinite(distance) || distance <= 0) return false;
+
+    this.target.copy(sphere.center);
+    this.spherical = {
+      radius: Math.max(0.3, distance),
+      theta: Math.PI / 4,
+      phi: Math.PI / 3
+    };
+    this.maxZoomRadius = Math.max(3, distance * 2);
+    this.camera.far = Math.max(10, distance + sphere.radius * 2);
+    this.camera.updateProjectionMatrix();
+    this.updateCameraPosition();
+    return true;
+  }
+
   setupInteraction() {
     const el = this.renderer.domElement;
 
@@ -256,7 +283,7 @@ export class ArmScene {
 
     el.addEventListener('wheel', (e) => {
       e.preventDefault();
-      this.spherical.radius = Math.max(0.3, Math.min(3.0, this.spherical.radius + e.deltaY * 0.001));
+      this.spherical.radius = Math.max(0.3, Math.min(this.maxZoomRadius, this.spherical.radius + e.deltaY * 0.001));
       this.updateCameraPosition();
     }, { passive: false });
 
@@ -272,8 +299,9 @@ export class ArmScene {
   }
 
   resetCamera() {
+    if (this.baseGroup?.children.length && this.fitCameraToModel()) return;
     this.spherical = { radius: 1.2, theta: Math.PI / 4, phi: Math.PI / 3 };
-    this.target = new THREE.Vector3(0, -0.1, 0.2);
+    this.target.set(0, -0.1, 0.2);
     this.updateCameraPosition();
   }
 
