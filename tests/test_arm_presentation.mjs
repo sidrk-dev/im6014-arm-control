@@ -76,7 +76,7 @@ function testServerFailureNamesTheRecoveryAction() {
 
 function testDisconnectedStopAndDemoGivePossibleNextActions() {
   const stopped = deriveDashboardPresentation(state({ connected: false, owner: false, stopLatched: true }));
-  assert.match(stopped.alert.message, /Reconnect this session/i);
+  assert.match(stopped.alert.message, /Connect here/i);
   assert.doesNotMatch(stopped.alert.message, /controlling tab/i);
   const demo = deriveDashboardPresentation(state({ connected: false, demo: true }));
   assert.match(demo.guidance, /Select Connect.*simulated J1/i);

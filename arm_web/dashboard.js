@@ -16,7 +16,7 @@ import {
 } from './input_reducer.js';
 
 import { ArmScene } from './arm_scene.js';
-import { canAcknowledgeStartupTimeout, deriveDashboardPresentation, deriveWorkflowSteps, finiteNumber as finiteValue, j1GaugePresentation, jointGaugePresentation, jointPositionPresentation, jointVelocityText, serialPortStatus, checkTravelSpan, formatJointHealth } from './presentation.js';
+import { canAcknowledgeStartupTimeout, deriveDashboardPresentation, deriveWorkflowSteps, finiteNumber as finiteValue, j1GaugePresentation, jointGaugePresentation, jointPositionPresentation, jointVelocityText, serialPortStatus, checkTravelSpan, formatJointHealth, validateConnectionSettings, applyConnectionSettings, draftNumber } from './presentation.js';
 import { PreviewPlayer, validateModel, figureEight, followAxis } from './presets.js';
 const badgeMode = document.getElementById('badge-mode');
 const badgeConnection = document.getElementById('badge-connection');
@@ -273,11 +273,13 @@ let followMotion = false, followBlocked = false;
 
 let currentProfileId = 'arm_j1';
 let selectedJoint = 'J1';
+let setupBusy = false;
+let setupGeneration = 0;
 const editedJointDrafts = new Set();
 let isRangePreview = false;
 let rangePreviewAngle = 0;
 const perJointSettings = {
-  J1: { kp: 15.0, kd: 3.0, max_rpm: 0.5, effort_limit_nm: 1.0, known_angle_deg: 0.0, direction: 1, lower_deg: -90.0, upper_deg: 90.0 },
+  J1: { kp: 30.0, kd: 3.0, max_rpm: 5.0, effort_limit_nm: 4.0, known_angle_deg: 0.0, direction: 1, lower_deg: -90.0, upper_deg: 90.0 },
   J2: { kp: 15.0, kd: 3.0, max_rpm: 0.5, effort_limit_nm: 1.0, known_angle_deg: 0.0, direction: 1, lower_deg: -90.0, upper_deg: 90.0 },
   J3: { kp: 15.0, kd: 3.0, max_rpm: 0.5, effort_limit_nm: 1.0, known_angle_deg: 0.0, direction: 1, lower_deg: -90.0, upper_deg: 90.0 }
 };
@@ -412,8 +414,8 @@ function updateProfileUI() {
     : 'Motor ID 0 · 6 Mbaud. Connection is confirmed only by fresh J1 feedback.';
   document.getElementById('input-device-label').textContent = isThreeJoint ? 'How to control the arm' : 'How to control J1';
   document.getElementById('enable-support-label').textContent = isThreeJoint
-    ? 'All links are supported, every joint has clear travel, and I can reach the E-stop'
-    : 'The base is secure, J1 travel is clear, and I can reach the E-stop';
+    ? 'Enable movement · All links supported, travel clear, E-stop available'
+    : 'Enable movement · Base secured, travel clear, E-stop available';
   document.getElementById('footer-profile-help').textContent = isThreeJoint
     ? 'Three motors on one bus, J1 ID 0 / J2 ID 1 / J3 ID 2. Stop releases torque on all joints.'
     : 'Single physical J1 at ID 0; J2/J3 virtual.';
@@ -479,8 +481,8 @@ function updateProfileUI() {
 }
 
 function updateSceneLimitsForSelectedJoint(currentAngleDeg = null) {
-  const lower = Number(inputCalLower.value);
-  const upper = Number(inputCalUpper.value);
+  const lower = draftNumber(inputCalLower.value);
+  const upper = draftNumber(inputCalUpper.value);
   if (Number.isFinite(lower) && Number.isFinite(upper) && lower < upper) {
     armScene.setJointLimits(selectedJoint, lower, upper, currentAngleDeg);
   } else {
@@ -490,10 +492,11 @@ function updateSceneLimitsForSelectedJoint(currentAngleDeg = null) {
 
 function onLimitDraftInput() {
   editedJointDrafts.add(selectedJoint);
-  const lower = Number(inputCalLower.value);
-  const upper = Number(inputCalUpper.value);
-  if (Number.isFinite(lower)) perJointSettings[selectedJoint].lower_deg = lower;
-  if (Number.isFinite(upper)) perJointSettings[selectedJoint].upper_deg = upper;
+  const lower = draftNumber(inputCalLower.value);
+  const upper = draftNumber(inputCalUpper.value);
+  perJointSettings[selectedJoint].lower_deg = lower;
+  perJointSettings[selectedJoint].upper_deg = upper;
+  updateParameterWarnings();
 
   const spanWarn = checkTravelSpan(lower, upper);
   if (spanWarn) {
@@ -507,7 +510,7 @@ function onLimitDraftInput() {
   const currentJointIdx = selectedJoint === 'J1' ? 0 : selectedJoint === 'J2' ? 1 : 2;
   const currentJoint = lastStateData?.joints?.[currentJointIdx];
   const curPos = finiteValue(currentJoint?.position_rad);
-  const curDeg = curPos !== null ? curPos * 180 / Math.PI : Number(inputCalAngle.value) || 0;
+  const curDeg = curPos !== null ? curPos * 180 / Math.PI : draftNumber(inputCalAngle.value) || 0;
 
   updateSceneLimitsForSelectedJoint(curDeg);
   updateJointGauge(curPos, finiteValue(currentJoint?.torque_nm), {
@@ -521,15 +524,15 @@ function onSelectedJointChanged() {
   selectedJoint = selectJoint.value;
   isRangePreview = false;
 
-  if (sectionZeroTitle) sectionZeroTitle.textContent = `3. Set ${selectedJoint} zero & travel`;
+  if (sectionZeroTitle) sectionZeroTitle.textContent = `${selectedJoint} pose reference & travel`;
   if (lblCalAngle) lblCalAngle.textContent = `${selectedJoint} angle at this pose (°)`;
   if (btnZeroJ1) btnZeroJ1.textContent = `Set ${selectedJoint} zero here (0°)`;
   if (gaugeJointTitle) gaugeJointTitle.textContent = `Travel gauge · Selected joint (${selectedJoint})`;
 
   if (selectedJoint === 'J1') {
-    if (calHelpText) calHelpText.innerHTML = 'Point J1 where you want 0° to be, then choose <strong>Set J1 zero here</strong>. Wire-management travel cap is −90° to +90°.';
+    if (calHelpText) calHelpText.innerHTML = 'Before Connect, place J1 at the angle entered above (0° means your zero pose). Connect records that fresh encoder reference without moving the motor. Set zero here changes it while stopped. J1 travel cap is −90° to +90°.';
   } else {
-    if (calHelpText) calHelpText.innerHTML = `Point ${selectedJoint} where you want 0° to be, then choose <strong>Set ${selectedJoint} zero here</strong>. Travel is operator-configured. Verify physical clearance before moving.`;
+    if (calHelpText) calHelpText.innerHTML = `Before Connect, position ${selectedJoint} at the entered angle. Connect records a fresh reference without moving it. Verify your physical travel limits and support the links; CAD cannot prove clearance.`;
   }
 
   const s = perJointSettings[selectedJoint];
@@ -601,19 +604,23 @@ function updateActionControls() {
   if (inputPortPath) inputPortPath.disabled = selectPort.disabled;
   if (selectProfile) selectProfile.disabled = isConnected;
   if (chkThreeSupport) chkThreeSupport.disabled = isConnected;
-  btnConnect.disabled = statePollUnavailable || isConnected || !inputClient.session || !canConnect;
-  btnDisconnect.disabled = !ownsMotor || !isConnected;
-  btnCheck.disabled = statePollUnavailable || !ownsMotor || !isConnected || isArmed;
-  btnAck.disabled = !canAcknowledgeTimeout || !chkAck.checked;
+  btnConnect.disabled = setupBusy || statePollUnavailable || isConnected || !inputClient.session || !canConnect;
+  btnDisconnect.disabled = setupBusy || !ownsMotor || !isConnected;
+  btnCheck.disabled = setupBusy || statePollUnavailable || !ownsMotor || !isConnected || isArmed;
+  btnAck.disabled = setupBusy || !canAcknowledgeTimeout || !chkAck.checked;
   if (timeoutRecovery) timeoutRecovery.hidden = !isConnected || !String(lastStateData?.state || '').startsWith('Timeout');
   if (!isConnected || !String(lastStateData?.state || '').startsWith('Timeout')) chkAck.checked = false;
   const selectedPhysical = lastStateData?.joints?.find(joint => joint.name === selectedJoint)?.configured === true;
-  btnCalibrate.disabled = !selectedPhysical || !ownsMotor || !isConnected || isArmed || !readyStop;
+  btnCalibrate.disabled = setupBusy || !selectedPhysical || !ownsMotor || !isConnected || isArmed || !readyStop;
   btnZeroJ1.disabled = btnCalibrate.disabled;
-  btnConfigure.disabled = !selectedPhysical || !ownsMotor || !isConnected || isArmed || !readyStop;
-  btnArm.disabled = !isConnected || isArmed
+  btnConfigure.disabled = setupBusy || !selectedPhysical || !ownsMotor || !isConnected || isArmed || !readyStop;
+  btnArm.disabled = setupBusy || !isConnected || isArmed
     || !ownsMotor || !lastStateData?.calibrated || !readyStop
     || !chkEnableArm.checked || inputState.stopLatched;
+  if (!setupBusy) chkEnableArm.checked = isArmed;
+  chkEnableArm.disabled = setupBusy || !ownsMotor || !isConnected || !lastStateData?.calibrated || statePollUnavailable;
+  selectJoint.disabled = setupBusy || isArmed;
+  for (const input of [inputCalAngle, selectCalDir, inputCalLower, inputCalUpper, inputKp, inputKd, inputMaxRpm, inputEffort]) input.disabled = setupBusy || isArmed;
   if (btnPreviewMin) btnPreviewMin.disabled = isArmed;
   if (btnPreviewMax) btnPreviewMax.disabled = isArmed;
   btnRelease.disabled = !ownsMotor || !isConnected || !isArmed;
@@ -642,7 +649,7 @@ function updateStatusPresentation(data = lastStateData) {
       stopLatched: inputState.stopLatched,
       armed: isArmed
     }),
-    stopLatched: inputState.stopLatched, stopReason: inputState.stopReason || data?.reason,
+    stopLatched: inputState.stopLatched, stopReason: (String(data?.state).startsWith('Fault') || String(data?.state).startsWith('Stopped')) ? data.reason : inputState.stopReason || data?.reason,
     motionActive: Boolean(inputState.motionEnergized || inputState.isEnergized || followMotion),
     axes: inputState.effectiveAxes, source: inputState.activeDevice,
     followSelected: Boolean(preview.selected && followPreview.checked && currentProfileId === 'arm_j1'),
@@ -743,7 +750,7 @@ function updateDashboardState(data) {
   badgeConnection.className = `badge ${!isConnected ? 'badge-disconnected' : freshFeedback ? 'badge-connected' : 'badge-fault'}`;
 
   const isMoving = Boolean(inputState.motionEnergized || inputState.isEnergized || followMotion);
-  badgeState.textContent = inputState.stopLatched ? 'STOP LATCHED · Check required'
+  badgeState.textContent = inputState.stopLatched ? 'STOPPED · Enable when ready'
     : !armedKnown ? 'Awaiting status'
       : (isArmed ? (isMoving ? 'JOGGING' : 'ARMED · READY TO JOG')
         : (!ownsMotor && data.armed === true ? 'ARMED · OBSERVER'
@@ -976,6 +983,8 @@ function invalidateStatePoll() {
 }
 
 function applyLocalStop(reason) {
+  setupGeneration++;
+  chkEnableArm.checked = false;
   isRangePreview = false;
   preview.clear();
   armScene.showPath(null);
@@ -986,7 +995,7 @@ function applyLocalStop(reason) {
   clearStopRequest(inputState);
   isArmed = false;
   invalidateStatePoll();
-  badgeState.textContent = 'STOP LATCHED · Check required';
+  badgeState.textContent = 'STOPPED · Enable when ready';
   badgeState.className = 'badge badge-fault';
   telStopConfirmed.textContent = 'Stop requested';
   updateActionControls();
@@ -1006,7 +1015,9 @@ async function stopNow(reason, { keepalive = false, log = true } = {}) {
 
 function syncClientStopLatch() {
   if (inputClient.stopLatched && !inputState.stopLatched) {
-    applyLocalStop('client_request_failure');
+    const reason = (String(lastStateData?.state).startsWith('Fault') || String(lastStateData?.state).startsWith('Stopped'))
+      ? lastStateData.reason : inputClient.lastFailureReason || 'Connection request failed; check the dashboard terminal and USB connection.';
+    applyLocalStop(reason);
   }
 }
 
@@ -1060,6 +1071,7 @@ selectProfile?.addEventListener('change', async () => {
     const res = await ensureAction('select_profile', { profile_id: newProfile });
     if (res.status === 'complete' || res.status === 'ok') {
       currentProfileId = newProfile;
+      updateParameterWarnings();
       logEvent(`Profile selected: ${newProfile}`);
       updateProfileUI();
       updateActionControls();
@@ -1073,36 +1085,73 @@ selectProfile?.addEventListener('change', async () => {
   }
 });
 
-btnConnect.addEventListener('click', async () => {
-  const port = inputPortPath?.value.trim() || selectPort.value.trim();
-  const baud = parseInt(inputBaud.value, 10);
-  const id = parseInt(inputId.value, 10);
-  const demo = typeof isDemoMode === 'boolean' ? isDemoMode : false;
-  const profileId = selectProfile.value || currentProfileId;
-  const supportConfirmed = chkThreeSupport?.checked === true;
+async function refreshSetupState() {
+  invalidateStatePoll();
+  const response = await fetch('/api/state', { signal: AbortSignal.timeout(2000) });
+  if (!response.ok) throw new Error(`Motor status request failed (HTTP ${response.status}).`);
+  const data = await response.json();
+  updateDashboardState(data);
+  return data;
+}
 
+function captureConnectionSettings(profileId) {
+  const current = perJointSettings[selectedJoint];
+  for (const [key, input] of Object.entries({ kp: inputKp, kd: inputKd, max_rpm: inputMaxRpm,
+    effort_limit_nm: inputEffort, known_angle_deg: inputCalAngle, lower_deg: inputCalLower, upper_deg: inputCalUpper })) {
+    if (!input.value.trim()) throw new Error(`${selectedJoint} ${key} is required.`);
+    current[key] = Number(input.value);
+  }
+  current.direction = Number(selectCalDir.value);
+  const names = profileId === 'arm_j1_j2_j3' ? ['J1', 'J2', 'J3'] : ['J1'];
+  const entries = names.map(joint => ({ joint, settings: { ...perJointSettings[joint] } }));
+  validateConnectionSettings(entries);
+  for (const { joint } of entries) editedJointDrafts.add(joint);
+  return entries;
+}
+
+function checkedSetupAction(generation) {
+  return async (name, values) => {
+    if (generation !== setupGeneration) throw new Error('Setup cancelled by Stop.');
+    const result = await ensureAction(name, values);
+    if (generation !== setupGeneration) throw new Error('Setup cancelled by Stop.');
+    if (result.status !== 'complete') throw new Error(`${name}: ${result.reason || result.status}`);
+    return result;
+  };
+}
+
+btnConnect.addEventListener('click', async () => {
+  if (setupBusy) return;
+  const profileId = selectProfile.value || currentProfileId;
+  const demo = isDemoMode === true;
+  const supportConfirmed = chkThreeSupport?.checked === true;
   if (!demo && profileId === 'arm_j1_j2_j3' && !supportConfirmed) {
-    logEvent('Connect blocked: physical 3-joint daisychain requires confirming mechanical support (Stop releases torque on all motors).', 'error');
-    showAlert('Confirm arm is mechanically supported before connecting 3-joint daisychain.', 'warn', 5000);
+    showAlert('Support all arm links, then confirm mechanical support before connecting.', 'warn', 5000);
     return;
   }
-
-  logEvent(`Connecting (port=${port}, baud=${baud}, id=${id}, demo=${demo}, profile=${profileId})...`);
+  let entries;
+  try { entries = captureConnectionSettings(profileId); }
+  catch (error) { showAlert(error.message, 'error', 8000); logEvent(error.message, 'error'); return; }
+  const generation = ++setupGeneration;
+  const action = checkedSetupAction(generation);
+  setupBusy = true;
+  updateActionControls();
+  logEvent('Connecting and applying the entered settings and current-pose references. Motors stay stopped.');
   try {
-    const res = await ensureAction('connect', {
-      demo,
-      port,
-      baud,
-      id,
-      profile_id: profileId,
-      support_confirmed: supportConfirmed
-    });
-    ownsMotor = res.status === 'complete';
-    logEvent(`Connect result: ${res.status}${res.reason ? ' (' + res.reason + ')' : ''}`);
+    await action('connect', { demo, port: inputPortPath?.value.trim() || selectPort.value.trim(),
+      baud: Number(inputBaud.value), id: Number(inputId.value), profile_id: profileId, support_confirmed: supportConfirmed });
+    ownsMotor = true;
+    const data = await refreshSetupState();
+    const timeout = data.joints?.some(joint => joint.configured && (joint.timeout === true || joint.timeout === 1));
+    await applyConnectionSettings(action, entries, timeout);
+    clearStopLatch(inputState);
+    await refreshSetupState();
+    logEvent('Connected. Settings and pose references applied. Check Enable movement to jog.');
+  } catch (error) {
+    logEvent(`Connect setup stopped: ${error.message}`, 'error');
+    await stopNow(`Connect setup failed: ${error.message}`);
+  } finally {
+    setupBusy = false;
     updateActionControls();
-  } catch (err) {
-    syncClientStopLatch();
-    logEvent(`Connect rejected: ${err.message}`, 'error');
   }
 });
 
@@ -1200,8 +1249,8 @@ btnConfigure.addEventListener('click', async () => {
   try {
     const kp = readBounded(inputKp, 'Kp', 0, 30);
     const kd = readBounded(inputKd, 'Kd', 0, 6);
-    const maxRpm = readBounded(inputMaxRpm, 'Maximum RPM', 0.1, 1.0);
-    const effort = readBounded(inputEffort, 'Effort limit', 0.1, 1.0);
+    const maxRpm = readBounded(inputMaxRpm, 'Maximum RPM', 0.1, 100.0);
+    const effort = readBounded(inputEffort, 'Effort limit', 0.1, 15.0);
     logEvent(`Configuring ${targetJoint} PD gains: Kp=${kp}, Kd=${kd}, MaxRPM=${maxRpm}, Effort=${effort}Nm...`);
     const res = await ensureAction('configure', {
       joint: targetJoint,
@@ -1227,7 +1276,7 @@ btnConfigure.addEventListener('click', async () => {
 
 btnPreviewMin?.addEventListener('click', () => {
   if (isArmed) { logEvent('Stop movement before previewing a travel limit.', 'warn'); return; }
-  const lower = Number(inputCalLower.value);
+  const lower = draftNumber(inputCalLower.value);
   if (!Number.isFinite(lower)) return;
   const targetRad = ((lower % 360) * Math.PI) / 180;
   preview.clear();
@@ -1249,7 +1298,7 @@ btnPreviewMin?.addEventListener('click', () => {
 
 btnPreviewMax?.addEventListener('click', () => {
   if (isArmed) { logEvent('Stop movement before previewing a travel limit.', 'warn'); return; }
-  const upper = Number(inputCalUpper.value);
+  const upper = draftNumber(inputCalUpper.value);
   if (!Number.isFinite(upper)) return;
   const targetRad = ((upper % 360) * Math.PI) / 180;
   preview.clear();
@@ -1270,35 +1319,46 @@ btnPreviewMax?.addEventListener('click', () => {
 });
 
 chkAck.addEventListener('change', updateActionControls);
-chkEnableArm.addEventListener('change', updateActionControls);
+chkEnableArm.addEventListener('change', () => {
+  if (chkEnableArm.checked) void enableMovement();
+  else void stopNow('Enable movement unchecked');
+});
 
-btnArm.addEventListener('click', async () => {
-  if (!ownsMotor || !chkEnableArm.checked || inputState.stopLatched || !isConnected || isArmed
-    || !freshFeedback || !lastStateData?.calibrated || lastStateData?.state !== 'Ready · Stop'
-    || lastStateData?.stop_confirmed !== true) {
-    logEvent('Arm blocked: this tab must own a calibrated connection with fresh Ready/Stop feedback; clear Stop with Check and confirm Enable.', 'error');
-    updateActionControls();
+async function enableMovement() {
+  if (setupBusy || !chkEnableArm.checked || !ownsMotor || !isConnected || isArmed) return;
+  if (inputState.keysDown.size || inputState.gamepadAxes.some(axis => Math.abs(axis) > 0.01)) {
+    chkEnableArm.checked = false;
+    showAlert('Release all jog keys and center the controller sticks, then check Enable movement.', 'warn', 6000);
     return;
   }
-  isRangePreview = false;
-  if (currentProfileId === 'arm_j1_j2_j3') {
-    preview.clear();
-    armScene.showPath(null);
-    document.getElementById('preview-status').textContent = 'Live / disconnected pose';
-  }
-  logEvent('Requesting jog authority; motor is armed and ready to jog.', 'info');
+  const generation = ++setupGeneration;
+  const action = checkedSetupAction(generation);
+  setupBusy = true;
+  updateActionControls();
   try {
-    const res = await ensureAction('arm', { supported: chkEnableArm.checked });
-    logEvent(`Arm result: ${res.status}${res.reason ? ' (' + res.reason + ')' : ''}`);
-    if (res.status === 'complete') await inputClient.submitJog(false, [0, 0, 0], inputState.activeDevice);
-    chkEnableArm.checked = false;
+    await action('check', {});
+    clearStopLatch(inputState);
+    isRangePreview = false;
+    if (currentProfileId === 'arm_j1_j2_j3') {
+      preview.clear();
+      armScene.showPath(null);
+      document.getElementById('preview-status').textContent = 'Live / disconnected pose';
+    }
+    await action('arm', { supported: true });
+    await inputClient.submitJog(false, [0, 0, 0], inputState.activeDevice);
+    await refreshSetupState();
     document.activeElement?.blur();
+    logEvent('Movement enabled. Use the jog buttons, keyboard, or selected Xbox controller.');
+  } catch (error) {
+    logEvent(`Enable failed: ${error.message}`, 'error');
+    await stopNow(`Enable failed: ${error.message}`);
+  } finally {
+    setupBusy = false;
     updateActionControls();
-  } catch (err) {
-    syncClientStopLatch();
-    logEvent(`Arm rejected: ${err.message}`, 'error');
   }
-});
+}
+
+btnArm.addEventListener('click', () => { void enableMovement(); });
 
 btnRelease.addEventListener('click', () => {
   void stopNow('operator_release_mode_0');
@@ -1452,6 +1512,14 @@ setInterval(pollState, 200);
 setInterval(jogLoop, 50);
 
 function updateParameterWarnings() {
+  const declaration = document.getElementById('connection-declarations');
+  if (declaration) {
+    const names = currentProfileId === 'arm_j1_j2_j3' ? ['J1', 'J2', 'J3'] : ['J1'];
+    declaration.textContent = 'Connect declares current poses: ' + names.map(name => {
+      const s = perJointSettings[name];
+      return `${name} ${Number.isFinite(s.known_angle_deg) ? s.known_angle_deg + '°' : 'angle required'} (travel ${s.lower_deg}° to ${s.upper_deg}°)`;
+    }).join(' · ') + '. Confirm every motor matches its entered pose before Connect.';
+  }
   const warnings = [];
   const isJ1 = selectedJoint === 'J1';
   const lowerCap = isJ1 ? -90 : -360;
@@ -1461,8 +1529,8 @@ function updateParameterWarnings() {
     [sliderJogSpeed, 'Jog multiplier (%)', 0, 100],
     [inputKp, 'Kp', 0, 30],
     [inputKd, 'Kd', 0, 6],
-    [inputMaxRpm, 'RPM', 0, 1],
-    [inputEffort, 'Effort (Nm)', 0, 1],
+    [inputMaxRpm, 'RPM', 0, isJ1 ? 5 : 0.5],
+    [inputEffort, 'Effort (Nm)', 0, 15],
     [inputCalLower, `${selectedJoint} lower angle`, lowerCap, upperCap],
     [inputCalUpper, `${selectedJoint} upper angle`, lowerCap, upperCap]
   ]) {
@@ -1471,7 +1539,7 @@ function updateParameterWarnings() {
     }
   }
 
-  const spanWarn = checkTravelSpan(Number(inputCalLower.value), Number(inputCalUpper.value));
+  const spanWarn = checkTravelSpan(draftNumber(inputCalLower.value), draftNumber(inputCalUpper.value));
   if (spanWarn) {
     travelSpanWarning.style.display = 'block';
     travelSpanWarning.textContent = spanWarn;
@@ -1490,12 +1558,12 @@ for (const input of [sliderJogSpeed, inputKp, inputKd, inputMaxRpm, inputEffort]
 }
 inputCalLower.addEventListener('input', onLimitDraftInput);
 inputCalUpper.addEventListener('input', onLimitDraftInput);
-inputCalAngle.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].known_angle_deg = Number(inputCalAngle.value); });
+inputCalAngle.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].known_angle_deg = draftNumber(inputCalAngle.value); updateParameterWarnings(); });
 selectCalDir.addEventListener('change', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].direction = Number(selectCalDir.value); });
-inputKp.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].kp = Number(inputKp.value); });
-inputKd.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].kd = Number(inputKd.value); });
-inputMaxRpm.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].max_rpm = Number(inputMaxRpm.value); });
-inputEffort.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].effort_limit_nm = Number(inputEffort.value); });
+inputKp.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].kp = draftNumber(inputKp.value); updateParameterWarnings(); });
+inputKd.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].kd = draftNumber(inputKd.value); updateParameterWarnings(); });
+inputMaxRpm.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].max_rpm = draftNumber(inputMaxRpm.value); updateParameterWarnings(); });
+inputEffort.addEventListener('input', () => { editedJointDrafts.add(selectedJoint); perJointSettings[selectedJoint].effort_limit_nm = draftNumber(inputEffort.value); updateParameterWarnings(); });
 selectJoint.addEventListener('change', onSelectedJointChanged);
 
 for (const button of document.querySelectorAll('[data-jog]')) {
@@ -1519,14 +1587,14 @@ document.getElementById('btn-save-draft').addEventListener('click', async () => 
       throw new Error('Draft fields cannot be blank');
     }
     const values = {
-      kp: Number(inputKp.value),
-      kd: Number(inputKd.value),
-      max_rpm: Number(inputMaxRpm.value),
-      effort_limit_nm: Number(inputEffort.value),
-      known_angle_deg: Number(inputCalAngle.value),
+      kp: draftNumber(inputKp.value),
+      kd: draftNumber(inputKd.value),
+      max_rpm: draftNumber(inputMaxRpm.value),
+      effort_limit_nm: draftNumber(inputEffort.value),
+      known_angle_deg: draftNumber(inputCalAngle.value),
       direction: Number(selectCalDir.value),
-      lower_deg: Number(inputCalLower.value),
-      upper_deg: Number(inputCalUpper.value)
+      lower_deg: draftNumber(inputCalLower.value),
+      upper_deg: draftNumber(inputCalUpper.value)
     };
     if (!Object.values(values).every(Number.isFinite)) throw new Error('Draft values must be finite numbers');
     const response = await fetch('/api/draft', {

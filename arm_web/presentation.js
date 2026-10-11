@@ -4,6 +4,10 @@ const MOTION_COLORS = {
   emerald: 'var(--accent-emerald)', amber: 'var(--accent-amber)'
 };
 
+export function draftNumber(value) {
+  return typeof value === 'string' && value.trim() ? Number(value) : NaN;
+}
+
 export function finiteNumber(value) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -148,6 +152,36 @@ export function deriveWorkflowSteps(state = {}) {
   };
 }
 
+export function validateConnectionSettings(entries) {
+  for (const { joint, settings: s } of entries) {
+    for (const key of ['kp', 'kd', 'max_rpm', 'effort_limit_nm', 'known_angle_deg', 'lower_deg', 'upper_deg']) {
+      if (!Number.isFinite(s[key])) throw new Error(`${joint} ${key} must be a finite number.`);
+    }
+    if (![1, -1].includes(s.direction) || s.lower_deg >= s.upper_deg
+      || s.known_angle_deg < s.lower_deg || s.known_angle_deg > s.upper_deg) {
+      throw new Error(`${joint} needs ordered limits containing its declared current angle.`);
+    }
+    if (joint === 'J1' && (s.lower_deg < -90 || s.upper_deg > 90)) {
+      throw new Error('J1 applied travel must stay within -90° to +90°. Larger values can remain drafts.');
+    }
+    if (s.kp <= 0 || s.kp > 30 || s.kd < 0 || s.kd > 6
+      || s.max_rpm <= 0 || s.max_rpm > 100 || s.effort_limit_nm <= 0 || s.effort_limit_nm > 15) {
+      throw new Error(`${joint} applied settings require Kp above 0 through 30, Kd 0–6, speed above 0 through 100 RPM and effort above 0 through 15 Nm.`);
+    }
+  }
+}
+
+export async function applyConnectionSettings(action, entries, startupTimeout) {
+  validateConnectionSettings(entries);
+  if (startupTimeout) await action('ack', { supported: true });
+  for (const { joint, settings: s } of entries) {
+    await action('configure', { joint, kp: s.kp, kd: s.kd, max_rpm: s.max_rpm, effort_limit_nm: s.effort_limit_nm });
+    await action('check', {});
+    await action('calibrate', { joint, known_angle_deg: s.known_angle_deg, direction: s.direction, lower_deg: s.lower_deg, upper_deg: s.upper_deg });
+    await action('check', {});
+  }
+}
+
 export function deriveDashboardPresentation(state) {
   const connectionKnown = state.connectionKnown === true;
   const connected = state.connected === true;
@@ -174,11 +208,11 @@ export function deriveDashboardPresentation(state) {
     };
   } else if (stopLatched) {
     const recovery = !connected
-      ? 'Reconnect this session, then Check motor.'
+      ? 'Connect here, then check Enable movement.'
       : !owner
-        ? 'Use the controlling tab to Check motor; this tab cannot clear Stop.'
-        : 'Check motor to clear Stop, then enable movement again.';
-    alert = { type: 'error', message: 'STOP pressed' + (state.stopReason ? ': ' + state.stopReason : '') + '. ' + recovery };
+        ? 'Use the controlling tab; this tab cannot enable movement.'
+        : 'Resolve the reported cause, then check Enable movement. It checks the motor before enabling.';
+    alert = { type: 'error', message: 'Movement stopped' + (state.stopReason ? ': ' + state.stopReason : '') + '. ' + recovery };
   } else if (connectionKnown && connected && !owner) {
     const condition = timeout ? ' A startup timeout is active.' : !fresh ? ' Feedback is stale.' : '';
     alert = {
@@ -189,7 +223,7 @@ export function deriveDashboardPresentation(state) {
   } else if (connectionKnown && connected && !fresh) {
     alert = {
       type: 'error',
-      message: 'No recent motor reply. Movement is locked. Check USB, motor power, ID 0, and Channel D, then select Check motor.'
+      message: 'No recent motor reply. Movement is locked. Check USB, motor power, ID 0, and Channel D, then check Enable movement to request a fresh motor check.'
     };
   } else if (connectionKnown && connected && timeout) {
     alert = {
@@ -248,16 +282,17 @@ export function deriveDashboardPresentation(state) {
     guidance = 'Check the terminal running ./start_arm.sh. Waiting for the dashboard server to respond.';
   } else if (!connected) {
     guidance = stopLatched
-      ? 'Reconnect the controlling session, then Check motor.'
+      ? 'Connect the controlling session, then check Enable movement.'
       : state.demo === true
         ? (isThreeJoint ? 'Select Connect to start simulated 3-joint arm. No USB adapter is needed.' : 'Select Connect to start simulated J1. No USB adapter is needed.')
-      : (isThreeJoint ? 'Select the USB adapter, confirm mechanical support acknowledgment, then Connect.' : 'Select the USB adapter, then Connect. If none appears, reconnect it and select Refresh.');
+      : (isThreeJoint ? 'Select the USB adapter, confirm mechanical support acknowledgment, then Connect.' : 'Position J1 at its entered angle, select the USB adapter, then Connect and check Enable movement. If no adapter appears, reconnect it and select Refresh.');
   } else if (!owner) {
     guidance = 'Another tab controls this motor. Use that tab to check or disconnect; this tab cannot move it.';
-  } else if (!fresh) {
-    guidance = 'No recent motor reply; movement is locked. Check USB, motor power, ID 0, and Channel D, then select Check motor.';
   } else if (stopLatched) {
-    guidance = 'Select Check motor to clear Stop, then confirm your setup and enable movement.';
+    guidance = 'Movement is stopped. After resolving any reported fault, check Enable movement to request fresh feedback and enable.';
+  } else if (!fresh) {
+    guidance = 'No recent motor reply; movement is locked. Check USB, motor power, ID 0, and Channel D, then check Enable movement to request a fresh motor check.';
+
   } else if (timeout) {
     guidance = timeoutAcknowledgementAvailable
       ? 'The motor stays stopped. Confirm it is secure, then select Acknowledge timeout.'

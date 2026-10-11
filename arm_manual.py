@@ -34,7 +34,7 @@ from im6014_serial import (
     exchange,
 )
 from im6014_transport import WriteResult
-from spin_5rpm import PORT, healthy
+from spin_5rpm import MAX_CONFIGURED_EFFORT_NM, PORT, healthy
 
 MAX_SESSIONS = 16
 MAX_QUEUE = 64
@@ -51,10 +51,12 @@ SCHEDULE_GAP_MAX_S = 0.080
 PER_STEP_DT_MAX_S = 0.020
 
 MAX_ACCEL_RAD_S2 = 0.3
-MAX_RATE_RPM = 1.0
-MAX_MEASURED_SPEED_RPM = 1.5
+MAX_RATE_RPM = 100.0
+MIN_MEASURED_SPEED_MARGIN_RPM = 5.0
+MEASURED_SPEED_MARGIN_RATIO = 0.2
+MAX_MEASURED_SPEED_RPM = MAX_RATE_RPM * (1 + MEASURED_SPEED_MARGIN_RATIO)
 MAX_MEASURED_LEAD_RAD = 0.05
-DEFAULT_EFFORT_CEILING_NM = 1.0
+DEFAULT_EFFORT_CEILING_NM = MAX_CONFIGURED_EFFORT_NM
 
 DEFAULT_SETTINGS = {
     'kp': 15.0,
@@ -125,6 +127,11 @@ def _finite_number(value, name):
     if not math.isfinite(result):
         raise ValueError(f'{name} must be finite')
     return result
+
+
+def _measured_speed_limit(max_rpm):
+    margin = max(MIN_MEASURED_SPEED_MARGIN_RPM, max_rpm * MEASURED_SPEED_MARGIN_RATIO)
+    return min(MAX_MEASURED_SPEED_RPM, max_rpm + margin)
 
 
 class DemoSerial:
@@ -278,6 +285,7 @@ class ArmManualSession:
         self.armed = False
         self.stop_confirmed = False
         self.stop_latched = True
+        self._stop_cause = None
         self.deadman_active = False
         self.require_neutral = True
         self.target_axes = [0.0, 0.0, 0.0]
@@ -470,6 +478,8 @@ class ArmManualSession:
             return value
 
     def _latch_stop_locked(self, reason):
+        if self._stop_cause is None:
+            self._stop_cause = str(reason)[:240]
         self.generation += 1
         self.stop_requested.set()
         self.stop_work.set()
@@ -493,8 +503,9 @@ class ArmManualSession:
         self.intent_expires_at = None
         self.tickets.clear()
         if self.data['connected'] and self.data['state'] != 'Fault — serial close unconfirmed':
-            self.data['state'] = 'Stopped · re-check required'
-            self.data['reason'] = str(reason)[:240]
+            if not self.data['state'].startswith('Fault —'):
+                self.data['state'] = 'Stopped · re-check required'
+            self.data['reason'] = self._stop_cause
         self._event('STOP LATCHED: ' + str(reason)[:180])
         self.wake.set()
 
@@ -1030,7 +1041,6 @@ class ArmManualSession:
             self.data['stop_confirmed'] = self.stop_confirmed
 
     def _stop(self):
-        """Owner-thread mode-0 attempts; independent of the authority clock."""
         self._assert_owner_thread()
         with self.lock:
             self.armed = False
@@ -1182,7 +1192,10 @@ class ArmManualSession:
         if abs(reply.get('torque_nm', math.inf)) > joint.settings['effort_limit_nm']:
             self._record_overload(f'{joint.spec.name} measured motor effort exceeds its configured ceiling', joint)
             raise RuntimeError('Measured torque exceeds the configured effort ceiling')
-        healthy(reply, mode, allow_timeout=allow_timeout)
+        healthy(
+            reply, mode, allow_timeout=allow_timeout,
+            torque_limit_nm=joint.settings['effort_limit_nm'],
+        )
         return True
 
     def _fresh_feedback_age(self, now=None, joint=None):
@@ -1260,6 +1273,7 @@ class ArmManualSession:
                 self.data['state'] = 'Fault — retained protection fault'
                 self.data['reason'] = 'Retained protection fault: ' + self.protection_fault
                 raise RuntimeError(self.data['reason'])
+            self._stop_cause = None
             self.stop_confirmed = all(joint.stop_confirmed for joint in self.configured_joints)
             self.data['stop_confirmed'] = self.stop_confirmed
             timeouts = [joint.spec.name for joint in self.configured_joints if replies[joint.spec.name]['timeout']]
@@ -1336,6 +1350,7 @@ class ArmManualSession:
             self.stop_latched = False
             self.stop_requested.clear()
             self.stop_work.clear()
+            self._stop_cause = None
             self.data['state'] = 'Ready · Stop'
             self.data['reason'] = 'Startup timeout acknowledged in Stop; firmware watchdog restored.'
             self._event('Startup timeout acknowledged in Stop; firmware watchdog restored.')
@@ -1776,9 +1791,11 @@ class ArmManualSession:
 
     def _check_motion_reply(self, joint, reply, decoded_joint_q):
         self._validate_feedback(reply, 1, joint=joint)
-        if abs(reply['rpm']) > MAX_MEASURED_SPEED_RPM:
+        speed_limit = _measured_speed_limit(joint.settings['max_rpm'])
+        if abs(reply['rpm']) > speed_limit:
             raise RuntimeError(
-                f'Measured speed {reply["rpm"]:.3f} rpm exceeds {MAX_MEASURED_SPEED_RPM} rpm'
+                f'Measured speed {reply["rpm"]:.3f} rpm exceeds configured trip {speed_limit:.3f} rpm '
+                f'({joint.settings["max_rpm"]:.3f} rpm command limit plus servo margin)'
             )
         direction = joint.settings['direction']
         measured_q = direction * (reply['position_rad'] - joint.q_zero)
@@ -1805,20 +1822,23 @@ class ArmManualSession:
         stop_ok = self._stop()
         with self.lock:
             if stop_ok:
-                self.data['state'] = 'Stopped · re-check required'
-                self.data['reason'] = str(reason)[:240]
+                if not self.data['state'].startswith('Fault —'):
+                    self.data['state'] = 'Stopped · re-check required'
+                self.data['reason'] = self._stop_cause or str(reason)[:240]
             else:
                 self.data['state'] = 'Fault — Stop unconfirmed'
-                self.data['reason'] = 'No actual mode-0 response confirmed Stop after input loss.'
+                self.data['reason'] = self._stop_cause or 'No actual mode-0 response confirmed Stop after input loss.'
         self.stop_work.clear()
 
     def _trip_fault(self, error):
         message = str(error) or type(error).__name__
         with self.lock:
+            if not self.data['state'].startswith('Fault —'):
+                self._stop_cause = message[:240]
             self._latch_stop_locked(message)
             if self.data['state'] != 'Fault — serial close unconfirmed':
                 self.data['state'] = 'Fault — disarmed'
-                self.data['reason'] = message[:240]
+                self.data['reason'] = self._stop_cause or message[:240]
         self._stop()
         if not self.data['connected'] and (self.bus is not None or self.port_owner is not None):
             if self._close_resource():
@@ -1834,7 +1854,7 @@ class ArmManualSession:
                     self.data['connected'] = False
             if self.data['state'] != 'Fault — serial close unconfirmed':
                 self.data['state'] = 'Fault — disarmed'
-                self.data['reason'] = message[:240]
+                self.data['reason'] = self._stop_cause or message[:240]
             self.data['armed'] = False
             self.armed = False
         self.stop_work.clear()
@@ -2022,12 +2042,16 @@ class ArmManualSession:
         with self.lock:
             if self.data['connected'] and self.data['state'] != 'Fault — serial close unconfirmed':
                 if result:
-                    self.data['state'] = 'Stopped · re-check required'
+                    self.data['state'] = (
+                        'Fault — disarmed' if self.data['state'].startswith('Fault —')
+                        else 'Stopped · re-check required'
+                    )
                     if self.data['reason'] == 'Select an adapter and connect.':
                         self.data['reason'] = 'Click Check connection before re-arming.'
                 else:
                     self.data['state'] = 'Fault — Stop unconfirmed'
-                    self.data['reason'] = 'No actual mode-0 response confirmed Stop.'
+                    if not self.data['reason']:
+                        self.data['reason'] = 'No actual mode-0 response confirmed Stop.'
 
     def _dispatch_job(self, job):
         if len(job) == 5:

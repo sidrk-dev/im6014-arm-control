@@ -36,22 +36,22 @@
           <span>Connect motor</span>
         </div>
         <span class="step-arrow">→</span>
-        <div id="step-check" class="step-node">
+        <div id="step-check" class="step-node" hidden style="display: none;">
           <span class="step-num">2</span>
           <span>Check motor</span>
         </div>
-        <span class="step-arrow">→</span>
-        <div id="step-zero" class="step-node">
+
+        <div id="step-zero" class="step-node" hidden style="display: none;">
           <span class="step-num">3</span>
           <span id="step-zero-title">Set J1 zero</span>
         </div>
-        <span class="step-arrow">→</span>
+
         <div id="step-jog" class="step-node">
-          <span class="step-num">4</span>
+          <span class="step-num">2</span>
           <span>Enable movement</span>
         </div>
       </div>
-      <p id="workflow-help" class="workflow-help">Choose the USB adapter, connect, check the motor, set J1 zero, then enable movement.</p>
+      <p id="workflow-help" class="workflow-help">Choose the USB adapter, confirm the entered pose and limits, then Connect and check Enable movement.</p>
     </div>
 
     <div id="alert-banner" class="alert-banner" style="display: none;"></div>
@@ -141,18 +141,22 @@
           <input type="hidden" id="input-baud" value="6000000">
           <input type="hidden" id="input-id" value="0">
           <p id="connection-note" class="connection-note">Motor ID 0 · 6 Mbaud. Connection is confirmed only by fresh J1 feedback.</p>
+          <p class="plain-help"><strong>Before Connect:</strong> place each motor at its entered angle below. Connect applies these current-pose references, limits and gains while stopped. It never homes the motor. Enable remains off.</p>
+          <p id="connection-declarations" class="plain-help" role="status"></p>
           <div class="btn-group">
             <button id="btn-connect" class="btn btn-primary">Connect</button>
             <button id="btn-disconnect" class="btn" disabled>Disconnect</button>
           </div>
         </div>
 
+        <details class="optional-settings">
+          <summary>Manual connection diagnostics</summary>
         <div class="control-section">
           <div class="section-title">
             <span>2. Check the motor</span>
             <span class="section-title-sub">Fresh Stop feedback required</span>
           </div>
-          <p class="plain-help">After connecting, select Check motor. This reads status and keeps movement locked until the motor confirms Stop.</p>
+          <p class="plain-help">Connect and Enable run the status checks automatically. These manual controls are available for diagnosis.</p>
           <div class="btn-group" style="margin-top: 8px;">
             <button id="btn-check" class="btn" disabled title="Read the motor's current status">Check motor</button>
           </div>
@@ -164,9 +168,11 @@
           </div>
         </div>
 
+        </details>
+
         <div class="control-section">
           <div class="section-title">
-            <span id="section-zero-title">3. Set joint zero & travel</span>
+            <span id="section-zero-title">Pose reference & travel</span>
             <span id="section-zero-sub" class="section-title-sub">No movement</span>
           </div>
           <div class="form-group">
@@ -217,7 +223,8 @@
         </div>
 
         <details class="control-section">
-          <summary>Advanced: PD Gains & Motion Limits</summary>
+          <summary>Gains & motion limits</summary>
+          <p class="plain-help">J1 starts with the bench-tested 5 RPM, Kp 30, Kd 3 and 4 Nm protection setting. Effort is a trip threshold, not a firmware torque clamp. J2/J3 retain slow commissioning defaults.</p>
           <div id="applied-settings" role="status" style="margin-top: 6px; font-size: 11px; color: var(--text-secondary);">Applied settings awaiting status.</div>
           <div id="parameter-warning" role="status"></div>
           <div class="form-row" style="margin-top: 8px;">
@@ -249,7 +256,7 @@
 
         <div class="control-section">
           <div class="section-title">
-            <span>4. Enable movement</span>
+            <span>2. Enable movement</span>
             <span class="section-title-sub">Requires fresh motor feedback</span>
           </div>
           <div class="form-group">
@@ -262,10 +269,10 @@
           </div>
           <div class="secured-arm-box">
             <input type="checkbox" id="chk-enable-arm">
-            <label id="enable-support-label" for="chk-enable-arm">The base is secure, J1 travel is clear, and I can reach the E-stop</label>
+            <label id="enable-support-label" for="chk-enable-arm">Enable movement · Base secured, travel clear, E-stop available</label>
           </div>
           <div class="btn-group" style="margin-top: 8px;">
-            <button id="btn-arm" class="btn btn-warning" disabled>Enable J1 movement</button>
+            <button id="btn-arm" class="btn btn-warning" hidden style="display: none;" disabled>Enable J1 movement</button>
             <button id="btn-release" class="btn btn-danger" disabled>Stop motor</button>
           </div>
           <div class="plain-help">
