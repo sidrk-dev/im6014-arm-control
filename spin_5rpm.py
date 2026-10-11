@@ -15,16 +15,21 @@ from im6014_serial import PacketCapture, capture_exchange, exchange
 from im6014_port import PortConfig, inspect_port, open_managed_port
 
 PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
+MAX_CONFIGURED_EFFORT_NM = 15.0
 
-def healthy(f, mode, allow_timeout=False, speed_limit=0):
+def healthy(f, mode, allow_timeout=False, speed_limit=0, torque_limit_nm=4):
+    if (type(torque_limit_nm) not in (int, float)
+            or not math.isfinite(torque_limit_nm)
+            or not 0 < torque_limit_nm <= MAX_CONFIGURED_EFFORT_NM):
+        raise ValueError(f'torque_limit_nm must be in (0, {MAX_CONFIGURED_EFFORT_NM}]')
     if f['mode'] != mode or f['errors'] or f['warnings'] or f['timeout'] and not allow_timeout:
         raise RuntimeError('Motor mode/fault/warning/timeout gate: ' + json.dumps(f))
     if not 24 <= f['voltage'] <= 72 or not -10 <= f['driver_c'] <= 70 or f['winding_c'] > 90:
         raise RuntimeError('Voltage/temperature outside bench limits: ' + json.dumps(f))
     if speed_limit and abs(f['rpm']) > speed_limit:
         raise RuntimeError('Measured speed exceeds configured limit: ' + json.dumps(f))
-    if abs(f['torque_nm']) > 4:
-        raise RuntimeError('Torque exceeds bench limit: ' + json.dumps(f))
+    if abs(f['torque_nm']) > torque_limit_nm:
+        raise RuntimeError(f'Torque exceeds configured limit of {torque_limit_nm} Nm: ' + json.dumps(f))
 
 
 def _captured_exchange(capture, bus, packet, args, *, source, identity, connection, port, baud):
@@ -57,7 +62,6 @@ def run(bus, args, log, capture=None, *, capture_source=None, capture_identity=N
     started = time.monotonic()
     first = transact(allow_timeout=args.ack_timeout)
     if first['timeout']:
-        # Explicit startup-only acknowledgment while stopped, never during motion/recovery.
         transact(watchdog=False, allow_timeout=True)
     initial = transact()
     print('STOP/status verified:', json.dumps(initial), flush=True)
@@ -80,7 +84,6 @@ def run(bus, args, log, capture=None, *, capture_source=None, capture_identity=N
             break
         if now - last_reply > 0.1:
             raise RuntimeError('Host feedback watchdog expired; motion remains disarmed')
-        # 0.75-second acceleration/deceleration ramps, with zero position stiffness.
         ramp = min(1, elapsed / 0.75, (args.duration - elapsed) / 0.75)
         torque_ff = args.torque_ff * ramp * (1 if args.rpm > 0 else -1) if args.rpm else 0
         f = transact(1, args.rpm * ramp, args.kd, torque_ff)
@@ -108,7 +111,6 @@ def main():
     parser.add_argument('--baud', type=int, choices=(4000000, 6000000), default=6000000)
     parser.add_argument('--rpm', type=float, default=5)
     parser.add_argument('--kd', type=float, default=6)
-    # Measured unloaded-bench friction compensation; retune for a different motor/load.
     parser.add_argument('--torque-ff', type=float, default=0.16)
     parser.add_argument('--duration', type=float, default=5)
     parser.add_argument('--speed-limit', type=float, default=0, help='Optional measured-speed trip in rpm; 0 disables it')
@@ -134,7 +136,6 @@ def main():
     except ValueError as error:
         parser.error(str(error))
     print(port_report, flush=True)
-    # Confirm the result location is writable before commanding hardware.
     path = Path(args.log)
     capture = PacketCapture()
     log = dict(settings=vars(args), samples=[], stopped=False, error=None,

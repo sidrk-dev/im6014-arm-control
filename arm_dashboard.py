@@ -53,7 +53,7 @@ _cached_ports: list[dict[str, Any]] = []
 _cached_ports_time: float = 0.0
 _cached_ports_error: str | None = None
 TOP_LEVEL_FIELDS = frozenset({
-    "physical_enabled", "default_port", "ports", "port_error", "state", "reason", "connected", "demo", "calibrated", "armed", "stop_confirmed",
+    "physical_enabled", "default_port", "ports", "port_error", "state", "reason", "connected", "demo", "profile_id", "profiles", "calibrated", "armed", "stop_confirmed",
     "feedback_age_s", "settings", "joints", "latest", "latest_feedback", "events",
 })
 SETTING_FIELDS = frozenset({
@@ -61,9 +61,9 @@ SETTING_FIELDS = frozenset({
     "direction", "known_angle_deg", "source", "units",
 })
 JOINT_FIELDS = frozenset({
-    "name", "source", "position_rad", "velocity_rad_s", "torque_nm", "mode", "timeout",
+    "name", "id", "source", "configured", "calibrated", "position_rad", "velocity_rad_s", "torque_nm", "mode", "timeout",
     "voltage", "driver_temp", "winding_temp", "errors", "warnings", "state", "status",
-    "feedback_age_s", "age_s",
+    "feedback_age_s", "age_s", "health", "stop_confirmed", "stop_result", "stop_error", "protection_fault", "settings", "latest",
 })
 LATEST_FIELDS = JOINT_FIELDS | frozenset({"time_s", "sequence", "measured_at_s"})
 EVENT_FIELDS = frozenset({"time_s", "kind", "severity", "action", "status"})
@@ -139,6 +139,17 @@ def _project_fields(data: Any, fields: frozenset[str]) -> dict[str, Any] | None:
         elif key == "joints":
             if isinstance(value, list):
                 projected[key] = [joint for item in value[:8] if (joint := _project_fields(item, JOINT_FIELDS)) is not None]
+        elif key == "profiles":
+            if isinstance(value, list):
+                profiles_list = []
+                for item in value[:8]:
+                    if isinstance(item, dict):
+                        p_id = _safe_text(item.get("id"), 64)
+                        joints_val = item.get("joints")
+                        if p_id is not None and isinstance(joints_val, list):
+                            safe_joints = [j for j in (_safe_text(name, 16) for name in joints_val[:8]) if j is not None]
+                            profiles_list.append({"id": p_id, "joints": safe_joints})
+                projected[key] = profiles_list
         elif key in ("latest", "latest_feedback"):
             if isinstance(value, list):
                 projected[key] = [item for entry in value[:16] if (item := _project_fields(entry, LATEST_FIELDS)) is not None]
@@ -500,7 +511,10 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
 
     def _handle_post_draft(self, data):
         try:
-            draft = self.server.session.edit_parameters(data.get('session'), data.get('values'))
+            session_val = data.get('session')
+            values_val = data.get('values')
+            joint_val = data.get('joint', 'J1')
+            draft = self.server.session.edit_parameters(session_val, values_val, joint=joint_val)
         except (ValueError, TypeError) as error:
             self._send_error_json(HTTPStatus.BAD_REQUEST, str(error))
             return

@@ -1,72 +1,77 @@
-# Arm control: one real J1, two virtual joints
-
-> **Physical scope:** this dashboard sends motor commands to J1 at ID 0. J2 and J3 move only in the colored CAD preview; they have no physical motor, health feedback, or Stop confirmation here.
+# Arm dashboard quick start
 
 ## Start
 
-From this repository, run:
+From the Workbench checkout, run:
 
-```bash
+```sh
 ./start_arm.sh
 ```
 
-Open **http://127.0.0.1:8768/**. The server starts disconnected. For a USB-free preview, use `./start_arm.sh --demo` instead. Stop the server with Ctrl+C before switching modes. If port 8768 is already in use, close the previous dashboard terminal; do not run two controllers. The older `start_dashboard.sh` opens the separate bench UI.
-
-The launcher uses `.venv` when present. To install on another computer:
-
-```bash
-python3 -m venv .venv
-.venv/bin/pip install pyserial
-./start_arm.sh
-```
+Open http://127.0.0.1:8768/. For a USB-free simulation, run `./start_arm.sh --demo` instead. Stop an existing dashboard before starting another one on the same port. The original Development repository is separate.
 
 ## Connect and move J1
 
-1. Secure the unloaded motor, clear its output, supply power, and keep the physical E-stop reachable. Close the old development controller. This dashboard controls **ID 0 only** at 6,000,000 baud. Select the USB adapter marked **Channel D · Recommended**, then select **Connect**. Listing and Refresh are passive: they do not open or probe a port. Built-in `/dev/ttyS0`, `/dev/ttyS1`, and similar laptop ports are hidden so they cannot be mistaken for the USB motor adapter. If no adapter appears, reconnect the USB-RS485 adapter and select **Refresh**. For a different adapter, open **Using a different adapter?** and enter its **Port path**.
-2. Select **Check motor** and wait for the fresh-feedback status. A listed path alone is not a connection. If fresh feedback reports a startup timeout, keep the motor stopped, confirm the setup is secure and you can cut power, then select **Acknowledge timeout**. It acknowledges only the timeout bit in Stop, then restores watchdog protection. Other motor faults are not cleared. Stale feedback disables acknowledgment and movement; the dashboard labels cached values as stale and shows the last reply age.
-3. With the motor stopped, point it along your chosen zero direction and click **Set J1 zero here (0°)**. Alternatively, enter the motor's known angle at its current pose and click **Use entered angle**. This declares a software reference; it does not discover a mechanical home. Default travel is **−90° to +90°**, the software ceiling; choose a narrower window when your setup needs it.
-4. While stopped, select **Keyboard and on-screen buttons** or a detected standard Xbox controller. Release all jog keys and center both sticks. Confirm the setup checkbox, then click **Enable J1 movement**. Enable requires fresh Ready/Stop feedback and sends a neutral sample; release keys or center sticks once after enabling before motion is accepted.
-5. Press **A / D** for J1, click its on-screen **− / +** buttons, or use the selected Xbox stick directly. **Enable J1 movement** is the explicit start action; no key or button must be held as a deadman. Releasing a jog key/button or centering the stick holds position. **Esc, Xbox B, or STOP sends Stop and disarms**. Select **Check motor**, then enable movement again after Stop. W/S and Q/E move virtual J2/J3 only.
+1. Secure the motor and keep its travel clear. Keep the physical E-stop accessible.
+2. Select **J1 only** and the recommended **Channel D** USB adapter. Use **Refresh** if it is missing. Enumeration alone does not prove motor communication.
+3. Put the motor at the position you want to call zero. Leave **J1 angle at this pose** at `0`, or enter its known physical angle. Check the minimum and maximum angles. Connect uses this current physical pose as that entered angle; it never homes the motor or restores a saved absolute zero.
+4. Select **Connect**. It verifies actual Stop feedback, acknowledges a startup timeout while stopped if necessary and restores the watchdog, applies the entered gains and limits, and records a fresh encoder reference. The motor stays disarmed. A failed step shows its reason and requests Stop.
+5. Release jog keys and center controller sticks. Check **Enable movement**. The dashboard runs the health check and enables jogging. There is no second Arm button or held Space/RB requirement.
+6. Hold **A/D** or the on-screen minus/plus buttons to move J1. Release to hold position. **STOP**, **Esc**, **Xbox B**, or unchecking Enable requests Stop and disarms. After resolving a reported issue, checking Enable performs the re-check automatically. It never clears a retained motor protection fault.
 
-Do not navigate away while moving: hiding or closing the owner tab requests Stop. An independently opened tab starts as an observer; only an explicit successful Connect with a new session can take ownership after the current owner disconnects. Browser Duplicate Tab or an opener can copy sessionStorage and reuse the same authenticated owner session. Use one controlling tab and open another independently to observe; do not duplicate the controlling tab. A resumed owner is confirmed through authenticated session status. An observer cannot send jog input or claim an armed motor. If the owner tab is lost, use the visible owner session or restart the server after confirming the motor is physically safe; do not assume a new tab has taken control.
+The current J1 UI settings are **Kp 30, Kd 3, maximum 5 RPM, effort protection 4 Nm**, with a 50% jog multiplier. These were checked on the unloaded bench motor. They are not an assembled-arm tune. J2/J3 keep slow commissioning defaults.
 
-## Xbox
+The dashboard shows fresh measured joint feedback separately from preview animation. If another tab owns the connection, disconnect there first. A disconnected preview never proves a motor is connected.
 
-Focus the dashboard and press **A once** to let the browser detect the controller. A newly detected or replaced controller requires **Check motor**. Select Xbox as the input source while stopped. If the in-app browser cannot read controllers, open the same address in Chrome or Firefox. Center both sticks, then explicitly **Enable J1 movement** and center once more before moving.
+## Three motors on one cable
 
-Use a standard-mapped controller: left stick X jogs J1 directly, left stick Y is virtual J2, and right stick Y is virtual J3. **B stops**. The input source cannot be changed while armed; stop, Check, and select another source while disarmed. Small stick drift is filtered. The software mapping is checked; a physical Xbox controller has not been tested on this laptop.
+Assign each motor a unique ID using the vendor tool **one motor at a time**, before daisy-chaining:
 
-## Calibration, limits and PD tuning
+| Joint | Motor ID |
+| --- | --- |
+| J1 base yaw | 0 |
+| J2 shoulder | 1 |
+| J3 elbow | 2 |
 
-Open **Advanced: PD Gains & Motion Limits** while disarmed. Draft fields accept any finite number and show warnings outside recommendations. **Save draft** stores the draft in backend memory without changing motor commands; drafts are discarded when the server stops. **Apply settings** applies only values accepted by physical command limits. The displayed **Applied** line is authoritative.
+All use 6 Mbaud. Select **3-joint daisychain** while disconnected. Support the shoulder/elbow links mechanically because Stop can release torque. Confirm the displayed support acknowledgment before physical Connect.
 
-Current physical command limits are Kp > 0 up to 30, Kd 0–6, speed up to 1 rpm, effort up to 1 Nm, and J1 travel within ±90°. The UI defaults to the full ±90° software window; narrow it before arming if your setup needs less travel. Your wire-management requirement limits J1 to 180° total even though the unloaded output can rotate farther. Ordered limits must contain the declared current angle. A reconnect requires a new angle declaration; power-cycle absolute-reference behavior remains unverified.
+Select each target joint to enter its actual current angle, motor direction and travel limits before Connect. Connect applies all three captured declarations and settings while stopped. All selected motors must return fresh healthy feedback and have a valid current reference before Enable can succeed. A missing or faulted motor stops the entire configured arm; Stop attempts all IDs even when one does not reply. Reconnect invalidates every previous reference.
 
-Defaults **Kp 15, Kd 3, 0.5 rpm, 1 Nm**, with the 50% jog multiplier, come from the unloaded J1 bench checks. They are not an assembled-arm tune. Change one gain at a time while disarmed, Apply, then explicitly re-enable. Kp controls stiffness, Kd damping. There is **no exposed integral gain**; these are output PD gains, not firmware PID calibration. Never increase effort merely to hide a jam or oscillation.
+Do not use CAD collision appearance as a measured physical clearance. Preview min/max and the travel arc are visual aids. They never command motors. Set physical limits inside measured clearance, including cables and fasteners. Real J2/J3 motion and loaded-arm support have not yet been tested here.
 
-## What has been demonstrated
+## Reference angles, limits and tuning
 
-Earlier recorded unloaded J1 runs moved **2.71°** and **0.52°** in bounded bench/dashboard checks; both ended in confirmed Stop and disconnect. The earlier Kd 0.1 tune also produced an intermittent speed-protection trip; it is not the default. With Kd 1, two bounded dashboard runs moved +0.39° and −0.94°, without errors, then confirmed Stop and disconnect. These are historical unloaded bench observations, not an assembled-arm tune or current telemetry. A CAD view alone is not physical feedback. Physical Xbox use and an assembled three-motor arm are not verified. Gravity compensation and impedance control remain deferred until basic commissioning is complete.
+**Set zero here** maps the selected joint's current stopped encoder position to zero. **Use entered angle** maps it to the angle in the field. These buttons remain available for recalibration after Connect. Neither moves the motor. Confirm direction with a small jog before increasing travel.
 
-## If Connect fails
+Draft fields accept any finite number and warn about recommended ranges. Applying physical settings still requires ordered limits containing the declared angle, Kp above zero through 30, Kd 0–6, speed above zero through 100 RPM, and effort above zero through 15 Nm. J1 applied travel stays within -90° to +90° for wire management. J2/J3 travel is operator-defined and must be physically commissioned.
 
-- **No compatible adapter found:** reconnect the FTDI USB-RS485 adapter and select **Refresh**. The Channel D path on this laptop is `/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0`. Adapter identities differ on other computers; seeing a path in the list does not prove motor communication.
-- **Channel D is missing but another adapter appears:** do not guess. Check the FTDI adapter and cable. Open **Using a different adapter?** and enter its **Port path** only if you know your adapter exposes a different path.
-- **Already owned:** close/disconnect the old dashboard or development controller first. Restart this server if its controlling tab was lost.
-- **Permission denied:** use your normal serial-device access setup; do not run the whole dashboard as root.
-- **Adapter appears but no fresh J1 feedback:** verify the motor has separate DC power, motor ID 0, Channel D wiring and 6M baud. Port listing alone is not a connection. Do not change IDs, firmware or baud by trial and error.
-- **Check required / stale feedback:** the dashboard marks feedback stale and locks movement. Reconnect the adapter, select Refresh and Channel D, verify motor power and ID 0, then select **Check motor**. The dashboard never silently enables movement.
+The **effort ceiling is a protection trip, not a firmware torque clamp**. Both predicted PD effort and measured feedback are checked. The measured-speed trip follows the configured speed with a servo margin. Increasing speed or effort is deliberate configuration, not automatic fault recovery.
 
-## Ready pose, Calibration pose and Figure-8
+While stopped, edit **Gains & motion limits**, select **Apply**, then check Enable. Change one gain at a time. Kp changes position stiffness; Kd changes damping. The motor uses hybrid PD control and has no exposed integral tuning field. Never increase gains or effort to conceal a collision, jam or unstable oscillation.
 
-The pose buttons animate a **virtual preview** using the linked arm simulator’s CAD colors and kinematics. Ready is `[0, -20, 302]°`; Calibration is `[0, 0, 360]°`. Equivalent nearest-turn angles are used to avoid unnecessary full revolutions in the preview. Calibration pose does **not** seek hard stops, home the motor, or change the declared software zero. Figure-8 traces the reference 150 mm horizontal / 70 mm vertical Cartesian path with a nominal 10-second period. Preview joint motion is rate limited and geometry-checked; it is not a collision certificate.
+## Xbox and presets
 
-To link a preview to real J1, select a pose or path and check **Follow preview trajectory with real J1** while disarmed. After fresh Ready/Stop feedback, explicitly Enable and satisfy the same neutral-input gate. The selected preview then follows automatically without a held modifier. Only J1 follows, through the same bounded rate/effort/travel/watchdog path; J2/J3 remain virtual. Stale feedback or a target outside the applied J1 window pauses following. No motor moves merely because a pose/path button was clicked. Use Live view to return to manual joint jogging; changing paths while armed requests Stop first.
+Focus the page and press A once for browser gamepad discovery. Select **Xbox controller** while stopped and center both sticks before Enable. Left stick X controls J1, left stick Y J2, and right stick Y J3. B stops. If the in-app browser cannot see the controller, open the same dashboard URL in Chrome or Firefox. Physical Xbox operation is still unverified.
 
-CAD colors, pose values and path conventions come from `ANGELOREYES-afk/arm_3dof_sim` revision `3719fc517a1612eba4ad63d95ad8c9985c0719cc`. The meshes remain the updated local MainAssem (3) model. Rendering uses simple Lambert colors, with no metallic/glow materials or shadow effects.
+Ready pose, calibration pose and figure-eight are preview features. In J1-only mode, the optional follow checkbox can move real J1 after explicit Enable and its input-neutral gate. Releasing keys does not pause automatic following; use Stop. In three-joint mode, presets remain visual only and physical path follow is disabled.
 
-## Larger unloaded J1 travel
+## Troubleshooting
 
-A later tune (Kp 15, Kd 3, 0.5 rpm command limit, 1 Nm ceiling) passed a 30.06° run and a continuation to 88.53° in the retained calibrated frame, with no errors, confirmed Stop and disconnect. These settings are now the defaults. The UI starts with the full ±90° software travel window, while the independent 1.5 rpm protection remains active. Physical measured speed can exceed command speed during transients. These tests used the single secured unloaded motor, not an assembled arm.
+| Message or symptom | Action |
+| --- | --- |
+| No USB adapter | Replug it, select Refresh, choose Channel D. |
+| Missing ID / no motor reply | Check motor power, connector orientation, wiring, unique IDs and 6 Mbaud. |
+| Another tab controls the motor | Disconnect in that tab. Do not start a second serial controller. |
+| Movement stopped with measured speed or effort | Read the actual reported value and trip threshold. Resolve instability or obstruction before re-enabling. |
+| Dashboard server is not responding | Check the terminal running `./start_arm.sh`. The dashboard requests Stop when communication fails. |
+| Startup timeout | Connect handles the approved Stop-only acknowledgment and immediately restores the watchdog. Manual diagnostics remain available if setup fails. |
+| Retained protection fault | Resolve the cause, disconnect, then restart the dashboard process and declare the current poses again. This retained fault requires a process restart; Connect and Enable never clear it or restart motion. |
+| Stale feedback | Check USB/power and the server; enable only after fresh feedback returns. |
 
-If a retained overload protection fault appears, inspect and correct its cause before restarting the server. Disconnect/reconnect intentionally does not erase protection history or re-enable motion.
+## What was physically verified
+
+On October 10, 2026, the single secured unloaded J1 motor at 36 V completed a 92.14° position trajectory and a separate **90.29° move through the dashboard controller** using 5 RPM, Kp 30, Kd 3 and 4 Nm protection. Each ended with confirmed Stop and no motor faults.
+
+Short velocity-damped feedforward ramps reached a **15 Nm command**, with Stop between stages and a peak observed speed of 23.46 RPM. This does not establish 15 Nm delivered load torque. The isolated high-torque test encoder did not change production packet limits. Raw evidence and failed attempts are retained in the local run record.
+
+These observations do not validate a loaded three-joint arm, physical Xbox operation, gravity compensation or impedance control.

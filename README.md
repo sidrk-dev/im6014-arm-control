@@ -1,6 +1,6 @@
 # IM6014 robot workbench
 
-Work alongside the construction of a custom six-joint IM6014 arm. The browser dashboard controls one real base joint and previews a three-joint arm. The original bench dashboard and verified communication/controller baseline remain available.
+Work alongside the construction of a custom six-joint IM6014 arm. The browser dashboard controls a single base motor or three daisy-chained motors, with a three-joint CAD view. The original bench dashboard and verified communication/controller baseline remain available.
 
 The original bench source and history come from [sidrk-dev/im6014Development](https://github.com/sidrk-dev/im6014Development). The workbench lives in one repository. See [component boundaries](docs/architecture.md), the [full milestone plan](docs/ROBOT_WORKBENCH_AGENT_PROMPT.md), and the [milestone ledger](docs/milestones.tsv).
 
@@ -10,7 +10,7 @@ The original bench source and history come from [sidrk-dev/im6014Development](ht
 ./start_arm.sh
 ```
 
-Open **http://127.0.0.1:8768/**. Connect → set the current pose → confirm your setup → enable jogging. Hold the on-screen joint buttons or use Space + A/D for the real J1. J2/J3 remain virtual. Esc / STOP disarms. Use `./start_arm.sh --demo` for a USB-free preview.
+Open **http://127.0.0.1:8768/**. Connect → set the current pose → confirm your setup → enable jogging. Hold the on-screen joint buttons or use A/D for J1, W/S for J2 and Q/E for J3. No held Space or RB is required. J2/J3 are virtual in the default J1-only profile; select the three-motor profile while disconnected to commission all three. See [arm quickstart](docs/arm-quickstart.md) for unique motor IDs, mechanical support, individual zero references and travel limits. Esc / STOP disarms. Use `./start_arm.sh --demo` for a USB-free preview.
 
 Read the [short arm guide](docs/arm-quickstart.md) for first connection, software zero, joint limits, PD tuning, keyboard/Xbox mapping and troubleshooting. The interface follows the plain ARM2027 layout with the updated three-joint CAD model. Arbitrary finite parameter drafts are editable; applied physical settings retain the bench limits.
 

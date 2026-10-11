@@ -1,4 +1,3 @@
-/** Pure input reducer and bounded HTTP client for the arm dashboard. */
 
 const ZERO_AXES = () => [0, 0, 0];
 const JOG_KEYS = new Set(['KeyA', 'KeyD', 'KeyW', 'KeyS', 'KeyQ', 'KeyE']);
@@ -267,6 +266,7 @@ export class InputClient {
     this.ordinaryRun = null;
     this.pendingInput = null;
     this.stopLatched = false;
+    this.lastFailureReason = null;
     this.motionSuppressed = false;
   }
 
@@ -407,6 +407,7 @@ export class InputClient {
       return true;
     } catch (error) {
       if (this.ordinaryRun === run && run.generation === this.queueGeneration) {
+        this.lastFailureReason = error.message;
         await this.triggerStop('input_ticket_or_submit_failed');
       }
       throw error;
@@ -462,6 +463,7 @@ export class InputClient {
       return receipt;
     } catch (error) {
       if (this.ordinaryRun === run && run.generation === this.queueGeneration) {
+        this.lastFailureReason = error.message;
         await this.triggerStop('action_ticket_or_receipt_failed');
       }
       throw error;
