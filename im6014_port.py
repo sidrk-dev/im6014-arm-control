@@ -12,36 +12,63 @@ from im6014_transport import PosixDeadlineSerial, UnsupportedSerialDeadlineAdapt
 SUPPORTED_BAUDS = (4_000_000, 6_000_000)
 BENCH_SERIAL = 'FTC2RQ7H'
 BENCH_CHANNEL = 3
+DEFAULT_ADAPTER_PROFILE = 'u2d2'
+MAX_PORT_RECORDS = 32
 
 _LOCK_DIRECTORY = f'/tmp/im6014-port-owner-{os.getuid()}'
 
 _BY_ID_FTDI = re.compile(r'_(?P<serial>[^_]+)-if(?P<channel>\d{2})-port\d+$')
 _LOCATION_CHANNEL = re.compile(r':\d+\.(\d+)$')
 _INTERFACE_CHANNEL = re.compile(r'(?:if|interface\s*)(\d+)$', re.IGNORECASE)
+_BUILTIN_UART = re.compile(r'/dev/ttyS[0-9]+')
+_USB_ID = re.compile(r'(?:0[xX])?([0-9a-fA-F]{1,4})\Z')
+
+
+@dataclass(frozen=True)
+class AdapterProfile:
+    id: str
+    label: str
+    vid: int | None = None
+    pid: int | None = None
+    serial: str | None = None
+    interface: int | None = None
+
+
+ADAPTER_PROFILES = (
+    AdapterProfile('u2d2', 'U2D2', 0x0403, 0x6014, None, 0),
+    AdapterProfile('legacy-ft4232h', 'Legacy FT4232H', 0x0403, 0x6011, BENCH_SERIAL, BENCH_CHANNEL),
+    AdapterProfile('custom', 'Custom (identity unverified)'),
+)
+ADAPTER_PROFILE_IDS = tuple(profile.id for profile in ADAPTER_PROFILES)
+_PROFILES_BY_ID = {profile.id: profile for profile in ADAPTER_PROFILES}
 
 
 @dataclass(frozen=True)
 class PortConfig:
-    """One explicit port route; ``None`` identity fields mean an alternate route."""
+    """One explicit port route and its adapter identity policy."""
 
     path: str
     baud: int
-    expected_serial: str | None = BENCH_SERIAL
-    expected_channel: int | None = BENCH_CHANNEL
+    adapter_profile: str = DEFAULT_ADAPTER_PROFILE
 
     def __post_init__(self):
         if not isinstance(self.path, str) or not self.path.strip():
             raise ValueError('Port path must be a non-empty string')
         if type(self.baud) is not int or self.baud not in SUPPORTED_BAUDS:
             raise ValueError('Baud must be the integer 4000000 or 6000000')
-        if self.expected_serial is not None and (
-                not isinstance(self.expected_serial, str) or not self.expected_serial.strip()):
-            raise ValueError('Expected adapter serial must be a non-empty string or None')
-        if self.expected_channel is not None and (
-                type(self.expected_channel) is not int or self.expected_channel < 0):
-            raise ValueError('Expected adapter channel must be a nonnegative integer or None')
-        if (self.expected_serial is None) != (self.expected_channel is None):
-            raise ValueError('Expected serial and channel must both be set or both be None')
+        if type(self.adapter_profile) is not str or self.adapter_profile not in _PROFILES_BY_ID:
+            raise ValueError('Adapter profile must be one of: ' + ', '.join(ADAPTER_PROFILE_IDS))
+
+
+@dataclass(frozen=True)
+class PortRecord:
+    """A bounded, passive description of one enumerated serial device."""
+
+    device: str
+    path: str
+    label: str
+    description: str
+    kind: str
 
 
 class PortBusyError(RuntimeError):
@@ -295,59 +322,77 @@ def _value(item, name, default=None):
 
 
 def _channel(value):
-    if type(value) is int and value >= 0:
+    if type(value) is int and 0 <= value <= 255:
         return value
     if isinstance(value, str):
-        if re.fullmatch(r'[0-9]+', value.strip()):
-            return int(value.strip())
-        match = _INTERFACE_CHANNEL.search(value.strip())
+        text = value.strip()
+        if len(text) > 16:
+            return None
+        if re.fullmatch(r'[0-9]+', text):
+            parsed = int(text)
+            return parsed if parsed <= 255 else None
+        match = _INTERFACE_CHANNEL.search(text)
         if match:
-            return int(match.group(1))
+            parsed = int(match.group(1))
+            return parsed if parsed <= 255 else None
     return None
+
+
+def _usb_id(value):
+    if type(value) is int:
+        return value if 0 <= value <= 0xFFFF else None
+    if isinstance(value, str):
+        match = _USB_ID.fullmatch(value.strip())
+        if match:
+            return int(match.group(1), 16)
+    return None
+
+
+@dataclass(frozen=True)
+class _PortMetadata:
+    serial: str | None
+    interface: int | None
+    vid: int | None
+    pid: int | None
+    source: str
+
+
+def _short_text(value, limit=128):
+    return value.strip()[:limit] if isinstance(value, str) and value.strip() else None
 
 
 def _metadata(item, source):
     if item is None:
         return None
-    serial = _value(item, 'serial_number') or _value(item, 'serial')
+    serial = _short_text(_value(item, 'serial_number')) or _short_text(_value(item, 'serial'))
     interface = _channel(_value(item, 'channel'))
     if interface is None:
         interface = _channel(_value(item, 'interface'))
     location = _value(item, 'location')
     if interface is None and isinstance(location, str):
-        match = _LOCATION_CHANNEL.search(location)
+        match = _LOCATION_CHANNEL.search(location[:128])
         if match:
-            interface = int(match.group(1))
+            interface = _channel(match.group(1))
     device = _value(item, 'device') or _value(item, 'path')
     if interface is None and isinstance(device, str):
         match = _BY_ID_FTDI.search(Path(device).name)
         if match:
             interface = int(match.group('channel'))
             serial = serial or match.group('serial')
-
-    manufacturer = _value(item, 'manufacturer')
-    product = _value(item, 'product')
-    vid = _value(item, 'vid')
-    is_ftdi = (isinstance(manufacturer, str) and 'ftdi' in manufacturer.lower())
-    is_ftdi = is_ftdi or (isinstance(product, str) and 'ftdi' in product.lower())
-    is_ftdi = is_ftdi or vid in (0x0403, '0403', '0x0403')
-    if vid is not None and vid not in (0x0403, '0403', '0x0403'):
-        adapter = f'non-FTDI USB VID {vid}'
-    else:
-        adapter = 'FTDI' if is_ftdi else manufacturer or product
-    if serial is None and interface is None and adapter is None:
+    vid = _usb_id(_value(item, 'vid'))
+    pid = _usb_id(_value(item, 'pid'))
+    if serial is None and interface is None and vid is None and pid is None:
         return None
-    return serial, interface, str(adapter) if adapter else None, source
+    return _PortMetadata(serial, interface, vid, pid, source)
 
 
 def _by_id_metadata(path):
     name = Path(path).name
-    if 'FTDI' not in name.upper():
-        return None
     match = _BY_ID_FTDI.search(name)
     if not match:
         return None
-    return match.group('serial'), int(match.group('channel')), 'FTDI', 'by-id basename'
+    return _PortMetadata(match.group('serial'), int(match.group('channel')), None, None,
+                         'by-id basename')
 
 
 def _merge_metadata(primary, hint):
@@ -355,10 +400,13 @@ def _merge_metadata(primary, hint):
         return hint
     if hint is None:
         return primary
-    serial, channel, adapter, source = primary
-    hint_serial, hint_channel, hint_adapter, hint_source = hint
-    return (serial or hint_serial, channel if channel is not None else hint_channel,
-            adapter or hint_adapter, f'{source} and {hint_source}')
+    return _PortMetadata(
+        primary.serial or hint.serial,
+        primary.interface if primary.interface is not None else hint.interface,
+        primary.vid if primary.vid is not None else hint.vid,
+        primary.pid if primary.pid is not None else hint.pid,
+        f'{primary.source} and {hint.source}',
+    )
 
 
 def _same_path(left, right):
@@ -373,9 +421,7 @@ def _enumerated_metadata(path, ports):
     return None
 
 
-def _system_ports(path):
-    if not os.path.exists(path):
-        return ()
+def _system_ports():
     from serial.tools import list_ports
     return list_ports.comports()
 
@@ -383,49 +429,135 @@ def _system_ports(path):
 def _observed_text(observed):
     if observed is None:
         return 'unknown'
-    serial, channel, adapter, _ = observed
     parts = []
-    if adapter:
-        parts.append(adapter)
-    if serial:
-        parts.append(f'serial {serial}')
-    if channel is not None:
-        parts.append(f'interface {channel}')
+    if observed.vid is not None:
+        parts.append(f'USB VID {observed.vid:04X}')
+    if observed.pid is not None:
+        parts.append(f'USB PID {observed.pid:04X}')
+    if observed.serial:
+        parts.append(f'serial {observed.serial}')
+    if observed.interface is not None:
+        parts.append(f'interface {observed.interface}')
     return ', '.join(parts) or 'unknown'
 
 
 def inspect_port(config: PortConfig, *, metadata=None, ports=None):
-    """Check baud and any observed identity without opening or talking to a port.
-
-    Returns a short passive-inspection report. Unknown metadata is explicitly
-    reported as unverified and remains usable for injected serial-constructor
-    failures and explicitly configured alternate routes.
-    """
+    """Check one adapter profile against available metadata without opening it."""
     if not isinstance(config, PortConfig):
         raise TypeError('inspect_port requires a PortConfig')
 
     observed = _metadata(metadata, 'caller metadata') if metadata is not None else None
     if observed is None:
-        candidates = _system_ports(config.path) if ports is None else ports
+        candidates = _system_ports() if ports is None else ports
         observed = _enumerated_metadata(config.path, candidates)
     observed = _merge_metadata(observed, _by_id_metadata(config.path))
 
-    if config.expected_serial is None:
-        return (f'Alternate port route {config.path}; no FTDI serial/channel is asserted. '
+    profile = _PROFILES_BY_ID[config.adapter_profile]
+    if profile.id == 'custom':
+        if observed and observed.serial == BENCH_SERIAL and observed.interface in (0, 1, 2):
+            raise ValueError(
+                f'Port {config.path}: legacy FT4232H interface {observed.interface} is not wired; '
+                'select its interface 3 or verify another adapter path.')
+        return (f'Custom port route {config.path}; no adapter identity is asserted. '
                 f'Observed metadata: {_observed_text(observed)}; identity is not verified.')
 
-    serial, channel, adapter, source = observed or (None, None, None, 'none')
-    expected = f'FTDI serial {config.expected_serial}, interface {config.expected_channel}'
-    wrong_adapter = adapter is not None and adapter.upper() != 'FTDI'
-    wrong_serial = serial is not None and serial != config.expected_serial
-    wrong_channel = channel is not None and channel != config.expected_channel
-    if wrong_adapter or wrong_serial or wrong_channel:
-        observed_text = _observed_text(observed)
-        raise ValueError(f'Port {config.path}: expected {expected}; observed {observed_text} '
-                         f'from {source}. Select the intended FTDI interface.')
+    fields = (('VID', profile.vid, observed.vid if observed else None),
+              ('PID', profile.pid, observed.pid if observed else None),
+              ('interface', profile.interface, observed.interface if observed else None))
+    if profile.id == 'legacy-ft4232h':
+        fields += (('serial', profile.serial, observed.serial if observed else None),)
+    conflicts = [f'{name} {actual:04X}' if name in ('VID', 'PID') else f'{name} {actual}'
+                 for name, expected, actual in fields
+                 if expected is not None and actual is not None and actual != expected]
+    if conflicts:
+        expected_text = ('U2D2 FT232H VID:PID 0403:6014, interface 0'
+                         if profile.id == 'u2d2'
+                         else 'legacy FT4232H serial FTC2RQ7H, VID:PID 0403:6011, interface 3')
+        raise ValueError(f'Port {config.path}: expected {expected_text}; observed '
+                         f'{_observed_text(observed)} from {observed.source}. Select the intended adapter profile and path.')
 
-    if serial == config.expected_serial and channel == config.expected_channel and adapter in (None, 'FTDI'):
-        return (f'Observed {expected} from {source}; passive metadata matches. '
-                'Motor communication is not verified.')
-    return (f'Port metadata unknown or incomplete for {config.path}; expected {expected}; '
-            f'observed {_observed_text(observed)}. Adapter identity is not verified.')
+    if profile.id == 'u2d2':
+        complete = observed is not None and all(value is not None for value in
+                                                 (observed.vid, observed.pid, observed.interface))
+        if complete:
+            return (f'Observed an FT232H-class U2D2 candidate at {config.path} from {observed.source}. '
+                    'USB metadata does not prove ROBOTIS provenance or motor communication.')
+        return (f'U2D2 profile selected for {config.path}; metadata is incomplete '
+                f'({_observed_text(observed)}). Adapter identity and motor communication are not verified.')
+
+    complete = (observed is not None and observed.serial == profile.serial
+                and observed.interface == profile.interface
+                and observed.vid == profile.vid and observed.pid == profile.pid)
+    if complete:
+        return (f'Observed the legacy FT4232H route at {config.path} from {observed.source}; '
+                'motor communication is not verified.')
+    return (f'Legacy FT4232H profile selected for {config.path}; metadata is unknown or incomplete '
+            f'({_observed_text(observed)}) from {observed.source if observed else "no metadata"}. '
+            'Adapter identity is not fully verified.')
+
+
+def _classify_port(metadata):
+    if metadata is None:
+        return 'unknown'
+    if metadata.serial == BENCH_SERIAL:
+        if metadata.interface in (0, 1, 2):
+            return 'unsupported-channel'
+        if (metadata.interface == BENCH_CHANNEL
+                and metadata.vid in (None, 0x0403) and metadata.pid in (None, 0x6011)):
+            return 'legacy-ft4232h'
+    if metadata.vid == 0x0403 and metadata.pid == 0x6014:
+        if metadata.interface == 0:
+            return 'ft232h-candidate'
+        if metadata.interface is not None:
+            return 'unsupported-channel'
+    return 'unknown'
+
+
+def _by_id_alias(device, directory='/dev/serial/by-id'):
+    try:
+        with os.scandir(directory) as entries:
+            aliases = sorted(entries, key=lambda entry: entry.name)
+    except OSError:
+        return None
+    for entry in aliases:
+        alias = entry.path
+        try:
+            if len(alias) <= 240 and entry.is_symlink() and os.path.exists(alias) and _same_path(alias, device):
+                return alias
+        except OSError:
+            continue
+    return None
+
+
+def enumerate_ports(*, ports=None, by_id_directory='/dev/serial/by-id'):
+    """Return bounded passive serial records with no opens, probes, or writes."""
+    candidates = _system_ports() if ports is None else ports
+    devices = []
+    for port in candidates:
+        device = _short_text(_value(port, 'device'), 256)
+        if device and not _BUILTIN_UART.fullmatch(device):
+            devices.append((device, port))
+    records = []
+    for device, port in sorted(devices, key=lambda entry: entry[0])[:MAX_PORT_RECORDS]:
+        alias = _by_id_alias(device, by_id_directory)
+        path = alias or device
+        metadata = _merge_metadata(_metadata(port, 'OS enumeration metadata'),
+                                   _by_id_metadata(path))
+        description = _short_text(_value(port, 'description'), 160) or device
+        label = f'{path} · {description}'
+        records.append(PortRecord(device, path, label[:256], description,
+                                  _classify_port(metadata)))
+    return tuple(records)
+
+
+def default_port(records, adapter_profile=DEFAULT_ADAPTER_PROFILE):
+    """Choose a path only when exactly one record matches the selected profile."""
+    if type(adapter_profile) is not str or adapter_profile not in _PROFILES_BY_ID:
+        raise ValueError('Unknown adapter profile')
+    kind = {'u2d2': 'ft232h-candidate',
+            'legacy-ft4232h': 'legacy-ft4232h',
+            'custom': None}[adapter_profile]
+    matches = [_value(record, 'path') for record in records
+               if kind is not None and _value(record, 'kind') == kind
+               and isinstance(_value(record, 'path'), str) and _value(record, 'path')]
+    return matches[0] if len(matches) == 1 else ''

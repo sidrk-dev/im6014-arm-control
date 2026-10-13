@@ -12,6 +12,8 @@ The original bench source and history come from [sidrk-dev/im6014Development](ht
 
 Open **http://127.0.0.1:8768/**. Connect → set the current pose → confirm your setup → enable jogging. Hold the on-screen joint buttons or use A/D for J1, W/S for J2 and Q/E for J3. No held Space or RB is required. J2/J3 are virtual in the default J1-only profile; select the three-motor profile while disconnected to commission all three. See [arm quickstart](docs/arm-quickstart.md) for unique motor IDs, mechanical support, individual zero references and travel limits. Esc / STOP disarms. Use `./start_arm.sh --demo` for a USB-free preview.
 
+The adapter profile defaults to U2D2. An FT232H-class candidate label does not verify the board or motor link. The ordered U2D2 has not arrived; see [U2D2 connection and verification](docs/u2d2.md) before physical use.
+
 Read the [short arm guide](docs/arm-quickstart.md) for first connection, software zero, joint limits, PD tuning, keyboard/Xbox mapping and troubleshooting. The interface follows the plain ARM2027 layout with the updated three-joint CAD model. Arbitrary finite parameter drafts are editable; applied physical settings retain the bench limits.
 
 The original Qt bench dashboard remains available through `start_dashboard.sh`. The multijoint milestone controller is a separate, paused development path; the browser J1 controller does not depend on its unfinished physical station integration.

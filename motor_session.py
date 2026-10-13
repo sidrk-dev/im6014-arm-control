@@ -12,8 +12,9 @@ import time
 
 import serial
 
-from spin_5rpm import PORT, RATIO, command, crc32, exchange, healthy
-from im6014_port import PortConfig, inspect_port, open_managed_port
+from spin_5rpm import RATIO, command, crc32, exchange, healthy
+from im6014_port import (ADAPTER_PROFILE_IDS, DEFAULT_ADAPTER_PROFILE, PortConfig,
+                         inspect_port, open_managed_port)
 from im6014_serial import PacketCapture, capture_exchange, TransactionTimeoutError
 
 ERRORS = {0: 'Overcurrent', 1: 'Transient overvoltage', 2: 'Sustained overvoltage',
@@ -159,8 +160,9 @@ class MotorSession:
         self.samples = deque(maxlen=10000)
         self.events = deque(maxlen=500)
         self.packet_capture = PacketCapture()
-        self.data = dict(state='Disconnected', connected=False, demo=False, id=0, port=PORT,
-                         baud=6000000, armed=False, latest=None, reason='Select an adapter and connect.',
+        self.data = dict(state='Disconnected', connected=False, demo=False, id=0, port='',
+                         baud=6000000, adapter_profile=DEFAULT_ADAPTER_PROFILE,
+                         armed=False, latest=None, reason='Select an adapter and connect.',
                          tx=0, rx=0, crc_errors=0, reply_timeouts=0, rtt_ms=0., target_rpm=0.,
                          last_tx='', last_rx='', discovered=[], test_remaining=0., total_samples=0,
                          stopped=False, connection=0, last_test=None)
@@ -346,10 +348,15 @@ class MotorSession:
             motor_id, baud = v.get('id'), v.get('baud')
             if type(motor_id) is not int or not 0 <= motor_id <= 14 or type(baud) is not int or baud not in (4000000, 6000000):
                 raise ValueError('Individual motor ID 0–14; baud 4 or 6 Mbps')
+            adapter_profile = v.get('adapter_profile', DEFAULT_ADAPTER_PROFILE)
+            if type(adapter_profile) is not str or adapter_profile not in ADAPTER_PROFILE_IDS:
+                raise ValueError('Unknown adapter profile')
+            config = None if v.get('demo') else PortConfig(v['port'], baud, adapter_profile)
             if not v.get('demo'):
-                self._event(inspect_port(PortConfig(v['port'], baud)))
+                self._event(inspect_port(config))
             self._set(state='Connecting', reason='Opening adapter and sending Stop only.',
-                      id=motor_id, baud=baud, port=v['port'], demo=bool(v.get('demo')), discovered=[],
+                      id=motor_id, baud=baud, port=v['port'], demo=bool(v.get('demo')),
+                      adapter_profile=adapter_profile, discovered=[],
                       connection=self.data['connection'] + 1, latest=None, armed=False, stopped=False,
                       tx=0, rx=0, crc_errors=0, reply_timeouts=0, last_tx='', last_rx='', last_test=None)
             self.last_reply = 0.
@@ -357,7 +364,7 @@ class MotorSession:
                 self.bus = DemoSerial()
             else:
                 self.port_owner = open_managed_port(
-                    PortConfig(v['port'], baud), serial_factory=serial.Serial)
+                    config, serial_factory=serial.Serial)
                 self.bus = self.port_owner.bus
             self._set(connected=True)
             self._event(f"{'DEMO' if v.get('demo') else 'REAL'} adapter open: {v['port']} · ID {motor_id} · {baud}")

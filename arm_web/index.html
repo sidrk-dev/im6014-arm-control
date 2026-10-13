@@ -104,8 +104,8 @@
       <div class="card-scrollable">
         <div class="control-section">
           <div class="section-title">
-            <span>1. Connect the motor</span>
-            <span class="section-title-sub">USB-RS485 · Channel D</span>
+          <span>1. Connect the motor</span>
+            <span class="section-title-sub">Raw RS-485 · 6 Mbps</span>
           </div>
           <div class="form-group">
             <label class="form-label" for="select-profile">Arm profile</label>
@@ -116,6 +116,10 @@
             <div class="plain-help">Select while disconnected. Fixed profile sets bus motor IDs (0 for J1; 0, 1, 2 for daisychain). Assign IDs one at a time using vendor tool before connecting.</div>
           </div>
           <div class="form-group">
+            <label class="form-label" for="select-adapter-profile">Adapter profile</label>
+            <select id="select-adapter-profile" class="form-select"></select>
+          </div>
+          <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <label class="form-label" for="select-port" style="margin: 0;">USB adapter</label>
               <button id="btn-refresh-ports" type="button" class="btn" title="List adapters without opening them" style="padding: 2px 8px; font-size: 11px;">Refresh</button>
@@ -124,7 +128,7 @@
               <option value="">Looking for USB adapter…</option>
             </select>
           </div>
-          <div id="serial-port-status" class="port-status" role="status" aria-live="polite">Connect the USB-RS485 adapter, then select Refresh.</div>
+          <div id="serial-port-status" class="port-status" role="status" aria-live="polite">Connect the RS-485 adapter, then select Refresh.</div>
           <div id="group-three-support" class="form-group" style="display: none; margin-top: 8px;">
             <label class="secured-arm-box">
               <input type="checkbox" id="chk-three-support">

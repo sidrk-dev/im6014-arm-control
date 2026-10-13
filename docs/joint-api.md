@@ -26,14 +26,18 @@ The command prints the path to its receipt and raw logs under `evidence/runs`. T
 
 ```python
 from im6014_port import PortConfig, inspect_port
-from spin_5rpm import PORT
 
-report = inspect_port(PortConfig(PORT, 6_000_000), ports=())
+selected_path = '/dev/serial/by-id/<present path selected by the operator>'
+report = inspect_port(PortConfig(selected_path, 6_000_000, 'u2d2'), ports=())
 ```
 
-`ports=()` makes this example use only the configured by-id basename. The report names its evidence source and does not establish communication with the motor. Normal inspection can also read passive OS enumeration metadata. Known wrong serial numbers or interfaces reject with expected and observed values. Unknown metadata stays explicitly unverified.
+`PortConfig` is frozen and uses the shared `adapter_profile` registry. The default profile is `u2d2`. It rejects any known VID, PID, or interface that conflicts with `0403:6014`, interface `0`. The adapter serial is unknown and is never hardcoded. Missing metadata remains unverified. A matching FT232H-class candidate does not prove ROBOTIS provenance or motor communication.
 
-For an alternate adapter route, set both `expected_serial=None` and `expected_channel=None`. This removes the FTDI identity assertion. It does not bypass later device ownership checks or establish motor communication. The bench GUI and CLI default to the recorded FTDI serial and interface 3.
+Select `legacy-ft4232h` only for the historical board with serial `FTC2RQ7H`, VID:PID `0403:6011`, and interface `3`. Select `custom` for an intentionally unverified route. Custom does not bypass the known unwired interfaces `0` through `2` on the historical board.
+
+`enumerate_ports()` reads pySerial's passive device list and returns at most 32 bounded records. It prefers a present `/dev/serial/by-id` alias only when that alias resolves to the enumerated tty. It never constructs a serial object, opens a tty, probes a motor, or writes packets. `default_port(records, adapter_profile)` returns a path only when exactly one record matches the selected profile. It returns an empty string for no match, multiple matches, or `custom`.
+
+The CLI accepts `--adapter-profile` from that same registry. `spin_5rpm.py --list-ports` prints the passive list without requiring `--arm`. Without `--port`, the CLI uses only one unambiguous U2D2 candidate. It rejects missing or ambiguous candidates before creating a log or constructing a serial object. The U2D2 profile remains the default; the legacy route is never selected automatically by the CLI.
 
 ## Diagnostic capture
 
@@ -43,11 +47,11 @@ The GUI includes its ring in the existing JSON snapshot. The CLI enables it in `
 
 ## Cooperating bus ownership
 
-Both real bench open sites use `open_managed_port(PortConfig(...), serial_factory=...)`. It checks passive identity before device acquisition and construction. A successful result owns `bus`; call `close()` and inspect its boolean result. `False` means ownership remains held because closure was not confirmed. Retry cleanup before reconnecting. A context manager raises `PortCloseError` on an otherwise normal exit with unconfirmed close; its `managed_port` remains available for cleanup.
+Both real bench open sites use the same `PortConfig` for `inspect_port` and `open_managed_port`. The managed open checks the selected adapter profile before device acquisition and serial construction. A successful result owns `bus`; call `close()` and inspect its boolean result. `False` means ownership remains held because closure was not confirmed. Retry cleanup before reconnecting. A context manager raises `PortCloseError` on an otherwise normal exit with unconfirmed close; its `managed_port` remains available for cleanup.
 
 This API opens hardware when given a motor path. Its acceptance tests use Linux PTYs exclusively. The device lease coordinates these workbench clients; it cannot exclude a raw client that ignores the lock.
 
-When passive identity metadata is incomplete, the default route reports it as unverified and still permits device acquisition; known mismatches reject. The serial factory must expose the pyserial `is_open` status for confirmed cleanup. A missing status retains the lease. Neither passive inspection nor opening establishes CRC-valid motor communication.
+When passive identity metadata is incomplete, inspection reports it as unverified and still permits device acquisition; known profile mismatches reject before construction. The serial factory must expose the pyserial `is_open` status for confirmed cleanup. A missing status retains the lease. Neither passive inspection nor opening establishes CRC-valid motor communication.
 
 ## Controller lifecycle and freshness
 

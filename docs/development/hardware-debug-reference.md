@@ -1,6 +1,8 @@
 # IM6014 Hardware & Communication Debug Reference
 
-## 1. Physical Hardware & Bus Topology
+The adapter details in the first two sections describe the historical FT4232H bench adapter. They are not U2D2 evidence. The ordered U2D2 has not arrived; read [U2D2 connection and verification](../u2d2.md) for its intended setup and current verification boundary.
+
+## Historical motor and FT4232H setup
 
 - **Motor Model:** Unitree IM6014 / N6014B-12.6 integrated cycloid actuator.
 - **Factory Settings:** ID `0`, baud rate `6,000,000` (6 Mbps), 8N1, default mode `0` (Stop).
@@ -11,7 +13,7 @@
 
 ---
 
-## 2. Port Mapping & Interface Discrepancy
+## Historical FT4232H port mapping
 
 The FT4232H chip exposes four hardware channels (Interfaces 0–3). On this board, **only Channel D (Interface 3) is wired to the RS-485 differential transceiver**.
 
@@ -31,13 +33,15 @@ Running commands against `/dev/ttyUSB0` will fail to reach the motor.
 
 ---
 
-## 3. Linux Driver & Kernel Troubleshooting
+## Linux driver and kernel troubleshooting
 
 The previously suggested ModemManager probe and FTDI flow-control explanations are **unverified hypotheses**, not established causes of a stale or missing reply. Do not use a world-writable (`0666`) device rule or privileged USB sysfs reset commands as a workaround.
 
-If the adapter disappears or feedback becomes stale, keep the motor in Stop, reconnect the USB adapter, Refresh the passive port list, select the identified Channel D path, and run Health Check. Verify motor power and ID 0 before attempting another connection. A detected serial path alone does not confirm adapter identity or motor communication; only current protocol feedback does.
+If the adapter disappears or feedback becomes stale, keep the motor in Stop, reconnect the adapter, refresh the passive port list, and select the path that matches the inspected cable. Verify motor power and ID 0 before another connection. A listed path alone does not confirm adapter identity or motor communication. Current protocol feedback provides the communication evidence.
 
----
+The U2D2 guide gives the specific manual `latency_timer` read, write, and read-back steps. Do not apply those steps to an unverified tty.
+
+## Protocol and codec rules
 
 ## 4. Protocol & Codec Rules
 
@@ -72,7 +76,7 @@ If the adapter disappears or feedback becomes stale, keep the motor in Stop, rec
 
 ---
 
-## 5. Control Tuning & Slow Rotation Parameters
+## Control tuning and slow rotation parameters
 
 Hybrid control formula:
 $$\tau = \tau_{ff} + K_p \times (p_{des} - p) + K_d \times (\omega_{des} - \omega)$$

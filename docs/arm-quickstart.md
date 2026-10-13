@@ -13,11 +13,12 @@ Open http://127.0.0.1:8768/. For a USB-free simulation, run `./start_arm.sh --de
 ## Connect and move J1
 
 1. Secure the motor and keep its travel clear. Keep the physical E-stop accessible.
-2. Select **J1 only** and the recommended **Channel D** USB adapter. Use **Refresh** if it is missing. Enumeration alone does not prove motor communication.
-3. Put the motor at the position you want to call zero. Leave **J1 angle at this pose** at `0`, or enter its known physical angle. Check the minimum and maximum angles. Connect uses this current physical pose as that entered angle; it never homes the motor or restores a saved absolute zero.
-4. Select **Connect**. It verifies actual Stop feedback, acknowledges a startup timeout while stopped if necessary and restores the watchdog, applies the entered gains and limits, and records a fresh encoder reference. The motor stays disarmed. A failed step shows its reason and requests Stop.
-5. Release jog keys and center controller sticks. Check **Enable movement**. The dashboard runs the health check and enables jogging. There is no second Arm button or held Space/RB requirement.
-6. Hold **A/D** or the on-screen minus/plus buttons to move J1. Release to hold position. **STOP**, **Esc**, **Xbox B**, or unchecking Enable requests Stop and disarms. After resolving a reported issue, checking Enable performs the re-check automatically. It never clears a retained motor protection fault.
+2. Keep the 36 V motor supply off while you inspect the cable's pinout, continuity, polarity, and isolation. Follow [U2D2 connection and verification](u2d2.md). The ordered U2D2 has not arrived, so its physical compatibility is unverified.
+3. Select **J1 only** and **U2D2** under **Adapter profile**. Use **Refresh** to list serial devices. Select the path that matches the inspected cable. The FT232H-class candidate label does not prove ROBOTIS provenance or motor communication.
+4. Put the motor at the position you want to call zero. Leave **J1 angle at this pose** at `0`, or enter its known physical angle. Check the minimum and maximum angles. Connect uses this current physical pose as that entered angle; it never homes the motor or restores a saved absolute zero.
+5. After the electrical inspection, power the motor and select **Connect**. It verifies actual Stop feedback, acknowledges a startup timeout while stopped if necessary and restores the watchdog, applies the entered gains and limits, and records a fresh encoder reference. The motor stays disarmed. A failed step shows its reason and requests Stop.
+6. Release jog keys and center controller sticks. Check **Enable movement**. The dashboard runs the health check and enables jogging. There is no second Arm button or held Space/RB requirement.
+7. Hold **A/D** or the on-screen minus/plus buttons to move J1. Release to hold position. **STOP**, **Esc**, **Xbox B**, or unchecking Enable requests Stop and disarms. After resolving a reported issue, checking Enable performs the re-check automatically. It never clears a retained motor protection fault.
 
 The current J1 UI settings are **Kp 30, Kd 3, maximum 5 RPM, effort protection 4 Nm**, with a 50% jog multiplier. These were checked on the unloaded bench motor. They are not an assembled-arm tune. J2/J3 keep slow commissioning defaults.
 
@@ -59,7 +60,8 @@ Ready pose, calibration pose and figure-eight are preview features. In J1-only m
 
 | Message or symptom | Action |
 | --- | --- |
-| No USB adapter | Replug it, select Refresh, choose Channel D. |
+| No serial adapter | Reconnect the adapter, select Refresh, then choose the path that matches the inspected cable. |
+| Several FT232H candidates | Select the candidate whose path matches the inspected cable. The dashboard leaves the default blank when candidates are ambiguous. |
 | Missing ID / no motor reply | Check motor power, connector orientation, wiring, unique IDs and 6 Mbaud. |
 | Another tab controls the motor | Disconnect in that tab. Do not start a second serial controller. |
 | Movement stopped with measured speed or effort | Read the actual reported value and trip threshold. Resolve instability or obstruction before re-enabling. |
@@ -70,7 +72,7 @@ Ready pose, calibration pose and figure-eight are preview features. In J1-only m
 
 ## What was physically verified
 
-On October 10, 2026, the single secured unloaded J1 motor at 36 V completed a 92.14° position trajectory and a separate **90.29° move through the dashboard controller** using 5 RPM, Kp 30, Kd 3 and 4 Nm protection. Each ended with confirmed Stop and no motor faults.
+These October 10, 2026 measurements used the historical FT4232H adapter, not the ordered U2D2. The single secured unloaded J1 motor at 36 V completed a 92.14° position trajectory and a separate **90.29° move through the dashboard controller** using 5 RPM, Kp 30, Kd 3 and 4 Nm protection. Each ended with confirmed Stop and no motor faults.
 
 Short velocity-damped feedforward ramps reached a **15 Nm command**, with Stop between stages and a peak observed speed of 23.46 RPM. This does not establish 15 Nm delivered load torque. The isolated high-torque test encoder did not change production packet limits. Raw evidence and failed attempts are retained in the local run record.
 

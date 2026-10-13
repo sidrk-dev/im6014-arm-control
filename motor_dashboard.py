@@ -15,10 +15,10 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBo
                               QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QSplitter,
                               QScrollArea, QSpinBox, QTabWidget, QTextBrowser, QTreeWidget, QTreeWidgetItem,
                               QVBoxLayout, QWidget)
-from serial.tools import list_ports
-
 from motor_session import MotorSession, fault_text
-from spin_5rpm import PORT, POSITION_MIN, POSITION_MAX, RPM_MIN, RPM_MAX
+from spin_5rpm import POSITION_MIN, POSITION_MAX, RPM_MIN, RPM_MAX
+from im6014_port import (ADAPTER_PROFILES, DEFAULT_ADAPTER_PROFILE, default_port,
+                         enumerate_ports)
 
 ROOT = Path(__file__).resolve().parent
 METRICS = {'Speed (rpm)': 'rpm', 'Torque (Nm)': 'torque_nm', 'Position (degrees)': 'position_rad',
@@ -156,6 +156,13 @@ class Dashboard(QMainWindow):
         self.source.setCurrentIndex(int(demo))
         self.source.currentIndexChanged.connect(lambda: self.refresh_ports())
         form.addRow('Source', self.source)
+        self.adapter_profile = QComboBox()
+        for profile in ADAPTER_PROFILES:
+            self.adapter_profile.addItem(profile.label, profile.id)
+        self.adapter_profile.setCurrentIndex(
+            max(0, self.adapter_profile.findData(DEFAULT_ADAPTER_PROFILE)))
+        self.adapter_profile.currentIndexChanged.connect(lambda: self.refresh_ports(clear_selected_item=True))
+        form.addRow('Adapter profile', self.adapter_profile)
         port_row = QWidget()
         port_layout = QHBoxLayout(port_row)
         port_layout.setContentsMargins(0, 0, 0, 0)
@@ -166,7 +173,10 @@ class Dashboard(QMainWindow):
         self.rescan = self._button('Refresh', self.refresh_ports, 'List USB/serial adapters; does not send motor packets.')
         port_layout.addWidget(self.port, 1)
         port_layout.addWidget(self.rescan)
-        form.addRow('Adapter / channel', port_row)
+        form.addRow('Serial port', port_row)
+        self.port_status = QLabel('Refresh lists serial devices without opening them.')
+        self.port_status.setWordWrap(True)
+        form.addRow('', self.port_status)
         self.baud = QComboBox()
         self.baud.addItems(['6 Mbps', '4 Mbps'])
         form.addRow('Baud', self.baud)
@@ -340,24 +350,63 @@ class Dashboard(QMainWindow):
         tabs.addTab(self.packets, 'Latest packets')
         return tabs
 
-    def refresh_ports(self):
+    def refresh_ports(self, clear_selected_item=False):
         if not hasattr(self, 'port'):
             return
-        current = self.port.currentData() or self.port.currentText()
+        matched = self.port.currentIndex() >= 0 and self.port.currentText() == self.port.itemText(self.port.currentIndex())
+        current = self.port.currentData() if matched else self.port.currentText().strip()
+        if clear_selected_item and matched:
+            current = ''
+        if current == 'demo':
+            current = ''
         self.port.clear()
         if self.source.currentIndex() == 1:
             self.port.addItem('Demo bus · IDs 0 and 1', 'demo')
+            self.port_status.setText('Demo mode uses a simulated motor; no serial adapter is needed.')
             return
-        ports = sorted(list_ports.comports(), key=lambda p: (not (p.serial_number == 'FTC2RQ7H' and p.location and p.location.endswith('.3')), p.device))
-        for p in ports:
-            path = PORT if Path(PORT).exists() and Path(PORT).resolve() == Path(p.device).resolve() else p.device
-            self.port.addItem(f'{p.device} · {p.description}', path)
-            self.port.setItemData(self.port.count() - 1, f'{path}\nSerial: {p.serial_number or "unknown"}\nUSB location: {p.location or "unknown"}', Qt.ItemDataRole.ToolTipRole)
-        if not ports:
-            self.port.addItem(PORT, PORT)
+        try:
+            ports = enumerate_ports()
+        except Exception as error:
+            ports = ()
+            self.port_status.setText(f'Port enumeration failed ({type(error).__name__}). Select Refresh to try again.')
+        else:
+            candidates = sum(port.kind == 'ft232h-candidate' for port in ports)
+            legacy_routes = sum(port.kind == 'legacy-ft4232h' for port in ports)
+            profile = self.adapter_profile.currentData()
+            if not ports:
+                self.port_status.setText('No serial devices found. Connect the adapter, then select Refresh.')
+            elif profile == 'u2d2' and candidates > 1:
+                self.port_status.setText('Several FT232H-class candidates are listed. Select the adapter connected to the motor.')
+            elif profile == 'u2d2' and candidates == 1:
+                self.port_status.setText('One FT232H-class candidate is listed. Confirm the cable before Connect; fresh motor feedback confirms communication.')
+            elif profile == 'legacy-ft4232h' and legacy_routes == 1:
+                self.port_status.setText('A legacy FT4232H route is listed. Confirm this is the adapter connected to the motor.')
+            elif profile == 'legacy-ft4232h' and legacy_routes > 1:
+                self.port_status.setText('Several legacy FT4232H routes are listed. Select the route connected to the motor.')
+            elif profile == 'custom':
+                self.port_status.setText('Serial devices are listed, but adapter identity is unverified. Check the path and cable before Connect.')
+            elif legacy_routes:
+                self.port_status.setText('A legacy FT4232H route is listed. Select the legacy profile only if using that adapter.')
+            elif profile == 'legacy-ft4232h':
+                self.port_status.setText('No legacy FT4232H route is identified. Check the selected path before Connect.')
+            else:
+                self.port_status.setText('Serial devices are listed, but no FT232H-class candidate is identified. Check the adapter and cable before Connect.')
+        for record in ports:
+            self.port.addItem(record.label, record.path)
+            self.port.setItemData(self.port.count() - 1,
+                                  f'{record.path}\nDevice: {record.device}\nType: {record.kind}',
+                                  Qt.ItemDataRole.ToolTipRole)
+        self.port.setCurrentIndex(-1)
         index = self.port.findData(current)
         if index >= 0:
             self.port.setCurrentIndex(index)
+        elif current:
+            self.port.setEditText(current)
+        elif ports:
+            suggested = default_port(ports, self.adapter_profile.currentData())
+            index = self.port.findData(suggested)
+            if index >= 0:
+                self.port.setCurrentIndex(index)
 
     def connect_motor(self):
         matched = self.port.currentIndex() >= 0 and self.port.currentText() == self.port.itemText(self.port.currentIndex())
@@ -367,6 +416,7 @@ class Dashboard(QMainWindow):
         self.secured.setChecked(False)
         self.session.request('connect', port=port, id=self.motor_id.value(),
                              baud=6000000 if self.baud.currentIndex() == 0 else 4000000,
+                             adapter_profile=self.adapter_profile.currentData(),
                              demo=self.source.currentIndex() == 1)
 
     def test_kind_changed(self, kind):
@@ -480,7 +530,7 @@ class Dashboard(QMainWindow):
         self.banner.setText(snap['reason'])
         self.banner.setToolTip(snap['reason'])
         self.banner.setStyleSheet('padding:8px;border:1px solid #cbd3dc;color:#273747;background:' + ('#ffe6e6;' if snap['state'].startswith(('Fault', 'Timeout')) else '#f3f6fa;'))
-        for widget in (self.source, self.port, self.baud, self.motor_id, self.rescan):
+        for widget in (self.source, self.adapter_profile, self.port, self.baud, self.motor_id, self.rescan):
             widget.setEnabled(not connected and not busy)
         self.connect_button.setEnabled(not connected and not busy)
         self.disconnect_button.setEnabled(connected and not busy)
@@ -525,7 +575,7 @@ class Dashboard(QMainWindow):
         if f:
             diag += ['', '## Motor report', fault_text(f['errors'], f['warnings']),
                      f"Timeout latch: {'triggered' if f['timeout'] else 'normal'}", f"Voltage: {f['voltage']:.1f} V · Driver {f['driver_c']} °C · Winding {f['winding_c']} °C"]
-        diag += ['', '## Next checks', 'No replies: confirm motor power, Channel D, matching baud and correct ID. Adapter detection alone is not motor communication.',
+        diag += ['', '## Next checks', 'No replies: confirm motor power, the selected adapter profile and path, matching baud, and correct ID. Adapter detection alone is not motor communication.',
                  'Timeout latch: support the motor, then explicitly acknowledge timeout in Stop. Fault bits: resolve the reported cause before re-checking; this app does not clear faults.',
                  'CRC / deadline failures: inspect cable and adapter, reconnect while stopped, then re-check. No motion resumes automatically.',
                  '', '## Discovered motors', '\n'.join(f"- ID {x['id']}: {x['voltage']:.1f} V · {x['faults']}" for x in snap['discovered']) or 'Use Discover IDs on a supported, disarmed bus.',

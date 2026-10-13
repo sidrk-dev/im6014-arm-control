@@ -27,6 +27,7 @@ const appTitleTag = document.getElementById('app-title-tag');
 const btnStop = document.getElementById('btn-stop');
 
 const selectPort = document.getElementById('select-port');
+const selectAdapterProfile = document.getElementById('select-adapter-profile');
 const selectInputDevice = document.getElementById('select-input-device');
 const btnRefreshPorts = document.getElementById('btn-refresh-ports');
 const inputPortPath = document.getElementById('input-port-path');
@@ -91,14 +92,40 @@ function showAlert(message, type = 'info', durationMs = 0) {
 }
 
 let knownPorts = null;
+let knownPortOptionsKey = '';
+let knownAdapterProfiles = null;
+let defaultPorts = {};
 
-function updatePortOptions(ports, defaultPort) {
+function updateAdapterProfileOptions(profiles, preferred = 'u2d2') {
+  if (!Array.isArray(profiles) || !selectAdapterProfile) return;
+  const current = selectAdapterProfile.value;
+  const profilesKey = JSON.stringify(profiles);
+  if (profilesKey !== JSON.stringify(knownAdapterProfiles)) {
+    knownAdapterProfiles = profiles;
+    selectAdapterProfile.innerHTML = '';
+    for (const profile of profiles) {
+      if (!profile || typeof profile.id !== 'string' || typeof profile.label !== 'string') continue;
+      const option = document.createElement('option');
+      option.value = profile.id;
+      option.textContent = profile.label;
+      selectAdapterProfile.appendChild(option);
+    }
+  }
+  const currentExists = profiles.some(profile => profile?.id === current);
+  const preferredExists = profiles.some(profile => profile?.id === preferred);
+  selectAdapterProfile.value = currentExists && !isConnected ? current
+    : preferredExists ? preferred : 'u2d2';
+}
+
+function updatePortOptions(ports, profileDefaults) {
   if (!Array.isArray(ports)) return;
   const currentVal = selectPort.value;
-  const portsJson = JSON.stringify(ports);
-  if (portsJson === JSON.stringify(knownPorts) && selectPort.options.length > 0) {
+  const defaultPort = profileDefaults?.[selectAdapterProfile?.value] || '';
+  const optionsKey = JSON.stringify([ports, defaultPort]);
+  if (optionsKey === knownPortOptionsKey && selectPort.options.length > 0) {
     return;
   }
+  knownPortOptionsKey = optionsKey;
   knownPorts = ports;
 
   selectPort.innerHTML = '';
@@ -113,7 +140,6 @@ function updatePortOptions(ports, defaultPort) {
     const opt = document.createElement('option');
     const path = p.path;
     opt.value = path;
-    opt.dataset.channelD = p.channel_d === true ? 'true' : 'false';
     const label = typeof p.label === 'string' ? p.label : path;
     opt.textContent = label;
     if (path === currentVal) selectedValue = path;
@@ -125,11 +151,17 @@ function updatePortOptions(ports, defaultPort) {
 
 function updatePortStatus(ports, error = null) {
   const records = Array.isArray(ports) ? ports.filter(Boolean) : [];
-  const message = serialPortStatus(records, error, isDemoMode === true);
+  const profile = selectAdapterProfile?.value || 'u2d2';
+  const message = serialPortStatus(records, error, isDemoMode === true,
+    profile);
   if (!portStatus) return message;
+  const kind = profile === 'legacy-ft4232h' ? 'legacy-ft4232h'
+    : profile === 'u2d2' ? 'ft232h-candidate' : null;
+  const matches = kind ? records.filter(port => port.kind === kind).length : 0;
   portStatus.dataset.state = isDemoMode === true ? 'demo' : error ? 'error'
     : records.length === 0 ? 'missing'
-      : records.some(port => port.channel_d === true) ? 'ready' : 'other';
+      : matches > 1 ? 'ambiguous'
+        : matches === 1 ? 'candidate' : 'unknown';
   portStatus.textContent = message;
   return message;
 }
@@ -140,14 +172,10 @@ btnRefreshPorts.addEventListener('click', async () => {
     const res = await fetch('/api/ports');
     if (res.ok) {
       const data = await res.json();
-      updatePortOptions(data.ports, data.default);
-      updatePortStatus(data.ports, data.error);
-      const ports = Array.isArray(data.ports) ? data.ports.filter(Boolean) : [];
-      const channelDListed = ports.some(port => port.channel_d === true);
-      const summary = data.error ? `Adapter scan failed: ${data.error}`
-        : ports.length === 0 ? 'No USB adapters found; Channel D not listed.'
-          : `${ports.length} USB adapter${ports.length === 1 ? '' : 's'} listed; Channel D ${channelDListed ? 'found' : 'not identified'}.`;
-      logEvent(summary);
+      if (data.default_ports && typeof data.default_ports === 'object') defaultPorts = data.default_ports;
+      updateAdapterProfileOptions(data.adapter_profiles, selectAdapterProfile.value || 'u2d2');
+      updatePortOptions(data.ports, defaultPorts);
+      logEvent(updatePortStatus(data.ports, data.error));
     } else {
       updatePortStatus(null, `Port refresh failed (HTTP ${res.status})`);
       logEvent(`Failed to refresh ports: HTTP ${res.status}`, 'error');
@@ -163,6 +191,12 @@ const selectProfile = document.getElementById('select-profile');
 const groupThreeSupport = document.getElementById('group-three-support');
 const chkThreeSupport = document.getElementById('chk-three-support');
 const inputBaud = document.getElementById('input-baud');
+selectAdapterProfile.addEventListener('change', () => {
+  selectPort.value = '';
+  knownPortOptionsKey = '';
+  updatePortOptions(knownPorts, defaultPorts);
+  updatePortStatus(knownPorts);
+});
 const inputId = document.getElementById('input-id');
 const btnConnect = document.getElementById('btn-connect');
 const btnDisconnect = document.getElementById('btn-disconnect');
@@ -602,6 +636,7 @@ function updateActionControls() {
   const canConnect = isDemoMode === true || hasPort;
   selectPort.disabled = isDemoMode === true || isConnected;
   if (inputPortPath) inputPortPath.disabled = selectPort.disabled;
+  if (selectAdapterProfile) selectAdapterProfile.disabled = isConnected;
   if (selectProfile) selectProfile.disabled = isConnected;
   if (chkThreeSupport) chkThreeSupport.disabled = isConnected;
   btnConnect.disabled = setupBusy || statePollUnavailable || isConnected || !inputClient.session || !canConnect;
@@ -698,8 +733,12 @@ function updateDashboardState(data) {
   modeKnown = typeof data.physical_enabled === 'boolean';
   isDemoMode = modeKnown ? !data.physical_enabled : null;
   const portList = Array.isArray(data.ports) ? data.ports : null;
+  if (data.default_ports && typeof data.default_ports === 'object') defaultPorts = data.default_ports;
+  if (Array.isArray(data.adapter_profiles)) {
+    updateAdapterProfileOptions(data.adapter_profiles, data.adapter_profile || 'u2d2');
+  }
   if (portList) {
-    updatePortOptions(portList, data.default_port);
+    updatePortOptions(portList, defaultPorts);
     updatePortStatus(portList, data.port_error);
   }
   connectionKnown = typeof data.connected === 'boolean';
@@ -1138,7 +1177,8 @@ btnConnect.addEventListener('click', async () => {
   logEvent('Connecting and applying the entered settings and current-pose references. Motors stay stopped.');
   try {
     await action('connect', { demo, port: inputPortPath?.value.trim() || selectPort.value.trim(),
-      baud: Number(inputBaud.value), id: Number(inputId.value), profile_id: profileId, support_confirmed: supportConfirmed });
+      baud: Number(inputBaud.value), id: Number(inputId.value), profile_id: profileId,
+      adapter_profile: selectAdapterProfile.value || 'u2d2', support_confirmed: supportConfirmed });
     ownsMotor = true;
     const data = await refreshSetupState();
     const timeout = data.joints?.some(joint => joint.configured && (joint.timeout === true || joint.timeout === 1));

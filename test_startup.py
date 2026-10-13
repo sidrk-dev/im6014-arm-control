@@ -230,7 +230,7 @@ def run(source, evidence_dir):
         from unittest.mock import patch
         with patch.object(dashboard, "Dashboard", CapturingDashboard), \
              patch.object(dashboard, "QApplication", capture_application), \
-             patch.object(dashboard.list_ports, "comports", return_value=[]), \
+             patch.object(dashboard, "enumerate_ports", return_value=()), \
              patch.object(motor_session.serial, "Serial", io.serial), \
              patch.object(motor_session, "DemoSerial", io.demo), \
              patch.object(motor_session, "exchange", io.exchange):

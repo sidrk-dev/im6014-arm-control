@@ -194,16 +194,29 @@ function testAsymmetricGaugeUsesAppliedZeroAnchorAndMarksCachedFeedback() {
 
 function testMissingAdapterGuidanceExplainsRefreshAndCustomPath() {
   const status = serialPortStatus([]);
-  assert.match(status, /No USB adapter found/i);
-  assert.match(status, /USB-RS485.*Refresh/i);
+  assert.match(status, /No serial adapter found/i);
+  assert.match(status, /RS-485.*Refresh/i);
   assert.doesNotMatch(status, /Using a different adapter/i);
   assert.doesNotMatch(status, /Listing alone/i);
 
-  const found = serialPortStatus([{ path: '/dev/serial/by-id/recommended', channel_d: true }]);
-  assert.match(found, /Channel D.*marked Recommended/i);
-  const otherAdapter = serialPortStatus([{ path: '/dev/ttyUSB0', channel_d: false }]);
-  assert.match(otherAdapter, /Channel D was not identified/i);
-  assert.match(otherAdapter, /only the adapter wired to J1/i);
+  const found = serialPortStatus([{ path: '/dev/serial/by-id/candidate', kind: 'ft232h-candidate' }]);
+  assert.match(found, /FT232H-class candidate/i);
+  assert.match(found, /Fresh motor feedback confirms communication/i);
+  const ambiguous = serialPortStatus([
+    { path: '/dev/ttyUSB0', kind: 'ft232h-candidate' },
+    { path: '/dev/ttyUSB1', kind: 'ft232h-candidate' }
+  ]);
+  assert.match(ambiguous, /Several FT232H-class candidates/i);
+  const otherAdapter = serialPortStatus([{ path: '/dev/ttyUSB0', kind: 'unknown' }]);
+  assert.match(otherAdapter, /no FT232H-class U2D2 candidate/i);
+  const legacy = serialPortStatus([{ path: '/dev/ttyUSB3', kind: 'legacy-ft4232h' }]);
+  assert.match(legacy, /legacy profile/i);
+  const selectedLegacy = serialPortStatus([
+    { path: '/dev/ttyUSB3', kind: 'legacy-ft4232h' },
+    { path: '/dev/ttyUSB4', kind: 'ft232h-candidate' }
+  ], null, false, 'legacy-ft4232h');
+  assert.match(selectedLegacy, /legacy FT4232H route is listed/i);
+  assert.doesNotMatch(selectedLegacy, /Select your U2D2/i);
 }
 
 function testTimeoutAcknowledgementRequiresFreshConfirmedStoppedOwner() {

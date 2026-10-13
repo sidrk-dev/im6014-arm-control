@@ -26,7 +26,8 @@ from im6014_codec import (
     position_to_raw,
     raw_to_position,
 )
-from im6014_port import PortConfig, inspect_port, open_managed_port
+from im6014_port import (ADAPTER_PROFILE_IDS, DEFAULT_ADAPTER_PROFILE, PortConfig,
+                         inspect_port, open_managed_port)
 from im6014_serial import (
     PacketCapture,
     WriteCancelledError,
@@ -34,7 +35,7 @@ from im6014_serial import (
     exchange,
 )
 from im6014_transport import WriteResult
-from spin_5rpm import MAX_CONFIGURED_EFFORT_NM, PORT, healthy
+from spin_5rpm import MAX_CONFIGURED_EFFORT_NM, healthy
 
 MAX_SESSIONS = 16
 MAX_QUEUE = 64
@@ -322,6 +323,7 @@ class ArmManualSession:
             stop_confirmed=False,
             port='',
             baud=6000000,
+            adapter_profile=DEFAULT_ADAPTER_PROFILE,
             id=0,
             connection=0,
         )
@@ -610,12 +612,15 @@ class ArmManualSession:
             baud = v.get('baud', 6000000)
             motor_id = v.get('id', 0)
             profile_id = v.get('profile_id', 'arm_j1')
+            adapter_profile = v.get('adapter_profile', DEFAULT_ADAPTER_PROFILE)
             if type(demo) is not bool:
                 raise ValueError('demo must be an exact bool')
             if type(motor_id) is not int or motor_id != 0:
                 raise ValueError('The legacy id field accepts ID 0 only; select a fixed profile for more joints')
             if type(profile_id) is not str or profile_id not in MANUAL_PROFILES:
                 raise ValueError('Unknown arm profile')
+            if type(adapter_profile) is not str or adapter_profile not in ADAPTER_PROFILE_IDS:
+                raise ValueError('Unknown adapter profile')
             support_confirmed = v.get('support_confirmed') is True
             if not demo and profile_id == 'arm_j1_j2_j3' and not support_confirmed:
                 raise ValueError('Physical three-joint Connect requires confirmation that the arm is supported')
@@ -625,7 +630,8 @@ class ArmManualSession:
                 raise ValueError('Port must be a string')
             if demo:
                 return {'demo': True, 'port': '', 'baud': baud, 'id': 0,
-                        'profile_id': profile_id, 'support_confirmed': support_confirmed}
+                        'profile_id': profile_id, 'adapter_profile': adapter_profile,
+                        'support_confirmed': support_confirmed}
             if not self.physical_opt_in:
                 raise ValueError('Physical mode requires physical_opt_in=True')
             if baud != 6000000:
@@ -635,7 +641,8 @@ class ArmManualSession:
             if len(port) > 240:
                 raise ValueError('Physical port path is too long')
             return {'demo': False, 'port': port.strip(), 'baud': 6000000, 'id': 0,
-                    'profile_id': profile_id, 'support_confirmed': support_confirmed}
+                    'profile_id': profile_id, 'adapter_profile': adapter_profile,
+                    'support_confirmed': support_confirmed}
         if action in ('disconnect', 'check', 'release'):
             if v:
                 raise ValueError(f'{action} does not accept values')
@@ -1375,10 +1382,12 @@ class ArmManualSession:
             demo = values['demo']
             port = values['port']
             baud = values['baud']
+            adapter_profile = values['adapter_profile']
             with self.lock:
                 self.data.update(
                     state='Connecting', reason='Opening adapter and verifying Stop.',
                     id=0, baud=baud, port=port, demo=demo,
+                    adapter_profile=adapter_profile,
                     connection=self.data['connection'] + 1, connected=False,
                     armed=False, calibrated=False, stop_confirmed=False,
                 )
@@ -1394,7 +1403,7 @@ class ArmManualSession:
                     motor_ids=tuple(joint.spec.motor_id for joint in self.configured_joints),
                 )
             else:
-                config = PortConfig(port, baud)
+                config = PortConfig(port, baud, adapter_profile)
                 inspect_report = inspect_port(config)
                 self._event(inspect_report)
                 try:
@@ -2210,5 +2219,5 @@ __all__ = [
     'INGRESS_LEASE_S', 'MAX_ACCEL_RAD_S2', 'MAX_MEASURED_LEAD_RAD',
     'MAX_MEASURED_SPEED_RPM', 'MAX_QUEUE', 'MAX_RATE_RPM',
     'MAX_RECEIPTS_PER_SESSION', 'MAX_SESSIONS', 'SCHEDULE_GAP_MAX_S',
-    'TICKET_EXPIRY_S', 'MAX_TICKETS', 'PORT',
+    'TICKET_EXPIRY_S', 'MAX_TICKETS',
 ]

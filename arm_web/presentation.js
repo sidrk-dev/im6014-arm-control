@@ -101,22 +101,43 @@ export function formatJointHealth(joint) {
   return { status: 'healthy', text: 'Fresh measured feedback' };
 }
 
-export function serialPortStatus(ports, error = null, demo = false) {
+export function serialPortStatus(ports, error = null, demo = false, adapterProfile = 'u2d2') {
   if (demo === true) return 'Demo mode uses a simulated J1 motor; no USB adapter is needed.';
   const records = Array.isArray(ports) ? ports.filter(Boolean) : [];
   const count = records.length;
-  const channelDListed = records.some(port => port.channel_d === true);
   if (error) {
-    return `Could not list USB adapters (${error}). Reconnect the adapter, then select Refresh.`;
+    return `Could not list serial adapters (${error}). Reconnect the adapter, then select Refresh.`;
   }
   if (!count) {
-    return 'No USB adapter found. Reconnect the USB-RS485 adapter, then select Refresh.';
+    return 'No serial adapter found. Connect the RS-485 adapter, then select Refresh.';
   }
-  if (channelDListed) {
-    return 'Channel D adapter found and marked Recommended. Select it, connect, then confirm fresh J1 feedback.';
+  const candidates = records.filter(port => port.kind === 'ft232h-candidate').length;
+  const legacyRoutes = records.filter(port => port.kind === 'legacy-ft4232h').length;
+  if (adapterProfile === 'custom') {
+    return 'Serial devices are listed, but their identity is unverified. Select a path only after checking the adapter and cable.';
   }
-  const countText = count === 1 ? '1 USB adapter found' : `${count} USB adapters found`;
-  return `${countText}, but Channel D was not identified. Select only the adapter wired to J1, then connect and check for fresh feedback.`;
+  if (adapterProfile === 'legacy-ft4232h') {
+    if (legacyRoutes > 1) {
+      return 'Several legacy FT4232H routes are listed. Select the route connected to the motor.';
+    }
+    if (legacyRoutes === 1) {
+      return 'A legacy FT4232H route is listed. Confirm this is the adapter connected to the motor; fresh feedback confirms communication.';
+    }
+    if (candidates > 0) {
+      return 'An FT232H-class candidate is listed, but no legacy route is identified. Select the U2D2 profile if using that adapter.';
+    }
+    return 'No legacy FT4232H route is identified. Select a listed path only after checking the adapter and cable.';
+  }
+  if (candidates > 1) {
+    return 'Several FT232H-class candidates are listed. Select the adapter connected to the motor.';
+  }
+  if (candidates === 1) {
+    return 'One FT232H-class candidate is listed. Select your U2D2, then Connect. Fresh motor feedback confirms communication.';
+  }
+  if (legacyRoutes > 0) {
+    return 'A legacy FT4232H route is listed. Select the legacy profile only if you are using that adapter.';
+  }
+  return 'Serial devices are listed, but no FT232H-class U2D2 candidate is identified. Check the adapter and cable before Connect.';
 }
 
 export function canAcknowledgeStartupTimeout(state = {}) {
@@ -223,7 +244,7 @@ export function deriveDashboardPresentation(state) {
   } else if (connectionKnown && connected && !fresh) {
     alert = {
       type: 'error',
-      message: 'No recent motor reply. Movement is locked. Check USB, motor power, ID 0, and Channel D, then check Enable movement to request a fresh motor check.'
+      message: 'No recent motor reply. Movement is locked. Check the selected adapter path, motor power, and ID 0, then check Enable movement to request a fresh motor check.'
     };
   } else if (connectionKnown && connected && timeout) {
     alert = {
@@ -285,13 +306,13 @@ export function deriveDashboardPresentation(state) {
       ? 'Connect the controlling session, then check Enable movement.'
       : state.demo === true
         ? (isThreeJoint ? 'Select Connect to start simulated 3-joint arm. No USB adapter is needed.' : 'Select Connect to start simulated J1. No USB adapter is needed.')
-      : (isThreeJoint ? 'Select the USB adapter, confirm mechanical support acknowledgment, then Connect.' : 'Position J1 at its entered angle, select the USB adapter, then Connect and check Enable movement. If no adapter appears, reconnect it and select Refresh.');
+      : (isThreeJoint ? 'Select the USB adapter and profile, confirm mechanical support acknowledgment, then Connect.' : 'Position J1 at its entered angle, select the USB adapter and profile, then Connect and check Enable movement. If no adapter appears, reconnect it and select Refresh.');
   } else if (!owner) {
     guidance = 'Another tab controls this motor. Use that tab to check or disconnect; this tab cannot move it.';
   } else if (stopLatched) {
     guidance = 'Movement is stopped. After resolving any reported fault, check Enable movement to request fresh feedback and enable.';
   } else if (!fresh) {
-    guidance = 'No recent motor reply; movement is locked. Check USB, motor power, ID 0, and Channel D, then check Enable movement to request a fresh motor check.';
+    guidance = 'No recent motor reply; movement is locked. Check the selected adapter path, motor power, and ID 0, then check Enable movement to request a fresh motor check.';
 
   } else if (timeout) {
     guidance = timeoutAcknowledgementAvailable

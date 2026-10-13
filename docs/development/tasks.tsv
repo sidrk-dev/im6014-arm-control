@@ -1,4 +1,5 @@
 task	status	owner	scope	note
 J1-simple-dashboard	active	Codex parent	arm_manual.py;arm_dashboard.py;arm_web;docs/arm-quickstart.md	Single physical J1, plain ARM2027 UI; parent owns hardware/Git
+U2D2-adapter	software verified; physical verification pending	Codex parent	im6014_port.py;arm_manual.py;arm_dashboard.py;motor_session.py;motor_dashboard.py;spin_5rpm.py;arm_web;docs/u2d2.md	codex/u2d2-support; parent owns physical verification after replacement and electrical inspection
 C07-C16	paused	Codex parent	Historical arm branch	User prioritizes manual arm controls
 Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination

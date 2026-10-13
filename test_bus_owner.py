@@ -106,7 +106,7 @@ def factory_for(created, **options):
 
 class C01BusOwnership(unittest.TestCase):
     def config(self, path):
-        return PortConfig(path, 6_000_000, expected_serial=None, expected_channel=None)
+        return PortConfig(path, 6_000_000, 'custom')
 
     def test_falsey_unknown_close_status_keeps_lease(self):
         for status in (None, 0, []):
@@ -153,7 +153,7 @@ class Factory:
         print("FACTORY_CALLED", flush=True)
         raise AssertionError("factory must not run")
 try:
-    open_managed_port(PortConfig(sys.argv[1], 6000000, None, None), Factory())
+    open_managed_port(PortConfig(sys.argv[1], 6000000, 'custom'), Factory())
 except PortBusyError:
     print("BUSY", flush=True)
 '''
@@ -178,7 +178,7 @@ class Fake:
     def close(self):
         if self.fd is not None: os.close(self.fd); self.fd = None
         self.is_open = False
-owner = open_managed_port(PortConfig(sys.argv[1], 6000000, None, None), Fake)
+owner = open_managed_port(PortConfig(sys.argv[1], 6000000, 'custom'), Fake)
 print("READY", flush=True)
 signal.pause()
 '''
@@ -342,7 +342,7 @@ signal.pause()
 
         created = []
         wrong_identity = PortConfig(
-            '/dev/serial/by-id/usb-FTDI_other-if01-port0', 6_000_000)
+            '/dev/serial/by-id/usb-FTDI_other-if01-port0', 6_000_000, 'legacy-ft4232h')
         with self.assertRaises(ValueError):
             open_managed_port(wrong_identity, factory_for(created))
         self.assertEqual(created, [])

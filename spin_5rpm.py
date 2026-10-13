@@ -12,9 +12,9 @@ import serial
 from im6014_codec import POSITION_MAX, POSITION_MIN, RATIO, RPM_MAX, RPM_MIN, command, crc32, feedback
 
 from im6014_serial import PacketCapture, capture_exchange, exchange
-from im6014_port import PortConfig, inspect_port, open_managed_port
+from im6014_port import (ADAPTER_PROFILE_IDS, DEFAULT_ADAPTER_PROFILE, PortConfig,
+                         default_port, enumerate_ports, inspect_port, open_managed_port)
 
-PORT = '/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0'
 MAX_CONFIGURED_EFFORT_NM = 15.0
 
 def healthy(f, mode, allow_timeout=False, speed_limit=0, torque_limit_nm=4):
@@ -106,7 +106,9 @@ def run(bus, args, log, capture=None, *, capture_source=None, capture_identity=N
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port', default=PORT)
+    parser.add_argument('--port', help='Serial-device path; omit only when one U2D2 candidate is listed')
+    parser.add_argument('--adapter-profile', choices=ADAPTER_PROFILE_IDS, default=DEFAULT_ADAPTER_PROFILE)
+    parser.add_argument('--list-ports', action='store_true', help='Passively list detected serial devices and exit')
     parser.add_argument('--id', type=int, default=0)
     parser.add_argument('--baud', type=int, choices=(4000000, 6000000), default=6000000)
     parser.add_argument('--rpm', type=float, default=5)
@@ -119,6 +121,18 @@ def main():
     parser.add_argument('--arm', action='store_true', help='Allow this bounded unloaded-bench motion test')
     parser.add_argument('--log', default='motor_run.json')
     args = parser.parse_args()
+    if args.port is not None:
+        args.port = args.port.strip()
+    if args.list_ports:
+        try:
+            records = enumerate_ports()
+        except Exception as error:
+            parser.error(f'Could not list serial devices ({type(error).__name__})')
+        for record in records:
+            print(f'{record.path}\t{record.kind}\t{record.label}')
+        if not records:
+            print('No serial devices found.')
+        return 0
     if args.torque_ff < 0:
         parser.error('Friction compensation must be nonnegative; direction follows --rpm')
     try:
@@ -131,8 +145,18 @@ def main():
         parser.error('Optional speed/travel limits must be finite and nonnegative')
     if args.speed_limit and abs(args.rpm) > args.speed_limit:
         parser.error('Requested speed exceeds the configured measured-speed limit')
+    if not args.port:
+        if args.adapter_profile != DEFAULT_ADAPTER_PROFILE:
+            parser.error('--port is required when the adapter profile is not U2D2')
+        try:
+            args.port = default_port(enumerate_ports(), args.adapter_profile)
+        except Exception as error:
+            parser.error(f'Could not choose a U2D2 candidate ({type(error).__name__})')
+        if not args.port:
+            parser.error('No unique U2D2 candidate is listed; select an explicit --port')
     try:
-        port_report = inspect_port(PortConfig(args.port, args.baud))
+        config = PortConfig(args.port, args.baud, args.adapter_profile)
+        port_report = inspect_port(config)
     except ValueError as error:
         parser.error(str(error))
     print(port_report, flush=True)
@@ -145,7 +169,7 @@ def main():
     bus = None
     try:
         managed_port = open_managed_port(
-            PortConfig(args.port, args.baud), serial_factory=serial.Serial)
+            config, serial_factory=serial.Serial)
         bus = managed_port.bus
         run(bus, args, log, capture, capture_source='physical',
             capture_identity=args.port, capture_connection=1,
