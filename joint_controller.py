@@ -40,6 +40,7 @@ class DecisionCode(str, Enum):
     STALE_FEEDBACK = "stale_feedback"
     UNHEALTHY = "unhealthy"
     NOT_STOPPED = "not_stopped"
+    EXPIRED = "expired"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
 
 
@@ -218,6 +219,8 @@ class JointStatus:
 class Target:
     sequence: int
     joints: tuple[JointTarget, ...]
+    created_at_s: float
+    expires_at_s: float
 
     def __post_init__(self) -> None:
         if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
@@ -228,6 +231,19 @@ class Target:
             raise ValueError("joints must be a non-empty tuple")
         if any(not isinstance(joint, JointTarget) for joint in self.joints):
             raise ValueError("every joint target must be a JointTarget")
+        for name in ("created_at_s", "expires_at_s"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be a finite real number")
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite") from exc
+            if not math.isfinite(value):
+                raise ValueError(f"{name} must be finite")
+            object.__setattr__(self, name, value)
+        if self.expires_at_s <= self.created_at_s:
+            raise ValueError("expires_at_s must be later than created_at_s")
 
 
 @dataclass(frozen=True)
@@ -333,6 +349,7 @@ class JointCore:
         self._source: SourceIdentity | None = None
         self._feedback_max_age_s = feedback_max_age_s
         self._clock = clock
+        self._last_now: float | None = None
         self._faults: dict[str, JointFault] = {}
         self._pending_target: Target | None = None
         self._last_sequence: int = -1
@@ -390,6 +407,9 @@ class JointCore:
             raise ValueError("clock must return a finite real number") from exc
         if not math.isfinite(result):
             raise ValueError("clock must return a finite real number")
+        if self._last_now is not None and result < self._last_now:
+            raise ValueError("clock must be monotonic")
+        self._last_now = result
         return result
 
     @staticmethod
@@ -529,8 +549,12 @@ class JointCore:
     def tick(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
+        if self._state not in (State.READY, State.ARMED, State.MOVING):
+            return self._accepted()
+        return self._tick_at(self._now())
+
+    def _tick_at(self, now: float) -> Decision:
         if self._state in (State.READY, State.ARMED, State.MOVING):
-            now = self._now()
             stale_specs = []
             for index, spec in enumerate(self._specs):
                 joint = self._observations[index]
@@ -565,6 +589,10 @@ class JointCore:
             or len(target.joints) != len(self._specs)
         ):
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if target.created_at_s > now:
+            return self._rejected(DecisionCode.INVALID_ARGUMENT)
+        if now >= target.expires_at_s:
+            return self._rejected(DecisionCode.EXPIRED)
 
         try:
             for spec, joint_target in zip(self._specs, target.joints):
@@ -592,10 +620,14 @@ class JointCore:
     def consume_target(self) -> Target | None:
         if self._state not in (State.ARMED, State.MOVING):
             return None
-        self.tick()
+        now = self._now()
+        self._tick_at(now)
         if self._state is State.FAULT or any(not joint.healthy for joint in self._observations):
             return None
         target = self._pending_target
+        if target is not None and now >= target.expires_at_s:
+            self._pending_target = None
+            return None
         self._pending_target = None
         if target is not None:
             self._state = State.MOVING

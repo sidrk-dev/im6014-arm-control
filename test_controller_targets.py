@@ -39,7 +39,7 @@ class LatestTargetTests(unittest.TestCase):
                 (
                     JointTarget(q_rad=i * 0.0001, dq_rad_s=0.0, tau_nm=0.0, kp=1.0, kd=0.1),
                     JointTarget(q_rad=-i * 0.0001, dq_rad_s=0.0, tau_nm=0.0, kp=1.0, kd=0.1),
-                ),
+                ), created_at_s=0.0, expires_at_s=1000000.0
             )
             decision = station.submit(target)
             self.assertTrue(decision.accepted)
@@ -72,10 +72,10 @@ class LatestTargetTests(unittest.TestCase):
             {jt1, jt2},
         ):
             with self.subTest(bad_joints=repr(bad_joints)), self.assertRaises(ValueError):
-                Target(0, bad_joints)
+                Target(0, bad_joints, created_at_s=0.0, expires_at_s=1000000.0)
 
         with self.assertRaises(ValueError):
-            Target(0, ())
+            Target(0, (), created_at_s=0.0, expires_at_s=1000000.0)
 
         for bad_elements in (
             (jt1, "not a joint target"),
@@ -83,9 +83,9 @@ class LatestTargetTests(unittest.TestCase):
             (jt1, None),
         ):
             with self.subTest(bad_elements=repr(bad_elements)), self.assertRaises(ValueError):
-                Target(0, bad_elements)
+                Target(0, bad_elements, created_at_s=0.0, expires_at_s=1000000.0)
 
-        target = Target(0, (jt1, jt2))
+        target = Target(0, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
         with self.assertRaises(FrozenInstanceError):
             target.sequence = 1
         with self.assertRaises(FrozenInstanceError):
@@ -125,7 +125,7 @@ class LatestTargetTests(unittest.TestCase):
 
         jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
         jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
-        prior_target = Target(1, (jt1, jt2))
+        prior_target = Target(1, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(prior_target).accepted)
         self.assertEqual(core.snapshot().pending_target, prior_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
@@ -139,8 +139,8 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertEqual(core.snapshot().last_sequence, 1)
 
         for wrong_vector in (
-            Target(2, (jt1,)),
-            Target(2, (jt1, jt2, jt1)),
+            Target(2, (jt1,), created_at_s=0.0, expires_at_s=1000000.0),
+            Target(2, (jt1, jt2, jt1), created_at_s=0.0, expires_at_s=1000000.0),
         ):
             with self.subTest(wrong_vector=wrong_vector):
                 decision = core.submit_target(wrong_vector)
@@ -149,28 +149,28 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertEqual(core.snapshot().pending_target, prior_target)
                 self.assertEqual(core.snapshot().last_sequence, 1)
 
-        huge_speed = Target(2, (JointTarget(0.0, 1e7, 0.0, 1.0, 0.1), jt2))
+        huge_speed = Target(2, (JointTarget(0.0, 1e7, 0.0, 1.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(huge_speed)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().pending_target, prior_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        huge_kp = Target(2, (JointTarget(0.0, 0.0, 0.0, 31.0, 0.1), jt2))
+        huge_kp = Target(2, (JointTarget(0.0, 0.0, 0.0, 31.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(huge_kp)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().pending_target, prior_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        huge_kd = Target(2, (JointTarget(0.0, 0.0, 0.0, 1.0, 6.1), jt2))
+        huge_kd = Target(2, (JointTarget(0.0, 0.0, 0.0, 1.0, 6.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(huge_kd)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().pending_target, prior_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        huge_pos = Target(2, (JointTarget(1e7, 0.0, 0.0, 1.0, 0.1), jt2))
+        huge_pos = Target(2, (JointTarget(1e7, 0.0, 0.0, 1.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(huge_pos)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
@@ -186,7 +186,7 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertTrue(station.connect())
                 self.assertTrue(station.check())
                 self.assertTrue(station.arm())
-                target = Target(0, (JointTarget(0, 0, 0, 1, .1),) * 2)
+                target = Target(0, (JointTarget(0, 0, 0, 1, .1),) * 2, created_at_s=0.0, expires_at_s=1000000.0)
                 self.assertTrue(station.submit(target))
                 self.assertEqual(core.snapshot().last_sequence, 0)
                 station.writes.clear()
@@ -213,18 +213,18 @@ class LatestTargetTests(unittest.TestCase):
 
         jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
         jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
-        prior_target = Target(1, (jt1, jt2))
+        prior_target = Target(1, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(prior_target).accepted)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        too_high = Target(2, (JointTarget(0.0, 0.0, 3.501, 1.0, 0.1), jt2))
+        too_high = Target(2, (JointTarget(0.0, 0.0, 3.501, 1.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(too_high)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().pending_target, prior_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        too_low = Target(2, (JointTarget(0.0, 0.0, -3.501, 1.0, 0.1), jt2))
+        too_low = Target(2, (JointTarget(0.0, 0.0, -3.501, 1.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         rej = core.submit_target(too_low)
         self.assertFalse(rej.accepted)
         self.assertEqual(rej.code, DecisionCode.INVALID_ARGUMENT)
@@ -242,7 +242,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertTrue(station_ratio.arm().accepted)
 
         rej_ratio = core_ratio.submit_target(
-            Target(1, (JointTarget(0.0, 0.0, 12.0, 9.0, 0.9), jt2))
+            Target(1, (JointTarget(0.0, 0.0, 12.0, 9.0, 0.9), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         )
         self.assertFalse(rej_ratio.accepted)
         self.assertEqual(rej_ratio.code, DecisionCode.INVALID_ARGUMENT)
@@ -264,7 +264,7 @@ class LatestTargetTests(unittest.TestCase):
 
         jt1 = JointTarget(q_rad=0.1, dq_rad_s=1.0, tau_nm=-6.0, kp=18.0, kd=4.5)
         jt2 = JointTarget(q_rad=0.2, dq_rad_s=-1.0, tau_nm=3.0, kp=8.0, kd=2.0)
-        target = Target(1, (jt1, jt2))
+        target = Target(1, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
 
         decision = station.submit(target)
         self.assertTrue(decision.accepted)
@@ -310,9 +310,9 @@ class LatestTargetTests(unittest.TestCase):
 
         jt1 = JointTarget(0.1, 0.0, 0.0, 1.0, 0.1)
         jt2 = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
-        valid_target = Target(1, (jt1, jt2))
+        valid_target = Target(1, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
 
-        bad_target = Target(2, (JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), jt2))
+        bad_target = Target(2, (JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), jt2), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertFalse(station.submit(bad_target).accepted)
         self.assertEqual(station.writes, [])
 
@@ -322,7 +322,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertTrue(station.submit(valid_target).accepted)
         self.assertEqual(core.snapshot().last_sequence, 1)
         clock.value = 1.000001
-        valid_target_newer = Target(2, (jt1, jt2))
+        valid_target_newer = Target(2, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertEqual(station.submit(valid_target_newer).code, DecisionCode.STALE_FEEDBACK)
         self.assertEqual(station.writes, [])
 
@@ -332,7 +332,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertIsNone(core.snapshot().pending_target)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
-        valid_target_3 = Target(3, (jt1, jt2))
+        valid_target_3 = Target(3, (jt1, jt2), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertEqual(station.submit(valid_target_3).code, DecisionCode.INVALID_STATE)
         self.assertIsNone(station.consume())
         self.assertEqual(station.writes, [])
@@ -382,7 +382,7 @@ class LatestTargetTests(unittest.TestCase):
         target = Target(1, (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),
-        ))
+        ), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(target).accepted)
         self.assertEqual(core.snapshot().pending_target, target)
         self.assertEqual(core.snapshot().last_sequence, 1)
@@ -410,7 +410,7 @@ class LatestTargetTests(unittest.TestCase):
         target = Target(1, (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),
-        ))
+        ), created_at_s=0.0, expires_at_s=1000000.0)
 
         rejected_states = (
             State.DISCONNECTED,
@@ -440,7 +440,7 @@ class LatestTargetTests(unittest.TestCase):
         target2 = Target(2, (
             JointTarget(0.3, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.4, 0.0, 0.0, 1.0, 0.1),
-        ))
+        ), created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(core.submit_target(target2).accepted)
         self.assertEqual(core.snapshot().pending_target, target2)
         self.assertEqual(core.snapshot().last_sequence, 2)
@@ -476,20 +476,20 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, -1)
         self.assertIsNone(core.snapshot().pending_target)
 
-        t1 = Target(1, self.valid_joints)
+        t1 = Target(1, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d1 = station.submit(t1)
         self.assertTrue(d1.accepted)
         self.assertEqual(core.snapshot().last_sequence, 1)
         self.assertEqual(core.snapshot().pending_target, t1)
 
-        t5 = Target(5, self.valid_joints)
+        t5 = Target(5, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d5 = station.submit(t5)
         self.assertTrue(d5.accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().pending_target, t5)
 
         station.writes.clear()
-        t5_dup = Target(5, self.valid_joints)
+        t5_dup = Target(5, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d5_dup = station.submit(t5_dup)
         self.assertFalse(d5_dup.accepted)
         self.assertEqual(d5_dup.code, DecisionCode.DUPLICATE_OR_OLDER)
@@ -497,7 +497,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(core.snapshot().pending_target, t5)
         self.assertEqual(station.writes, [])
 
-        t2 = Target(2, self.valid_joints)
+        t2 = Target(2, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d2 = station.submit(t2)
         self.assertFalse(d2.accepted)
         self.assertEqual(d2.code, DecisionCode.DUPLICATE_OR_OLDER)
@@ -505,7 +505,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(core.snapshot().pending_target, t5)
         self.assertEqual(station.writes, [])
 
-        t6 = Target(6, self.valid_joints)
+        t6 = Target(6, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d6 = station.submit(t6)
         self.assertTrue(d6.accepted)
         self.assertEqual(core.snapshot().last_sequence, 6)
@@ -523,7 +523,7 @@ class CommandSequenceTests(unittest.TestCase):
         core, station, _ = self._armed_station()
         self.assertEqual(core.snapshot().last_sequence, -1)
 
-        t0 = Target(0, self.valid_joints)
+        t0 = Target(0, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(t0).accepted)
         self.assertEqual(core.snapshot().last_sequence, 0)
         self.assertEqual(core.snapshot().pending_target, t0)
@@ -535,7 +535,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(core.snapshot().pending_target, t0)
 
         uint64_max = (1 << 64) - 1
-        t_max = Target(uint64_max, self.valid_joints)
+        t_max = Target(uint64_max, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(t_max).accepted)
         self.assertEqual(core.snapshot().last_sequence, uint64_max)
         self.assertEqual(core.snapshot().pending_target, t_max)
@@ -545,7 +545,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(d_max_dup.code, DecisionCode.DUPLICATE_OR_OLDER)
         self.assertEqual(core.snapshot().last_sequence, uint64_max)
 
-        t_smaller = Target(uint64_max - 1, self.valid_joints)
+        t_smaller = Target(uint64_max - 1, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d_smaller = station.submit(t_smaller)
         self.assertFalse(d_smaller.accepted)
         self.assertEqual(d_smaller.code, DecisionCode.DUPLICATE_OR_OLDER)
@@ -572,39 +572,39 @@ class CommandSequenceTests(unittest.TestCase):
         )
         for bad_seq in invalid_sequences:
             with self.subTest(bad_seq=repr(bad_seq)), self.assertRaises(ValueError):
-                Target(bad_seq, self.valid_joints)
+                Target(bad_seq, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
 
-        target = Target(1, self.valid_joints)
+        target = Target(1, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         with self.assertRaises(FrozenInstanceError):
             target.sequence = 2
 
     def test_invalid_higher_vector_or_mapping_preserves_pending_and_watermark_and_never_blocks_smaller(self):
         core, station, _ = self._armed_station()
-        t5 = Target(5, self.valid_joints)
+        t5 = Target(5, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(t5).accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().pending_target, t5)
 
-        bad_len = Target(10, (self.valid_joints[0],))
+        bad_len = Target(10, (self.valid_joints[0],), created_at_s=0.0, expires_at_s=1000000.0)
         d_bad_len = station.submit(bad_len)
         self.assertFalse(d_bad_len.accepted)
         self.assertEqual(d_bad_len.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().pending_target, t5)
 
-        bad_map = Target(10, (JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), self.valid_joints[1]))
+        bad_map = Target(10, (JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), self.valid_joints[1]), created_at_s=0.0, expires_at_s=1000000.0)
         d_bad_map = station.submit(bad_map)
         self.assertFalse(d_bad_map.accepted)
         self.assertEqual(d_bad_map.code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().pending_target, t5)
 
-        bad_second = Target(10, (self.valid_joints[0], JointTarget(0, 0, 10, 1, .1)))
+        bad_second = Target(10, (self.valid_joints[0], JointTarget(0, 0, 10, 1, .1)), created_at_s=0.0, expires_at_s=1000000.0)
         before = core.snapshot()
         self.assertEqual(station.submit(bad_second).code, DecisionCode.INVALID_ARGUMENT)
         self.assertEqual(core.snapshot(), before)
 
-        t7 = Target(7, self.valid_joints)
+        t7 = Target(7, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d7 = station.submit(t7)
         self.assertTrue(d7.accepted)
         self.assertEqual(core.snapshot().last_sequence, 7)
@@ -618,7 +618,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertTrue(station.check().accepted)
         self.assertTrue(station.arm().accepted)
 
-        t10 = Target(10, self.valid_joints)
+        t10 = Target(10, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(t10).accepted)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
@@ -666,13 +666,13 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(d10_dup.code, DecisionCode.DUPLICATE_OR_OLDER)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
-        t9 = Target(9, self.valid_joints)
+        t9 = Target(9, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d9 = station.submit(t9)
         self.assertFalse(d9.accepted)
         self.assertEqual(d9.code, DecisionCode.DUPLICATE_OR_OLDER)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
-        t11 = Target(11, self.valid_joints)
+        t11 = Target(11, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d11 = station.submit(t11)
         self.assertTrue(d11.accepted)
         self.assertEqual(core.snapshot().last_sequence, 11)
@@ -680,13 +680,13 @@ class CommandSequenceTests(unittest.TestCase):
 
     def test_rejected_state_and_stale_submissions_preserve_watermark_and_pending(self):
         core, station, clock = self._armed_station()
-        t5 = Target(5, self.valid_joints)
+        t5 = Target(5, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station.submit(t5).accepted)
         self.assertEqual(core.snapshot().last_sequence, 5)
         self.assertEqual(core.snapshot().pending_target, t5)
 
         clock.value = 1.000001
-        t10 = Target(10, self.valid_joints)
+        t10 = Target(10, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         d_stale = station.submit(t10)
         self.assertFalse(d_stale.accepted)
         self.assertEqual(d_stale.code, DecisionCode.STALE_FEEDBACK)
@@ -707,7 +707,7 @@ class CommandSequenceTests(unittest.TestCase):
                 state_core = core_at(self, state)
                 self.assertIs(state_core.snapshot().state, state)
                 self.assertEqual(state_core.snapshot().last_sequence, -1)
-                d = state_core.submit_target(Target(20, self.valid_joints))
+                d = state_core.submit_target(Target(20, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0))
                 self.assertFalse(d.accepted)
                 self.assertEqual(d.code, DecisionCode.INVALID_STATE)
                 self.assertEqual(state_core.snapshot().last_sequence, -1)
@@ -724,10 +724,147 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertTrue(station1.check().accepted)
         self.assertTrue(station1.arm().accepted)
 
-        t10 = Target(10, self.valid_joints)
+        t10 = Target(10, self.valid_joints, created_at_s=0.0, expires_at_s=1000000.0)
         self.assertTrue(station1.submit(t10).accepted)
         self.assertEqual(core1.snapshot().last_sequence, 10)
         self.assertEqual(core2.snapshot().last_sequence, -1)
+
+
+class CommandExpiryTests(unittest.TestCase):
+    def setUp(self):
+        self.specs = (
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+        )
+        self.joints = (
+            JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
+            JointTarget(-0.2, 0.0, 0.0, 2.0, 0.2),
+        )
+
+    def _armed_station(self, clock):
+        core = JointCore(self.specs, clock=clock)
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        self.assertTrue(station.check().accepted)
+        self.assertTrue(station.arm().accepted)
+        station.writes.clear()
+        return core, station
+
+    def test_target_requires_finite_ordered_timestamps_and_accepts_zero(self):
+        with self.assertRaises(TypeError):
+            Target(0, self.joints)
+        target = Target(0, self.joints, created_at_s=0, expires_at_s=1)
+        self.assertEqual(target.created_at_s, 0.0)
+        self.assertEqual(target.expires_at_s, 1.0)
+
+        for created_at_s in (True, False, None, "0", math.nan, math.inf, -math.inf):
+            with self.subTest(created_at_s=created_at_s), self.assertRaises(ValueError):
+                Target(0, self.joints, created_at_s, 1.0)
+        for expires_at_s in (True, False, None, "1", math.nan, math.inf, -math.inf):
+            with self.subTest(expires_at_s=expires_at_s), self.assertRaises(ValueError):
+                Target(0, self.joints, 0.0, expires_at_s)
+        for expires_at_s in (-1.0, 0.0):
+            with self.subTest(reversed_deadline=expires_at_s), self.assertRaises(ValueError):
+                Target(0, self.joints, 0.0, expires_at_s)
+
+    def test_future_creation_and_producer_queue_expiry_reject_without_storage(self):
+        clock = DeterministicClock(0.0)
+        core, station = self._armed_station(clock)
+        future = Target(1, self.joints, created_at_s=0.1, expires_at_s=1.0)
+        self.assertEqual(station.submit(future).code, DecisionCode.INVALID_ARGUMENT)
+        self.assertIsNone(core.snapshot().pending_target)
+        self.assertEqual(core.snapshot().last_sequence, -1)
+
+        clock.value = 0.25
+        queued_too_long = Target(2, self.joints, created_at_s=0.0, expires_at_s=0.25)
+        self.assertEqual(station.submit(queued_too_long).code, DecisionCode.EXPIRED)
+        self.assertIsNone(core.snapshot().pending_target)
+        self.assertEqual(core.snapshot().last_sequence, -1)
+        self.assertEqual(station.writes, [])
+
+    def test_expired_high_sequence_replacement_preserves_pending_and_watermark(self):
+        clock = DeterministicClock(0.0)
+        core, station = self._armed_station(clock)
+        pending = Target(5, self.joints, created_at_s=0.0, expires_at_s=0.5)
+        self.assertTrue(station.submit(pending).accepted)
+
+        clock.value = 0.2
+        expired = Target(10, self.joints, created_at_s=0.0, expires_at_s=0.2)
+        self.assertEqual(station.submit(expired).code, DecisionCode.EXPIRED)
+        self.assertEqual(core.snapshot().pending_target, pending)
+        self.assertEqual(core.snapshot().last_sequence, 5)
+        self.assertEqual(station.writes, [])
+
+    def test_valid_target_dispatches_expected_fake_packet_bytes(self):
+        clock = DeterministicClock(0.0)
+        _, station = self._armed_station(clock)
+        target = Target(1, self.joints, created_at_s=0.0, expires_at_s=1.0)
+        self.assertTrue(station.submit(target).accepted)
+        self.assertEqual(station.writes, [])
+
+        self.assertEqual(station.consume(), target)
+        self.assertEqual(station.writes, [
+            command(0, mode=1, rpm=0.0, kd=0.1, torque=0.0, watchdog=True, position=0.1, kp=1.0),
+            command(1, mode=1, rpm=0.0, kd=0.2, torque=0.0, watchdog=True, position=-0.2, kp=2.0),
+        ])
+
+    def test_expiry_at_consume_discards_once_retains_sequence_and_uses_one_clock_sample(self):
+        clock = DeterministicClock(0.0)
+        core, station = self._armed_station(clock)
+        target = Target(7, self.joints, created_at_s=0.0, expires_at_s=0.1)
+        self.assertTrue(station.submit(target).accepted)
+        station.writes.clear()
+
+        clock.value = 0.1
+        calls_before_consume = clock.calls
+        self.assertIsNone(station.consume())
+        self.assertEqual(clock.calls, calls_before_consume + 1)
+        snapshot = core.snapshot()
+        self.assertIsNone(snapshot.pending_target)
+        self.assertEqual(snapshot.last_sequence, 7)
+        self.assertIs(snapshot.state, State.ARMED)
+        self.assertFalse(snapshot.fault_latched)
+        self.assertEqual(station.writes, [])
+
+        same_sequence = Target(7, self.joints, created_at_s=0.1, expires_at_s=0.5)
+        self.assertEqual(station.submit(same_sequence).code, DecisionCode.DUPLICATE_OR_OLDER)
+        newer = Target(8, self.joints, created_at_s=0.1, expires_at_s=0.5)
+        self.assertTrue(station.submit(newer).accepted)
+
+    def test_clock_regression_raises_before_pending_target_can_be_written(self):
+        clock = DeterministicClock(0.0)
+        core, station = self._armed_station(clock)
+        target = Target(1, self.joints, created_at_s=0.0, expires_at_s=1.0)
+        self.assertTrue(station.submit(target).accepted)
+        station.writes.clear()
+
+        clock.value = -0.1
+        with self.assertRaises(ValueError):
+            station.consume()
+        clock.value = 0.0
+        self.assertEqual(core.snapshot().pending_target, target)
+        self.assertEqual(station.writes, [])
+
+    def test_timestamp_guards_precede_codec_and_sequence_metadata(self):
+        clock = DeterministicClock(0.0)
+        core, station = self._armed_station(clock)
+        accepted = Target(5, self.joints, created_at_s=0.0, expires_at_s=1.0)
+        self.assertTrue(station.submit(accepted).accepted)
+
+        future_older = Target(4, self.joints, created_at_s=0.1, expires_at_s=1.0)
+        self.assertEqual(station.submit(future_older).code, DecisionCode.INVALID_ARGUMENT)
+        expired_bad_shape = Target(11, self.joints[:1], created_at_s=0.0, expires_at_s=0.01)
+        clock.value = 0.01
+        self.assertEqual(station.submit(expired_bad_shape).code, DecisionCode.INVALID_ARGUMENT)
+        expired_unencodable = Target(
+            10,
+            (JointTarget(0.0, 0.0, 10.0, 1.0, 0.1), self.joints[1]),
+            created_at_s=0.0,
+            expires_at_s=0.01,
+        )
+        self.assertEqual(station.submit(expired_unencodable).code, DecisionCode.EXPIRED)
+        self.assertEqual(core.snapshot().pending_target, accepted)
+        self.assertEqual(core.snapshot().last_sequence, 5)
 
 
 if __name__ == "__main__":

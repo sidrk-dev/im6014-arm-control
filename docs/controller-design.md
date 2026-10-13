@@ -1,10 +1,10 @@
 # Joint mapping and controller design
 
-B11-B14 and C01-C06 extend the bench with pure joint algebra, passive configuration, bounded packet diagnostics, cooperating bus ownership and a transport-free request core. Existing bench entry points retain their lifecycle and packet bytes. No new physical motion runner is introduced.
+B11-B14 and C01-C07 extend the bench with pure joint algebra, passive configuration, bounded packet diagnostics, cooperating bus ownership and a transport-free request core. Existing bench entry points retain their lifecycle and packet bytes. No new physical motion runner is introduced.
 
 ## Selection
 
-Sol's typed core is the base. Parent scores against the six saved rubric criteria are 5, 4, 4, 5, 5, 5. Gemini's wire-aware core scores 2, 3, 2, 2, 2, 3. Both OpenCode reviewers selected Sol. Their full scores and requested-route receipts are in evidence/controller/models. Parent accepted named rad/s intermediates, passive OS metadata, the sequence example 1,5,5,2,6, and a transition table with guards. Parent rejected premature arm expiry, arbitrary stream dictionaries, mutable snapshot dictionaries, raw wire ownership in the core and a station daemon. These need later C07-C16 work.
+Sol's typed core is the base. Parent scores against the six saved rubric criteria are 5, 4, 4, 5, 5, 5. Gemini's wire-aware core scores 2, 3, 2, 2, 2, 3. Both OpenCode reviewers selected Sol. Their full scores and requested-route receipts are in evidence/controller/models. Parent accepted named rad/s intermediates, passive OS metadata, the sequence example 1,5,5,2,6, and a transition table with guards. Parent rejected premature arm expiry, arbitrary stream dictionaries, mutable snapshot dictionaries, raw wire ownership in the core and a station daemon. These need later C08-C16 work.
 
 The reviewers missed a fault recovery gap in Sol's Stop row. Stop must preserve FAULT and its attributed cause. Disconnect/reconnect must not permit a latched fault to bypass an explicitly acknowledged recovery check. A healthy packet alone never clears it. This is a parent correction to the base.
 
@@ -41,18 +41,19 @@ Reverse feedback uses q_joint=s*(q_out-q0)/N, dq_joint=s*(rpm_out*2*pi/60)/N and
 | FAULT | begin_check with explicit acknowledgment | CHECKING, cause retained until successful check |
 | CHECKING | checked, all active joints fresh, healthy and Stop mode | READY, cause cleared |
 | READY | arm, all active joints fresh and healthy | ARMED |
-| ARMED or MOVING | submit, valid complete newer target | Replace pending only |
-| ARMED or MOVING | consume, fresh healthy observations | Return pending once, MOVING |
+| ARMED or MOVING | submit, complete newer target with `created_at_s <= now < expires_at_s` | Replace pending only |
+| ARMED or MOVING | consume, fresh healthy observations and unexpired pending target | Return pending once, MOVING |
+| ARMED or MOVING | consume, expired pending target | Discard pending, retain watermark and state |
 | Connected state except FAULT | stop | STOPPED, disarmed, pending cleared |
 | FAULT | stop | Remain FAULT, pending cleared |
 | Active state | attributed error, timeout or stale joint | FAULT, pending cleared, cause latched |
 | Any | disconnect | DISCONNECTED, observations invalidated, cause and watermark retained |
 | Any | unlisted transition | Rejection, no fake or physical I/O |
 
-C02 first implements state legality and a test fixture. C03 adds per-joint clock-stamped age, including timestamp zero and wrong-ID rejection. C04 adds full error/warning/timeout attribution. C05 adds exact-length immutable target replacement. C06 enforces actual nonnegative integer sequences, strictly increasing. Consumption, Stop, fault and reconnect retain the watermark. A new stream/owner generation is deferred to C08.
+C02 first implements state legality and a test fixture. C03 adds per-joint clock-stamped age, including timestamp zero and wrong-ID rejection. C04 adds full error/warning/timeout attribution. C05 adds exact-length immutable target replacement. C06 enforces actual nonnegative integer sequences, strictly increasing. C07 adds required finite command creation and expiry timestamps in the station monotonic domain: future creation rejects, equality at the deadline expires, failed replacement preserves the pending target and watermark, and consumption discards an expired pending target without a fault. Dispatch freshness and expiry share one clock sample; regression raises before release. Consumption, Stop, fault and reconnect retain the watermark. A new stream/owner generation is deferred to C08.
 
 ## Acceptance and remaining scope
 
 Each unit is authored in an isolated worktree, reviewed and run by the parent before the next. scripts/check_milestone.py records hashes, actual checks and raw logs. New modules enter the offline copyset and startup fingerprint. The final driver runs sequentially and its images are inspected. The full source and decision trail go to Muse and MiMo before independent verification and a guarded PR merge.
 
-Software Stop does not prove physical torque off. PTY locking and algebra do not prove adapter performance or calibration. Live multi-joint execution, expiry, generations, limits, effort validity, timing, loaded-arm shutdown and station independence remain later work. The pending timeout acknowledgment remains a separate hardware gate.
+Software Stop does not prove physical torque off. PTY locking and algebra do not prove adapter performance or calibration. Live multi-joint execution, ownership generations, limits, effort validity, timing, loaded-arm shutdown and station independence remain later work. The pending timeout acknowledgment remains a separate hardware gate.

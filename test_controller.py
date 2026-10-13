@@ -271,7 +271,7 @@ def core_at(test, state, clock=None):
         target = Target(0, (
             JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
-        ))
+        ), created_at_s=0.0, expires_at_s=1000000.0)
         test.assertTrue(core.submit_target(target).accepted)
         test.assertIsNotNone(core.consume_target())
         return core

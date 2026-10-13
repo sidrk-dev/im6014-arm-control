@@ -69,7 +69,7 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 
 ## Latest target
 
-`Target(sequence, joints)` contains an immutable complete tuple of `JointTarget` values in configured order. `submit_target` validates every mapped output through the existing codec before replacing the single pending slot; invalid replacement preserves it. `consume_target` returns the pending target once only in ARMED or MOVING with fresh healthy feedback, then sets logical MOVING. Stop, disconnect and every fault clear pending. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Its exact integer sequence is in 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; invalid payloads return `INVALID_ARGUMENT` first. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark.
+`Target(sequence, joints, created_at_s, expires_at_s)` contains an immutable complete tuple of `JointTarget` values in configured order. Both finite timestamps use the station's monotonic clock domain, and expiry must be later than creation. Submission checks lifecycle and feedback first, then complete vector shape, then accepts only `created_at_s <= now < expires_at_s`; a future creation returns `INVALID_ARGUMENT`, while an expired target, including deadline equality, returns `EXPIRED`. Mapping and codec validation follows the deadline check, and sequence ordering follows payload validation. Rejected replacement preserves the pending target and sequence watermark. In ARMED or MOVING, consumption returns a valid pending target once and enters MOVING. Stop, fault and disconnect clear pending storage. Consumption samples monotonic time once for both freshness and expiry; it discards an expired pending target without returning it, latching a fault, or changing the watermark. A regressing clock raises before a target is released. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Target sequence is an exact integer from 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; malformed or unrepresentable payloads return `INVALID_ARGUMENT` before sequence ordering. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark.
 
 ### Offline controller example
 
@@ -84,7 +84,7 @@ assert core.begin_check()
 assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
 assert core.checked()
 assert core.arm()
-target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),))
+target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), created_at_s=0.0, expires_at_s=1.0)
 assert core.submit_target(target)
 assert core.consume_target() == target
 assert core.snapshot().state is State.MOVING
