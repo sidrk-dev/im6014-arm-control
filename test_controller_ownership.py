@@ -10,6 +10,7 @@ from joint_controller import (
     JointStatus,
     MotorHealth,
     Ownership,
+    PositionLimits,
     Snapshot,
     State,
     Target,
@@ -17,12 +18,15 @@ from joint_controller import (
 from joint_mapping import JointMap, JointTarget
 from test_controller import DeterministicClock, FakeStation, SAMPLE
 
+# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
+WIDE_LIMITS = PositionLimits(-1e12, 1e12)
+
 
 class OwnershipTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),

@@ -10,6 +10,7 @@ from joint_controller import (
     JointFault,
     JointSpec,
     MotorHealth,
+    PositionLimits,
     SourceIdentity,
     State,
     Target,
@@ -20,6 +21,8 @@ from joint_mapping import JointMap, JointSample, JointTarget
 SAMPLE = JointSample(0.1, 0.0, 0.0)
 HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False)
 SOURCE = SourceIdentity("fixture", "controller-test", 1)
+# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
+WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
 class FakeStation:
@@ -102,8 +105,8 @@ class DeterministicClock:
 class FeedbackAgeTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
         )
 
     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
@@ -297,8 +300,8 @@ class ControllerStateTests(unittest.TestCase):
     def setUp(self):
         self.clock = lambda: 0.0
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
         )
 
 
@@ -307,13 +310,13 @@ class ControllerStateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             JointCore(())
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J1", 1, mapping)))
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS), JointSpec("J1", 1, mapping, WIDE_LIMITS)))
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping), JointSpec("J2", 0, mapping)))
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS), JointSpec("J2", 0, mapping, WIDE_LIMITS)))
         with self.assertRaises(ValueError):
-            JointSpec("J1", True, mapping)
+            JointSpec("J1", True, mapping, WIDE_LIMITS)
 
-        supplied = [JointSpec("J1", 0, mapping)]
+        supplied = [JointSpec("J1", 0, mapping, WIDE_LIMITS)]
         core = JointCore(supplied, clock=self.clock)
         supplied.clear()
         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
@@ -517,8 +520,8 @@ class ControllerStateTests(unittest.TestCase):
 class JointFaultTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
         )
 
     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
@@ -835,8 +838,8 @@ class JointFaultTests(unittest.TestCase):
 
     def test_independent_second_core_unchanged_by_fault(self):
         specs2 = (
-            JointSpec("J3", 2, JointMap(1, 1, 0.0)),
-            JointSpec("J4", 3, JointMap(1, 1, 0.0)),
+            JointSpec("J3", 2, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0), WIDE_LIMITS),
         )
         clock = DeterministicClock(0.0)
         core1 = JointCore(self.specs, clock=clock)

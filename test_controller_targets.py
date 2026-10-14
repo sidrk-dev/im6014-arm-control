@@ -9,12 +9,16 @@ from joint_controller import (
     JointSpec,
     MotorHealth,
     Ownership,
+    PositionLimits,
     State,
     Target,
 )
 from joint_mapping import JointMap, JointTarget
 
 from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STOP, core_at
+
+# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
+WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
 def owned_target(core, *args, **kwargs):
@@ -25,8 +29,8 @@ def owned_target(core, *args, **kwargs):
 class LatestTargetTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
         )
 
     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume(self):
@@ -239,8 +243,8 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         specs_ratio = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0)),
-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0)),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), WIDE_LIMITS),
         )
         core_ratio = JointCore(specs_ratio, clock=clock)
         station_ratio = FakeStation(core_ratio)
@@ -259,8 +263,8 @@ class LatestTargetTests(unittest.TestCase):
     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
         clock = DeterministicClock(0.0)
         specs = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25)),
-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1)),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), WIDE_LIMITS),
         )
         core = JointCore(specs, clock=clock)
         station = FakeStation(core)
@@ -467,8 +471,8 @@ class LatestTargetTests(unittest.TestCase):
 class CommandSequenceTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -752,8 +756,8 @@ class CommandSequenceTests(unittest.TestCase):
 class CommandExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0)),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0)),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),

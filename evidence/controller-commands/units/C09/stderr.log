@@ -1,0 +1,11 @@
+test_arm_rejects_measured_pose_outside_interval_without_grant_or_generation_change (test_controller_limits.PositionLimitTests.test_arm_rejects_measured_pose_outside_interval_without_grant_or_generation_change) ... ok
+test_bad_second_joint_rejects_whole_vector_and_does_not_advance_sequence (test_controller_limits.PositionLimitTests.test_bad_second_joint_rejects_whole_vector_and_does_not_advance_sequence) ... ok
+test_codec_invalid_position_inside_configured_interval_keeps_codec_rejection (test_controller_limits.PositionLimitTests.test_codec_invalid_position_inside_configured_interval_keeps_codec_rejection) ... ok
+test_endpoints_and_zero_width_are_accepted_but_adjacent_values_reject (test_controller_limits.PositionLimitTests.test_endpoints_and_zero_width_are_accepted_but_adjacent_values_reject) ... ok
+test_limits_require_finite_ordered_real_values_and_allow_equal_bounds (test_controller_limits.PositionLimitTests.test_limits_require_finite_ordered_real_values_and_allow_equal_bounds) ... ok
+test_requested_limits_are_joint_domain_for_all_reductions_directions_and_offsets (test_controller_limits.PositionLimitTests.test_requested_limits_are_joint_domain_for_all_reductions_directions_and_offsets) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK

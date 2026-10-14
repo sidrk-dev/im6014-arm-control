@@ -1,0 +1,17 @@
+PASS: test input boundaries, nonfinite rejection, simultaneous/unknown fault decoding
+PASS: demo never opens hardware; connect remains stopped; timeout blocks arm and explicit acknowledgment restores watchdog
+PASS: one serial owner, arm per test, active-test replacement rejected, delayed FOC acknowledgment, ramps, watchdog and final Stop
+PASS: reverse speed, bounded negative torque pulse, damping and operator Stop
+PASS: 60 rpm completes with speed/travel trips Off; no hidden 5/8 rpm or one-revolution ceiling
+PASS: configured measured-speed and travel trips still stop and disarm
+PASS: relative and signed absolute position: current-angle start, smooth targets, gains, hold, timed Stop
+PASS: position target/travel and impossible move duration rejected before enabling FOC
+PASS: arm expiry and priority Stop invalidate queued arm/motion requests
+PASS: motor fault, corrupt CRC and lost replies latch disarmed; restored communications never resumes motion
+PASS: stalled UI heartbeat and stale motor feedback abort motion and confirm Stop
+PASS: individual-ID Stop scan, disconnect/reconnect disarming and unambiguous per-connection capture tags
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/c09-baseline/run-20261014T051424Z-HUI0BtBw/.source-SmnjGh3V/test_dashboard.py", line 266, in <module>
+    assert serial_constructor.called and serial_constructor.return_value.open.called
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

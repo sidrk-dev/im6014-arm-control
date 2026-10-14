@@ -67,9 +67,9 @@ Displayed motion quantities use output-shaft units. The packet boundary applies 
 
 ## Joint mapping and controller core
 
-The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults, an identity-checked owner grant, one validated pending target and a retained monotonic sequence watermark. Stop, the first attributed fault and disconnect revoke the grant. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
+The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults, an identity-checked owner grant, configured closed position intervals, one validated pending target and a retained monotonic sequence watermark. Arm rejects a measured pose outside those intervals; target submission rejects the complete requested vector before mapping or codec checks when any joint position is outside its interval. The intervals apply in joint radians and do not clip requests or certify physical travel. Stop, the first attributed fault and disconnect revoke the grant. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
 
-Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C05`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
+Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C09`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
 
 ## Verification boundaries
 

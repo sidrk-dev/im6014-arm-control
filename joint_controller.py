@@ -42,6 +42,7 @@ class DecisionCode(str, Enum):
     NOT_STOPPED = "not_stopped"
     EXPIRED = "expired"
     INVALID_OWNERSHIP = "invalid_ownership"
+    POSITION_LIMIT = "position_limit"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
 
 
@@ -93,10 +94,32 @@ class ArmDecision(Decision):
 
 
 @dataclass(frozen=True)
+class PositionLimits:
+    minimum_rad: float
+    maximum_rad: float
+
+    def __post_init__(self) -> None:
+        for name in ("minimum_rad", "maximum_rad"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be a finite real number")
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite") from exc
+            if not math.isfinite(value):
+                raise ValueError(f"{name} must be finite")
+            object.__setattr__(self, name, value)
+        if self.minimum_rad > self.maximum_rad:
+            raise ValueError("minimum_rad must not exceed maximum_rad")
+
+
+@dataclass(frozen=True)
 class JointSpec:
     name: str
     motor_id: int
     mapping: JointMap
+    position_limits: PositionLimits
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -105,6 +128,8 @@ class JointSpec:
             raise ValueError("motor_id must be an integer from 0 to 14")
         if not isinstance(self.mapping, JointMap):
             raise ValueError("mapping must be a JointMap")
+        if not isinstance(self.position_limits, PositionLimits):
+            raise ValueError("position_limits must be PositionLimits")
 
 
 @dataclass(frozen=True)
@@ -593,6 +618,11 @@ class JointCore:
             return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._arm_rejected(DecisionCode.NOT_STOPPED)
+        if any(
+            not spec.position_limits.minimum_rad <= joint.sample.q_rad <= spec.position_limits.maximum_rad
+            for spec, joint in zip(self._specs, self._observations)
+        ):
+            return self._arm_rejected(DecisionCode.POSITION_LIMIT)
         self._state = State.ARMED
         self._ownership_generation += 1
         self._ownership = Ownership(owner, self._ownership_generation)
@@ -647,6 +677,11 @@ class JointCore:
             return self._rejected(DecisionCode.EXPIRED)
         if self._ownership is None or target.ownership is not self._ownership:
             return self._rejected(DecisionCode.INVALID_OWNERSHIP)
+        if any(
+            not spec.position_limits.minimum_rad <= joint_target.q_rad <= spec.position_limits.maximum_rad
+            for spec, joint_target in zip(self._specs, target.joints)
+        ):
+            return self._rejected(DecisionCode.POSITION_LIMIT)
 
         try:
             for spec, joint_target in zip(self._specs, target.joints):
