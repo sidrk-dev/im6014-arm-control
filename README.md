@@ -16,7 +16,7 @@ The adapter profile defaults to U2D2. An FT232H-class candidate label does not v
 
 Read the [short arm guide](docs/arm-quickstart.md) for first connection, software zero, joint limits, PD tuning, keyboard/Xbox mapping and troubleshooting. The interface follows the plain ARM2027 layout with the updated three-joint CAD model. Arbitrary finite parameter drafts are editable; applied physical settings retain the bench limits.
 
-The original Qt bench dashboard remains available through `start_dashboard.sh`. The multijoint milestone controller is a separate, paused development path; the browser J1 controller does not depend on its unfinished physical station integration.
+The original Qt bench dashboard remains available through `start_dashboard.sh`. The multijoint milestone controller remains a separate development track with no production station integration; the browser J1 controller does not depend on it.
 
 ## Install the verified Linux environment
 
@@ -67,7 +67,7 @@ Displayed motion quantities use output-shaft units. The packet boundary applies 
 
 ## Joint mapping and controller core
 
-The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults and a single validated pending target and a retained monotonic sequence watermark. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
+The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults, an identity-checked owner grant, one validated pending target and a retained monotonic sequence watermark. Stop, the first attributed fault and disconnect revoke the grant. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
 
 Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C05`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
 

@@ -41,6 +41,7 @@ class DecisionCode(str, Enum):
     UNHEALTHY = "unhealthy"
     NOT_STOPPED = "not_stopped"
     EXPIRED = "expired"
+    INVALID_OWNERSHIP = "invalid_ownership"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
 
 
@@ -65,6 +66,30 @@ class Decision:
 
     def __bool__(self) -> bool:
         return self.accepted
+
+
+@dataclass(frozen=True)
+class Ownership:
+    owner: str
+    generation: int
+
+    def __post_init__(self) -> None:
+        if type(self.owner) is not str or not self.owner.strip():
+            raise ValueError("owner must be a non-empty string")
+        if type(self.generation) is not int or self.generation < 1:
+            raise ValueError("generation must be a positive integer")
+
+
+@dataclass(frozen=True)
+class ArmDecision(Decision):
+    ownership: Ownership | None
+
+    def __post_init__(self) -> None:
+        Decision.__post_init__(self)
+        if (self.ownership is not None) != self.accepted:
+            raise ValueError("ownership must be present exactly when arm is accepted")
+        if self.ownership is not None and not isinstance(self.ownership, Ownership):
+            raise ValueError("ownership must be an Ownership or None")
 
 
 @dataclass(frozen=True)
@@ -221,6 +246,7 @@ class Target:
     joints: tuple[JointTarget, ...]
     created_at_s: float
     expires_at_s: float
+    ownership: Ownership
 
     def __post_init__(self) -> None:
         if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
@@ -231,6 +257,8 @@ class Target:
             raise ValueError("joints must be a non-empty tuple")
         if any(not isinstance(joint, JointTarget) for joint in self.joints):
             raise ValueError("every joint target must be a JointTarget")
+        if not isinstance(self.ownership, Ownership):
+            raise ValueError("ownership must be an Ownership")
         for name in ("created_at_s", "expires_at_s"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, (int, float)):
@@ -257,6 +285,8 @@ class Snapshot:
     faults: tuple[JointFault, ...] = ()
     pending_target: Target | None = None
     last_sequence: int = -1
+    ownership: Ownership | None = None
+    ownership_generation: int = 0
 
     def __post_init__(self) -> None:
         if not isinstance(self.state, State):
@@ -290,6 +320,12 @@ class Snapshot:
         object.__setattr__(self, "feedback_ages_s", tuple(normalized_ages))
         if self.source is not None and not isinstance(self.source, SourceIdentity):
             raise ValueError("source must be a SourceIdentity or None")
+        if self.ownership is not None and not isinstance(self.ownership, Ownership):
+            raise ValueError("ownership must be an Ownership or None")
+        if type(self.ownership_generation) is not int or self.ownership_generation < 0:
+            raise ValueError("ownership_generation must be a nonnegative integer")
+        if self.ownership is not None and self.ownership.generation != self.ownership_generation:
+            raise ValueError("active ownership generation must match its watermark")
         if type(self.fault_latched) is not bool:
             raise ValueError("fault_latched must be a bool")
         if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
@@ -353,6 +389,8 @@ class JointCore:
         self._faults: dict[str, JointFault] = {}
         self._pending_target: Target | None = None
         self._last_sequence: int = -1
+        self._ownership: Ownership | None = None
+        self._ownership_generation = 0
 
     @property
     def joint_specs(self) -> tuple[JointSpec, ...]:
@@ -365,6 +403,15 @@ class JointCore:
     @staticmethod
     def _rejected(code: DecisionCode) -> Decision:
         return Decision(False, code)
+
+    @staticmethod
+    def _arm_rejected(code: DecisionCode) -> ArmDecision:
+        return ArmDecision(False, code, None)
+
+    def _revoke_ownership(self) -> None:
+        if self._ownership is not None:
+            self._ownership = None
+            self._ownership_generation += 1
 
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
@@ -396,6 +443,7 @@ class JointCore:
         self._faults[name] = fault
         self._state = State.FAULT
         self._pending_target = None
+        self._revoke_ownership()
 
     def _now(self) -> float:
         value = self._clock()
@@ -529,22 +577,26 @@ class JointCore:
         self._faults.clear()
         return self._accepted()
 
-    def arm(self) -> Decision:
+    def arm(self, *, owner: str) -> ArmDecision:
         if self._state is not State.READY:
-            return self._rejected(DecisionCode.INVALID_STATE)
+            return self._arm_rejected(DecisionCode.INVALID_STATE)
+        if type(owner) is not str or not owner.strip():
+            return self._arm_rejected(DecisionCode.INVALID_ARGUMENT)
         if bool(self._faults):
-            return self._rejected(DecisionCode.FAULT_LATCHED)
+            return self._arm_rejected(DecisionCode.FAULT_LATCHED)
         if any(not joint.valid for joint in self._observations):
-            return self._rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
+            return self._arm_rejected(DecisionCode.OBSERVATIONS_INCOMPLETE)
         now = self._now()
         if not self._all_fresh(now):
-            return self._rejected(DecisionCode.STALE_FEEDBACK)
+            return self._arm_rejected(DecisionCode.STALE_FEEDBACK)
         if any(not joint.healthy for joint in self._observations):
-            return self._rejected(DecisionCode.UNHEALTHY)
+            return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
-            return self._rejected(DecisionCode.NOT_STOPPED)
+            return self._arm_rejected(DecisionCode.NOT_STOPPED)
         self._state = State.ARMED
-        return self._accepted()
+        self._ownership_generation += 1
+        self._ownership = Ownership(owner, self._ownership_generation)
+        return ArmDecision(True, DecisionCode.ACCEPTED, self._ownership)
 
     def tick(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
@@ -593,6 +645,8 @@ class JointCore:
             return self._rejected(DecisionCode.INVALID_ARGUMENT)
         if now >= target.expires_at_s:
             return self._rejected(DecisionCode.EXPIRED)
+        if self._ownership is None or target.ownership is not self._ownership:
+            return self._rejected(DecisionCode.INVALID_OWNERSHIP)
 
         try:
             for spec, joint_target in zip(self._specs, target.joints):
@@ -625,6 +679,9 @@ class JointCore:
         if self._state is State.FAULT or any(not joint.healthy for joint in self._observations):
             return None
         target = self._pending_target
+        if target is not None and (self._ownership is None or target.ownership is not self._ownership):
+            self._pending_target = None
+            return None
         if target is not None and now >= target.expires_at_s:
             self._pending_target = None
             return None
@@ -637,6 +694,7 @@ class JointCore:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
         self._pending_target = None
+        self._revoke_ownership()
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
         else:
@@ -644,6 +702,7 @@ class JointCore:
         return self._accepted()
 
     def disconnect(self) -> Decision:
+        self._revoke_ownership()
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
@@ -666,6 +725,8 @@ class JointCore:
             source=self._source,
             fault_latched=bool(self._faults),
             feedback_ages_s=ages,
+            ownership=self._ownership,
+            ownership_generation=self._ownership_generation,
             faults=faults,
             pending_target=self._pending_target,
             last_sequence=self._last_sequence,

@@ -1,0 +1,11 @@
+test_arm_mints_snapshot_capability_and_revokes_it_on_stop (test_controller_ownership.OwnershipTests.test_arm_mints_snapshot_capability_and_revokes_it_on_stop) ... ok
+test_fabricated_and_foreign_capabilities_reject_before_payload_or_sequence (test_controller_ownership.OwnershipTests.test_fabricated_and_foreign_capabilities_reject_before_payload_or_sequence) ... ok
+test_failed_arm_never_mints_and_repeated_arm_does_not_advance (test_controller_ownership.OwnershipTests.test_failed_arm_never_mints_and_repeated_arm_does_not_advance) ... ok
+test_lifecycle_discards_old_pending_and_requires_current_grant_for_dispatch (test_controller_ownership.OwnershipTests.test_lifecycle_discards_old_pending_and_requires_current_grant_for_dispatch) ... ok
+test_records_are_frozen_and_ownership_is_mandatory (test_controller_ownership.OwnershipTests.test_records_are_frozen_and_ownership_is_mandatory) ... ok
+test_revocation_paths_require_a_fresh_explicit_arm (test_controller_ownership.OwnershipTests.test_revocation_paths_require_a_fresh_explicit_arm) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+OK

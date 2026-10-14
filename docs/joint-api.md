@@ -57,9 +57,9 @@ When passive identity metadata is incomplete, inspection reports it as unverifie
 
 `JointCore` owns a fixed ordered set of unique `JointSpec` names and motor IDs. Its states and immutable `Snapshot` are transport-free; `connected(SourceIdentity(...))` records a declaration and never opens hardware. `Decision` evaluates to its `accepted` value.
 
-Connect, check, and arm are distinct steps. `receive(id, JointSample(...), MotorHealth(...))` stamps each valid observation with the core's monotonic clock. `checked()` needs fresh healthy Stop-mode feedback from every active joint. `arm()` requires fresh healthy Stop-mode feedback. The configurable maximum age defaults to 0.5 seconds; this software policy is not a measured loop-rate guarantee. Snapshot `feedback_ages_s` preserves joint order and uses `None` before receipt. Timestamp zero is valid. Unknown IDs and invalid records do not refresh timestamps.
+Connect, check, and arm are distinct steps. `receive(id, JointSample(...), MotorHealth(...))` stamps each valid observation with the core's monotonic clock. `checked()` needs fresh healthy Stop-mode feedback from every active joint. `arm(owner="teleop")` requires fresh healthy Stop-mode feedback and returns an `ArmDecision` containing the immutable `Ownership` grant. The owner must be a non-empty string. Snapshot exposes that same grant object while it is active and its `ownership_generation` watermark. The configurable maximum age defaults to 0.5 seconds; this software policy is not a measured loop-rate guarantee. Snapshot `feedback_ages_s` preserves joint order and uses `None` before receipt. Timestamp zero is valid. Unknown IDs and invalid records do not refresh timestamps.
 
-Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, disconnect/reconnect, and healthy packets do not clear a fault latch. Recovery requires `begin_check(acknowledge_fault=True)` followed by fresh healthy Stop feedback and successful `checked()`. The check clears observations first. Target dispatch, attributed fault records and command ordering are the next milestones.
+Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, the first attributed fault, and disconnect revoke any active ownership grant and clear pending work. Repeated revocation while no grant is active does not advance the generation. Disconnect/reconnect and healthy packets do not clear a fault latch or create a grant. Recovery requires `begin_check(acknowledge_fault=True)` followed by fresh healthy Stop feedback and successful `checked()`; an explicit `arm(owner=...)` is still required afterward.
 
 ## Attributed faults
 
@@ -69,7 +69,7 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 
 ## Latest target
 
-`Target(sequence, joints, created_at_s, expires_at_s)` contains an immutable complete tuple of `JointTarget` values in configured order. Both finite timestamps use the station's monotonic clock domain, and expiry must be later than creation. Submission checks lifecycle and feedback first, then complete vector shape, then accepts only `created_at_s <= now < expires_at_s`; a future creation returns `INVALID_ARGUMENT`, while an expired target, including deadline equality, returns `EXPIRED`. Mapping and codec validation follows the deadline check, and sequence ordering follows payload validation. Rejected replacement preserves the pending target and sequence watermark. In ARMED or MOVING, consumption returns a valid pending target once and enters MOVING. Stop, fault and disconnect clear pending storage. Consumption samples monotonic time once for both freshness and expiry; it discards an expired pending target without returning it, latching a fault, or changing the watermark. A regressing clock raises before a target is released. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Target sequence is an exact integer from 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; malformed or unrepresentable payloads return `INVALID_ARGUMENT` before sequence ordering. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark.
+`Target(sequence, joints, created_at_s, expires_at_s, ownership)` contains an immutable complete tuple of `JointTarget` values in configured order and the grant from an explicit arm. Both finite timestamps use the station's monotonic clock domain, and expiry must be later than creation. Submission checks lifecycle and feedback first, then complete vector shape and timestamps; a future creation returns `INVALID_ARGUMENT`, while an expired target, including deadline equality, returns `EXPIRED`. It then checks ownership by object identity before mapping, codec validation, and sequence ordering. An equal reconstructed record or a grant from another core returns `INVALID_OWNERSHIP`. Rejected replacement preserves the pending target and sequence watermark. In ARMED or MOVING, consumption rechecks ownership and returns a valid pending target once before entering MOVING. Stop, the first attributed fault, and disconnect revoke the active grant and clear pending storage. Consumption samples monotonic time once for both freshness and expiry; it discards an expired pending target without returning it, latching a fault, or changing the watermark. A regressing clock raises before a target is released. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Target sequence is an exact integer from 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; malformed or unrepresentable payloads return `INVALID_ARGUMENT` before sequence ordering. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark; use the new current grant after recovery to observe duplicate-sequence rejection.
 
 ### Offline controller example
 
@@ -83,20 +83,26 @@ assert core.connected(SourceIdentity("fixture", "example", 1))
 assert core.begin_check()
 assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
 assert core.checked()
-assert core.arm()
-target = Target(6, (JointTarget(.1, 1, -6, 18, 4.5),), created_at_s=0.0, expires_at_s=1.0)
+grant = core.arm(owner="example")
+assert grant and grant.ownership is not None
+target = Target(
+    6, (JointTarget(.1, 1, -6, 18, 4.5),),
+    created_at_s=0.0, expires_at_s=1.0, ownership=grant.ownership,
+)
 assert core.submit_target(target)
-assert core.consume_target() == target
+assert core.consume_target() is target
 assert core.snapshot().state is State.MOVING
 assert core.consume_target() is None
 assert core.stop()
 assert core.snapshot().last_sequence == 6
+assert core.snapshot().ownership is None
+assert core.snapshot().ownership_generation == 2
 ```
 
 This example performs no serial operations. A station adapter must validate its own physical setup and own packet transmission when later milestones add one.
 
 ## Core and ownership limits
 
-The injected core clock must be finite and monotonic. Invalid or regressing time raises before a target can be released; snapshots also require that clock contract. The default is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Owner generations remain C08.
+The injected core clock must be finite and monotonic. Invalid or regressing time raises before a target can be released; snapshots also require that clock contract. The default is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Ownership is an in-process capability: only the exact object minted by the current core is accepted. A successful arm increments the generation watermark; revoking a live grant increments it once more. A later arm receives a fresh object and generation even when the owner string is unchanged. This local identity check is not a cryptographic credential or a remote authentication protocol.
 
 The fixed per-user lock namespace under `/tmp` coordinates cooperating processes. A hostile local user can pre-create the name and deny access; validation fails closed. An administrator must remove a foreign-owned obstruction. Lockfiles persist to preserve flock inode identity, including after device-number reuse. Do not delete them while clients may be running. No automatic pruning or hostile-local-user availability guarantee is supplied.
