@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "898faf1d-14ea-4df2-9d7f-69e186db4f2d",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "reportedModel": "opencode/muse-spark-1.3-contributor-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/muse-spark-1.3-contributor-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-review-prompt.txt",
+    "--output",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse.md",
+    "--receipt",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse-receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/muse-spark-1.3-contributor-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-14T05:46:16.859Z",
+  "completedAt": "2026-10-14T05:49:20.858Z",
+  "elapsedMs": 183998,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Development",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-review-prompt.txt",
+  "outputPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse.md",
+  "receiptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Development",
+    "prompt": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-review-prompt.txt",
+    "output": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse.md",
+    "receipt": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/final-muse-receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 0,
+        "write": 0
+      },
+      "input": 92246,
+      "output": 1507,
+      "reasoning": 15638,
+      "total": 109391
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

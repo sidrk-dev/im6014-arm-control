@@ -503,9 +503,11 @@ class ArmHttpServerTests(unittest.TestCase):
         data = json.loads(body.decode("utf-8"))
         self.assertIn("ports", data)
         self.assertIn("default", data)
+        self.assertIn("default_ports", data)
+        self.assertIn("adapter_profiles", data)
         self.assertIsInstance(data["ports"], list)
         self.assertTrue(all("device" in p and "path" in p and "label" in p for p in data["ports"]))
-        self.assertTrue(all(set(p) <= {"device", "path", "label", "description", "channel_d"} for p in data["ports"]))
+        self.assertTrue(all(set(p) <= {"device", "path", "label", "description", "kind"} for p in data["ports"]))
 
     def test_empty_and_failed_port_enumeration_return_no_fabricated_port(self) -> None:
         with patch("serial.tools.list_ports.comports", return_value=[]):
@@ -514,6 +516,8 @@ class ArmHttpServerTests(unittest.TestCase):
         data = json.loads(body)
         self.assertEqual(data["ports"], [])
         self.assertEqual(data["default"], "")
+        self.assertEqual(set(data["default_ports"]), {"u2d2", "legacy-ft4232h", "custom"})
+        self.assertTrue(all(path == "" for path in data["default_ports"].values()))
         self.assertIsNone(data["error"])
 
         with patch("serial.tools.list_ports.comports", side_effect=OSError("enumeration failed")):
@@ -543,37 +547,39 @@ class ArmHttpServerTests(unittest.TestCase):
         self.assertEqual([port["device"] for port in data["ports"]], ["/dev/ttyUSB0"])
         self.assertEqual(data["default"], "")
 
-    def test_channel_d_without_by_id_uses_enumerated_path_and_bounded_fields(self) -> None:
+    def test_legacy_route_is_classified_without_becoming_the_u2d2_default(self) -> None:
         port = SimpleNamespace(
-            device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2.3",
-            description="FTDI USB Serial", manufacturer="private manufacturer", hwid="unbounded metadata",
+            device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2:1.3",
+            vid=0x0403, pid=0x6011, description="FTDI USB Serial",
+            manufacturer="private manufacturer", hwid="unbounded metadata",
         )
         with patch("serial.tools.list_ports.comports", return_value=[port]), patch(
-            "arm_dashboard.Path.exists", return_value=False
+            "im6014_port._by_id_alias", return_value=None
         ):
             status, _, body = self._request("GET", "/api/ports")
         self.assertEqual(status, 200)
         data = json.loads(body)
-        self.assertEqual(data["default"], "/dev/ttyUSB3")
+        self.assertEqual(data["default"], "")
+        self.assertEqual(data["default_ports"]["legacy-ft4232h"], "/dev/ttyUSB3")
         self.assertEqual(data["ports"][0]["path"], "/dev/ttyUSB3")
-        self.assertTrue(data["ports"][0]["channel_d"])
+        self.assertEqual(data["ports"][0]["kind"], "legacy-ft4232h")
         self.assertNotIn("manufacturer", data["ports"][0])
         self.assertNotIn("hwid", data["ports"][0])
 
-    def test_channel_d_uses_by_id_when_path_exists(self) -> None:
-        port = SimpleNamespace(
-            device="/dev/ttyUSB3", serial_number="FTC2RQ7H", location="1-2.3",
-            description="FTDI USB Serial",
-        )
-        with patch("serial.tools.list_ports.comports", return_value=[port]), patch(
-            "arm_dashboard.Path.exists", return_value=True
-        ):
+    def test_ambiguous_u2d2_candidates_have_no_default_and_do_not_open(self) -> None:
+        ports = [SimpleNamespace(device=f"/dev/ttyUSB{index}", serial_number=None,
+                                 location=f"1-{index + 2}:1.0", vid="0403", pid="6014",
+                                 description="FT232H") for index in range(2)]
+        with patch("serial.tools.list_ports.comports", return_value=ports), patch(
+            "im6014_port._by_id_alias", return_value=None
+        ), patch("serial.Serial") as constructor:
             status, _, body = self._request("GET", "/api/ports")
         self.assertEqual(status, 200)
         data = json.loads(body)
-        stable_path = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0"
-        self.assertEqual(data["default"], stable_path)
-        self.assertEqual(data["ports"][0]["path"], stable_path)
+        self.assertEqual(data["default"], "")
+        self.assertEqual(data["default_ports"]["u2d2"], "")
+        self.assertTrue(all(port["kind"] == "ft232h-candidate" for port in data["ports"]))
+        constructor.assert_not_called()
 
     def test_concurrency_semaphore_quick_reject(self) -> None:
         acquired = []

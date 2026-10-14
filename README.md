@@ -12,9 +12,11 @@ The original bench source and history come from [sidrk-dev/im6014Development](ht
 
 Open **http://127.0.0.1:8768/**. Connect → set the current pose → confirm your setup → enable jogging. Hold the on-screen joint buttons or use A/D for J1, W/S for J2 and Q/E for J3. No held Space or RB is required. J2/J3 are virtual in the default J1-only profile; select the three-motor profile while disconnected to commission all three. See [arm quickstart](docs/arm-quickstart.md) for unique motor IDs, mechanical support, individual zero references and travel limits. Esc / STOP disarms. Use `./start_arm.sh --demo` for a USB-free preview.
 
+The adapter profile defaults to U2D2. An FT232H-class candidate label does not verify the board or motor link. The ordered U2D2 has not arrived; see [U2D2 connection and verification](docs/u2d2.md) before physical use.
+
 Read the [short arm guide](docs/arm-quickstart.md) for first connection, software zero, joint limits, PD tuning, keyboard/Xbox mapping and troubleshooting. The interface follows the plain ARM2027 layout with the updated three-joint CAD model. Arbitrary finite parameter drafts are editable; applied physical settings retain the bench limits.
 
-The original Qt bench dashboard remains available through `start_dashboard.sh`. The multijoint milestone controller is a separate, paused development path; the browser J1 controller does not depend on its unfinished physical station integration.
+The original Qt bench dashboard remains available through `start_dashboard.sh`. The multijoint milestone controller remains a separate development track with no production station integration; the browser J1 controller does not depend on it.
 
 ## Install the verified Linux environment
 
@@ -65,9 +67,9 @@ Displayed motion quantities use output-shaft units. The packet boundary applies 
 
 ## Joint mapping and controller core
 
-The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults and a single validated pending target and a retained monotonic sequence watermark. `JointMap` converts joint position, speed, torque and gains before codec validation. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
+The transport-free `JointCore` owns a fixed ordered joint set, lifecycle decisions, per-joint feedback ages, attributed latched faults, an identity-checked owner grant, closed position intervals, required per-joint speed bounds, bounded issued-reference history, one validated pending target and a retained monotonic sequence watermark. Arm checks each fresh measured seed against both its interval and ordinary codec encoding before granting ownership. Target submission rejects the complete requested vector when any joint position is outside its interval. Consumption returns a frozen `Reference` containing the requested target and complete codec-grid-safe joint vector; velocity and elapsed-step caps limit position changes, and the core commits only after every joint projects successfully. Stop, the first attributed fault and disconnect revoke the grant and clear reference history. These are software packet bounds, not physical speed or travel guarantees. Read [the joint API](docs/joint-api.md) and [the controller design](docs/controller-design.md).
 
-Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C05`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
+Run one software milestone check with `.venv/bin/python -B scripts/check_milestone.py C10`. Results and source hashes are recorded in its printed evidence directory. The core has no production serial runner; packet emission is demonstrated by test-only fake adapters. Live station integration remains later work.
 
 ## Verification boundaries
 

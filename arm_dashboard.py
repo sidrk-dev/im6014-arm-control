@@ -27,13 +27,14 @@ try:
 except ImportError:
     ArmManualSession = None
 
+from im6014_port import (ADAPTER_PROFILES, DEFAULT_ADAPTER_PROFILE,
+                         default_port, enumerate_ports)
+
 ROOT = Path(__file__).resolve().parent
 ARM_WEB_DIR = ROOT / "arm_web"
 ARM_ASSETS_DIR = ROOT / "arm_assets"
 MAX_BODY_BYTES = 16384
 MAX_CONCURRENT_REQUESTS = 16
-MAX_PORT_RECORDS = 32
-_BUILTIN_UART = re.compile(r"/dev/ttyS[0-9]+")
 HTTP_READ_TIMEOUT_S = 2.0
 CONTENT_LENGTH_RE = re.compile(r"[0-9]+\Z")
 MESH_PATH_RE = re.compile(r"meshes/[A-Za-z0-9._-]+\.(?:bin|stl)\Z")
@@ -48,12 +49,12 @@ WEB_STATIC_FILES = frozenset({
     "vendor/three.module.js",
     "vendor/LICENSE.three",
 })
-DEFAULT_PORT_PATH = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0"
 _cached_ports: list[dict[str, Any]] = []
 _cached_ports_time: float = 0.0
 _cached_ports_error: str | None = None
 TOP_LEVEL_FIELDS = frozenset({
-    "physical_enabled", "default_port", "ports", "port_error", "state", "reason", "connected", "demo", "profile_id", "profiles", "calibrated", "armed", "stop_confirmed",
+    "physical_enabled", "default_port", "default_ports", "adapter_profile", "adapter_profiles",
+    "ports", "port_error", "state", "reason", "connected", "demo", "profile_id", "profiles", "calibrated", "armed", "stop_confirmed",
     "feedback_age_s", "settings", "joints", "latest", "latest_feedback", "events",
 })
 SETTING_FIELDS = frozenset({
@@ -67,7 +68,7 @@ JOINT_FIELDS = frozenset({
 })
 LATEST_FIELDS = JOINT_FIELDS | frozenset({"time_s", "sequence", "measured_at_s"})
 EVENT_FIELDS = frozenset({"time_s", "kind", "severity", "action", "status"})
-PORT_FIELDS = frozenset({"device", "path", "label", "description", "channel_d"})
+PORT_FIELDS = frozenset({"device", "path", "label", "description", "kind"})
 SECRET_ASSIGNMENT_RE = re.compile(r"(?i)\b(session|ticket|owner|csrf|authorization|access[_ -]?token)\b\s*[:=]\s*[^\s,;]+")
 
 
@@ -150,6 +151,23 @@ def _project_fields(data: Any, fields: frozenset[str]) -> dict[str, Any] | None:
                             safe_joints = [j for j in (_safe_text(name, 16) for name in joints_val[:8]) if j is not None]
                             profiles_list.append({"id": p_id, "joints": safe_joints})
                 projected[key] = profiles_list
+        elif key == "adapter_profiles":
+            if isinstance(value, list):
+                profiles_list = []
+                for item in value[:8]:
+                    if isinstance(item, dict):
+                        profile_id = _safe_text(item.get("id"), 32)
+                        label = _safe_text(item.get("label"), 64)
+                        if profile_id and label:
+                            profiles_list.append({"id": profile_id, "label": label})
+                projected[key] = profiles_list
+        elif key == "default_ports":
+            if isinstance(value, dict):
+                defaults = {}
+                for profile_id in (profile.id for profile in ADAPTER_PROFILES):
+                    path = _safe_text(value.get(profile_id), 256)
+                    defaults[profile_id] = path or ""
+                projected[key] = defaults
         elif key in ("latest", "latest_feedback"):
             if isinstance(value, list):
                 projected[key] = [item for entry in value[:16] if (item := _project_fields(entry, LATEST_FIELDS)) is not None]
@@ -179,7 +197,8 @@ def _project_fields(data: Any, fields: frozenset[str]) -> dict[str, Any] | None:
                     port: dict[str, Any] = {}
                     for field in PORT_FIELDS:
                         field_value = item.get(field)
-                        if field == "channel_d" and type(field_value) is bool:
+                        if field == "kind" and field_value in (
+                                "ft232h-candidate", "legacy-ft4232h", "unknown", "unsupported-channel"):
                             port[field] = field_value
                         elif field in ("device", "path", "label", "description"):
                             safe = _safe_text(field_value, 256 if field != "description" else 160)
@@ -356,47 +375,16 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
         if not force and now - _cached_ports_time < 3.0:
             return [dict(port) for port in _cached_ports]
 
-        ports_list = []
+        ports_list: list[dict[str, Any]] = []
         ports_error = None
         try:
-            from serial.tools import list_ports
-            by_id_exists = Path(DEFAULT_PORT_PATH).exists()
-            candidates = []
-            for port in list_ports.comports():
-                device = _safe_text(getattr(port, "device", None), 256)
-                if device is not None and not _BUILTIN_UART.fullmatch(device):
-                    candidates.append(port)
-            comports = sorted(
-                candidates,
-                key=lambda p: (
-                    not (
-                        (p.serial_number == 'FTC2RQ7H' and p.location and p.location.endswith('.3'))
-                        or (by_id_exists and Path(p.device).resolve() == Path(DEFAULT_PORT_PATH).resolve())
-                    ),
-                    p.device
-                )
-            )
-            for p in comports[:MAX_PORT_RECORDS]:
-                device = _safe_text(p.device, 256)
-                if device is None:
-                    continue
-                serial_number = _safe_text(p.serial_number or "", 64) or ""
-                location = _safe_text(p.location or "", 64) or ""
-                description = _safe_text(p.description or device, 160) or device
-                is_channel_d = bool(
-                    (serial_number == 'FTC2RQ7H' and location.endswith('.3'))
-                    or (by_id_exists and Path(device).resolve() == Path(DEFAULT_PORT_PATH).resolve())
-                )
-                path = DEFAULT_PORT_PATH if is_channel_d and by_id_exists else device
-                label = f"{device} · {description}" if description != device else device
-                if is_channel_d:
-                    label += " (Channel D · Recommended)"
+            for record in enumerate_ports():
                 ports_list.append({
-                    "device": device,
-                    "path": path,
-                    "label": _safe_text(label, 256) or device,
-                    "description": description,
-                    "channel_d": is_channel_d,
+                    "device": record.device,
+                    "path": record.path,
+                    "label": record.label,
+                    "description": record.description,
+                    "kind": record.kind,
                 })
         except Exception as error:
             ports_error = f"Port enumeration failed ({type(error).__name__})"
@@ -404,6 +392,10 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
         _cached_ports_time = now
         _cached_ports_error = ports_error
         return [dict(port) for port in ports_list]
+
+    @staticmethod
+    def _default_ports(ports):
+        return {profile.id: default_port(ports, profile.id) for profile in ADAPTER_PROFILES}
 
     def do_GET(self) -> None:
         if not self._validate_host():
@@ -416,8 +408,15 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
             return
         if path == "/api/ports":
             ports = self._get_serial_ports(force=True)
-            default_p = next((port["path"] for port in ports if port["channel_d"]), "")
-            self._send_json(HTTPStatus.OK, {"ports": ports, "default": default_p, "error": _cached_ports_error})
+            defaults = self._default_ports(ports)
+            self._send_json(HTTPStatus.OK, {
+                "ports": ports,
+                "default": defaults[DEFAULT_ADAPTER_PROFILE],
+                "default_ports": defaults,
+                "adapter_profiles": [{"id": profile.id, "label": profile.label}
+                                     for profile in ADAPTER_PROFILES],
+                "error": _cached_ports_error,
+            })
             return
 
         self._handle_static_file(path)
@@ -437,7 +436,15 @@ class ArmDashboardHandler(BaseHTTPRequestHandler):
         ports = self._get_serial_ports()
         observational["ports"] = ports
         observational["port_error"] = _cached_ports_error
-        observational["default_port"] = next((port["path"] for port in ports if port["channel_d"]), "")
+        defaults = self._default_ports(ports)
+        adapter_profile = observational.get("adapter_profile", DEFAULT_ADAPTER_PROFILE)
+        if type(adapter_profile) is not str or adapter_profile not in defaults:
+            adapter_profile = DEFAULT_ADAPTER_PROFILE
+        observational["adapter_profile"] = adapter_profile
+        observational["adapter_profiles"] = [
+            {"id": profile.id, "label": profile.label} for profile in ADAPTER_PROFILES]
+        observational["default_ports"] = defaults
+        observational["default_port"] = defaults[adapter_profile]
         self._send_json(HTTPStatus.OK, observational)
 
     def _handle_static_file(self, raw_path: str) -> None:
@@ -716,7 +723,7 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8768, help="Port to bind (default: 8768)")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--demo", dest="physical", action="store_false", help="Run in virtual demo mode (default)")
-    mode.add_argument("--physical", dest="physical", action="store_true", help="Opt into physical mode (requires J1 Channel D)")
+    mode.add_argument("--physical", dest="physical", action="store_true", help="Opt into physical mode after confirming the adapter path and wiring")
     parser.set_defaults(physical=False)
     args = parser.parse_args()
 

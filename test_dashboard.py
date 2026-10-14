@@ -260,7 +260,8 @@ with patch('motor_session.serial.Serial') as serial_constructor:
     serial_constructor.return_value.open.side_effect = OSError('injected PTY open failure')
     session = MotorSession()
     try:
-        session.request('connect', demo=False, port=pty_path, id=0, baud=6000000)
+        session.request('connect', demo=False, port=pty_path, id=0, baud=6000000,
+                        adapter_profile='custom')
         wait(session, lambda x: x['state'].startswith('Fault'))
         assert serial_constructor.called and serial_constructor.return_value.open.called
         assert serial_constructor.return_value.close.called
@@ -392,9 +393,11 @@ try:
                 assert any(x['target_position_rad'] for x in records)
     captured = []
     with patch.object(window.session, 'request', side_effect=lambda action, **v: captured.append((action, v))):
+        window.adapter_profile.setCurrentIndex(window.adapter_profile.findData('custom'))
         window.port.setEditText('/custom/adapter')
         window.connect_motor()
     assert captured[-1][1]['port'] == '/custom/adapter'
+    assert captured[-1][1]['adapter_profile'] == 'custom'
     window.resize(1024, 768)
     app.processEvents()
     assert window.width() == 1024 and window.height() == 768
@@ -425,5 +428,33 @@ try:
 finally:
     light_window.close()
 passed('light-theme real-hardware badge and status banner contrast; starts disconnected')
+from im6014_port import PortRecord
+candidate = PortRecord('/dev/UI_FIXTURE_0', '/dev/UI_FIXTURE_0', 'UI fixture 0', 'FT232H fixture', 'ft232h-candidate')
+other = PortRecord('/dev/UI_FIXTURE_1', '/dev/UI_FIXTURE_1', 'UI fixture 1', 'FT232H fixture', 'ft232h-candidate')
+legacy = PortRecord('/dev/UI_FIXTURE_3', '/dev/UI_FIXTURE_3', 'UI legacy fixture', 'FT4232H fixture', 'legacy-ft4232h')
+with patch('serial.Serial', side_effect=AssertionError('Passive UI must not construct serial')) as constructor:
+    for records, expected in (((candidate, other), ''), ((legacy,), ''), ((candidate,), candidate.path)):
+        with patch('motor_dashboard.enumerate_ports', return_value=records):
+            selection_window = Dashboard()
+            try:
+                assert (selection_window.port.currentData() or selection_window.port.currentText()) == expected
+                selection_window.port.setEditText('/custom/adapter')
+                selection_window.adapter_profile.setCurrentIndex(selection_window.adapter_profile.findData('custom'))
+                assert selection_window.port.currentText() == '/custom/adapter'
+            finally:
+                selection_window.close()
+    constructor.assert_not_called()
+with patch('serial.Serial', side_effect=AssertionError('Profile changes must not construct serial')) as constructor:
+    with patch('motor_dashboard.enumerate_ports', return_value=(candidate, legacy)):
+        selection_window = Dashboard()
+        try:
+            selection_window.adapter_profile.setCurrentIndex(selection_window.adapter_profile.findData('legacy-ft4232h'))
+            assert selection_window.port.currentData() == legacy.path
+            selection_window.adapter_profile.setCurrentIndex(selection_window.adapter_profile.findData('u2d2'))
+            assert selection_window.port.currentData() == candidate.path
+        finally:
+            selection_window.close()
+    constructor.assert_not_called()
+passed('U2D2 passive selection: ambiguous and legacy defaults blank, sole candidate selected, typed path preserved')
 (ROOT / 'dashboard_test_results.json').write_text(json.dumps(dict(motor_io_performed=False, checks=checks), indent=2) + '\n')
 print(f'{len(checks)} grouped checks passed. No real motor I/O.', flush=True)

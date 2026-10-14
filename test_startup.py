@@ -1,4 +1,3 @@
-"""Verify the real dashboard entry point starts and closes without motor I/O."""
 import argparse
 from datetime import datetime, timezone
 import hashlib
@@ -111,7 +110,7 @@ def _cleanup_after_main(window, state):
 
 def _fingerprint(root):
     names = ("motor_dashboard.py", "motor_session.py", "spin_5rpm.py", "im6014_codec.py", "im6014_serial.py", "im6014_transport.py", "fake_serial.py", "USER_MANUAL.md",
-             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py")
+             "test_spin_5rpm.py", "test_dashboard.py", "test_startup.py", "test_startup_verifier.py", "test_protocol.py", "test_serial_deadline.py", "evidence/boundary/vendor-crc-vectors.json", "joint_mapping.py", "test_joint_mapping.py", "test_numerical_inputs.py", "im6014_port.py", "test_port_config.py", "test_diagnostic_capture.py", "test_bus_owner.py", "joint_controller.py", "test_controller.py", "test_controller_targets.py", "test_controller_ownership.py", "test_controller_limits.py", "test_controller_velocity.py")
     files = {}
     for name in names:
         path = root / name
@@ -230,7 +229,7 @@ def run(source, evidence_dir):
         from unittest.mock import patch
         with patch.object(dashboard, "Dashboard", CapturingDashboard), \
              patch.object(dashboard, "QApplication", capture_application), \
-             patch.object(dashboard.list_ports, "comports", return_value=[]), \
+             patch.object(dashboard, "enumerate_ports", return_value=()), \
              patch.object(motor_session.serial, "Serial", io.serial), \
              patch.object(motor_session, "DemoSerial", io.demo), \
              patch.object(motor_session, "exchange", io.exchange):

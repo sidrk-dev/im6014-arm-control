@@ -27,20 +27,23 @@ Python 3, PySide6 and pySerial are required. They are already installed on this 
 ## First connection to this motor
 
 1. Secure the motor housing and leave its output unloaded. Keep a way to isolate motor power within reach. Support every joint if there is anything attached: Stop releases torque.
-2. Connect motor power and the supplied USB/RS-485 adapter. A USB connection alone does not power the actuator.
-3. Select **Real motor**, then the adapter/channel. For the tested adapter, use **Channel D / interface 03**, currently `/dev/ttyUSB3`. Hover over an adapter entry for its path, serial number and USB location. Click **Refresh** after reconnecting USB.
-4. Choose **6 Mbps** and **Motor ID 0** for the tested setup. Motor IDs can be 0–14. The application never broadcasts to ID 15.
-5. Click **Connect**. It opens the selected channel and sends **Stop/status**, not a motion command. Confirm live voltage, temperatures and increasing valid-reply count.
-6. If the status is **Timeout — disarmed**, support the motor and click **Acknowledge timeout**. The app acknowledges the timeout while in Stop, then immediately restores watchdog protection. It does not reset the motor or clear fault bits.
-7. Look for **Ready · Stop** and **No faults or warnings** in Diagnose.
+2. Keep the 36 V motor supply off while you inspect the cable. Verify pinout, continuity, polarity, and isolation from the U2D2 signal pins. Follow [U2D2 connection and verification](docs/u2d2.md).
+3. Connect the U2D2 and its verified RS-485 cable. A USB connection alone does not power the actuator.
+4. Select **Real motor**, choose **U2D2** under **Adapter profile**, then select **Refresh**. The list marks FT232H-class candidates. A candidate does not prove that the adapter is genuine ROBOTIS or wired to this motor.
+5. Select the path that matches the cable you inspected. If two candidates appear, choose the one connected to the motor. Use **Custom** only for a path whose adapter and wiring you have checked.
+6. Choose **6 Mbps** and **Motor ID 0**. The application sends raw Unitree 8N1 frames. It does not use the DYNAMIXEL SDK. Motor IDs can be 0–14. The application never broadcasts to ID 15.
+7. After the electrical inspection, power the motor and click **Connect**. It opens the selected path and sends **Stop/status**, not a motion command. Confirm live voltage, temperatures, and increasing valid-reply count.
+8. If the status is **Timeout — disarmed**, support the motor and click **Acknowledge timeout**. The app acknowledges the timeout while in Stop, then immediately restores watchdog protection. It does not reset the motor or clear fault bits.
+9. Look for **Ready · Stop** and **No faults or warnings** in Diagnose. Require repeated CRC-valid Stop/status replies before any bounded motion.
 
-The stable tested device path is:
+The previous FT4232H adapter used this historical path. It is not a U2D2 path or default:
 
 ```text
 /dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTC2RQ7H-if03-port0
 ```
 
-Adapter serial: `FTC2RQ7H`, FTDI FT4232H. Linux device numbers can change after reconnecting; prefer the stable by-id path when available. The editable adapter selector also accepts a typed serial-device path.
+That FT4232H adapter had serial `FTC2RQ7H`. Linux device numbers can change after reconnecting. The adapter selector accepts a typed serial-device path.
+The U2D2's serial number and by-id path are not known because the ordered board has not arrived. No physical U2D2 compatibility test has been run.
 
 **Connect, Check, scanning and idle monitoring all send Stop/status packets.** They are active motor communication, not passive listening. Do not use them to observe another program's moving motor. Close the command-line spin script or any other program using the same adapter first.
 
@@ -139,10 +142,10 @@ The app does not assign IDs, change stored baud, calibrate encoders, flash firmw
 
 | Symptom | Checks and next action |
 |---|---|
-| No adapters in the list | Refresh after USB reconnect; type the known by-id path if needed. Inspect USB cable/port. A missing list entry is different from a motor not replying |
+| No adapters in the list | Refresh after USB reconnect. Use a typed path only after you verify the adapter and cable. A missing list entry is different from a motor not replying |
 | Permission denied | Confirm access to the serial device; on Linux this is normally the `dialout` group/device permissions. Avoid launching competing controllers |
 | Port busy / locked | Close the spin script, vendor assistant or another dashboard window holding that channel, then reconnect |
-| Adapter opens, no motor replies | Check motor DC power, Channel D, the selected ID and 4/6 Mbps setting, and the RS-485 cable. The adapter being detected does not prove motor communication |
+| Adapter opens, no motor replies | Check motor DC power, the selected adapter profile and path, the selected ID and 6 Mbps setting, and the RS-485 cable. The adapter being detected does not prove motor communication |
 | Timeout latched, no other faults | Keep motor stopped and supported; click Acknowledge timeout, then verify Ready · Stop before arming |
 | CRC failures / deadlines | Inspect cable/adapter and USB connection; disconnect and reconnect while supported. Re-check. The app does not automatically resume motion |
 | Overspeed / excessive torque / travel / heat | Leave disarmed. Reduce test settings and inspect mechanical load, wiring and cooling before re-checking |
@@ -153,7 +156,7 @@ The app does not assign IDs, change stored baud, calibrate encoders, flash firmw
 | Arm or Run is disabled | Check connection state, timeout/faults, the secured-setup checkbox, and arm expiry. Every test requires a new arm action |
 | Stop not confirmed | Feedback is not proof of a stopped shaft when it is missing. Isolate motor power as needed and resolve communication before any new test |
 
-The adapter has previously shown USB control-transfer timeouts on Linux. Normal enumeration alone did not prove usable communication. The successful bench session verified both USB control replies and CRC-valid motor feedback; use the application's valid reply/freshness indicators as the connection evidence.
+The historical FT4232H adapter showed USB control-transfer timeouts on Linux. Normal enumeration alone did not prove usable communication. The earlier bench session verified CRC-valid motor feedback through that old adapter. The ordered U2D2 has not arrived, so no U2D2 hardware behavior is verified. Use the application's valid reply and freshness indicators as connection evidence.
 
 ## Export a debug session
 
@@ -186,6 +189,6 @@ damping 1 3
 
 ## Validation scope
 
-The previous physical forward-speed test established one motor/adapter's communication and 5 rpm bench operation. Dashboard validation is recorded separately in `DASHBOARD_VALIDATION.md`: simulator lifecycle and failure tests, native UI tests and the earlier physical Stop-only check. Higher-speed and position changes have been tested offline only. Simulator success is not physical validation of higher speed, position, reverse, torque-pulse, damping, scan-on-a-populated-bus or robot-arm behavior.
+The previous physical forward-speed test used the historical FT4232H adapter and established that setup's communication and 5 rpm bench operation. It is not U2D2 evidence. Dashboard validation is recorded separately in `DASHBOARD_VALIDATION.md`: simulator lifecycle and failure tests, native UI tests and the earlier physical Stop-only check. Higher-speed and position changes have been tested offline only. Simulator success is not physical validation of higher speed, position, reverse, torque-pulse, damping, scan-on-a-populated-bus or robot-arm behavior.
 
 For future robot-arm work, establish joint limits, supported failure behavior/brakes, pose recovery and calibration, supply/regeneration handling, load-specific gains, and per-joint timing/freshness before using stiffness or coordinated movement.

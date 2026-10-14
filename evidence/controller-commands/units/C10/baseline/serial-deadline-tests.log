@@ -1,0 +1,28 @@
+test_cancelled_prewrite_gate_does_not_write_or_claim_a_result (test_serial_deadline.B09Deadline.test_cancelled_prewrite_gate_does_not_write_or_claim_a_result) ... ok
+test_errors_partial_write_and_success_restore_settings (test_serial_deadline.B09Deadline.test_errors_partial_write_and_success_restore_settings) ... ok
+test_late_frame_is_not_success (test_serial_deadline.B09Deadline.test_late_frame_is_not_success) ... ok
+test_prewrite_hook_consumes_the_budget_without_transmitting (test_serial_deadline.B09Deadline.test_prewrite_hook_consumes_the_budget_without_transmitting) ... ok
+test_read_timeout_cannot_overrun_budget_and_restores (test_serial_deadline.B09Deadline.test_read_timeout_cannot_overrun_budget_and_restores) ... ok
+test_reset_and_write_share_entry_budget (test_serial_deadline.B09Deadline.test_reset_and_write_share_entry_budget) ... ok
+test_restoration_and_decode_time_cannot_return_late_success (test_serial_deadline.B09Deadline.test_restoration_and_decode_time_cannot_return_late_success) ... ok
+test_restore_failure_preserves_primary_fault_and_no_result (test_serial_deadline.B09Deadline.test_restore_failure_preserves_primary_fault_and_no_result) ... ok
+test_settings_failure_is_transport_fault_and_restores_both (test_serial_deadline.B09Deadline.test_settings_failure_is_transport_fault_and_restores_both) ... ok
+test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io (test_serial_deadline.B09Deadline.test_zero_infinite_write_settings_are_bounded_and_invalid_deadlines_do_no_io) ... ok
+test_direct_zero_timeout_read_and_write_poll_once (test_serial_deadline.B09PseudoTerminal.test_direct_zero_timeout_read_and_write_poll_once) ... ok
+test_mocked_read_and_partial_write_stop_at_post_select_cutoff (test_serial_deadline.B09PseudoTerminal.test_mocked_read_and_partial_write_stop_at_post_select_cutoff) ... ok
+test_real_fragmented_reply_after_exact_request (test_serial_deadline.B09PseudoTerminal.test_real_fragmented_reply_after_exact_request) ... ok
+test_real_missing_reply_five_runs_per_timeout (test_serial_deadline.B09PseudoTerminal.test_real_missing_reply_five_runs_per_timeout) ... PTY missing reply timeout=None: elapsed seconds [0.02035177400102839, 0.02018304699959117, 0.020232887000020128, 0.02016474500123877, 0.020173409999188152]
+PTY missing reply timeout=0: elapsed seconds [0.020188921998851583, 0.020290732998546446, 0.020156681999651482, 0.020197073001327226, 0.02022350799961714]
+PTY missing reply timeout=0.5: elapsed seconds [0.020171721000224352, 0.02034484699834138, 0.020171121001112624, 0.02038054600052419, 0.02020618799906515]
+ok
+test_real_saturated_write_has_positive_deadline (test_serial_deadline.B09PseudoTerminal.test_real_saturated_write_has_positive_deadline) ... PTY saturated write timeout=None: elapsed seconds 0.020687336998889805
+PTY saturated write timeout=0: elapsed seconds 0.020585860000210232
+PTY saturated write timeout=0.5: elapsed seconds 0.020242519000021275
+ok
+test_repeated_real_exchanges_do_not_reconfigure_open_port (test_serial_deadline.B09PseudoTerminal.test_repeated_real_exchanges_do_not_reconfigure_open_port) ... ok
+test_timeout_setters_require_finite_nonnegative_values (test_serial_deadline.B09PseudoTerminal.test_timeout_setters_require_finite_nonnegative_values) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.416s
+
+OK

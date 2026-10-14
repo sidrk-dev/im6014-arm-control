@@ -1,0 +1,24 @@
+{
+  "motor_io_performed": false,
+  "checks": [
+    "test input boundaries, nonfinite rejection, simultaneous/unknown fault decoding",
+    "demo never opens hardware; connect remains stopped; timeout blocks arm and explicit acknowledgment restores watchdog",
+    "one serial owner, arm per test, active-test replacement rejected, delayed FOC acknowledgment, ramps, watchdog and final Stop",
+    "reverse speed, bounded negative torque pulse, damping and operator Stop",
+    "60 rpm completes with speed/travel trips Off; no hidden 5/8 rpm or one-revolution ceiling",
+    "configured measured-speed and travel trips still stop and disarm",
+    "relative and signed absolute position: current-angle start, smooth targets, gains, hold, timed Stop",
+    "position target/travel and impossible move duration rejected before enabling FOC",
+    "arm expiry and priority Stop invalidate queued arm/motion requests",
+    "motor fault, corrupt CRC and lost replies latch disarmed; restored communications never resumes motion",
+    "stalled UI heartbeat and stale motor feedback abort motion and confirm Stop",
+    "individual-ID Stop scan, disconnect/reconnect disarming and unambiguous per-connection capture tags",
+    "failed PTY adapter open closes the partial handle, releases ownership and permits a fresh demo connection",
+    "native UI connect/ack/checkbox/arm/run/Stop flow, live chart rendering, mode-specific controls and console validation",
+    "higher-speed input, position controls/current-angle copy/target plot/console and dark-theme demo/real/fault contrast",
+    "CSV/JSON round trips, typed adapter path honored, and responsive 1024\u00d7768 layout",
+    "closing the native window during motion confirms Stop, releases adapter and joins its worker",
+    "light-theme real-hardware badge and status banner contrast; starts disconnected",
+    "U2D2 passive selection: ambiguous and legacy defaults blank, sole candidate selected, typed path preserved"
+  ]
+}

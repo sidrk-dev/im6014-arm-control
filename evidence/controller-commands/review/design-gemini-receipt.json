@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10",
+  "promptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-prompt.txt",
+  "outputPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-gemini.md",
+  "receiptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-gemini-receipt.json",
+  "executionId": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10",
+    "output": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-gemini.md",
+    "receipt": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/design-gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "status": "unavailable-model",
+  "startedAt": "2026-10-13T23:20:08.559Z",
+  "completedAt": "2026-10-13T23:20:08.777Z",
+  "elapsedMs": 218,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "failed",
+    "evidence": "stdout: 0 line(s), 0 JSON event(s); stderr: 21 line(s), 0 JSON event(s)"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-0044306aec316ae0",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10"
+  ],
+  "exitCode": 1,
+  "signal": null,
+  "reportedModel": null,
+  "modelVerified": false,
+  "modelEvidence": null,
+  "sessionId": null,
+  "usage": null,
+  "costUsd": null,
+  "error": {
+    "message": "authentication or model preflight failed",
+    "evidence": "stdout: 0 line(s), 0 JSON event(s); stderr: 21 line(s), 0 JSON event(s)"
+  },
+  "failurePhase": "preflight",
+  "processStarted": false,
+  "apiSpend": "deny"
+}

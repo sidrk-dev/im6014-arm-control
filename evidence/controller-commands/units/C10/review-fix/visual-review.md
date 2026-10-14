@@ -1,0 +1,1 @@
+Parent inspected all three post-review captures: real and demo startup are Disconnected with Arm disabled and zero replies; real serial path is blank and U2D2 is selected. Dark position-test screenshot is clearly DEMO with measured and target traces. No visible discrepancy found. No physical I/O or production JointCore integration is established by these images.

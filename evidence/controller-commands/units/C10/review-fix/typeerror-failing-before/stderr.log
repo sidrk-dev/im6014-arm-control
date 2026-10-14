@@ -1,0 +1,39 @@
+test_absent_expired_invalid_replacement_and_clock_regression_emit_nothing (test_controller_velocity.ReferenceVelocityTests.test_absent_expired_invalid_replacement_and_clock_regression_emit_nothing) ... ok
+test_acceptance_queue_and_idle_time_never_bank_more_than_step_cap (test_controller_velocity.ReferenceVelocityTests.test_acceptance_queue_and_idle_time_never_bank_more_than_step_cap) ... ok
+test_arm_rejects_measured_seed_outside_codec_range_without_grant (test_controller_velocity.ReferenceVelocityTests.test_arm_rejects_measured_seed_outside_codec_range_without_grant) ... ok
+test_arm_surfaces_projection_type_error_before_grant_or_reference (test_controller_velocity.ReferenceVelocityTests.test_arm_surfaces_projection_type_error_before_grant_or_reference) ... FAIL
+test_clock_regression_during_projection_preserves_history_and_writes_nothing (test_controller_velocity.ReferenceVelocityTests.test_clock_regression_during_projection_preserves_history_and_writes_nothing) ... ok
+test_consume_surfaces_projection_type_error_without_reference_or_write (test_controller_velocity.ReferenceVelocityTests.test_consume_surfaces_projection_type_error_without_reference_or_write) ... FAIL
+test_failed_second_joint_projection_keeps_pending_and_history_atomically (test_controller_velocity.ReferenceVelocityTests.test_failed_second_joint_projection_keeps_pending_and_history_atomically) ... ok
+test_inward_codec_grid_projection_for_position_speed_reductions_and_directions (test_controller_velocity.ReferenceVelocityTests.test_inward_codec_grid_projection_for_position_speed_reductions_and_directions) ... ok
+test_lifecycle_rearm_seeds_new_measured_pose_and_requires_new_grant (test_controller_velocity.ReferenceVelocityTests.test_lifecycle_rearm_seeds_new_measured_pose_and_requires_new_grant) ... ok
+test_nonzero_measured_seed_per_joint_steps_reversal_and_feedforward_clipping (test_controller_velocity.ReferenceVelocityTests.test_nonzero_measured_seed_per_joint_steps_reversal_and_feedforward_clipping) ... ok
+test_projection_compute_delay_stamps_final_release_time (test_controller_velocity.ReferenceVelocityTests.test_projection_compute_delay_stamps_final_release_time) ... ok
+test_projection_time_passing_target_deadline_discards_without_release (test_controller_velocity.ReferenceVelocityTests.test_projection_time_passing_target_deadline_discards_without_release) ... ok
+test_projection_time_staling_feedback_revokes_without_release (test_controller_velocity.ReferenceVelocityTests.test_projection_time_staling_feedback_revokes_without_release) ... ok
+test_subgrid_zero_elapsed_corridor_is_retained_until_feasible (test_controller_velocity.ReferenceVelocityTests.test_subgrid_zero_elapsed_corridor_is_retained_until_feasible) ... ok
+test_velocity_and_step_limits_are_required_finite_and_positive (test_controller_velocity.ReferenceVelocityTests.test_velocity_and_step_limits_are_required_finite_and_positive) ... ok
+test_zero_elapsed_is_stationary_but_same_tick_streaming_advances (test_controller_velocity.ReferenceVelocityTests.test_zero_elapsed_is_stationary_but_same_tick_streaming_advances) ... ok
+
+======================================================================
+FAIL: test_arm_surfaces_projection_type_error_before_grant_or_reference (test_controller_velocity.ReferenceVelocityTests.test_arm_surfaces_projection_type_error_before_grant_or_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10/test_controller_velocity.py", line 109, in test_arm_surfaces_projection_type_error_before_grant_or_reference
+    with self.assertRaisesRegex(TypeError, "injected projection programming error"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: TypeError not raised
+
+======================================================================
+FAIL: test_consume_surfaces_projection_type_error_without_reference_or_write (test_controller_velocity.ReferenceVelocityTests.test_consume_surfaces_projection_type_error_without_reference_or_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10/test_controller_velocity.py", line 131, in test_consume_surfaces_projection_type_error_without_reference_or_write
+    with self.assertRaisesRegex(TypeError, "injected projection programming error"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: TypeError not raised
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.086s
+
+FAILED (failures=2)

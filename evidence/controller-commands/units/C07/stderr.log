@@ -1,0 +1,12 @@
+test_clock_regression_raises_before_pending_target_can_be_written (test_controller_targets.CommandExpiryTests.test_clock_regression_raises_before_pending_target_can_be_written) ... ok
+test_expired_high_sequence_replacement_preserves_pending_and_watermark (test_controller_targets.CommandExpiryTests.test_expired_high_sequence_replacement_preserves_pending_and_watermark) ... ok
+test_expiry_at_consume_discards_once_retains_sequence_and_uses_one_clock_sample (test_controller_targets.CommandExpiryTests.test_expiry_at_consume_discards_once_retains_sequence_and_uses_one_clock_sample) ... ok
+test_future_creation_and_producer_queue_expiry_reject_without_storage (test_controller_targets.CommandExpiryTests.test_future_creation_and_producer_queue_expiry_reject_without_storage) ... ok
+test_target_requires_finite_ordered_timestamps_and_accepts_zero (test_controller_targets.CommandExpiryTests.test_target_requires_finite_ordered_timestamps_and_accepts_zero) ... ok
+test_timestamp_guards_precede_codec_and_sequence_metadata (test_controller_targets.CommandExpiryTests.test_timestamp_guards_precede_codec_and_sequence_metadata) ... ok
+test_valid_target_dispatches_expected_fake_packet_bytes (test_controller_targets.CommandExpiryTests.test_valid_target_dispatches_expected_fake_packet_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.003s
+
+OK

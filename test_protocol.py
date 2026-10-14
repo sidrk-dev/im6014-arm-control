@@ -287,7 +287,7 @@ class B08Identity(unittest.TestCase):
         clock = FakeClock()
         session.bus = FakeSerial(responses=[(self.FOREIGN,), (CAPTURED,)], clock=clock)
         previous = dict(raw="old", id=0)
-        session.data.update(latest=previous, rx=7, total_samples=9, last_rx="old")
+        session.data.update(port="memory-identity-fixture", latest=previous, rx=7, total_samples=9, last_rx="old")
         session.last_reply = 123
         with patch.object(transport, "_monotonic", clock.monotonic):
             with self.assertRaisesRegex(RuntimeError, "deadline"):
