@@ -718,7 +718,7 @@ class JointCore:
                     spec.position_limits.minimum_rad,
                     spec.position_limits.maximum_rad,
                 )
-        except (ArithmeticError, TypeError, ValueError):
+        except (ArithmeticError, ValueError):
             return self._arm_rejected(DecisionCode.INVALID_ARGUMENT)
         self._state = State.ARMED
         self._ownership_generation += 1
@@ -877,7 +877,7 @@ class JointCore:
         ):
             self._pending_target = None
             return None
-        if now >= target.expires_at_s or now < pending.accepted_at_s:
+        if now >= target.expires_at_s:
             self._pending_target = None
             return None
         if self._reference_positions is None or self._last_reference_at_s is None:
@@ -896,7 +896,7 @@ class JointCore:
                 candidate_joints.append(
                     self._project_joint_target(spec, requested, lower, upper)
                 )
-        except (ArithmeticError, TypeError, ValueError):
+        except (ArithmeticError, ValueError):
             return None
 
         release_now = self._now()

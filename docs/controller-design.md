@@ -2,11 +2,17 @@
 
 B11-B14 and C01-C10 extend the bench with pure joint algebra, passive configuration, bounded packet diagnostics, cooperating bus ownership and a transport-free request core. Existing bench entry points retain their lifecycle and packet bytes. No new physical motion runner is introduced.
 
-## Selection
+## B11-C06 design selection
 
-Sol's typed core is the base. Parent scores against the six saved rubric criteria are 5, 4, 4, 5, 5, 5. Gemini's wire-aware core scores 2, 3, 2, 2, 2, 3. Both OpenCode reviewers selected Sol. Their full scores and requested-route receipts are in evidence/controller/models. Parent accepted named rad/s intermediates, passive OS metadata, the sequence example 1,5,5,2,6, and a transition table with guards. Parent rejected premature arm expiry, arbitrary stream dictionaries, mutable snapshot dictionaries, raw wire ownership in the core and a station daemon. Ownership generations and identity-checked local grants are part of C08; requested-position intervals are C09; bounded issued references and codec-grid checks are C10.
+Sol's typed core is the base. The [Muse review](../evidence/controller/models/design-muse-output.md) and [MiMo review](../evidence/controller/models/design-mimo-output.md) both selected it over the wire-aware Gemini candidate. Those reviews concern the initial B11-C06 design; their scores and requested-route receipts are in evidence/controller/models. Parent accepted named rad/s intermediates, passive OS metadata, the sequence example 1,5,5,2,6, and a transition table with guards. Parent rejected premature arm expiry, arbitrary stream dictionaries, mutable snapshot dictionaries, raw wire ownership in the core and a station daemon. Ownership generations and identity-checked local grants are part of C08; requested-position intervals are C09; bounded issued references and codec-grid checks are C10.
 
 The reviewers missed a fault recovery gap in Sol's Stop row. Stop must preserve FAULT and its attributed cause. Disconnect/reconnect must not permit a latched fault to bypass an explicitly acknowledged recovery check. A healthy packet alone never clears it. This is a parent correction to the base.
+
+## C07-C10 design selection
+
+The [native design](../evidence/controller-commands/review/design-sol.md) keeps lifecycle, ownership and bounded references in one core. The [parent alternative](../evidence/controller-commands/review/design-parent.md) splits them across a gate, core and filter. [Muse selected the unified core](../evidence/controller-commands/review/crossjudge-muse-os.md). The configured Gemini design attempt failed before submission; its [receipt](../evidence/controller-commands/review/design-gemini-receipt.json) is retained.
+
+Commands require explicit expiry and the exact current ownership grant. Joint intervals and speed limits are required configuration. Existing codec projectors choose inward representable references, and ordinary encoding must preserve the selected codes. The [synthesis](../evidence/controller-commands/review/synthesis.md) records the selected shape and reviewer corrections.
 
 ## Modules and contracts
 

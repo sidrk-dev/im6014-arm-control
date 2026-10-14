@@ -1,0 +1,1 @@
+Parent accepted all four narration deletions. Three public API contract docstrings remain. No source reshape flags, reruns, architecture sketches, encoding offers, restored comments or unenforced constraints. No behavior changed. Final release checks still return the complete projected vector.

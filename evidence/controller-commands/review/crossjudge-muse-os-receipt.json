@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 2,
+  "contract": "legacy",
+  "executionId": "e340a770-46cc-4d16-a77a-9e1e39929afb",
+  "parent": "codex",
+  "provider": "opencode",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "reportedModel": "opencode/muse-spark-1.3-contributor-free",
+  "effort": "default",
+  "mode": "read-only",
+  "argv": [
+    "/home/sid/.local/bin/pstack-opencode-review",
+    "--model",
+    "opencode/muse-spark-1.3-contributor-free",
+    "--api-spend",
+    "approved",
+    "--prompt",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-prompt.txt",
+    "--output",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os.md",
+    "--receipt",
+    "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os-receipt.json"
+  ],
+  "modelVerified": false,
+  "modelEvidence": "pinned-request",
+  "exactRequestModel": "opencode/muse-spark-1.3-contributor-free",
+  "route": "OpenCode-Wrap user override",
+  "timeoutMs": null,
+  "startedAt": "2026-10-13T23:27:52.870Z",
+  "completedAt": "2026-10-13T23:28:21.519Z",
+  "elapsedMs": 28649,
+  "status": "complete",
+  "cwd": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-continuation",
+  "processStarted": true,
+  "failurePhase": null,
+  "error": null,
+  "exitCode": 0,
+  "signal": null,
+  "apiSpend": "approved",
+  "promptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-prompt.txt",
+  "outputPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os.md",
+  "receiptPath": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-continuation",
+    "prompt": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-prompt.txt",
+    "output": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os.md",
+    "receipt": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013/crossjudge-muse-os-receipt.json"
+  },
+  "usage": {
+    "source": "opencode-native",
+    "tokens": {
+      "cache": {
+        "read": 113,
+        "write": 0
+      },
+      "input": 23494,
+      "output": 1547,
+      "reasoning": 3760,
+      "total": 28914
+    }
+  },
+  "costUsd": 0,
+  "rejectedPermissions": 0,
+  "submissionCount": 1,
+  "cleanupErrors": []
+}

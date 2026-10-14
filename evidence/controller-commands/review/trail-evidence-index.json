@@ -1,0 +1,87 @@
+{
+  "localRunRoot": "/home/sid/Documents/code/im6014Development/.workbench-runs/c07-c10-20261013",
+  "localCheckout": "/home/sid/Documents/code/im6014Development/.worktrees/controller-c07-c10",
+  "comparisonBase": "4d41d5b",
+  "aliases": {
+    ".workbench-runs/c07-c10-20261013/plan.md": {
+      "committedPath": "evidence/controller-commands/review/plan.md",
+      "sha256": "7327fedc329f9e29b614ff0189528f4e147815933c6391aba5aef5736f5f7297"
+    },
+    ".workbench-runs/c07-c10-20261013/design-gemini-receipt.json": {
+      "committedPath": "evidence/controller-commands/review/design-gemini-receipt.json",
+      "sha256": "fd9f68e2f612efac6cf8868e9621dea8526f36eab27fb4a62ad76679ca2d49bc"
+    },
+    ".workbench-runs/c07-c10-20261013/design-parent.md": {
+      "committedPath": "evidence/controller-commands/review/design-parent.md",
+      "sha256": "f69d278c989e45cbee225f35532fb00f7d0b442d79dc010bc59f684fecb2b50c"
+    },
+    ".workbench-runs/c07-c10-20261013/synthesis.md": {
+      "committedPath": "evidence/controller-commands/review/synthesis.md",
+      "sha256": "8d5bbfe11fd7acbb068148c560ca9248cc4221d00a9c1fd9b46de653796b184c"
+    },
+    ".workbench-runs/c07-c10-20261013/crossjudge-muse-os.md": {
+      "committedPath": "evidence/controller-commands/review/crossjudge-muse-os.md",
+      "sha256": "10801b3ed63b3f8e513ce7105307e01fdf18251fc78e10518c50867e07a2fbd1"
+    },
+    ".workbench-runs/c07-c10-20261013/c07-task.txt": {
+      "committedPath": "evidence/controller-commands/review/local-run/c07-task.txt",
+      "sha256": "77a7c24a55e9cb047c36debdb8f8504c2dc0871fcedc161e7c4469207dfda3e0"
+    },
+    ".workbench-runs/c07-c10-20261013/feature-decision.json": {
+      "committedPath": "evidence/controller-commands/review/local-run/feature-decision.json",
+      "sha256": "8886ae2608713620bcc4721eae40e5191f5fc27e345879624c5e5dbb421eb956"
+    },
+    ".workbench-runs/c07-c10-20261013/c10-release-gap.md": {
+      "committedPath": "evidence/controller-commands/units/C10/c10-release-gap.md",
+      "sha256": "61a26e817553af0cad13d9064fb8083cad18e209554106a70303145d96156fdd"
+    },
+    ".workbench-runs/c07-c10-20261013/release-failing-before/C10-20261014T053813094153Z/receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/release-failing-before/receipt.json",
+      "sha256": "b33d6ea181138ba709106d1a2031c6fbbf7ba227203eaa4911d5a613f12f4e61"
+    },
+    ".workbench-runs/c07-c10-20261013/checks-final/C10-20261014T054325808590Z/receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/receipt.json",
+      "sha256": "d2a42d52b88862f950f94ac8235d07d5da6c8e3031ce4ee2ab876485a7ec7cf5"
+    },
+    ".workbench-runs/c07-c10-20261013/final-checks-receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/final-checks-receipt.json",
+      "sha256": "0d2daf79554bd7032e9b0b35d0fe764355675052b995fcfb624034130d64d97e"
+    },
+    ".workbench-runs/c07-c10-20261013/visual-review.md": {
+      "committedPath": "evidence/controller-commands/units/C10/visual-review.md",
+      "sha256": "6e2f73daafc4b4531901bc8eae0ea03a071562f42408804fa4f39d1c4347bbc6"
+    },
+    ".workbench-runs/c07-c10-20261013/comment-audit.md": {
+      "committedPath": "evidence/controller-commands/review/comment-audit.md",
+      "sha256": "1ad4ed978b159b87ec6e6aa96a6d311e12d8c7094b9c3bda66af410874f53ee7"
+    },
+    ".workbench-runs/c07-c10-20261013/comment-triage.md": {
+      "committedPath": "evidence/controller-commands/review/comment-triage.md",
+      "sha256": "3581de65f34dd15b0924dfa4264cb17fa48e201f727da0aa6f7acaf58ff56b39"
+    },
+    ".workbench-runs/c07-c10-20261013/final-muse-receipt.json": {
+      "committedPath": "evidence/controller-commands/review/final-muse-receipt.json",
+      "sha256": "7f3dbbcd4cc16cb082397d1abf63a3f1ca33d785cdeb209872fa7dd82d22030a"
+    },
+    ".workbench-runs/c07-c10-20261013/final-mimo-receipt.json": {
+      "committedPath": "evidence/controller-commands/review/final-mimo-receipt.json",
+      "sha256": "4d0171af8625fd7cc01e3760ecdc57fe4206cadc94c87abe08440efe7333ac71"
+    },
+    ".workbench-runs/c07-c10-20261013/review-triage.md": {
+      "committedPath": "evidence/controller-commands/review/review-triage.md",
+      "sha256": "06afb645e533f792fdc59202d312b9f833e0fb1187fc55f70bce58f4c38a8154"
+    },
+    ".workbench-runs/c07-c10-20261013/typeerror-failing-before/C10-20261014T055427568803Z/receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/review-fix/typeerror-failing-before/receipt.json",
+      "sha256": "a0727d3e6647b7a4d77751b1cdbdb8a2095a750c6b47122d59fabd9908fc48ee"
+    },
+    ".workbench-runs/c07-c10-20261013/review-fix-initial-check/C10-20261014T063334073262Z/receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/review-fix/initial-test-migration-failure/receipt.json",
+      "sha256": "17f1557a98638a6d9192f4353cf513456bbd2ec8a739cb59a363bea4d870b5e0"
+    },
+    ".workbench-runs/c07-c10-20261013/review-fix-final-check/C10-20261014T063348097578Z/receipt.json": {
+      "committedPath": "evidence/controller-commands/units/C10/review-fix/final-check/receipt.json",
+      "sha256": "a3f24fd1c298c7af41d547da06eb3a8f2f2fd7ea079d6b7c87587b1487f9ae8f"
+    }
+  }
+}

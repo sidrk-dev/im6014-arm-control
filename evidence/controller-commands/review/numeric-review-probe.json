@@ -1,0 +1,71 @@
+{
+  "roundtrip_cases": 33678,
+  "mismatches": [],
+  "safe_rejection_count": 72,
+  "safe_rejection_examples": [
+    {
+      "reduction": 3,
+      "direction": -1,
+      "offset": 0.0,
+      "p": 2147483647,
+      "s": -32768,
+      "error": "Position cannot be encoded in the motor protocol"
+    },
+    {
+      "reduction": 3,
+      "direction": -1,
+      "offset": 0.0,
+      "p": 2147483647,
+      "s": -32767,
+      "error": "Position cannot be encoded in the motor protocol"
+    },
+    {
+      "reduction": 3,
+      "direction": -1,
+      "offset": 0.0,
+      "p": 2147483647,
+      "s": -2000,
+      "error": "Position cannot be encoded in the motor protocol"
+    }
+  ],
+  "domain_test_values": [
+    {
+      "reduction": 1,
+      "direction": -1,
+      "q_joint": 0.2,
+      "q_output": 0.16999999999999998
+    },
+    {
+      "reduction": 1,
+      "direction": 1,
+      "q_joint": 0.2,
+      "q_output": 0.5700000000000001
+    },
+    {
+      "reduction": 3,
+      "direction": -1,
+      "q_joint": 0.2,
+      "q_output": -0.2300000000000001
+    },
+    {
+      "reduction": 3,
+      "direction": 1,
+      "q_joint": 0.2,
+      "q_output": 0.9700000000000001
+    },
+    {
+      "reduction": 6,
+      "direction": -1,
+      "q_joint": 0.2,
+      "q_output": -0.8300000000000002
+    },
+    {
+      "reduction": 6,
+      "direction": 1,
+      "q_joint": 0.2,
+      "q_output": 1.5700000000000003
+    }
+  ],
+  "physicalIO": false,
+  "scope": "finite listed mappings and grid samples; no universal floating-point guarantee"
+}

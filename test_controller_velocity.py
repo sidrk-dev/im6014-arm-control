@@ -86,11 +86,57 @@ class ReferenceVelocityTests(unittest.TestCase):
 
         self.assertFalse(decision.accepted)
         self.assertIs(decision.code, DecisionCode.INVALID_ARGUMENT)
-        self.assertIs(core.snapshot().state, State.READY)
-        self.assertIsNone(core.snapshot().ownership)
-        self.assertEqual(core.snapshot().ownership_generation, 0)
-        self.assertIsNone(core._reference_positions)
-        self.assertIsNone(core._last_reference_at_s)
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.READY)
+        self.assertIsNone(snapshot.ownership)
+        self.assertEqual(snapshot.ownership_generation, 0)
+        self.assertIsNone(snapshot.pending_target)
+
+    def test_arm_surfaces_projection_type_error_before_grant_or_reference(self):
+        spec = JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0)
+        clock = DeterministicClock(0.0)
+        core = JointCore((spec,), clock=clock, max_reference_step_s=0.02)
+        station = FakeStation(core)
+        self.assertTrue(station.connect().accepted)
+        self.assertTrue(station.check().accepted)
+        station.writes.clear()
+
+        with patch.object(
+            joint_controller,
+            "project_position_raw",
+            side_effect=TypeError("injected projection programming error"),
+        ):
+            with self.assertRaisesRegex(TypeError, "injected projection programming error"):
+                station.arm(owner="test")
+
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.READY)
+        self.assertIsNone(snapshot.ownership)
+        self.assertIsNone(snapshot.pending_target)
+        self.assertIsNone(station.consume())
+        self.assertEqual(station.writes, [])
+
+    def test_consume_surfaces_projection_type_error_without_reference_or_write(self):
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0),)
+        core, station, clock = armed_core(specs, (0.0,))
+        request = target(core, clock, 0, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),))
+        self.assertTrue(station.submit(request))
+        clock.value = 0.01
+
+        with patch.object(
+            joint_controller,
+            "project_position_raw",
+            side_effect=TypeError("injected projection programming error"),
+        ):
+            with self.assertRaisesRegex(TypeError, "injected projection programming error"):
+                station.consume()
+
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.ARMED)
+        self.assertIs(snapshot.pending_target, request)
+        self.assertEqual(snapshot.last_sequence, request.sequence)
+        self.assertIsNotNone(snapshot.ownership)
+        self.assertEqual(station.writes, [])
 
     def test_nonzero_measured_seed_per_joint_steps_reversal_and_feedforward_clipping(self):
         specs = (
@@ -98,7 +144,6 @@ class ReferenceVelocityTests(unittest.TestCase):
             JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-2.0, 2.0), 0.8),
         )
         core, station, clock = armed_core(specs, (0.2, -0.3), max_step=0.2)
-        self.assertEqual(core._reference_positions, (0.2, -0.3))
         first = target(core, clock, 0, (
             JointTarget(1.0, 1.0, 0.0, 1.0, 0.1),
             JointTarget(-1.0, -1.5, 0.0, 1.0, 0.1),
@@ -181,20 +226,21 @@ class ReferenceVelocityTests(unittest.TestCase):
         idle_issue = station.consume()
         self.assertLessEqual(idle_issue.joints[0].q_rad - issued.joints[0].q_rad, 0.02)
 
-    def test_absent_expired_invalid_replacement_and_clock_regression_emit_nothing(self):
+    def test_absent_expired_invalid_replacement_and_clock_regression_preserve_bounds(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
         core, station, clock = armed_core(specs, (0.0,))
         self.assertIsNone(station.consume())
         self.assertEqual(station.writes, [])
+        seed_status = core.snapshot().joints[0]
 
         accepted = target(core, clock, 0, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),), expires_at_s=0.1)
         self.assertTrue(station.submit(accepted))
         pending_before = core.snapshot().pending_target
-        history_before = (core._reference_positions, core._last_reference_at_s)
         invalid = target(core, clock, 1, (JointTarget(2.0, 0.0, 0.0, 1.0, 0.1),))
         self.assertEqual(station.submit(invalid).code, DecisionCode.POSITION_LIMIT)
-        self.assertEqual(core.snapshot().pending_target, pending_before)
-        self.assertEqual((core._reference_positions, core._last_reference_at_s), history_before)
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.pending_target, pending_before)
+        self.assertEqual(snapshot.last_sequence, accepted.sequence)
         self.assertEqual(station.writes, [])
 
         clock.value = 0.1
@@ -209,8 +255,20 @@ class ReferenceVelocityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             station.consume()
         clock.value = 0.1
-        self.assertEqual(core.snapshot().pending_target, newer)
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.pending_target, newer)
+        self.assertEqual(snapshot.last_sequence, newer.sequence)
         self.assertEqual(station.writes, [])
+
+        issued = station.consume()
+        self.assertIsInstance(issued, Reference)
+        self.assertIs(issued.requested, newer)
+        self.assertGreater(issued.joints[0].q_rad, seed_status.sample.q_rad)
+        self.assertLessEqual(
+            issued.joints[0].q_rad - seed_status.sample.q_rad,
+            specs[0].max_velocity_rad_s
+            * min(issued.issued_at_s - seed_status.received_at, 0.02),
+        )
 
     def test_failed_second_joint_projection_keeps_pending_and_history_atomically(self):
         specs = (
@@ -218,7 +276,15 @@ class ReferenceVelocityTests(unittest.TestCase):
             JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-1, 1), 1.0),
         )
         core, station, clock = armed_core(specs, (0.0, 0.0))
-        request = target(core, clock, 0, (
+        seed_target = target(core, clock, 0, (
+            JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+            JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
+        ))
+        self.assertTrue(station.submit(seed_target))
+        seed_reference = station.consume()
+        self.assertIsInstance(seed_reference, Reference)
+
+        request = target(core, clock, 1, (
             JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),
             JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1),
         ))
@@ -234,25 +300,44 @@ class ReferenceVelocityTests(unittest.TestCase):
                 raise ValueError("injected second-joint projection failure")
             return original(*args, **kwargs)
 
-        history_before = (core._reference_positions, core._last_reference_at_s)
+        writes_before = len(station.writes)
         with patch.object(joint_controller, "project_position_raw", side_effect=fail_second):
             self.assertIsNone(station.consume())
-        self.assertEqual(station.writes, [])
-        self.assertEqual(core.snapshot().pending_target, request)
-        self.assertEqual((core._reference_positions, core._last_reference_at_s), history_before)
-        self.assertIs(core.snapshot().state, State.ARMED)
+        snapshot = core.snapshot()
+        self.assertEqual(len(station.writes), writes_before)
+        self.assertIs(snapshot.pending_target, request)
+        self.assertEqual(snapshot.last_sequence, request.sequence)
+        self.assertIs(snapshot.state, State.MOVING)
+
+        opposite = target(core, clock, 2, (
+            JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1),
+            JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),
+        ))
+        self.assertTrue(station.submit(opposite))
+        clock.value = 0.02
+        recovered = station.consume()
+        self.assertIsInstance(recovered, Reference)
+        self.assertIs(recovered.requested, opposite)
+        self.assertLess(recovered.joints[0].q_rad, seed_reference.joints[0].q_rad - 0.015)
+        self.assertGreater(recovered.joints[1].q_rad, seed_reference.joints[1].q_rad + 0.015)
+        for issued, seed in zip(recovered.joints, seed_reference.joints):
+            self.assertLessEqual(abs(issued.q_rad - seed.q_rad), 0.02)
 
     def test_projection_time_passing_target_deadline_discards_without_release(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
+        seed_target = target(core, clock, 0, (JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),))
+        self.assertTrue(station.submit(seed_target))
+        seed_reference = station.consume()
+        self.assertIsInstance(seed_reference, Reference)
         request = target(
             core, clock, 1, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),),
             created_at_s=0.0, expires_at_s=0.1,
         )
         self.assertTrue(station.submit(request))
         clock.value = 0.05
-        history_before = (core._reference_positions, core._last_reference_at_s)
-        ownership_before = core.snapshot().ownership
+        before = core.snapshot()
+        writes_before = len(station.writes)
         calls_before = clock.calls
         original = joint_controller.project_position_raw
 
@@ -269,12 +354,25 @@ class ReferenceVelocityTests(unittest.TestCase):
             self.assertIsNone(station.consume())
 
         self.assertEqual(clock.calls - calls_before, 2)
-        self.assertEqual(station.writes, [])
-        self.assertIsNone(core._pending_target)
-        self.assertEqual(core._last_sequence, request.sequence)
-        self.assertEqual((core._reference_positions, core._last_reference_at_s), history_before)
-        self.assertIs(core._state, State.ARMED)
-        self.assertIs(core._ownership, ownership_before)
+        snapshot = core.snapshot()
+        self.assertEqual(len(station.writes), writes_before)
+        self.assertIsNone(snapshot.pending_target)
+        self.assertEqual(snapshot.last_sequence, request.sequence)
+        self.assertIs(snapshot.state, State.MOVING)
+        self.assertIs(snapshot.ownership, before.ownership)
+        self.assertEqual(snapshot.ownership_generation, before.ownership_generation)
+
+        opposite = target(core, clock, 2, (JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1),))
+        self.assertTrue(station.submit(opposite))
+        recovered = station.consume()
+        self.assertIsInstance(recovered, Reference)
+        self.assertIs(recovered.requested, opposite)
+        self.assertLess(recovered.joints[0].q_rad, seed_reference.joints[0].q_rad - 0.075)
+        self.assertGreaterEqual(
+            recovered.joints[0].q_rad - seed_reference.joints[0].q_rad,
+            -specs[0].max_velocity_rad_s
+            * min(recovered.issued_at_s - seed_reference.issued_at_s, 0.1),
+        )
 
     def test_projection_time_staling_feedback_revokes_without_release(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
@@ -287,8 +385,8 @@ class ReferenceVelocityTests(unittest.TestCase):
         )
         self.assertTrue(station.submit(request))
         clock.value = 0.05
+        before = core.snapshot()
         calls_before = clock.calls
-        generation_before = core._ownership_generation
         original = joint_controller.project_position_raw
 
         def stale_feedback_during_projection(*args, **kwargs):
@@ -305,14 +403,15 @@ class ReferenceVelocityTests(unittest.TestCase):
 
         self.assertEqual(clock.calls - calls_before, 2)
         self.assertEqual(station.writes, [])
-        self.assertIsNone(core._pending_target)
-        self.assertEqual(core._last_sequence, request.sequence)
-        self.assertIs(core._state, State.FAULT)
-        self.assertTrue(core._faults["J1"].stale)
-        self.assertIsNone(core._ownership)
-        self.assertEqual(core._ownership_generation, generation_before + 1)
-        self.assertIsNone(core._reference_positions)
-        self.assertIsNone(core._last_reference_at_s)
+        snapshot = core.snapshot()
+        self.assertIsNone(snapshot.pending_target)
+        self.assertEqual(snapshot.last_sequence, request.sequence)
+        self.assertIs(snapshot.state, State.FAULT)
+        self.assertTrue(snapshot.fault_latched)
+        self.assertEqual(snapshot.affected_joints, ("J1",))
+        self.assertTrue(snapshot.faults[0].stale)
+        self.assertIsNone(snapshot.ownership)
+        self.assertEqual(snapshot.ownership_generation, before.ownership_generation + 1)
 
     def test_projection_compute_delay_stamps_final_release_time(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
@@ -341,9 +440,11 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertIsNotNone(issued)
         self.assertIs(issued.requested, request)
         self.assertEqual(issued.issued_at_s, 0.06)
-        self.assertEqual(core._last_reference_at_s, 0.06)
-        self.assertEqual(core._reference_positions, tuple(joint.q_rad for joint in issued.joints))
         self.assertEqual(clock.calls - calls_before, 2)
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.state, State.MOVING)
+        self.assertIsNone(snapshot.pending_target)
+        self.assertEqual(snapshot.last_sequence, request.sequence)
         self.assertEqual(len(station.writes), 1)
 
         next_request = target(
@@ -355,27 +456,29 @@ class ReferenceVelocityTests(unittest.TestCase):
         next_issue = station.consume()
         self.assertIsNotNone(next_issue)
         self.assertLessEqual(
-            next_issue.joints[0].q_rad - issued.joints[0].q_rad,
+            abs(next_issue.joints[0].q_rad - issued.joints[0].q_rad),
             specs[0].max_velocity_rad_s * (next_issue.issued_at_s - issued.issued_at_s),
         )
         self.assertGreater(next_issue.joints[0].q_rad, issued.joints[0].q_rad)
         self.assertEqual(next_issue.issued_at_s, 0.07)
-        self.assertEqual(core._last_reference_at_s, 0.07)
+        self.assertEqual(core.snapshot().last_sequence, next_request.sequence)
         self.assertEqual(len(station.writes), 2)
 
     def test_clock_regression_during_projection_preserves_history_and_writes_nothing(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
+        seed_target = target(core, clock, 0, (JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),))
+        self.assertTrue(station.submit(seed_target))
+        seed_reference = station.consume()
+        self.assertIsInstance(seed_reference, Reference)
         request = target(
             core, clock, 1, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),),
             created_at_s=0.0, expires_at_s=1.0,
         )
         self.assertTrue(station.submit(request))
         clock.value = 0.05
-        history_before = (core._reference_positions, core._last_reference_at_s)
-        pending_before = core._pending_target
-        ownership_before = core._ownership
-        sequence_before = core._last_sequence
+        writes_before = len(station.writes)
+        before = core.snapshot()
         original = joint_controller.project_position_raw
 
         def regress_clock_during_projection(*args, **kwargs):
@@ -391,44 +494,66 @@ class ReferenceVelocityTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 station.consume()
 
-        self.assertEqual(station.writes, [])
-        self.assertIs(core._pending_target, pending_before)
-        self.assertEqual(core._last_sequence, sequence_before)
-        self.assertEqual((core._reference_positions, core._last_reference_at_s), history_before)
-        self.assertIs(core._state, State.ARMED)
-        self.assertIs(core._ownership, ownership_before)
+        clock.value = 0.05
+        snapshot = core.snapshot()
+        self.assertEqual(len(station.writes), writes_before)
+        self.assertIs(snapshot.pending_target, request)
+        self.assertEqual(snapshot.last_sequence, before.last_sequence)
+        self.assertIs(snapshot.state, State.MOVING)
+        self.assertIs(snapshot.ownership, before.ownership)
+
+        opposite = target(core, clock, 2, (JointTarget(-0.5, 0.0, 0.0, 1.0, 0.1),))
+        self.assertTrue(station.submit(opposite))
+        recovered = station.consume()
+        self.assertIsInstance(recovered, Reference)
+        self.assertIs(recovered.requested, opposite)
+        self.assertLess(recovered.joints[0].q_rad, seed_reference.joints[0].q_rad - 0.04)
+        self.assertGreaterEqual(
+            recovered.joints[0].q_rad - seed_reference.joints[0].q_rad,
+            -specs[0].max_velocity_rad_s
+            * min(recovered.issued_at_s - seed_reference.issued_at_s, 0.1),
+        )
 
     def test_subgrid_zero_elapsed_corridor_is_retained_until_feasible(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.1),)
         core, station, clock = armed_core(specs, (0.0001,), max_step=0.02)
+        seed_status = core.snapshot().joints[0]
         request = target(core, clock, 0, (JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(request))
-        history_before = (core._reference_positions, core._last_reference_at_s)
         self.assertIsNone(station.consume())
         self.assertEqual(core.snapshot().pending_target, request)
-        self.assertEqual((core._reference_positions, core._last_reference_at_s), history_before)
         self.assertEqual(station.writes, [])
 
         clock.value = 0.01
         later = station.consume()
-        self.assertIsNotNone(later)
+        self.assertIsInstance(later, Reference)
         self.assertEqual(later.requested, request)
         self.assertIsNone(core.snapshot().pending_target)
+        self.assertLessEqual(
+            abs(later.joints[0].q_rad - seed_status.sample.q_rad),
+            specs[0].max_velocity_rad_s
+            * (later.issued_at_s - seed_status.received_at),
+        )
 
     def test_lifecycle_rearm_seeds_new_measured_pose_and_requires_new_grant(self):
         specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.5),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
         old_grant = core.snapshot().ownership
         self.assertTrue(station.stop())
-        self.assertIsNone(core._reference_positions)
+        stopped = core.snapshot()
+        self.assertIs(stopped.state, State.STOPPED)
+        self.assertIsNone(stopped.ownership)
+        self.assertIsNone(stopped.pending_target)
         self.assertTrue(core.begin_check())
         self.assertTrue(core.receive(0, JointSample(0.5, 0.0, 0.0), STOP))
         self.assertTrue(core.checked())
         new_grant = core.arm(owner="test")
         self.assertTrue(new_grant.accepted)
         self.assertIsNot(new_grant.ownership, old_grant)
-        self.assertEqual(core._reference_positions, (0.5,))
-        self.assertEqual(core._last_reference_at_s, 0.0)
+        armed = core.snapshot()
+        self.assertIs(armed.state, State.ARMED)
+        self.assertIs(armed.ownership, new_grant.ownership)
+        self.assertEqual(armed.joints[0].sample.q_rad, 0.5)
 
         stale_grant_target = Target(
             0, (JointTarget(0.8, 0.0, 0.0, 1.0, 0.1),),
@@ -439,8 +564,14 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertTrue(station.submit(current))
         clock.value = 0.1
         issued = station.consume()
-        self.assertLessEqual(issued.joints[0].q_rad - 0.5, 0.05)
+        self.assertIsInstance(issued, Reference)
+        self.assertIs(issued.requested, current)
         self.assertGreaterEqual(issued.joints[0].q_rad, 0.5)
+        self.assertLessEqual(
+            issued.joints[0].q_rad - 0.5,
+            specs[0].max_velocity_rad_s
+            * min(issued.issued_at_s - armed.joints[0].received_at, 0.1),
+        )
 
     def test_inward_codec_grid_projection_for_position_speed_reductions_and_directions(self):
         for reduction in (1, 3, 6):
