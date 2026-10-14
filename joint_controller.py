@@ -11,8 +11,15 @@ import math
 import time
 from typing import Literal
 
-from im6014_codec import command
-from joint_mapping import JointMap, JointSample, JointTarget
+from im6014_codec import (
+    command,
+    decode_command,
+    project_position_raw,
+    project_speed_raw,
+    raw_to_position,
+    raw_to_rpm,
+)
+from joint_mapping import JointMap, JointSample, JointTarget, OutputSample
 
 
 class State(Enum):
@@ -120,6 +127,7 @@ class JointSpec:
     motor_id: int
     mapping: JointMap
     position_limits: PositionLimits
+    max_velocity_rad_s: float
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -130,6 +138,16 @@ class JointSpec:
             raise ValueError("mapping must be a JointMap")
         if not isinstance(self.position_limits, PositionLimits):
             raise ValueError("position_limits must be PositionLimits")
+        value = self.max_velocity_rad_s
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError("max_velocity_rad_s must be finite and positive")
+        try:
+            value = float(value)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_velocity_rad_s must be finite and positive") from exc
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError("max_velocity_rad_s must be finite and positive")
+        object.__setattr__(self, "max_velocity_rad_s", value)
 
 
 @dataclass(frozen=True)
@@ -300,6 +318,45 @@ class Target:
 
 
 @dataclass(frozen=True)
+class Reference:
+    """One requested target and its complete bounded, codec-representable issue."""
+
+    requested: Target
+    joints: tuple[JointTarget, ...]
+    accepted_at_s: float
+    issued_at_s: float
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.requested, Target):
+            raise ValueError("requested must be a Target")
+        if type(self.joints) is not tuple or not self.joints or any(
+            not isinstance(joint, JointTarget) for joint in self.joints
+        ):
+            raise ValueError("joints must be a non-empty tuple of JointTarget")
+        if len(self.joints) != len(self.requested.joints):
+            raise ValueError("issued joints must match the requested vector length")
+        for name in ("accepted_at_s", "issued_at_s"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be a finite real number")
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite") from exc
+            if not math.isfinite(value):
+                raise ValueError(f"{name} must be finite")
+            object.__setattr__(self, name, value)
+        if self.issued_at_s < self.accepted_at_s:
+            raise ValueError("issued_at_s must not precede accepted_at_s")
+
+
+@dataclass(frozen=True)
+class _PendingTarget:
+    target: Target
+    accepted_at_s: float
+
+
+@dataclass(frozen=True)
 class Snapshot:
     state: State
     joint_names: tuple[str, ...]
@@ -374,6 +431,7 @@ class JointCore:
         *,
         feedback_max_age_s: float = 0.5,
         clock=None,
+        max_reference_step_s: float,
     ):
         if isinstance(feedback_max_age_s, bool) or not isinstance(feedback_max_age_s, (int, float)):
             raise ValueError("feedback_max_age_s must be a finite positive real number")
@@ -387,6 +445,14 @@ class JointCore:
             clock = time.monotonic
         if not callable(clock):
             raise ValueError("clock must be callable")
+        if isinstance(max_reference_step_s, bool) or not isinstance(max_reference_step_s, (int, float)):
+            raise ValueError("max_reference_step_s must be finite and positive")
+        try:
+            max_reference_step_s = float(max_reference_step_s)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_reference_step_s must be finite and positive") from exc
+        if not math.isfinite(max_reference_step_s) or max_reference_step_s <= 0.0:
+            raise ValueError("max_reference_step_s must be finite and positive")
 
         try:
             specs = tuple(joints)
@@ -409,10 +475,13 @@ class JointCore:
         self._observations: list[JointStatus] = [JointStatus() for _ in specs]
         self._source: SourceIdentity | None = None
         self._feedback_max_age_s = feedback_max_age_s
+        self._max_reference_step_s = max_reference_step_s
         self._clock = clock
         self._last_now: float | None = None
         self._faults: dict[str, JointFault] = {}
-        self._pending_target: Target | None = None
+        self._pending_target: _PendingTarget | None = None
+        self._reference_positions: tuple[float, ...] | None = None
+        self._last_reference_at_s: float | None = None
         self._last_sequence: int = -1
         self._ownership: Ownership | None = None
         self._ownership_generation = 0
@@ -441,6 +510,10 @@ class JointCore:
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
 
+    def _clear_reference(self) -> None:
+        self._reference_positions = None
+        self._last_reference_at_s = None
+
     def _latch_joint_fault(
         self,
         name: str,
@@ -468,6 +541,7 @@ class JointCore:
         self._faults[name] = fault
         self._state = State.FAULT
         self._pending_target = None
+        self._clear_reference()
         self._revoke_ownership()
 
     def _now(self) -> float:
@@ -525,6 +599,7 @@ class JointCore:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
         self._pending_target = None
+        self._clear_reference()
         self._state = State.CHECKING
         return self._accepted()
 
@@ -623,9 +698,33 @@ class JointCore:
             for spec, joint in zip(self._specs, self._observations)
         ):
             return self._arm_rejected(DecisionCode.POSITION_LIMIT)
+        try:
+            for spec, joint in zip(self._specs, self._observations):
+                seed = JointTarget(joint.sample.q_rad, 0.0, 0.0, 0.0, 0.0)
+                output = spec.mapping.to_output(seed)
+                command(
+                    spec.motor_id,
+                    mode=1,
+                    rpm=output.rpm,
+                    kd=output.kd,
+                    torque=output.tau_nm,
+                    watchdog=True,
+                    position=output.q_rad,
+                    kp=output.kp,
+                )
+                self._project_joint_target(
+                    spec,
+                    seed,
+                    spec.position_limits.minimum_rad,
+                    spec.position_limits.maximum_rad,
+                )
+        except (ArithmeticError, TypeError, ValueError):
+            return self._arm_rejected(DecisionCode.INVALID_ARGUMENT)
         self._state = State.ARMED
         self._ownership_generation += 1
         self._ownership = Ownership(owner, self._ownership_generation)
+        self._reference_positions = tuple(joint.sample.q_rad for joint in self._observations)
+        self._last_reference_at_s = now
         return ArmDecision(True, DecisionCode.ACCEPTED, self._ownership)
 
     def tick(self) -> Decision:
@@ -702,33 +801,141 @@ class JointCore:
         if target.sequence <= self._last_sequence:
             return self._rejected(DecisionCode.DUPLICATE_OR_OLDER)
 
-        self._pending_target = target
+        self._pending_target = _PendingTarget(target, now)
         self._last_sequence = target.sequence
         return self._accepted()
 
-    def consume_target(self) -> Target | None:
+    def _project_joint_target(
+        self,
+        spec: JointSpec,
+        target: JointTarget,
+        q_min: float,
+        q_max: float,
+    ) -> JointTarget:
+        mapping = spec.mapping
+        direction = mapping.direction
+        velocity = spec.max_velocity_rad_s
+        wanted_speed = max(-velocity, min(velocity, target.dq_rad_s))
+
+        def position_to_joint(output_rad: float) -> float:
+            return mapping.from_output(OutputSample(output_rad, 0.0, 0.0)).q_rad
+
+        def speed_to_joint(output_rpm: float) -> float:
+            return mapping.from_output(OutputSample(0.0, output_rpm, 0.0)).dq_rad_s
+
+        raw_position = project_position_raw(
+            target.q_rad, q_min, q_max, position_to_joint, direction
+        )
+        raw_speed = project_speed_raw(
+            wanted_speed, -velocity, velocity, speed_to_joint, direction
+        )
+        if raw_position is None or raw_speed is None:
+            raise ValueError("no representable reference fits the configured bounds")
+
+        safe_target = JointTarget(
+            position_to_joint(raw_to_position(raw_position)),
+            speed_to_joint(raw_to_rpm(raw_speed)),
+            target.tau_nm,
+            target.kp,
+            target.kd,
+        )
+        output = mapping.to_output(safe_target)
+        frame = command(
+            spec.motor_id,
+            mode=1,
+            rpm=output.rpm,
+            kd=output.kd,
+            torque=output.tau_nm,
+            watchdog=True,
+            position=output.q_rad,
+            kp=output.kp,
+        )
+        decoded = decode_command(frame)
+        if decoded["raw_position"] != raw_position or decoded["raw_rpm"] != raw_speed:
+            raise ValueError("normal command encoding changed a projected grid code")
+        if not q_min <= safe_target.q_rad <= q_max:
+            raise ValueError("projected position violates its closed bounds")
+        if not -velocity <= safe_target.dq_rad_s <= velocity:
+            raise ValueError("projected speed violates its closed bounds")
+        return safe_target
+
+    def consume_target(self) -> Reference | None:
         if self._state not in (State.ARMED, State.MOVING):
             return None
         now = self._now()
         self._tick_at(now)
         if self._state is State.FAULT or any(not joint.healthy for joint in self._observations):
             return None
-        target = self._pending_target
-        if target is not None and (self._ownership is None or target.ownership is not self._ownership):
+        pending = self._pending_target
+        if pending is None:
+            return None
+        target = pending.target
+        if (
+            self._ownership is None
+            or target.ownership is not self._ownership
+            or target.ownership.generation != self._ownership_generation
+        ):
             self._pending_target = None
             return None
-        if target is not None and now >= target.expires_at_s:
+        if now >= target.expires_at_s or now < pending.accepted_at_s:
             self._pending_target = None
             return None
+        if self._reference_positions is None or self._last_reference_at_s is None:
+            return None
+
+        elapsed = now - self._last_reference_at_s
+        step_time = min(elapsed, self._max_reference_step_s)
+        try:
+            candidate_joints = []
+            for spec, requested, q_reference in zip(
+                self._specs, target.joints, self._reference_positions
+            ):
+                step = spec.max_velocity_rad_s * step_time
+                lower = max(spec.position_limits.minimum_rad, q_reference - step)
+                upper = min(spec.position_limits.maximum_rad, q_reference + step)
+                candidate_joints.append(
+                    self._project_joint_target(spec, requested, lower, upper)
+                )
+        except (ArithmeticError, TypeError, ValueError):
+            return None
+
+        release_now = self._now()
+        self._tick_at(release_now)
+        if (
+            self._state not in (State.ARMED, State.MOVING)
+            or any(not joint.healthy for joint in self._observations)
+        ):
+            return None
+        if self._pending_target is not pending:
+            return None
+        if (
+            self._ownership is None
+            or target.ownership is not self._ownership
+            or target.ownership.generation != self._ownership_generation
+        ):
+            self._pending_target = None
+            return None
+        if release_now >= target.expires_at_s:
+            self._pending_target = None
+            return None
+
+        reference = Reference(
+            target,
+            tuple(candidate_joints),
+            pending.accepted_at_s,
+            release_now,
+        )
+        self._reference_positions = tuple(joint.q_rad for joint in reference.joints)
+        self._last_reference_at_s = release_now
         self._pending_target = None
-        if target is not None:
-            self._state = State.MOVING
-        return target
+        self._state = State.MOVING
+        return reference
 
     def stop(self) -> Decision:
         if self._state in (State.DISCONNECTED, State.CONNECTING):
             return self._rejected(DecisionCode.INVALID_STATE)
         self._pending_target = None
+        self._clear_reference()
         self._revoke_ownership()
         if self._state is State.FAULT or bool(self._faults):
             self._state = State.FAULT
@@ -742,6 +949,7 @@ class JointCore:
         self._source = None
         self._clear_observations()
         self._pending_target = None
+        self._clear_reference()
         return self._accepted()
 
     def snapshot(self) -> Snapshot:
@@ -763,6 +971,6 @@ class JointCore:
             ownership=self._ownership,
             ownership_generation=self._ownership_generation,
             faults=faults,
-            pending_target=self._pending_target,
+            pending_target=None if self._pending_target is None else self._pending_target.target,
             last_sequence=self._last_sequence,
         )

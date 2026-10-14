@@ -17,7 +17,6 @@ from joint_mapping import JointMap, JointTarget
 
 from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STOP, core_at
 
-# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
@@ -29,13 +28,13 @@ def owned_target(core, *args, **kwargs):
 class LatestTargetTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
 
     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -60,8 +59,9 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(snap.last_sequence, 9999)
         self.assertIs(snap.state, State.ARMED)
 
+        clock.value = 0.01
         consumed = station.consume()
-        self.assertEqual(consumed, last_target)
+        self.assertEqual(consumed.requested, last_target)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertIsNone(core.snapshot().pending_target)
 
@@ -72,7 +72,7 @@ class LatestTargetTests(unittest.TestCase):
 
     def test_immutable_owned_vector(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -128,7 +128,7 @@ class LatestTargetTests(unittest.TestCase):
 
     def test_malformed_incomplete_and_invalid_mapped_outputs_preserve_prior_target(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -192,7 +192,7 @@ class LatestTargetTests(unittest.TestCase):
         for action in ('packet', 'communication', 'tick'):
             with self.subTest(action=action):
                 clock = DeterministicClock(0.0)
-                core = JointCore(self.specs, clock=clock)
+                core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
                 station = FakeStation(core)
                 self.assertTrue(station.connect())
                 self.assertTrue(station.check())
@@ -216,7 +216,7 @@ class LatestTargetTests(unittest.TestCase):
 
     def test_mapped_torque_outside_codec_bounds_rejects(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -243,10 +243,10 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         specs_ratio = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
-        core_ratio = JointCore(specs_ratio, clock=clock)
+        core_ratio = JointCore(specs_ratio, clock=clock, max_reference_step_s=1000000.0)
         station_ratio = FakeStation(core_ratio)
         self.assertTrue(station_ratio.connect().accepted)
         self.assertTrue(station_ratio.check().accepted)
@@ -263,10 +263,10 @@ class LatestTargetTests(unittest.TestCase):
     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
         clock = DeterministicClock(0.0)
         specs = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
-        core = JointCore(specs, clock=clock)
+        core = JointCore(specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -304,15 +304,16 @@ class LatestTargetTests(unittest.TestCase):
             kp=2.0,
         )
 
+        clock.value = 0.01
         consumed = station.consume()
-        self.assertEqual(consumed, target)
+        self.assertEqual(consumed.requested, target)
         self.assertEqual(station.writes, [expected_pkt_1, expected_pkt_2])
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
     def test_no_writes_on_rejection_stale_fault_stop_disconnect(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -366,7 +367,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertIsNone(station.consume())
         self.assertEqual(station.writes, [])
 
-        core2 = JointCore(self.specs, clock=clock)
+        core2 = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station2 = FakeStation(core2)
         self.assertTrue(station2.connect().accepted)
         self.assertTrue(station2.check().accepted)
@@ -388,7 +389,7 @@ class LatestTargetTests(unittest.TestCase):
 
     def test_stale_feedback_discovered_on_consume_clears_pending_and_latches_fault(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=0.5)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=0.5, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -451,7 +452,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertTrue(core.submit_target(target).accepted)
         self.assertEqual(core.snapshot().pending_target, target)
         self.assertEqual(core.snapshot().last_sequence, 1)
-        self.assertEqual(core.consume_target(), target)
+        self.assertEqual(core.consume_target().requested, target)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
@@ -462,7 +463,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertTrue(core.submit_target(target2).accepted)
         self.assertEqual(core.snapshot().pending_target, target2)
         self.assertEqual(core.snapshot().last_sequence, 2)
-        self.assertEqual(core.consume_target(), target2)
+        self.assertEqual(core.consume_target().requested, target2)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertIsNone(core.snapshot().pending_target)
         self.assertEqual(core.snapshot().last_sequence, 2)
@@ -471,8 +472,8 @@ class LatestTargetTests(unittest.TestCase):
 class CommandSequenceTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -482,7 +483,7 @@ class CommandSequenceTests(unittest.TestCase):
     def _armed_station(self, clock=None):
         if clock is None:
             clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -490,7 +491,7 @@ class CommandSequenceTests(unittest.TestCase):
         return core, station, clock
 
     def test_actual_order_1_5_5_2_6_ends_at_6(self):
-        core, station, _ = self._armed_station()
+        core, station, clock = self._armed_station()
         self.assertEqual(core.snapshot().last_sequence, -1)
         self.assertIsNone(core.snapshot().pending_target)
 
@@ -530,8 +531,9 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertEqual(core.snapshot().pending_target, t6)
 
         station.writes.clear()
+        clock.value = 0.01
         consumed = station.consume()
-        self.assertEqual(consumed, t6)
+        self.assertEqual(consumed.requested, t6)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertIsNone(core.snapshot().pending_target)
         self.assertEqual(core.snapshot().last_sequence, 6)
@@ -631,7 +633,7 @@ class CommandSequenceTests(unittest.TestCase):
 
     def test_watermark_survives_consumption_stop_fault_disconnect_reconnect_and_recovery(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -641,8 +643,9 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertTrue(station.submit(t10).accepted)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
+        clock.value = 0.01
         consumed = station.consume()
-        self.assertEqual(consumed, t10)
+        self.assertEqual(consumed.requested, t10)
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertIsNone(core.snapshot().pending_target)
         self.assertEqual(core.snapshot().last_sequence, 10)
@@ -737,8 +740,8 @@ class CommandSequenceTests(unittest.TestCase):
                 self.assertIsNone(state_core.snapshot().pending_target)
 
     def test_new_core_starts_negative_one_and_independent_watermarks(self):
-        core1 = JointCore(self.specs, clock=DeterministicClock(0.0))
-        core2 = JointCore(self.specs, clock=DeterministicClock(0.0))
+        core1 = JointCore(self.specs, clock=DeterministicClock(0.0), max_reference_step_s=1000000.0)
+        core2 = JointCore(self.specs, clock=DeterministicClock(0.0), max_reference_step_s=1000000.0)
         self.assertEqual(core1.snapshot().last_sequence, -1)
         self.assertEqual(core2.snapshot().last_sequence, -1)
 
@@ -756,8 +759,8 @@ class CommandSequenceTests(unittest.TestCase):
 class CommandExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -765,7 +768,7 @@ class CommandExpiryTests(unittest.TestCase):
         )
 
     def _armed_station(self, clock):
-        core = JointCore(self.specs, clock=clock)
+        core = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -826,7 +829,8 @@ class CommandExpiryTests(unittest.TestCase):
         self.assertTrue(station.submit(target).accepted)
         self.assertEqual(station.writes, [])
 
-        self.assertEqual(station.consume(), target)
+        clock.value = 0.01
+        self.assertEqual(station.consume().requested, target)
         self.assertEqual(station.writes, [
             command(0, mode=1, rpm=0.0, kd=0.1, torque=0.0, watchdog=True, position=0.1, kp=1.0),
             command(1, mode=1, rpm=0.0, kd=0.2, torque=0.0, watchdog=True, position=-0.2, kp=2.0),

@@ -18,15 +18,14 @@ from joint_controller import (
 from joint_mapping import JointMap, JointTarget
 from test_controller import DeterministicClock, FakeStation, SAMPLE
 
-# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
 class OwnershipTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -36,7 +35,7 @@ class OwnershipTests(unittest.TestCase):
     def _armed_station(self, *, owner="teleop", clock=None):
         if clock is None:
             clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -91,7 +90,7 @@ class OwnershipTests(unittest.TestCase):
             )
 
     def test_arm_mints_snapshot_capability_and_revokes_it_on_stop(self):
-        core, station, _clock, decision = self._armed_station(owner="teleop")
+        core, station, clock, decision = self._armed_station(owner="teleop")
         grant = decision.ownership
         snapshot = core.snapshot()
         self.assertIsInstance(decision, ArmDecision)
@@ -103,7 +102,8 @@ class OwnershipTests(unittest.TestCase):
         target = self._target(0, grant)
         self.assertTrue(station.submit(target).accepted)
         station.writes.clear()
-        self.assertEqual(station.consume(), target)
+        clock.value = 0.01
+        self.assertEqual(station.consume().requested, target)
         self.assertEqual(len(station.writes), len(self.specs))
         self.assertIs(core.snapshot().state, State.MOVING)
 
@@ -122,7 +122,7 @@ class OwnershipTests(unittest.TestCase):
 
     def test_failed_arm_never_mints_and_repeated_arm_does_not_advance(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -258,7 +258,7 @@ class OwnershipTests(unittest.TestCase):
                 self.assertEqual(station.writes, [])
 
     def test_lifecycle_discards_old_pending_and_requires_current_grant_for_dispatch(self):
-        core, station, _clock, decision = self._armed_station()
+        core, station, clock, decision = self._armed_station()
         old_target = self._target(5, decision.ownership)
         self.assertTrue(station.submit(old_target).accepted)
         self.assertIs(core.snapshot().pending_target, old_target)
@@ -283,7 +283,8 @@ class OwnershipTests(unittest.TestCase):
 
         fresh_target = self._target(6, current.ownership)
         self.assertTrue(station.submit(fresh_target).accepted)
-        self.assertEqual(station.consume(), fresh_target)
+        clock.value += 0.01
+        self.assertEqual(station.consume().requested, fresh_target)
         self.assertEqual(len(station.writes), len(self.specs))
 
 

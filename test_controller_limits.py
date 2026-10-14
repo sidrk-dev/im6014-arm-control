@@ -19,7 +19,7 @@ class PositionLimitTests(unittest.TestCase):
     def _armed_station(self, specs, clock=None):
         if clock is None:
             clock = DeterministicClock(0.0)
-        core = JointCore(specs, clock=clock)
+        core = JointCore(specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -60,21 +60,23 @@ class PositionLimitTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             JointSpec("J1", 0, JointMap(1, 1, 0.0))
         with self.assertRaises(ValueError):
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), object())
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), object(), max_velocity_rad_s=1000000.0)
 
     def test_endpoints_and_zero_width_are_accepted_but_adjacent_values_reject(self):
         limits = (PositionLimits(-0.4, 0.2), PositionLimits(0.1, 0.1))
-        specs = tuple(
-            JointSpec(f"J{i + 1}", i, JointMap(1, 1, 0.0), limit)
-            for i, limit in enumerate(limits)
+        specs = (
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), limits[0], max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1, 1, -0.1), limits[1], max_velocity_rad_s=1000000.0),
         )
-        core, station, _ = self._armed_station(specs)
+        core, station, clock = self._armed_station(specs)
         endpoint_target = self._target(core, 0, (
             JointTarget(-0.4, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
         ))
         self.assertTrue(station.submit(endpoint_target).accepted)
-        self.assertEqual(station.consume(), endpoint_target)
+        clock.value = 0.01
+        first_reference = station.consume()
+        self.assertEqual(first_reference.requested, endpoint_target)
         accepted_writes = list(station.writes)
         self.assertEqual(len(accepted_writes), 2)
         other_endpoint = self._target(core, 1, (
@@ -82,7 +84,9 @@ class PositionLimitTests(unittest.TestCase):
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
         ))
         self.assertTrue(station.submit(other_endpoint).accepted)
-        self.assertEqual(station.consume(), other_endpoint)
+        clock.value = 0.02
+        second_reference = station.consume()
+        self.assertEqual(second_reference.requested, other_endpoint)
         accepted_writes = list(station.writes)
         self.assertEqual(len(accepted_writes), 4)
 
@@ -107,8 +111,8 @@ class PositionLimitTests(unittest.TestCase):
 
     def test_bad_second_joint_rejects_whole_vector_and_does_not_advance_sequence(self):
         specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.5, 0.5)),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), PositionLimits(-0.25, 0.25)),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.5, 0.5), max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), PositionLimits(-0.25, 0.25), max_velocity_rad_s=1000000.0),
         )
         core, station, _ = self._armed_station(specs)
         pending = self._target(core, 3, (
@@ -136,7 +140,7 @@ class PositionLimitTests(unittest.TestCase):
         self.assertEqual(station.writes, [])
 
     def test_codec_invalid_position_inside_configured_interval_keeps_codec_rejection(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),)
         core, station, _ = self._armed_station(specs)
         valid = self._target(core, 1, (JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(valid).accepted)
@@ -150,8 +154,8 @@ class PositionLimitTests(unittest.TestCase):
         self.assertEqual(station.writes, [])
 
     def test_arm_rejects_measured_pose_outside_interval_without_grant_or_generation_change(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.05, 0.05)),)
-        core = JointCore(specs, clock=DeterministicClock(0.0))
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.05, 0.05), max_velocity_rad_s=1000000.0),)
+        core = JointCore(specs, clock=DeterministicClock(0.0), max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -172,8 +176,8 @@ class PositionLimitTests(unittest.TestCase):
             for direction in (-1, 1):
                 with self.subTest(reduction=reduction, direction=direction):
                     mapping = JointMap(reduction, direction, 0.37)
-                    spec = JointSpec("J1", 0, mapping, PositionLimits(-0.5, 0.5))
-                    core, station, _ = self._armed_station((spec,))
+                    spec = JointSpec("J1", 0, mapping, PositionLimits(-0.5, 0.5), max_velocity_rad_s=1000000.0)
+                    core, station, clock = self._armed_station((spec,))
                     requested = JointTarget(0.2, 0.0, 0.0, 1.0, 0.1)
                     target = self._target(core, 0, (requested,))
                     expected_output = mapping.to_output(requested)
@@ -189,7 +193,9 @@ class PositionLimitTests(unittest.TestCase):
                     )
 
                     self.assertTrue(station.submit(target).accepted)
-                    self.assertEqual(station.consume(), target)
+                    clock.value = 0.01
+                    reference = station.consume()
+                    self.assertEqual(reference.requested, target)
                     self.assertEqual(station.writes, [expected_packet])
 
 

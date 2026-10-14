@@ -55,9 +55,9 @@ When passive identity metadata is incomplete, inspection reports it as unverifie
 
 ## Controller lifecycle and freshness
 
-`JointCore` owns a fixed ordered set of unique `JointSpec` names and motor IDs. Each spec requires a frozen `PositionLimits(minimum_rad, maximum_rad)` interval in joint radians. The bounds must be finite real numbers excluding booleans, and the minimum may equal the maximum. Its states and immutable `Snapshot` are transport-free; `connected(SourceIdentity(...))` records a declaration and never opens hardware. `Decision` evaluates to its `accepted` value.
+`JointCore` owns a fixed ordered set of unique `JointSpec` names and motor IDs. Each spec requires a frozen `PositionLimits(minimum_rad, maximum_rad)` interval in joint radians and a finite positive `max_velocity_rad_s`. The bounds must be finite real numbers excluding booleans, and the position minimum may equal the maximum. The core also requires a finite positive `max_reference_step_s`; neither limit has a default. Its states and immutable `Snapshot` are transport-free; `connected(SourceIdentity(...))` records a declaration and never opens hardware. `Decision` evaluates to its `accepted` value.
 
-Connect, check, and arm are distinct steps. `receive(id, JointSample(...), MotorHealth(...))` stamps each valid observation with the core's monotonic clock. `checked()` needs fresh healthy Stop-mode feedback from every active joint. `arm(owner="teleop")` requires fresh healthy Stop-mode feedback and a measured position inside every configured interval; a position-limit rejection leaves the core READY without granting ownership or advancing its generation. A successful arm returns an `ArmDecision` containing the immutable `Ownership` grant. The owner must be a non-empty string. Snapshot exposes that same grant object while it is active and its `ownership_generation` watermark. The configurable maximum age defaults to 0.5 seconds; this software policy is not a measured loop-rate guarantee. Snapshot `feedback_ages_s` preserves joint order and uses `None` before receipt. Timestamp zero is valid. Unknown IDs and invalid records do not refresh timestamps.
+Connect, check, and arm are distinct steps. `receive(id, JointSample(...), MotorHealth(...))` stamps each valid observation with the core's monotonic clock. `checked()` needs fresh healthy Stop-mode feedback from every active joint. `arm(owner="teleop")` requires fresh healthy Stop-mode feedback, a measured position inside every configured interval, and a representable codec command for every seed. A position-limit rejection leaves the core READY without granting ownership or advancing its generation. A successful arm returns an `ArmDecision` containing the immutable `Ownership` grant and seeds the reference history from the measured joint positions at arm time. The owner must be a non-empty string. Snapshot exposes that same grant object while it is active and its `ownership_generation` watermark. The configurable maximum feedback age defaults to 0.5 seconds; this software policy is not a measured loop-rate guarantee. Snapshot `feedback_ages_s` preserves joint order and uses `None` before receipt. Timestamp zero is valid. Unknown IDs and invalid records do not refresh timestamps.
 
 Call `tick()` to fault READY, ARMED, or MOVING when feedback ages out. Stop, the first attributed fault, and disconnect revoke any active ownership grant and clear pending work. Repeated revocation while no grant is active does not advance the generation. Disconnect/reconnect and healthy packets do not clear a fault latch or create a grant. Recovery requires `begin_check(acknowledge_fault=True)` followed by fresh healthy Stop feedback and successful `checked()`; an explicit `arm(owner=...)` is still required afterward.
 
@@ -69,7 +69,11 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 
 ## Latest target
 
-`Target(sequence, joints, created_at_s, expires_at_s, ownership)` contains an immutable complete tuple of `JointTarget` values in configured order and the grant from an explicit arm. Both finite timestamps use the station's monotonic clock domain, and expiry must be later than creation. Submission checks lifecycle and feedback first, then complete vector shape and timestamps; a future creation returns `INVALID_ARGUMENT`, while an expired target, including deadline equality, returns `EXPIRED`. It then checks ownership by object identity, followed by every requested joint position against its closed configured interval, before mapping, codec validation, and sequence ordering. An out-of-range element returns `POSITION_LIMIT` for the whole vector; no clipping occurs. Exact endpoints pass the interval check when the existing codec also accepts their mapped values. This is requested-domain validation in joint radians; it does not guarantee exact inward packet quantization or physical travel. An equal reconstructed record or a grant from another core returns `INVALID_OWNERSHIP`. Rejected replacement preserves the pending target and sequence watermark. In ARMED or MOVING, consumption rechecks ownership and returns a valid pending target once before entering MOVING. Stop, the first attributed fault, and disconnect revoke the active grant and clear pending storage. Consumption samples monotonic time once for both freshness and expiry; it discards an expired pending target without returning it, latching a fault, or changing the watermark. A regressing clock raises before a target is released. The core produces no serial I/O; the test fake adapter demonstrates packet construction separately. Target sequence is an exact integer from 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; malformed or unrepresentable payloads return `INVALID_ARGUMENT` before sequence ordering. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark; use the new current grant after recovery to observe duplicate-sequence rejection.
+`Target(sequence, joints, created_at_s, expires_at_s, ownership)` contains an immutable complete tuple of requested `JointTarget` values in configured order and the grant from an explicit arm. Both finite timestamps use the station's monotonic clock domain, and expiry must be later than creation. Submission checks lifecycle and feedback first, then complete vector shape and timestamps; a future creation returns `INVALID_ARGUMENT`, while an expired target, including deadline equality, returns `EXPIRED`. It then checks ownership by object identity, followed by every requested joint position against its closed configured interval, before mapping, codec validation, and sequence ordering. An out-of-range element returns `POSITION_LIMIT` for the whole vector; no clipping occurs. Exact endpoints pass the interval check when the existing codec also accepts their mapped values. An equal reconstructed record or a grant from another core returns `INVALID_OWNERSHIP`. Rejected replacement preserves the pending request and sequence watermark.
+
+`consume_target()` returns a frozen `Reference(requested, joints, accepted_at_s, issued_at_s)`. `requested` preserves the accepted `Target`; `joints` contains the complete issued vector in joint units. A planning clock sample bounds each joint's position change to `max_velocity_rad_s * min(plan_time - last_issue, max_reference_step_s)`, clips desired velocity to the same signed velocity limit, and intersects the position corridor with the configured interval. The existing codec projectors select inward representable position and speed codes. The core verifies that normal command encoding preserves those exact codes and that decoded joint values remain inside the closed corridor. It builds the whole vector before changing reference history or clearing the pending request. If no code fits or any joint fails validation, it returns `None`, emits no partial issue, and retains the complete pending request for a later feasible tick. After projection, one final monotonic sample runs the freshness tick and checks active state, current ownership generation, and the exact target deadline; reaching the deadline discards the pending request while retaining its sequence, and stale feedback follows the existing fault and revocation rule. These release checks share that final sample. `Reference.issued_at_s` and history time use it as well. The candidate remains bounded by the earlier planning interval, so computation time only makes the step more conservative. An already expired target can still return after the initial guard sample; a successful projection uses planning and final-release samples. A clock regression during calculation raises before release and leaves candidate history uncommitted. Acceptance time never resets the last issue time, so same-tick submit/consume streams can progress when the monotonic clock advances between issues, while queued and idle time are capped by `max_reference_step_s`. Stop, the first attributed fault, disconnect, and beginning a check clear pending work and reference history; a new explicit arm reseeds from fresh measurements.
+
+These are bounded mathematical references and packet-grid checks. They do not certify physical speed, acceleration, tracking error, torque, stopping distance, or mechanical travel. The core produces no serial I/O; test-only fake adapters demonstrate packet construction. Target sequence is an exact integer from 0 through 2**64 - 1, excluding bool. `Snapshot.last_sequence` starts at -1 and advances only when a fully valid strictly newer target is accepted. Fully valid duplicate or older sequences reject with `DUPLICATE_OR_OLDER`; malformed or unrepresentable requested payloads return `INVALID_ARGUMENT` before sequence ordering. Invalid higher-numbered targets do not consume a sequence number. Stop, fault, consumption, disconnect and acknowledged recovery retain the watermark; use the new current grant after recovery to observe duplicate-sequence rejection.
 
 ### Offline controller example
 
@@ -77,7 +81,11 @@ When opening fails and cleanup cannot confirm closure, `open_managed_port` raise
 from joint_controller import JointCore, JointSpec, MotorHealth, PositionLimits, SourceIdentity, Target, State
 from joint_mapping import JointMap, JointSample, JointTarget
 
-core = JointCore((JointSpec("J1", 0, JointMap(3, -1, .25), PositionLimits(-0.5, 0.5)),), clock=lambda: 0.0)
+now = [0.0]
+core = JointCore(
+    (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.5, 0.5), max_velocity_rad_s=0.2),),
+    clock=lambda: now[0], max_reference_step_s=0.02,
+)
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 assert core.begin_check()
@@ -86,11 +94,17 @@ assert core.checked()
 grant = core.arm(owner="example")
 assert grant and grant.ownership is not None
 target = Target(
-    6, (JointTarget(.1, 1, -6, 18, 4.5),),
-    created_at_s=0.0, expires_at_s=1.0, ownership=grant.ownership,
+    6, (JointTarget(.1, 1, 0, 18, 4.5),),
+    created_at_s=0.01, expires_at_s=1.0, ownership=grant.ownership,
 )
+now[0] = 0.01
 assert core.submit_target(target)
-assert core.consume_target() is target
+reference = core.consume_target()
+assert reference is not None
+assert reference.requested is target
+assert 0.0 < reference.joints[0].q_rad <= 0.002
+assert abs(reference.joints[0].dq_rad_s) <= 0.2
+assert reference.accepted_at_s == reference.issued_at_s == 0.01
 assert core.snapshot().state is State.MOVING
 assert core.consume_target() is None
 assert core.stop()
@@ -99,7 +113,7 @@ assert core.snapshot().ownership is None
 assert core.snapshot().ownership_generation == 2
 ```
 
-This example performs no serial operations. A station adapter must validate its own physical setup and own packet transmission when later milestones add one.
+This example performs no serial operations. Its limits are illustrative controller parameters. A station adapter must validate its own physical setup and own packet transmission when later milestones add one.
 
 ## Core and ownership limits
 

@@ -1,0 +1,1 @@
+Parent executed the current docs/joint-api.md Python example with existing interpreter and -B. All assertions passed; fixture source and clock only; no transport instantiated.

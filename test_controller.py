@@ -21,7 +21,6 @@ from joint_mapping import JointMap, JointSample, JointTarget
 SAMPLE = JointSample(0.1, 0.0, 0.0)
 HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False)
 SOURCE = SourceIdentity("fixture", "controller-test", 1)
-# Wide values keep legacy tests focused on codec rejection; they are not arm limits.
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
@@ -64,9 +63,9 @@ class FakeStation:
         return self.core.submit_target(target)
 
     def consume(self):
-        target = self.core.consume_target()
-        if target is not None:
-            for spec, joint_target in zip(self.core.joint_specs, target.joints):
+        reference = self.core.consume_target()
+        if reference is not None:
+            for spec, joint_target in zip(self.core.joint_specs, reference.joints):
                 output = spec.mapping.to_output(joint_target)
                 self.writes.append(
                     command(
@@ -80,7 +79,7 @@ class FakeStation:
                         kp=output.kp,
                     )
                 )
-        return target
+        return reference
 
     def stop(self):
         decision = self.core.stop()
@@ -105,8 +104,8 @@ class DeterministicClock:
 class FeedbackAgeTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
 
     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
@@ -114,6 +113,7 @@ class FeedbackAgeTests(unittest.TestCase):
             self.specs,
             clock=clock,
             feedback_max_age_s=feedback_max_age_s,
+            max_reference_step_s=1000000.0,
         )
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
@@ -123,9 +123,9 @@ class FeedbackAgeTests(unittest.TestCase):
     def test_feedback_age_configuration_is_finite_positive_and_typed(self):
         for value in (True, False, 0, -1.0, math.nan, math.inf, -math.inf, 10**400, "1"):
             with self.subTest(value=repr(value)), self.assertRaises(ValueError):
-                JointCore(self.specs, feedback_max_age_s=value)
+                JointCore(self.specs, feedback_max_age_s=value, max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointCore(self.specs, clock=0)
+            JointCore(self.specs, clock=0, max_reference_step_s=1000000.0)
 
     def test_zero_timestamp_and_exact_freshness_boundary(self):
         clock = DeterministicClock(0.0)
@@ -147,7 +147,7 @@ class FeedbackAgeTests(unittest.TestCase):
 
     def test_checked_rejects_feedback_older_than_limit(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0, max_reference_step_s=1000000.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
@@ -250,9 +250,10 @@ class FeedbackAgeTests(unittest.TestCase):
 
 
 def core_at(test, state, clock=None):
+    created_clock = clock is None
     if clock is None:
         clock = DeterministicClock(0.0)
-    core = JointCore(test.specs, clock=clock)
+    core = JointCore(test.specs, clock=clock, max_reference_step_s=1000000.0)
     station = FakeStation(core)
     if state is State.DISCONNECTED:
         return core
@@ -272,9 +273,13 @@ def core_at(test, state, clock=None):
         return core
     if state is State.ARMED:
         test.assertTrue(station.arm(owner="test").accepted)
+        if created_clock:
+            clock.value += 0.01
         return core
     if state is State.MOVING:
         test.assertTrue(station.arm(owner="test").accepted)
+        if created_clock:
+            clock.value += 0.01
         target = Target(0, (
             JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),
@@ -300,24 +305,24 @@ class ControllerStateTests(unittest.TestCase):
     def setUp(self):
         self.clock = lambda: 0.0
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
 
 
     def test_joint_set_is_nonempty_unique_and_owned(self):
         mapping = JointMap(1, 1, 0.0)
         with self.assertRaises(ValueError):
-            JointCore(())
+            JointCore((), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS), JointSpec("J1", 1, mapping, WIDE_LIMITS)))
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0), JointSpec("J1", 1, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0)), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS), JointSpec("J2", 0, mapping, WIDE_LIMITS)))
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0), JointSpec("J2", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0)), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointSpec("J1", True, mapping, WIDE_LIMITS)
+            JointSpec("J1", True, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0)
 
-        supplied = [JointSpec("J1", 0, mapping, WIDE_LIMITS)]
-        core = JointCore(supplied, clock=self.clock)
+        supplied = [JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0)]
+        core = JointCore(supplied, clock=self.clock, max_reference_step_s=1000000.0)
         supplied.clear()
         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
 
@@ -334,7 +339,7 @@ class ControllerStateTests(unittest.TestCase):
             SourceIdentity("other", "x", 1)
 
     def test_fake_lifecycle_writes_only_after_accepted_actions(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         expected = [command(spec.motor_id, mode=0) for spec in self.specs]
 
@@ -368,7 +373,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertTrue(core.arm(owner="test"))
 
     def test_check_requires_every_healthy_joint_in_stop_mode(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_step_s=1000000.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.begin_check().accepted)
@@ -407,7 +412,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertIs(core.snapshot().state, State.READY)
 
     def test_fault_survives_stop_disconnect_reconnect_and_healthy_packets(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -449,7 +454,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertFalse(core.snapshot().fault_latched)
 
     def test_disconnect_and_new_connection_invalidate_observations(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_step_s=1000000.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
@@ -464,7 +469,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertTrue(prior.joints[0].valid)
 
     def test_snapshots_are_immutable_owned_values(self):
-        core = JointCore(self.specs, clock=self.clock)
+        core = JointCore(self.specs, clock=self.clock, max_reference_step_s=1000000.0)
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
         before = core.snapshot()
@@ -520,8 +525,8 @@ class ControllerStateTests(unittest.TestCase):
 class JointFaultTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
 
     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
@@ -531,6 +536,7 @@ class JointFaultTests(unittest.TestCase):
             self.specs,
             clock=clock,
             feedback_max_age_s=feedback_max_age_s,
+            max_reference_step_s=1000000.0,
         )
         self.assertTrue(core.begin_connect().accepted)
         self.assertTrue(core.connected(SOURCE).accepted)
@@ -802,7 +808,7 @@ class JointFaultTests(unittest.TestCase):
 
     def test_successful_recovery_clears_fault_causes(self):
         clock = DeterministicClock(0.0)
-        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0)
+        core = JointCore(self.specs, clock=clock, feedback_max_age_s=1.0, max_reference_step_s=1000000.0)
         station = FakeStation(core)
         self.assertTrue(station.connect().accepted)
         self.assertTrue(station.check().accepted)
@@ -838,12 +844,12 @@ class JointFaultTests(unittest.TestCase):
 
     def test_independent_second_core_unchanged_by_fault(self):
         specs2 = (
-            JointSpec("J3", 2, JointMap(1, 1, 0.0), WIDE_LIMITS),
-            JointSpec("J4", 3, JointMap(1, 1, 0.0), WIDE_LIMITS),
+            JointSpec("J3", 2, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
         )
         clock = DeterministicClock(0.0)
-        core1 = JointCore(self.specs, clock=clock)
-        core2 = JointCore(specs2, clock=clock)
+        core1 = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)
+        core2 = JointCore(specs2, clock=clock, max_reference_step_s=1000000.0)
 
         station1 = FakeStation(core1)
         station2 = FakeStation(core2)
