@@ -4,9 +4,9 @@ from unittest.mock import patch
 
 import joint_controller
 from im6014_codec import decode_command, raw_to_position, raw_to_rpm
-from joint_controller import (
+from joint_controller import JointCore
+from joint_records import (
     DecisionCode,
-    JointCore,
     JointSpec,
     MotorHealth,
     PositionLimits,

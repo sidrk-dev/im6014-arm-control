@@ -3,10 +3,10 @@ from dataclasses import FrozenInstanceError
 import math
 
 from im6014_codec import command
-from joint_controller import (
+from joint_controller import JointCore
+from joint_records import (
     CommunicationFailure,
     DecisionCode,
-    JointCore,
     JointFault,
     JointSpec,
     MotorHealth,

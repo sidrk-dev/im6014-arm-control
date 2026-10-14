@@ -2,14 +2,8 @@ import math
 import unittest
 
 from im6014_codec import command
-from joint_controller import (
-    DecisionCode,
-    JointCore,
-    JointSpec,
-    PositionLimits,
-    State,
-    Target,
-)
+from joint_controller import JointCore
+from joint_records import DecisionCode, JointSpec, PositionLimits, State, Target
 from joint_mapping import JointMap, JointTarget
 
 from test_controller import DeterministicClock, FakeStation, WIDE_LIMITS

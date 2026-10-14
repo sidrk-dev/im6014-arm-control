@@ -78,8 +78,11 @@ These are bounded mathematical references and packet-grid checks. They do not ce
 ### Offline controller example
 
 ```python
-from joint_controller import JointCore, JointSpec, MotorHealth, PositionLimits, SourceIdentity, Target, State
+from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
+from joint_records import (
+    JointSpec, MotorHealth, PositionLimits, SourceIdentity, Target, State,
+)
 
 now = [0.0]
 core = JointCore(

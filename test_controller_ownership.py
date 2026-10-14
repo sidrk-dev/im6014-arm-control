@@ -1,11 +1,11 @@
 import unittest
 from dataclasses import FrozenInstanceError
 
-from joint_controller import (
+from joint_controller import JointCore
+from joint_records import (
     ArmDecision,
     CommunicationFailure,
     DecisionCode,
-    JointCore,
     JointSpec,
     JointStatus,
     MotorHealth,
