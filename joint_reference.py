@@ -79,15 +79,17 @@ def plan_reference(
     requested: tuple[JointTarget, ...],
     previous: tuple[JointTarget, ...],
     previous_rates: tuple[float, ...],
+    measured_positions: tuple[float, ...],
     elapsed_s: float,
     max_step_s: float,
     allow_bootstrap: bool,
 ) -> tuple[JointTarget, ...] | None:
     """Plan a complete bounded candidate vector under S2 semantic contract.
 
-    Computes independent dq and q corridors, projects to inward representable
-    codec values, validates roundtrip and closed bounds, and checks progress
-    against static nearest-grid goals to prevent quantization starvation.
+    Computes independent dq and q corridors, intersects with position limits,
+    velocity caps, acceleration rate bounds, and measured-position lead limits.
+    Projects to inward representable codec values, validates roundtrip and closed
+    bounds, and checks progress against static nearest-grid goals.
     A candidate still needs final release validation; a tick need not progress.
     """
     if (
@@ -104,8 +106,20 @@ def plan_reference(
         or max_step_s <= 0.0
     ):
         return None
-    if len(specs) != len(requested) or len(specs) != len(previous) or len(specs) != len(previous_rates):
+    if (
+        len(specs) != len(requested)
+        or len(specs) != len(previous)
+        or len(specs) != len(previous_rates)
+        or len(specs) != len(measured_positions)
+    ):
         return None
+    for q_meas in measured_positions:
+        if (
+            isinstance(q_meas, bool)
+            or not isinstance(q_meas, (int, float))
+            or not math.isfinite(q_meas)
+        ):
+            return None
 
     h = min(elapsed_s, max_step_s)
     candidate_joints: list[JointTarget] = []
@@ -114,6 +128,7 @@ def plan_reference(
         req = requested[i]
         prev = previous[i]
         w0 = previous_rates[i]
+        q_meas = float(measured_positions[i])
         mapping = spec.mapping
         direction = mapping.direction
         limits = spec.position_limits
@@ -121,6 +136,7 @@ def plan_reference(
         U = limits.maximum_rad
         V = spec.max_velocity_rad_s
         A = spec.max_acceleration_rad_s2
+        lead = spec.max_measured_lead_rad
         q0 = prev.q_rad
         d0 = prev.dq_rad_s
 
@@ -128,9 +144,17 @@ def plan_reference(
             V_h = V * h
             A_h = A * h
             A_e = A * elapsed_s
+            q_lead_min = q_meas - lead
+            q_lead_max = q_meas + lead
         except (ArithmeticError, ValueError):
             return None
-        if not math.isfinite(V_h) or not math.isfinite(A_h) or not math.isfinite(A_e):
+        if not (
+            math.isfinite(V_h)
+            and math.isfinite(A_h)
+            and math.isfinite(A_e)
+            and math.isfinite(q_lead_min)
+            and math.isfinite(q_lead_max)
+        ):
             return None
 
         try:
@@ -177,8 +201,8 @@ def plan_reference(
         ):
             return None
 
-        q_min = max(L, q_v_min, q_w_min)
-        q_max = min(U, q_v_max, q_w_max)
+        q_min = max(L, q_v_min, q_w_min, q_lead_min)
+        q_max = min(U, q_v_max, q_w_max, q_lead_max)
         if q_min > q_max:
             return None
 
@@ -198,6 +222,8 @@ def plan_reference(
         if abs(cand.q_rad - q0) > V_h:
             return None
         if abs(cand.dq_rad_s - d0) > A_h:
+            return None
+        if abs(cand.q_rad - q_meas) > lead:
             return None
 
         try:

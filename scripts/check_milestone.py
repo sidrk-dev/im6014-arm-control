@@ -23,6 +23,7 @@ CHECKS = {
     'C09': 'test_controller_limits',
     'C10': 'test_controller_velocity',
     'C11': 'test_controller_acceleration',
+    'C12': 'test_controller_lead',
 }
 
 

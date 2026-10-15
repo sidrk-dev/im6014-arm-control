@@ -461,11 +461,13 @@ class JointCore:
             return None
 
         elapsed = now - self._history.issued_at_s
+        measured_positions = tuple(joint.sample.q_rad for joint in self._observations)
         candidate_joints = plan_reference(
             specs=self._specs,
             requested=target.joints,
             previous=self._history.joints,
             previous_rates=self._history.position_rates_rad_s,
+            measured_positions=measured_positions,
             elapsed_s=elapsed,
             max_step_s=self._max_reference_step_s,
             allow_bootstrap=(self._history.kind == "seed"),
@@ -503,6 +505,12 @@ class JointCore:
         )
         if rates is None:
             return None
+
+        for spec, cand, obs in zip(self._specs, candidate_joints, self._observations):
+            if obs.sample is None or not math.isfinite(obs.sample.q_rad):
+                return None
+            if abs(cand.q_rad - obs.sample.q_rad) > spec.max_measured_lead_rad:
+                return None
 
         reference = Reference(
             target,
