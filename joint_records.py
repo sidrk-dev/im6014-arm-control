@@ -109,6 +109,7 @@ class JointSpec:
     mapping: JointMap
     position_limits: PositionLimits
     max_velocity_rad_s: float
+    max_acceleration_rad_s2: float
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -129,6 +130,17 @@ class JointSpec:
         if not math.isfinite(value) or value <= 0.0:
             raise ValueError("max_velocity_rad_s must be finite and positive")
         object.__setattr__(self, "max_velocity_rad_s", value)
+
+        accel = self.max_acceleration_rad_s2
+        if isinstance(accel, bool) or not isinstance(accel, (int, float)):
+            raise ValueError("max_acceleration_rad_s2 must be finite and positive")
+        try:
+            accel = float(accel)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_acceleration_rad_s2 must be finite and positive") from exc
+        if not math.isfinite(accel) or accel <= 0.0:
+            raise ValueError("max_acceleration_rad_s2 must be finite and positive")
+        object.__setattr__(self, "max_acceleration_rad_s2", accel)
 
 @dataclass(frozen=True)
 class JointFault:

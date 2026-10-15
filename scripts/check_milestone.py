@@ -22,6 +22,7 @@ CHECKS = {
     'C08': 'test_controller_ownership',
     'C09': 'test_controller_limits',
     'C10': 'test_controller_velocity',
+    'C11': 'test_controller_acceleration',
 }
 
 

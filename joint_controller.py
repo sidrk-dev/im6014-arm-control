@@ -8,16 +8,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 import math
 import time
+from typing import Literal
 
-from im6014_codec import (
-    command,
-    decode_command,
-    project_position_raw,
-    project_speed_raw,
-    raw_to_position,
-    raw_to_rpm,
-)
-from joint_mapping import JointSample, JointTarget, OutputSample
+from im6014_codec import command
+from joint_mapping import JointSample, JointTarget
 from joint_records import (
     ArmDecision,
     CommunicationFailure,
@@ -34,12 +28,25 @@ from joint_records import (
     State,
     Target,
 )
+from joint_reference import (
+    plan_reference,
+    position_rates_at_release,
+    project_joint_target,
+)
 
 
 @dataclass(frozen=True)
 class _PendingTarget:
     target: Target
     accepted_at_s: float
+
+
+@dataclass(frozen=True)
+class _ReferenceHistory:
+    joints: tuple[JointTarget, ...]
+    issued_at_s: float
+    kind: Literal["seed", "issued"]
+    position_rates_rad_s: tuple[float, ...]
 
 
 class JointCore:
@@ -100,8 +107,7 @@ class JointCore:
         self._last_now: float | None = None
         self._faults: dict[str, JointFault] = {}
         self._pending_target: _PendingTarget | None = None
-        self._reference_positions: tuple[float, ...] | None = None
-        self._last_reference_at_s: float | None = None
+        self._history: _ReferenceHistory | None = None
         self._last_sequence: int = -1
         self._ownership: Ownership | None = None
         self._ownership_generation = 0
@@ -131,8 +137,7 @@ class JointCore:
         self._observations = [JointStatus() for _ in self._specs]
 
     def _clear_reference(self) -> None:
-        self._reference_positions = None
-        self._last_reference_at_s = None
+        self._history = None
 
     def _latch_joint_fault(
         self,
@@ -332,19 +337,25 @@ class JointCore:
                     position=output.q_rad,
                     kp=output.kp,
                 )
-                self._project_joint_target(
+                project_joint_target(
                     spec,
                     seed,
                     spec.position_limits.minimum_rad,
                     spec.position_limits.maximum_rad,
+                    -spec.max_velocity_rad_s,
+                    spec.max_velocity_rad_s,
                 )
         except (ArithmeticError, ValueError):
             return self._arm_rejected(DecisionCode.INVALID_ARGUMENT)
         self._state = State.ARMED
         self._ownership_generation += 1
         self._ownership = Ownership(owner, self._ownership_generation)
-        self._reference_positions = tuple(joint.sample.q_rad for joint in self._observations)
-        self._last_reference_at_s = now
+        self._history = _ReferenceHistory(
+            joints=tuple(JointTarget(joint.sample.q_rad, 0.0, 0.0, 0.0, 0.0) for joint in self._observations),
+            issued_at_s=now,
+            kind="seed",
+            position_rates_rad_s=tuple(0.0 for _ in self._specs),
+        )
         return ArmDecision(True, DecisionCode.ACCEPTED, self._ownership)
 
     def tick(self) -> Decision:
@@ -425,60 +436,6 @@ class JointCore:
         self._last_sequence = target.sequence
         return self._accepted()
 
-    def _project_joint_target(
-        self,
-        spec: JointSpec,
-        target: JointTarget,
-        q_min: float,
-        q_max: float,
-    ) -> JointTarget:
-        mapping = spec.mapping
-        direction = mapping.direction
-        velocity = spec.max_velocity_rad_s
-        wanted_speed = max(-velocity, min(velocity, target.dq_rad_s))
-
-        def position_to_joint(output_rad: float) -> float:
-            return mapping.from_output(OutputSample(output_rad, 0.0, 0.0)).q_rad
-
-        def speed_to_joint(output_rpm: float) -> float:
-            return mapping.from_output(OutputSample(0.0, output_rpm, 0.0)).dq_rad_s
-
-        raw_position = project_position_raw(
-            target.q_rad, q_min, q_max, position_to_joint, direction
-        )
-        raw_speed = project_speed_raw(
-            wanted_speed, -velocity, velocity, speed_to_joint, direction
-        )
-        if raw_position is None or raw_speed is None:
-            raise ValueError("no representable reference fits the configured bounds")
-
-        safe_target = JointTarget(
-            position_to_joint(raw_to_position(raw_position)),
-            speed_to_joint(raw_to_rpm(raw_speed)),
-            target.tau_nm,
-            target.kp,
-            target.kd,
-        )
-        output = mapping.to_output(safe_target)
-        frame = command(
-            spec.motor_id,
-            mode=1,
-            rpm=output.rpm,
-            kd=output.kd,
-            torque=output.tau_nm,
-            watchdog=True,
-            position=output.q_rad,
-            kp=output.kp,
-        )
-        decoded = decode_command(frame)
-        if decoded["raw_position"] != raw_position or decoded["raw_rpm"] != raw_speed:
-            raise ValueError("normal command encoding changed a projected grid code")
-        if not q_min <= safe_target.q_rad <= q_max:
-            raise ValueError("projected position violates its closed bounds")
-        if not -velocity <= safe_target.dq_rad_s <= velocity:
-            raise ValueError("projected speed violates its closed bounds")
-        return safe_target
-
     def consume_target(self) -> Reference | None:
         if self._state not in (State.ARMED, State.MOVING):
             return None
@@ -500,23 +457,20 @@ class JointCore:
         if now >= target.expires_at_s:
             self._pending_target = None
             return None
-        if self._reference_positions is None or self._last_reference_at_s is None:
+        if self._history is None:
             return None
 
-        elapsed = now - self._last_reference_at_s
-        step_time = min(elapsed, self._max_reference_step_s)
-        try:
-            candidate_joints = []
-            for spec, requested, q_reference in zip(
-                self._specs, target.joints, self._reference_positions
-            ):
-                step = spec.max_velocity_rad_s * step_time
-                lower = max(spec.position_limits.minimum_rad, q_reference - step)
-                upper = min(spec.position_limits.maximum_rad, q_reference + step)
-                candidate_joints.append(
-                    self._project_joint_target(spec, requested, lower, upper)
-                )
-        except (ArithmeticError, ValueError):
+        elapsed = now - self._history.issued_at_s
+        candidate_joints = plan_reference(
+            specs=self._specs,
+            requested=target.joints,
+            previous=self._history.joints,
+            previous_rates=self._history.position_rates_rad_s,
+            elapsed_s=elapsed,
+            max_step_s=self._max_reference_step_s,
+            allow_bootstrap=(self._history.kind == "seed"),
+        )
+        if candidate_joints is None:
             return None
 
         release_now = self._now()
@@ -539,14 +493,29 @@ class JointCore:
             self._pending_target = None
             return None
 
+        release_elapsed = release_now - self._history.issued_at_s
+        rates = position_rates_at_release(
+            specs=self._specs,
+            previous=self._history.joints,
+            previous_rates=self._history.position_rates_rad_s,
+            candidate=candidate_joints,
+            elapsed_s=release_elapsed,
+        )
+        if rates is None:
+            return None
+
         reference = Reference(
             target,
-            tuple(candidate_joints),
+            candidate_joints,
             pending.accepted_at_s,
             release_now,
         )
-        self._reference_positions = tuple(joint.q_rad for joint in reference.joints)
-        self._last_reference_at_s = release_now
+        self._history = _ReferenceHistory(
+            joints=reference.joints,
+            issued_at_s=release_now,
+            kind="issued",
+            position_rates_rad_s=rates,
+        )
         self._pending_target = None
         self._state = State.MOVING
         return reference

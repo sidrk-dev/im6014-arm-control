@@ -2,7 +2,7 @@ import math
 import unittest
 from unittest.mock import patch
 
-import joint_controller
+import joint_reference
 from im6014_codec import decode_command, raw_to_position, raw_to_rpm
 from joint_controller import JointCore
 from joint_records import (
@@ -60,20 +60,20 @@ class ReferenceVelocityTests(unittest.TestCase):
         limits = PositionLimits(-1.0, 1.0)
         for value in (True, False, 0, -1.0, math.nan, math.inf, -math.inf, 10**400, "1"):
             with self.subTest(value=repr(value)), self.assertRaises(ValueError):
-                JointSpec("J1", 0, mapping, limits, value)
+                JointSpec("J1", 0, mapping, limits, value, max_acceleration_rad_s2=1000000.0)
             with self.subTest(step=value), self.assertRaises(ValueError):
                 JointCore(
-                    (JointSpec("J1", 0, mapping, limits, 1.0),),
+                    (JointSpec("J1", 0, mapping, limits, 1.0, 1000000.0),),
                     max_reference_step_s=value,
                 )
         with self.assertRaises(TypeError):
             JointSpec("J1", 0, mapping, limits)
         with self.assertRaises(TypeError):
-            JointCore((JointSpec("J1", 0, mapping, limits, 1.0),))
+            JointCore((JointSpec("J1", 0, mapping, limits, 1.0, 1000000.0),))
 
     def test_arm_rejects_measured_seed_outside_codec_range_without_grant(self):
         spec = JointSpec(
-            "J1", 0, JointMap(1, 1, 0.0), PositionLimits(-20_000_000.0, 20_000_000.0), 1.0
+            "J1", 0, JointMap(1, 1, 0.0), PositionLimits(-20_000_000.0, 20_000_000.0), 1.0, 1000000.0
         )
         core = JointCore((spec,), max_reference_step_s=0.02)
         self.assertTrue(core.begin_connect())
@@ -93,7 +93,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertIsNone(snapshot.pending_target)
 
     def test_arm_surfaces_projection_type_error_before_grant_or_reference(self):
-        spec = JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0)
+        spec = JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0, 1000000.0)
         clock = DeterministicClock(0.0)
         core = JointCore((spec,), clock=clock, max_reference_step_s=0.02)
         station = FakeStation(core)
@@ -102,7 +102,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         station.writes.clear()
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=TypeError("injected projection programming error"),
         ):
@@ -117,14 +117,14 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertEqual(station.writes, [])
 
     def test_consume_surfaces_projection_type_error_without_reference_or_write(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1.0, 1.0), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,))
         request = target(core, clock, 0, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(request))
         clock.value = 0.01
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=TypeError("injected projection programming error"),
         ):
@@ -140,8 +140,8 @@ class ReferenceVelocityTests(unittest.TestCase):
 
     def test_nonzero_measured_seed_per_joint_steps_reversal_and_feedforward_clipping(self):
         specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-2.0, 2.0), 0.4),
-            JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-2.0, 2.0), 0.8),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-2.0, 2.0), 0.4, 1000000.0),
+            JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-2.0, 2.0), 0.8, 1000000.0),
         )
         core, station, clock = armed_core(specs, (0.2, -0.3), max_step=0.2)
         first = target(core, clock, 0, (
@@ -179,7 +179,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         )
 
     def test_zero_elapsed_is_stationary_but_same_tick_streaming_advances(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.02)
         first = target(core, clock, 0, (JointTarget(0.5, 2.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(first))
@@ -205,7 +205,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertLessEqual(next_reference.joints[0].q_rad - advanced.joints[0].q_rad, 0.01)
 
     def test_acceptance_queue_and_idle_time_never_bank_more_than_step_cap(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-2, 2), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-2, 2), 1.0, 1000000.0),)
         core, station, clock = armed_core(
             specs, (0.0,), max_step=0.02, feedback_max_age=20.0
         )
@@ -227,7 +227,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertLessEqual(idle_issue.joints[0].q_rad - issued.joints[0].q_rad, 0.02)
 
     def test_absent_expired_invalid_replacement_and_clock_regression_preserve_bounds(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,))
         self.assertIsNone(station.consume())
         self.assertEqual(station.writes, [])
@@ -272,8 +272,8 @@ class ReferenceVelocityTests(unittest.TestCase):
 
     def test_failed_second_joint_projection_keeps_pending_and_history_atomically(self):
         specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),
-            JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-1, 1), 1.0),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),
+            JointSpec("J2", 1, JointMap(1, -1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),
         )
         core, station, clock = armed_core(specs, (0.0, 0.0))
         seed_target = target(core, clock, 0, (
@@ -290,18 +290,18 @@ class ReferenceVelocityTests(unittest.TestCase):
         ))
         self.assertTrue(station.submit(request))
         clock.value = 0.01
-        original = joint_controller.project_position_raw
-        calls = 0
+        original = joint_reference.project_position_raw
 
         def fail_second(*args, **kwargs):
-            nonlocal calls
-            calls += 1
-            if calls == 2:
+            wanted_q = args[0] if args else kwargs.get("wanted_q")
+            q_min = args[1] if len(args) > 1 else kwargs.get("q_min")
+            q_max = args[2] if len(args) > 2 else kwargs.get("q_max")
+            if wanted_q == -0.5 and (q_min > -1.0 or q_max < 1.0):
                 raise ValueError("injected second-joint projection failure")
             return original(*args, **kwargs)
 
         writes_before = len(station.writes)
-        with patch.object(joint_controller, "project_position_raw", side_effect=fail_second):
+        with patch.object(joint_reference, "project_position_raw", side_effect=fail_second):
             self.assertIsNone(station.consume())
         snapshot = core.snapshot()
         self.assertEqual(len(station.writes), writes_before)
@@ -324,7 +324,7 @@ class ReferenceVelocityTests(unittest.TestCase):
             self.assertLessEqual(abs(issued.q_rad - seed.q_rad), 0.02)
 
     def test_projection_time_passing_target_deadline_discards_without_release(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
         seed_target = target(core, clock, 0, (JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(seed_target))
@@ -339,7 +339,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         before = core.snapshot()
         writes_before = len(station.writes)
         calls_before = clock.calls
-        original = joint_controller.project_position_raw
+        original = joint_reference.project_position_raw
 
         def pass_deadline_during_projection(*args, **kwargs):
             projected = original(*args, **kwargs)
@@ -347,7 +347,7 @@ class ReferenceVelocityTests(unittest.TestCase):
             return projected
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=pass_deadline_during_projection,
         ):
@@ -375,7 +375,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         )
 
     def test_projection_time_staling_feedback_revokes_without_release(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(
             specs, (0.0,), max_step=0.1, feedback_max_age=0.1
         )
@@ -387,7 +387,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         clock.value = 0.05
         before = core.snapshot()
         calls_before = clock.calls
-        original = joint_controller.project_position_raw
+        original = joint_reference.project_position_raw
 
         def stale_feedback_during_projection(*args, **kwargs):
             projected = original(*args, **kwargs)
@@ -395,7 +395,7 @@ class ReferenceVelocityTests(unittest.TestCase):
             return projected
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=stale_feedback_during_projection,
         ):
@@ -414,7 +414,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertEqual(snapshot.ownership_generation, before.ownership_generation + 1)
 
     def test_projection_compute_delay_stamps_final_release_time(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
         request = target(
             core, clock, 1, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),),
@@ -423,7 +423,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertTrue(station.submit(request))
         clock.value = 0.05
         calls_before = clock.calls
-        original = joint_controller.project_position_raw
+        original = joint_reference.project_position_raw
 
         def small_compute_delay(*args, **kwargs):
             projected = original(*args, **kwargs)
@@ -431,7 +431,7 @@ class ReferenceVelocityTests(unittest.TestCase):
             return projected
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=small_compute_delay,
         ):
@@ -465,7 +465,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         self.assertEqual(len(station.writes), 2)
 
     def test_clock_regression_during_projection_preserves_history_and_writes_nothing(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 1.0, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
         seed_target = target(core, clock, 0, (JointTarget(0.0, 0.0, 0.0, 1.0, 0.1),))
         self.assertTrue(station.submit(seed_target))
@@ -479,7 +479,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         clock.value = 0.05
         writes_before = len(station.writes)
         before = core.snapshot()
-        original = joint_controller.project_position_raw
+        original = joint_reference.project_position_raw
 
         def regress_clock_during_projection(*args, **kwargs):
             projected = original(*args, **kwargs)
@@ -487,7 +487,7 @@ class ReferenceVelocityTests(unittest.TestCase):
             return projected
 
         with patch.object(
-            joint_controller,
+            joint_reference,
             "project_position_raw",
             side_effect=regress_clock_during_projection,
         ):
@@ -515,7 +515,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         )
 
     def test_subgrid_zero_elapsed_corridor_is_retained_until_feasible(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.1),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.1, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0001,), max_step=0.02)
         seed_status = core.snapshot().joints[0]
         request = target(core, clock, 0, (JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),))
@@ -536,7 +536,7 @@ class ReferenceVelocityTests(unittest.TestCase):
         )
 
     def test_lifecycle_rearm_seeds_new_measured_pose_and_requires_new_grant(self):
-        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.5),)
+        specs = (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-1, 1), 0.5, 1000000.0),)
         core, station, clock = armed_core(specs, (0.0,), max_step=0.1)
         old_grant = core.snapshot().ownership
         self.assertTrue(station.stop())
@@ -589,7 +589,7 @@ class ReferenceVelocityTests(unittest.TestCase):
                     ).dq_rad_s
                     max_velocity = math.nextafter(abs(speed_grid), 0.0)
                     limits = PositionLimits(-1.0, upper)
-                    spec = JointSpec("J1", 0, mapping, limits, max_velocity)
+                    spec = JointSpec("J1", 0, mapping, limits, max_velocity, 1000000.0)
                     core, station, clock = armed_core((spec,), (0.0,), max_step=1.0)
 
                     for speed_sign in (-1, 1):
