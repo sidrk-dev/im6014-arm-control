@@ -1,0 +1,7 @@
+{
+  "plannedBeforeFeedbackShift": true,
+  "releaseVeto": true,
+  "pendingOwnerAndArmedStatePreserved": true,
+  "recoveryMatchesUninterruptedControl": true,
+  "hardwareOrNetwork": false
+}

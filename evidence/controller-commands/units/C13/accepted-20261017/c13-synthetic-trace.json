@@ -1,0 +1,285 @@
+{
+  "evidence": "software-only perfect-tracking fixture, not physical motor",
+  "rows": [
+    {
+      "tick": 1,
+      "time": 0.1,
+      "issuedPosition": 0.049985571331563027,
+      "effort": 0.9999821818093064,
+      "syntheticObservedAfterTick": 0.049985571331563027
+    },
+    {
+      "tick": 2,
+      "time": 0.2,
+      "issuedPosition": 0.09997114266312605,
+      "effort": 0.9999821818093064,
+      "syntheticObservedAfterTick": 0.09997114266312605
+    },
+    {
+      "tick": 3,
+      "time": 0.3,
+      "issuedPosition": 0.1499567139946891,
+      "effort": 0.9999821818093069,
+      "syntheticObservedAfterTick": 0.1499567139946891
+    },
+    {
+      "tick": 4,
+      "time": 0.4,
+      "issuedPosition": 0.1999422853262521,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.1999422853262521
+    },
+    {
+      "tick": 5,
+      "time": 0.5,
+      "issuedPosition": 0.24992785665781517,
+      "effort": 0.9999821818093071,
+      "syntheticObservedAfterTick": 0.24992785665781517
+    },
+    {
+      "tick": 6,
+      "time": 0.6,
+      "issuedPosition": 0.2999134279893782,
+      "effort": 0.9999821818093065,
+      "syntheticObservedAfterTick": 0.2999134279893782
+    },
+    {
+      "tick": 7,
+      "time": 0.7,
+      "issuedPosition": 0.34989899932094126,
+      "effort": 0.9999821818093071,
+      "syntheticObservedAfterTick": 0.34989899932094126
+    },
+    {
+      "tick": 8,
+      "time": 0.8,
+      "issuedPosition": 0.3998845706525042,
+      "effort": 0.9999821818093049,
+      "syntheticObservedAfterTick": 0.3998845706525042
+    },
+    {
+      "tick": 9,
+      "time": 0.9,
+      "issuedPosition": 0.4498701419840673,
+      "effort": 0.9999821818093071,
+      "syntheticObservedAfterTick": 0.4498701419840673
+    },
+    {
+      "tick": 10,
+      "time": 1.0,
+      "issuedPosition": 0.49985571331563033,
+      "effort": 0.9999821818093071,
+      "syntheticObservedAfterTick": 0.49985571331563033
+    },
+    {
+      "tick": 11,
+      "time": 1.1,
+      "issuedPosition": 0.5498412846471934,
+      "effort": 0.9999821818093071,
+      "syntheticObservedAfterTick": 0.5498412846471934
+    },
+    {
+      "tick": 12,
+      "time": 1.2,
+      "issuedPosition": 0.5998268559787564,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.5998268559787564
+    },
+    {
+      "tick": 13,
+      "time": 1.3,
+      "issuedPosition": 0.6498124273103194,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.6498124273103194
+    },
+    {
+      "tick": 14,
+      "time": 1.4,
+      "issuedPosition": 0.6997979986418825,
+      "effort": 0.9999821818093082,
+      "syntheticObservedAfterTick": 0.6997979986418825
+    },
+    {
+      "tick": 15,
+      "time": 1.5,
+      "issuedPosition": 0.7497835699734455,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.7497835699734455
+    },
+    {
+      "tick": 16,
+      "time": 1.6,
+      "issuedPosition": 0.7997691413050084,
+      "effort": 0.9999821818093038,
+      "syntheticObservedAfterTick": 0.7997691413050084
+    },
+    {
+      "tick": 17,
+      "time": 1.7,
+      "issuedPosition": 0.8497547126365715,
+      "effort": 0.9999821818093082,
+      "syntheticObservedAfterTick": 0.8497547126365715
+    },
+    {
+      "tick": 18,
+      "time": 1.8,
+      "issuedPosition": 0.8997402839681345,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.8997402839681345
+    },
+    {
+      "tick": 19,
+      "time": 1.9,
+      "issuedPosition": 0.9497258552996976,
+      "effort": 0.999982181809306,
+      "syntheticObservedAfterTick": 0.9497258552996976
+    },
+    {
+      "tick": 20,
+      "time": 2.0,
+      "issuedPosition": 0.9997114266312607,
+      "effort": 0.9999821818093082,
+      "syntheticObservedAfterTick": 0.9997114266312607
+    },
+    {
+      "tick": 21,
+      "time": 2.1,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.005753985903808345,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 22,
+      "time": 2.2,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 23,
+      "time": 2.3,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 24,
+      "time": 2.4,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 25,
+      "time": 2.5,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 26,
+      "time": 2.6,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 27,
+      "time": 2.7,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 28,
+      "time": 2.8,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 29,
+      "time": 2.9,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 30,
+      "time": 3.0,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 31,
+      "time": 3.1,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 32,
+      "time": 3.2,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 33,
+      "time": 3.3,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 34,
+      "time": 3.4,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 35,
+      "time": 3.5,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 36,
+      "time": 3.6,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 37,
+      "time": 3.7,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 38,
+      "time": 3.8,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 39,
+      "time": 3.9,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    },
+    {
+      "tick": 40,
+      "time": 4.0,
+      "issuedPosition": 0.9999990480289892,
+      "effort": 0.0,
+      "syntheticObservedAfterTick": 0.9999990480289892
+    }
+  ]
+}

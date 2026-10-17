@@ -37,6 +37,7 @@ class DecisionCode(str, Enum):
     INVALID_OWNERSHIP = "invalid_ownership"
     POSITION_LIMIT = "position_limit"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
+    EFFORT_LIMIT = "effort_limit"
 
 
 class CommunicationFailure(str, Enum):
@@ -111,6 +112,7 @@ class JointSpec:
     max_velocity_rad_s: float
     max_acceleration_rad_s2: float
     max_measured_lead_rad: float
+    max_effort_nm: float
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -153,6 +155,18 @@ class JointSpec:
         if not math.isfinite(lead) or lead <= 0.0:
             raise ValueError("max_measured_lead_rad must be finite and positive")
         object.__setattr__(self, "max_measured_lead_rad", lead)
+
+        effort_val = self.max_effort_nm
+        if isinstance(effort_val, bool) or not isinstance(effort_val, (int, float)):
+            raise ValueError("max_effort_nm must be finite and positive")
+        try:
+            effort_val = float(effort_val)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise ValueError("max_effort_nm must be finite and positive") from exc
+        if not math.isfinite(effort_val) or effort_val <= 0.0:
+            raise ValueError("max_effort_nm must be finite and positive")
+        object.__setattr__(self, "max_effort_nm", effort_val)
+
 
 @dataclass(frozen=True)
 class JointFault:

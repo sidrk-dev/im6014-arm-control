@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/c13-paced-parent-check-20261017",
+  "promptPath": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/prompt.md",
+  "outputPath": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/gemini.md",
+  "receiptPath": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/gemini-receipt.json",
+  "executionId": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/c13-paced-parent-check-20261017",
+    "output": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/gemini.md",
+    "receipt": "/tmp/hapi-mini-swarm-20261017/c13-paced-review/gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-17T09:59:33.955Z",
+  "completedAt": "2026-10-17T10:06:18.904Z",
+  "elapsedMs": 404949,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-f48dd6d359bc9259",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/c13-paced-parent-check-20261017"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "1fa731fa-3782-47c9-806a-b687c865addb",
+  "usage": {
+    "inputTokens": 40452,
+    "cachedInputTokens": 0,
+    "outputTokens": 65482,
+    "reasoningTokens": 62914,
+    "totalTokens": 105934
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

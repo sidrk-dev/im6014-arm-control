@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 0,
+  "lane": "interrogate reviewers#1",
+  "attempt": "antigravity:gemini-3.8-flash-high@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "complete",
+    "processStarted": true,
+    "execution": {
+      "id": "/tmp/hapi-mini-swarm-20261017/c13-direction-review/gemini-receipt.json",
+      "outputPath": "/tmp/hapi-mini-swarm-20261017/c13-direction-review/gemini.md",
+      "receiptPath": "/tmp/hapi-mini-swarm-20261017/c13-direction-review/gemini-receipt.json",
+      "workspacePath": "/tmp/c13-direction-parent-check-20261017",
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "apiSpend": "deny",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/hapi-mini-swarm-20261017/c13-direction-review/gemini-receipt.json"
+  }
+}

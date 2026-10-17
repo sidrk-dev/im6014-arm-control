@@ -29,6 +29,7 @@ from joint_records import (
     Target,
 )
 from joint_reference import (
+    compute_predicted_effort,
     plan_reference,
     position_rates_at_release,
     project_joint_target,
@@ -413,6 +414,12 @@ class JointCore:
         ):
             return self._rejected(DecisionCode.POSITION_LIMIT)
 
+        if any(
+            abs(joint_target.tau_nm) > spec.max_effort_nm
+            for spec, joint_target in zip(self._specs, target.joints)
+        ):
+            return self._rejected(DecisionCode.EFFORT_LIMIT)
+
         try:
             for spec, joint_target in zip(self._specs, target.joints):
                 output = spec.mapping.to_output(joint_target)
@@ -462,6 +469,7 @@ class JointCore:
 
         elapsed = now - self._history.issued_at_s
         measured_positions = tuple(joint.sample.q_rad for joint in self._observations)
+        measured_velocities = tuple(joint.sample.dq_rad_s for joint in self._observations)
         candidate_joints = plan_reference(
             specs=self._specs,
             requested=target.joints,
@@ -471,6 +479,7 @@ class JointCore:
             elapsed_s=elapsed,
             max_step_s=self._max_reference_step_s,
             allow_bootstrap=(self._history.kind == "seed"),
+            measured_velocities=measured_velocities,
         )
         if candidate_joints is None:
             return None
@@ -507,9 +516,16 @@ class JointCore:
             return None
 
         for spec, cand, obs in zip(self._specs, candidate_joints, self._observations):
-            if obs.sample is None or not math.isfinite(obs.sample.q_rad):
+            if (
+                obs.sample is None
+                or not math.isfinite(obs.sample.q_rad)
+                or not math.isfinite(obs.sample.dq_rad_s)
+            ):
                 return None
             if abs(cand.q_rad - obs.sample.q_rad) > spec.max_measured_lead_rad:
+                return None
+            tau_pred = compute_predicted_effort(spec, cand, obs.sample.q_rad, obs.sample.dq_rad_s)
+            if tau_pred is None or abs(tau_pred) > spec.max_effort_nm:
                 return None
 
         reference = Reference(

@@ -14,7 +14,7 @@ from im6014_codec import (
     raw_to_position,
     raw_to_rpm,
 )
-from joint_mapping import JointTarget, OutputSample
+from joint_mapping import JointSample, JointTarget, OutputSample
 from joint_records import JointSpec
 
 
@@ -74,6 +74,133 @@ def project_joint_target(
     return safe_target
 
 
+def _decoded_effort_terms(
+    spec: JointSpec,
+    cand: JointTarget,
+) -> tuple[JointSample, float, float] | None:
+    mapping = spec.mapping
+    try:
+        cand_output = mapping.to_output(cand)
+        cand_frame = command(
+            spec.motor_id,
+            mode=1,
+            rpm=cand_output.rpm,
+            kd=cand_output.kd,
+            torque=cand_output.tau_nm,
+            watchdog=True,
+            position=cand_output.q_rad,
+            kp=cand_output.kp,
+        )
+        dec = decode_command(cand_frame)
+        N = mapping.reduction
+        kp_dec = dec["kp"] * (N ** 2)
+        kd_dec = dec["kd"] * (N ** 2)
+        if not (math.isfinite(kp_dec) and math.isfinite(kd_dec)):
+            return None
+        sample = mapping.from_output(
+            OutputSample(dec["position_rad"], dec["rpm"], dec["torque_nm"])
+        )
+    except (ArithmeticError, TypeError, ValueError):
+        return None
+    return sample, kp_dec, kd_dec
+
+
+def compute_predicted_effort(
+    spec: JointSpec,
+    cand: JointTarget,
+    q_meas: float,
+    dq_meas: float,
+) -> float | None:
+    """Compute predicted joint effort using actually encoded and decoded codec values.
+
+    Formula: tau_pred = tau_ff_dec + Kp_dec * (q_ref_dec - q_meas) + Kd_dec * (dq_ref_dec - dq_meas)
+    where all decoded values are mapped back to joint units from their discrete codec grid.
+    """
+    if (
+        isinstance(q_meas, bool)
+        or not isinstance(q_meas, (int, float))
+        or not math.isfinite(q_meas)
+    ):
+        return None
+    if (
+        isinstance(dq_meas, bool)
+        or not isinstance(dq_meas, (int, float))
+        or not math.isfinite(dq_meas)
+    ):
+        return None
+
+    terms = _decoded_effort_terms(spec, cand)
+    if terms is None:
+        return None
+    sample, kp_dec, kd_dec = terms
+
+    try:
+        tau_pred = (
+            sample.tau_nm
+            + kp_dec * (sample.q_rad - float(q_meas))
+            + kd_dec * (sample.dq_rad_s - float(dq_meas))
+        )
+    except (ArithmeticError, TypeError, ValueError):
+        return None
+
+    if not math.isfinite(tau_pred):
+        return None
+    return float(tau_pred)
+
+
+def _pace_position_toward_effort(
+    spec: JointSpec,
+    req: JointTarget,
+    cand: JointTarget,
+    q0: float,
+    q_min: float,
+    q_max: float,
+    dq_min: float,
+    dq_max: float,
+    q_meas: float,
+    dq_meas: float,
+) -> JointTarget | None:
+    terms = _decoded_effort_terms(spec, cand)
+    if terms is None:
+        return None
+    sample, kp_dec, kd_dec = terms
+
+    slope = kp_dec
+    base = (
+        sample.tau_nm
+        + kd_dec * (sample.dq_rad_s - float(dq_meas))
+        - kp_dec * float(q_meas)
+    )
+    if slope <= 0.0:
+        return None
+
+    effort = spec.max_effort_nm
+    try:
+        q_lo = (-effort - base) / slope
+        q_hi = (effort - base) / slope
+    except (ArithmeticError, ValueError):
+        return None
+    if not (math.isfinite(q_lo) and math.isfinite(q_hi)):
+        return None
+
+    step_lo = min(q0, cand.q_rad)
+    step_hi = max(q0, cand.q_rad)
+    paced_min = max(q_min, q_lo, step_lo)
+    paced_max = min(q_max, q_hi, step_hi)
+    if paced_min > paced_max:
+        return None
+
+    try:
+        paced = project_joint_target(spec, req, paced_min, paced_max, dq_min, dq_max)
+    except (ArithmeticError, ValueError):
+        return None
+
+    paced_effort = compute_predicted_effort(spec, paced, q_meas, dq_meas)
+    if paced_effort is None or abs(paced_effort) > effort:
+        return None
+    return paced
+
+
 def plan_reference(
     specs: tuple[JointSpec, ...],
     requested: tuple[JointTarget, ...],
@@ -83,13 +210,15 @@ def plan_reference(
     elapsed_s: float,
     max_step_s: float,
     allow_bootstrap: bool,
+    measured_velocities: tuple[float, ...] | None = None,
 ) -> tuple[JointTarget, ...] | None:
     """Plan a complete bounded candidate vector under S2 semantic contract.
 
     Computes independent dq and q corridors, intersects with position limits,
     velocity caps, acceleration rate bounds, and measured-position lead limits.
     Projects to inward representable codec values, validates roundtrip and closed
-    bounds, and checks progress against static nearest-grid goals.
+    bounds, checks predicted effort against max_effort_nm, and checks progress
+    against static nearest-grid goals.
     A candidate still needs final release validation; a tick need not progress.
     """
     if (
@@ -121,6 +250,18 @@ def plan_reference(
         ):
             return None
 
+    if measured_velocities is None:
+        measured_velocities = tuple(0.0 for _ in specs)
+    if len(specs) != len(measured_velocities):
+        return None
+    for dq_meas in measured_velocities:
+        if (
+            isinstance(dq_meas, bool)
+            or not isinstance(dq_meas, (int, float))
+            or not math.isfinite(dq_meas)
+        ):
+            return None
+
     h = min(elapsed_s, max_step_s)
     candidate_joints: list[JointTarget] = []
 
@@ -129,6 +270,8 @@ def plan_reference(
         prev = previous[i]
         w0 = previous_rates[i]
         q_meas = float(measured_positions[i])
+        dq_meas = float(measured_velocities[i])
+
         mapping = spec.mapping
         direction = mapping.direction
         limits = spec.position_limits
@@ -218,6 +361,16 @@ def plan_reference(
             cand = project_joint_target(spec, req, q_min, q_max, dq_min, dq_max)
         except (ArithmeticError, ValueError):
             return None
+
+        tau_pred = compute_predicted_effort(spec, cand, q_meas, dq_meas)
+        if tau_pred is None:
+            return None
+        if abs(tau_pred) > spec.max_effort_nm:
+            cand = _pace_position_toward_effort(
+                spec, req, cand, q0, q_min, q_max, dq_min, dq_max, q_meas, dq_meas
+            )
+            if cand is None:
+                return None
 
         if abs(cand.q_rad - q0) > V_h:
             return None
