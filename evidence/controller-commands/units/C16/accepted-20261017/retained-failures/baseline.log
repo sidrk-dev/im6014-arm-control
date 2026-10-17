@@ -1,0 +1,11 @@
+Evidence: /tmp/c16-codex-evidence-20261017/baseline/run-20261017T205651Z-5ygQynZG
+check	exit_code
+interpreter	0
+packet-tests	0
+protocol-tests	0
+serial-deadline-tests	0
+milestone-tests	1
+dashboard-tests	0
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0

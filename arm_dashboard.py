@@ -714,17 +714,21 @@ def run_dashboard(
             raise RuntimeError("arm_manual backend is not available in environment")
         session = ArmManualSession(physical_opt_in=physical_opt_in)
 
-    server_address = ("127.0.0.1", port)
-    server = ArmDashboardServer(server_address, session)
-    mode_str = "PHYSICAL J1" if physical_opt_in else "DEMO (Virtual 3-joint)"
-    print(f"IM6014 Arm Dashboard running in {mode_str} mode at http://127.0.0.1:{server.bound_port}")
+    server = None
     try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nShutting down server...")
+        server = ArmDashboardServer(("127.0.0.1", port), session)
+        mode_str = "PHYSICAL J1" if physical_opt_in else "DEMO (Virtual 3-joint)"
+        print(f"IM6014 Arm Dashboard running in {mode_str} mode at http://127.0.0.1:{server.bound_port}")
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print("\nShutting down server...")
     finally:
-        server.server_close()
-        session.close()
+        try:
+            if server is not None:
+                server.server_close()
+        finally:
+            session.close()
 
 
 def main() -> None:

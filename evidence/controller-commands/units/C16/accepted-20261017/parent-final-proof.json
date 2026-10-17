@@ -1,0 +1,44 @@
+{
+  "baseHead": "2c3bd5bfc9613cbc6d1b6814c97db12b298c830b",
+  "baseline": "/tmp/c16-codex-evidence-20261017/final-baseline/run-20261017T205800Z-RMdxkcEc",
+  "baselineGroups": 9,
+  "milestoneTests": 256,
+  "legacyDashboardGroups": 19,
+  "capturesViewedByParent": 4,
+  "startup": {
+    "real": {
+      "hashCount": 39,
+      "allCurrentHashesMatch": true,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "hashCount": 39,
+      "allCurrentHashesMatch": true,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "sourceUnchanged": true,
+  "ownerSourceUnchanged": true,
+  "onlyRuntimeDefinitionChanged": "arm_dashboard.run_dashboard",
+  "focusedTests": 7,
+  "guardedArm": {
+    "testsRun": 79,
+    "successful": true,
+    "physicalSerialConstructorCalls": 0,
+    "defaultFakePortSnapshots": 1,
+    "discovery": "comports supplied fixtures; by-id lookup replaced; no host serial metadata discovery",
+    "physicalIO": "no motor ports; demo/fake exchanges and ephemeral HTTP only"
+  },
+  "originalCleanupReproduction": "2failing cases on retained original source;2pass after correction",
+  "failedObserverFixtureReconstructionMatchesOriginalBaselineHash": true,
+  "review": "pending",
+  "physicalMotorPortsOpened": 0
+}

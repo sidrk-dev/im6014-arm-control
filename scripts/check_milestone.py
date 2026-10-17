@@ -27,6 +27,7 @@ CHECKS = {
     'C13': 'test_controller_effort',
     'C14': 'test_controller_faults',
     'C15': 'test_station_timing',
+    'C16': 'test_station_independence',
 }
 
 

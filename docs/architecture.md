@@ -42,3 +42,5 @@ This repository uses Python 3.12 for its clean bench environment. MakerMods and 
 ## Evidence identities
 
 `evidence/baseline` contains the committed parent-run snapshot. Later verification runs use fresh directories under `evidence/runs`, which are ignored. Fake motor outputs are marked as simulation. Disconnected startup contains no measured motor state. Hardware commissioning remains pending.
+
+Dashboard ingress and owner cleanup are described in [station-independence.md](station-independence.md). The HTTP layer receives the existing owner; server construction/loop/cleanup failures do not skip owner cleanup.

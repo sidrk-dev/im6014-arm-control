@@ -1,0 +1,9 @@
+{
+  "arm_dashboard.py": "5d399187dcb26c53fb10922abb5b51f96dbbf9ec93340964e854129b3bac0f8c",
+  "scripts/check_milestone.py": "3517ded58b842fb4aebfdde1b6b59eb305a576ed7d6fc3f8ccff785eb1474e46",
+  "scripts/check_offline_baseline.sh": "e32d6fc1ea3cfee3b322eb84f3da5224c30a4ecd2132b1ef73cf7e23b6fc0b00",
+  "test_startup.py": "942da27d8d776cea64c7554583a39b016c703e84c833d8dc32a95ec1a9e7ef28",
+  "test_station_independence.py": "ab474daa27b56f30d1d2695d2245d9707169b61602a636c0e9aea7da84050f12",
+  "docs/station-independence.md": "0e30c722faf6e10acfb4d9a18b8101fa6e60956796562673958a18fd30f518f5",
+  "docs/architecture.md": "4d7ec46997588043d8fbe4b02d197a0117c415298e2fa9a74682f24d74d6ad4d"
+}

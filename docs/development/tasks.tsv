@@ -3,5 +3,5 @@ J1-simple-dashboard	software released; hardware blocked	Codex parent	arm_manual.
 U2D2-adapter	software verified; physical verification pending	Codex parent	im6014_port.py;arm_manual.py;arm_dashboard.py;motor_session.py;motor_dashboard.py;spin_5rpm.py;arm_web;docs/u2d2.md	codex/u2d2-support; parent owns physical verification after replacement and electrical inspection
 C07-C10	software verified; Muse triaged; MiMo review dropout	Codex parent	codex/controller-c07-c10	Resume from U2D2 commit 4d41d5b; parent verifies each core milestone; fake transport only
 C11-C15	software verified	Codex parent	Accepted sequential controller/timing checkpoints	C14 f43d7aa; C15 source/evidence pinned under evidence/controller-commands/units/C15/accepted-20261017; production JointCore integration remains pending
-C16	pending	Codex parent	Station failure independence	Actual dashboard/owner failure behavior; fake transport only; starts after exact-head C15 CI
+C16	software verified	Codex parent	Station failure independence	Two cleanup regressions fixed;7focused/79guardedarm/9offlinegroups; fake transport only; evidence/controller-commands/units/C16/accepted-20261017
 Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination

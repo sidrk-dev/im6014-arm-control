@@ -1,0 +1,29 @@
+test_pre_extraction_golden_commands (test_protocol.B01Encoder.test_pre_extraction_golden_commands) ... ok
+test_single_pure_codec_implementation (test_protocol.B01Encoder.test_single_pure_codec_implementation) ... ok
+test_captured_physical_stop_fields (test_protocol.B02Decoder.test_captured_physical_stop_fields) ... ok
+test_generated_signed_and_unsigned_fields (test_protocol.B02Decoder.test_generated_signed_and_unsigned_fields) ... ok
+test_256_independent_vendor_vectors (test_protocol.B03Checksum.test_256_independent_vendor_vectors) ... ok
+test_each_payload_and_checksum_bit_rejected (test_protocol.B03Checksum.test_each_payload_and_checksum_bit_rejected) ... ok
+test_incomplete_checksum_words_rejected (test_protocol.B03Checksum.test_incomplete_checksum_words_rejected) ... ok
+test_every_unrelated_header_byte_rejected (test_protocol.B04Framing.test_every_unrelated_header_byte_rejected) ... ok
+test_short_oversized_and_coalesced_decoder_inputs (test_protocol.B04Framing.test_short_oversized_and_coalesced_decoder_inputs) ... ok
+test_unsupported_modes_with_valid_vendor_crc_rejected (test_protocol.B04Framing.test_unsupported_modes_with_valid_vendor_crc_rejected) ... ok
+test_delays_timeouts_and_write_controls (test_protocol.B05Fake.test_delays_timeouts_and_write_controls) ... ok
+test_empty_nonblocking_read_advances_fake_clock (test_protocol.B05Fake.test_empty_nonblocking_read_advances_fake_clock) ... ok
+test_partial_write_preserves_next_successful_reply (test_protocol.B05Fake.test_partial_write_preserves_next_successful_reply) ... ok
+test_record_reset_and_chunk_remainder (test_protocol.B05Fake.test_record_reset_and_chunk_remainder) ... ok
+test_each_split_and_byte_at_a_time (test_protocol.B06Fragmented.test_each_split_and_byte_at_a_time) ... ok
+test_each_truncated_prefix_expires (test_protocol.B06Fragmented.test_each_truncated_prefix_expires) ... ok
+test_corrupt_only_expires_with_bounded_crc_diagnostic (test_protocol.B07Recovery.test_corrupt_only_expires_with_bounded_crc_diagnostic) ... ok
+test_earlier_crc_rejection_remains_visible_after_foreign_frame (test_protocol.B07Recovery.test_earlier_crc_rejection_remains_visible_after_foreign_frame) ... ok
+test_noise_corrupt_and_overlapping_candidates_recover (test_protocol.B07Recovery.test_noise_corrupt_and_overlapping_candidates_recover) ... ok
+test_decoder_and_stream_reject_other_identity (test_protocol.B08Identity.test_decoder_and_stream_reject_other_identity) ... ok
+test_foreign_feedback_never_refreshes_session (test_protocol.B08Identity.test_foreign_feedback_never_refreshes_session) ... ok
+test_independent_command_fields (test_protocol.B10Units.test_independent_command_fields) ... ok
+test_independent_feedback_output_units (test_protocol.B10Units.test_independent_feedback_output_units) ... ok
+test_representable_endpoints_and_half_lsb_error (test_protocol.B10Units.test_representable_endpoints_and_half_lsb_error) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.210s
+
+OK

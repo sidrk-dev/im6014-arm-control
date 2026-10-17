@@ -1,0 +1,8 @@
+test_failed_server_construction_closes_its_owner (__main__.CleanupChecks.test_failed_server_construction_closes_its_owner) ... ok
+test_server_cleanup_failure_cannot_skip_owner_close (__main__.CleanupChecks.test_server_cleanup_failure_cannot_skip_owner_close) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+OK
+IM6014 Arm Dashboard running in DEMO (Virtual 3-joint) mode at http://127.0.0.1:0
