@@ -1,0 +1,7 @@
+{
+  "testsRun": 75,
+  "successful": false,
+  "realEnumerationCalls": 0,
+  "fakePortSnapshots": 6,
+  "physicalIO": "no motor ports;demo/fake exchanges and ephemeral HTTP only"
+}

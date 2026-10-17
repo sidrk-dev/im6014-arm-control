@@ -1,0 +1,52 @@
+test_actual_owner_counts_failed_exchange_attempts (test_arm_timing.ArmTimingTests.test_actual_owner_counts_failed_exchange_attempts) ... ok
+test_actual_owner_loop_uses_host_clock_without_touching_serial (test_arm_timing.ArmTimingTests.test_actual_owner_loop_uses_host_clock_without_touching_serial) ... ok
+test_actual_owner_measures_successful_demo_exchanges (test_arm_timing.ArmTimingTests.test_actual_owner_measures_successful_demo_exchanges) ... ok
+test_close_keeps_working_with_unavailable_observation_clock (test_arm_timing.ArmTimingTests.test_close_keeps_working_with_unavailable_observation_clock) ... ok
+test_exchange_latency_excludes_post_exchange_lock_wait (test_arm_timing.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) ... 
+  test_exchange_latency_excludes_post_exchange_lock_wait (test_arm_timing.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=True) ... FAIL
+test_measurement_clock_failure_does_not_mask_exchange_failure (test_arm_timing.ArmTimingTests.test_measurement_clock_failure_does_not_mask_exchange_failure) ... ok
+test_real_http_state_reports_timing_without_serial_enumeration (test_arm_timing.ArmTimingTests.test_real_http_state_reports_timing_without_serial_enumeration) ... ERROR
+test_real_prewrite_cancellation_counts_failed_attempt_without_write (test_arm_timing.ArmTimingTests.test_real_prewrite_cancellation_counts_failed_attempt_without_write) ... ok
+test_timing_clock_must_be_callable (test_arm_timing.ArmTimingTests.test_timing_clock_must_be_callable) ... ok
+test_timing_counts_survive_demo_reconnect (test_arm_timing.ArmTimingTests.test_timing_counts_survive_demo_reconnect) ... ok
+test_timing_json_allowlist_drops_unknowns_and_nonfinite_values (test_arm_timing.ArmTimingTests.test_timing_json_allowlist_drops_unknowns_and_nonfinite_values) ... ok
+test_unavailable_measurement_clock_does_not_block_owner_actions (test_arm_timing.ArmTimingTests.test_unavailable_measurement_clock_does_not_block_owner_actions) ... ok
+
+======================================================================
+ERROR: test_real_http_state_reports_timing_without_serial_enumeration (test_arm_timing.ArmTimingTests.test_real_http_state_reports_timing_without_serial_enumeration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 110, in test_real_http_state_reports_timing_without_serial_enumeration
+    server = ArmDashboardServer(('127.0.0.1', 0), arm)
+  File "/tmp/c15-codex-fixed-20261017/arm_dashboard.py", line 667, in __init__
+    super().__init__(server_address, request_handler_class)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/socketserver.py", line 453, in __init__
+    self.socket = socket.socket(self.address_family,
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+                                self.socket_type)
+                                ^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/socket.py", line 236, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+FAIL: test_exchange_latency_excludes_post_exchange_lock_wait (test_arm_timing.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 184, in test_exchange_latency_excludes_post_exchange_lock_wait
+    self.check_post_exchange_contention(fail)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 222, in check_post_exchange_contention
+    self.assertEqual(receipt['status'], 'rejected' if fail else 'complete', receipt)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'complete' != 'rejected'
+- complete
++ rejected
+ : {'status': 'complete', 'reason': ''}
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.089s
+
+FAILED (failures=1, errors=1)

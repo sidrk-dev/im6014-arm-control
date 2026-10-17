@@ -1,6 +1,7 @@
 task	status	owner	scope	note
-J1-simple-dashboard	active	Codex parent	arm_manual.py;arm_dashboard.py;arm_web;docs/arm-quickstart.md	Single physical J1, plain ARM2027 UI; parent owns hardware/Git
+J1-simple-dashboard	software released; hardware blocked	Codex parent	arm_manual.py;arm_dashboard.py;arm_web;docs/arm-quickstart.md	Shared-bus dashboard software and simple UI preserved; no new physical verification after adapter incident
 U2D2-adapter	software verified; physical verification pending	Codex parent	im6014_port.py;arm_manual.py;arm_dashboard.py;motor_session.py;motor_dashboard.py;spin_5rpm.py;arm_web;docs/u2d2.md	codex/u2d2-support; parent owns physical verification after replacement and electrical inspection
 C07-C10	software verified; Muse triaged; MiMo review dropout	Codex parent	codex/controller-c07-c10	Resume from U2D2 commit 4d41d5b; parent verifies each core milestone; fake transport only
-C11-C16	pending	Codex parent	Controller milestone continuation	Acceleration, measured lead, effort, timing and station integration follow C07-C10
+C11-C15	software verified	Codex parent	Accepted sequential controller/timing checkpoints	C14 f43d7aa; C15 source/evidence pinned under evidence/controller-commands/units/C15/accepted-20261017; production JointCore integration remains pending
+C16	pending	Codex parent	Station failure independence	Actual dashboard/owner failure behavior; fake transport only; starts after exact-head C15 CI
 Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination

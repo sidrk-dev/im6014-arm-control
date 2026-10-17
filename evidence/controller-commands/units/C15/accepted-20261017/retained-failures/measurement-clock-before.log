@@ -1,0 +1,17 @@
+test_unavailable_measurement_clock_does_not_block_owner_actions (tests.test_arm_timing.ArmTimingTests.test_unavailable_measurement_clock_does_not_block_owner_actions) ... FAIL
+
+======================================================================
+FAIL: test_unavailable_measurement_clock_does_not_block_owner_actions (tests.test_arm_timing.ArmTimingTests.test_unavailable_measurement_clock_does_not_block_owner_actions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-20261017/tests/test_arm_timing.py", line 143, in test_unavailable_measurement_clock_does_not_block_owner_actions
+    receipt = self.action(arm, sid, 'connect', {'demo': True})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/c15-codex-20261017/tests/test_arm_timing.py", line 36, in action
+    self.fail('fake-owner operation did not settle')
+AssertionError: fake-owner operation did not settle
+
+----------------------------------------------------------------------
+Ran 1 test in 2.010s
+
+FAILED (failures=1)

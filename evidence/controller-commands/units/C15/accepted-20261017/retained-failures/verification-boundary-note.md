@@ -1,0 +1,5 @@
+# Serial enumeration boundary in regression fixtures
+
+The new C15 timing HTTP test patches the handler port snapshot and asserts its enumeration alias is unused. During parent review of the full existing arm regression, the older tests/test_arm_http.py fixture was found to leave its observational GET /api/state port-list path unpatched. Earlier full local arm regression logs therefore are not proof of the no-enumeration boundary. The source path can passively enumerate USB/serial metadata through that GET; no motor port open or motor command follows from this mock-backend HTTP fixture. No physical communication or probe is claimed or authorized.
+
+Subsequent full regression runs use check-arm-regression-no-enumeration.py. It installs fake empty snapshots at the handler alias and a rejecting real enumeration backend before loading/running any tests. The actual structured result records zero real enumeration calls. Original logs remain retained. This correction changes parent verification, not runtime serial discovery behavior or operator permissions.

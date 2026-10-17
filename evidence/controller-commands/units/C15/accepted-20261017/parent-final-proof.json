@@ -1,0 +1,47 @@
+{
+  "baseline": "/tmp/c15-codex-evidence-20261017/fixed/baseline/run-20261017T204653Z-vBCE8ctr",
+  "baselineGroups": 9,
+  "milestoneTests": 249,
+  "legacyDashboardGroups": 19,
+  "capturesViewedByParent": 4,
+  "startup": {
+    "real": {
+      "hashCount": 36,
+      "allCurrentHashesMatch": true,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "hashCount": 36,
+      "allCurrentHashesMatch": true,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "sourceUnchanged": true,
+  "unchangedArmOwnerMethods": 65,
+  "changedOwnerMethods": [
+    "__init__",
+    "snapshot",
+    "_transact_raw",
+    "_loop"
+  ],
+  "guardedArm": {
+    "testsRun": 79,
+    "successful": true,
+    "physicalSerialConstructorCalls": 0,
+    "defaultFakePortSnapshots": 1,
+    "discovery": "comports supplied fixtures; by-id lookup replaced; no host serial metadata discovery",
+    "physicalIO": "no motor ports; demo/fake exchanges and ephemeral HTTP only"
+  },
+  "pureChecks": 10,
+  "ownerChecks": 12,
+  "review": "pending",
+  "physicalMotorPortsOpened": 0
+}

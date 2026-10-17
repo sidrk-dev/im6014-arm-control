@@ -18,6 +18,7 @@ Inspect external foundations at exact revisions and record the revision in evide
 | `im6014_codec.py` | Pure packet encoding, strict feedback decoding, CRC and internal reduction | Python standard library |
 | `im6014_serial.py` | One request, bounded stream scan, timeout budgets, restoration and optional bounded capture | Pure feedback decoder; Python standard library |
 | `im6014_port.py` | Passive configuration and cooperating device lease | OS metadata; injected serial factory |
+| `station_timing.py` | Fixed-storage owner loop and exchange-attempt timing observations | Python standard library; called by `arm_manual.py` |
 | `joint_records.py` | Frozen public domain records and enums with validated constructor contracts | `joint_mapping.py`; Python standard library |
 | `joint_reference.py` | Pure reference planning, codec projection corridors, and release finite-difference rate math | `im6014_codec.py`; `joint_mapping.py`; `joint_records.py`; Python standard library |
 | `joint_controller.py` | Transport-free lifecycle, clock, per-joint freshness and faults, identity-checked owner grants, pending targets, reference history, and sequence watermark | `joint_records.py`; `joint_reference.py`; `im6014_codec.py`; Python standard library |

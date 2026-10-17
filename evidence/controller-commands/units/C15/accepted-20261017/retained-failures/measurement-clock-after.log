@@ -1,0 +1,6 @@
+test_unavailable_measurement_clock_does_not_block_owner_actions (tests.test_arm_timing.ArmTimingTests.test_unavailable_measurement_clock_does_not_block_owner_actions) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.006s
+
+OK

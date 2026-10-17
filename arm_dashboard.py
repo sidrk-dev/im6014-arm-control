@@ -55,7 +55,12 @@ _cached_ports_error: str | None = None
 TOP_LEVEL_FIELDS = frozenset({
     "physical_enabled", "default_port", "default_ports", "adapter_profile", "adapter_profiles",
     "ports", "port_error", "state", "reason", "connected", "demo", "profile_id", "profiles", "calibrated", "armed", "stop_confirmed",
-    "feedback_age_s", "settings", "joints", "latest", "latest_feedback", "events",
+    "feedback_age_s", "settings", "joints", "latest", "latest_feedback", "events", "timing",
+})
+TIMING_FIELDS = frozenset({
+    "scope", "clock_source", "loop_samples", "loop_period_s", "loop_max_s",
+    "loop_overruns", "loop_budget_s", "transaction_samples", "transaction_failures",
+    "transaction_latency_s", "transaction_max_s", "measurement_errors",
 })
 SETTING_FIELDS = frozenset({
     "kp", "kd", "max_rpm", "effort_limit_nm", "max_effort_nm", "lower_deg", "upper_deg",
@@ -133,7 +138,11 @@ def _project_fields(data: Any, fields: frozenset[str]) -> dict[str, Any] | None:
         if key not in data:
             continue
         value = data[key]
-        if key == "settings":
+        if key == "timing":
+            nested = _project_fields(value, TIMING_FIELDS)
+            if nested is not None:
+                projected[key] = nested
+        elif key == "settings":
             nested = _project_fields(value, SETTING_FIELDS)
             if nested is not None:
                 projected[key] = nested

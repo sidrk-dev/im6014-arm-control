@@ -1,0 +1,32 @@
+test_exchange_latency_excludes_post_exchange_lock_wait (candidate_tests.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) ... 
+  test_exchange_latency_excludes_post_exchange_lock_wait (candidate_tests.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=False) ... FAIL
+  test_exchange_latency_excludes_post_exchange_lock_wait (candidate_tests.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=True) ... FAIL
+
+======================================================================
+FAIL: test_exchange_latency_excludes_post_exchange_lock_wait (candidate_tests.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 184, in test_exchange_latency_excludes_post_exchange_lock_wait
+    self.check_post_exchange_contention(fail)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 224, in check_post_exchange_contention
+    self.assertEqual(timing['transaction_max_s'], .002)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.052 != 0.002
+
+======================================================================
+FAIL: test_exchange_latency_excludes_post_exchange_lock_wait (candidate_tests.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) (failed_exchange=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 184, in test_exchange_latency_excludes_post_exchange_lock_wait
+    self.check_post_exchange_contention(fail)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/c15-codex-fixed-20261017/tests/test_arm_timing.py", line 224, in check_post_exchange_contention
+    self.assertEqual(timing['transaction_max_s'], .002)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.052 != 0.002
+
+----------------------------------------------------------------------
+Ran 1 test in 0.115s
+
+FAILED (failures=2)

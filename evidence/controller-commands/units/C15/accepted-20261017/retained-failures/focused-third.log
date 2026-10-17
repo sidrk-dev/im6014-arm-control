@@ -1,0 +1,38 @@
+test_actual_consecutive_start_intervals_and_budget_boundary (test_station_timing.StationTimingTests.test_actual_consecutive_start_intervals_and_budget_boundary) ... ok
+test_bad_constructor_and_clock_values_reject_without_partial_updates (test_station_timing.StationTimingTests.test_bad_constructor_and_clock_values_reject_without_partial_updates) ... ok
+test_bad_transaction_does_not_consume_a_sample (test_station_timing.StationTimingTests.test_bad_transaction_does_not_consume_a_sample) ... ok
+test_failed_and_successful_exchange_attempts_are_both_measured (test_station_timing.StationTimingTests.test_failed_and_successful_exchange_attempts_are_both_measured) ... ok
+test_long_run_keeps_fixed_storage_and_independent_instances (test_station_timing.StationTimingTests.test_long_run_keeps_fixed_storage_and_independent_instances) ... ok
+test_no_samples_are_unknown_instead_of_fake_zero_durations (test_station_timing.StationTimingTests.test_no_samples_are_unknown_instead_of_fake_zero_durations) ... ok
+test_snapshot_is_detached_from_internal_counters (test_station_timing.StationTimingTests.test_snapshot_is_detached_from_internal_counters) ... ok
+test_zero_elapsed_is_a_real_sample (test_station_timing.StationTimingTests.test_zero_elapsed_is_a_real_sample) ... ok
+test_actual_owner_counts_failed_exchange_attempts (tests.test_arm_timing.ArmTimingTests.test_actual_owner_counts_failed_exchange_attempts) ... ok
+test_actual_owner_loop_uses_host_clock_without_touching_serial (tests.test_arm_timing.ArmTimingTests.test_actual_owner_loop_uses_host_clock_without_touching_serial) ... ok
+test_actual_owner_measures_successful_demo_exchanges (tests.test_arm_timing.ArmTimingTests.test_actual_owner_measures_successful_demo_exchanges) ... ok
+test_real_http_state_reports_timing_without_serial_enumeration (tests.test_arm_timing.ArmTimingTests.test_real_http_state_reports_timing_without_serial_enumeration) ... ERROR
+test_timing_clock_must_be_callable (tests.test_arm_timing.ArmTimingTests.test_timing_clock_must_be_callable) ... ok
+test_timing_json_allowlist_drops_unknowns_and_nonfinite_values (tests.test_arm_timing.ArmTimingTests.test_timing_json_allowlist_drops_unknowns_and_nonfinite_values) ... ok
+
+======================================================================
+ERROR: test_real_http_state_reports_timing_without_serial_enumeration (tests.test_arm_timing.ArmTimingTests.test_real_http_state_reports_timing_without_serial_enumeration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-20261017/tests/test_arm_timing.py", line 110, in test_real_http_state_reports_timing_without_serial_enumeration
+    server = ArmDashboardServer(('127.0.0.1', 0), arm)
+  File "/tmp/c15-codex-20261017/arm_dashboard.py", line 667, in __init__
+    super().__init__(server_address, request_handler_class)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/socketserver.py", line 453, in __init__
+    self.socket = socket.socket(self.address_family,
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+                                self.socket_type)
+                                ^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/socket.py", line 236, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.043s
+
+FAILED (errors=1)

@@ -1,0 +1,47 @@
+{
+  "milestone": "C15",
+  "status": "software verified",
+  "baseHead": "f43d7aae87b01f8c41ae3be89491ad91d35973c4",
+  "sourceManifestSha256": "a2a72dcbf383a7e7fd4edd992c45161b6f228893d9437a2f40ed3934fc2ca00b",
+  "pureTests": 10,
+  "ownerTests": 12,
+  "guardedArmTests": 79,
+  "baselineGroups": 9,
+  "milestoneTests": 249,
+  "legacyDashboardGroups": 19,
+  "viewedCaptures": 4,
+  "startupHashesPerMode": 36,
+  "startupIOAttempts": 0,
+  "fakeUnprofiledRuns": 5,
+  "exchangesPerRun": 63,
+  "physicalMotorPortsOpened": 0,
+  "reviews": {
+    "finalVerdict": "accept",
+    "scope": "C15 software only; no merge/deployment/physical performance claim",
+    "originalFindings": [
+      {
+        "by": [
+          "native Sol",
+          "configured Gemini"
+        ],
+        "finding": "completion timestamp read after publishing lock",
+        "disposition": "act on; reproduced52ms instead of2ms success and failure; corrected end sample before lock",
+        "proof": "lock-boundary-before-after.json"
+      }
+    ],
+    "correctedReviews": {
+      "nativeSol": "accept; actual FINAL/report; no tests executed by reviewer",
+      "Gemini": "complete, no findings; pinned-argv/modelVerifiedfalse",
+      "Muse": "HTTP400 dropout; actualterminal/drained/normalized; no retry or substitution"
+    },
+    "reviewProseCorrections": [
+      "Gemini called counters uint64; actual Python counters are integers; uint64 validation applies only to clock inputs. This is reviewer wording, not a product contract."
+    ],
+    "verificationCorrections": [
+      "Older unguarded arm HTTP tests could enumerate host port metadata; retained as not no-enumeration proof. No motor port open/command followed.",
+      "First globalemptyhandlerguard failed3fixtureexpectations; retained. Finalguard replacescomports/byid/serialconstructor beforeload and preserves suppliedfixtures:79pass.",
+      "First added contention failure fixture allowedlaterretry success; corrected to consistent failures. Both actual original runtime cases then reproduced52ms vs2ms.",
+      "Sandbox loopback EPERM retained; host check uses only ephemeral127.0.0.1, fakeowner and rejectingphysicalboundary."
+    ]
+  }
+}

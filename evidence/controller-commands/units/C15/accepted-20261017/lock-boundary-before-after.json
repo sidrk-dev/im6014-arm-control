@@ -1,0 +1,12 @@
+{
+  "original": "/tmp/c15-codex-20261017",
+  "corrected": "/tmp/c15-codex-fixed-20261017",
+  "check": "event-coordinated actual demo owner, success and failure paths",
+  "originalMeasuredSeconds": 0.052,
+  "correctedMeasuredSeconds": 0.002,
+  "actualInjectedExchangeSeconds": 0.002,
+  "postExchangeLockWaitSeconds": 0.05,
+  "beforeLog": "../lock-wait-before-corrected-fixture.log",
+  "afterLog": "lock-wait-after.log",
+  "physicalIO": "none"
+}
