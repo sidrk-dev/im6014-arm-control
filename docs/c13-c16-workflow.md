@@ -6,11 +6,11 @@ The user authorized controller milestones in parallel with HAPI and swarm develo
 
 C13 is software verified against accepted C12 `227ec4ecc712c0cee48a50c9e234e70dd065b8e3`. [The current evidence](../evidence/controller-commands/units/C13/accepted-20261017/README.md) records source hashes, actual parent checks, configured review results, independent verification and the comment-only equivalence proof. Historical candidate receipts remain separately labeled.
 
-The parent prepared this checkpoint in a separate release worktree. It did not edit the DeepSeek coordinator's worktree or advance its branch while messages or workers could still depend on the C12 head. Before C14 writes, reconcile the actual stopped writer and explicitly hand the accepted source back to the milestone owner. Do not overwrite its worktree merely because Codex returned after a reset.
+The parent prepared this checkpoint in a separate release worktree. It did not edit the DeepSeek coordinator's worktree or advance its branch while messages or workers could still depend on the C12 head. The human later requested direct Codex implementation. Codex created a separate checkout at this accepted source and superseded the unstarted C14 assignment by message. The existing milestone coordinator workspace and its retained source were not overwritten.
 
 ## Remaining units
 
-1. C14: latch temperature and persistent effort faults, preserving explicit acknowledgment and fresh stopped recovery. Compare observation and policy shapes against actual callers before editing. No automatic fault clearing or history reset on a new target.
+1. C14 is software verified. The [acceptance evidence](../evidence/controller-commands/units/C14/accepted-20261017/README.md) retains the original Stop/Check failures and corrected source reviews. Codex implemented it in a separate checkout after the human requested direct work. Both temperature channels are explicit, and confirmed measured-effort history survives software lifecycle requests. The production arm station is not yet integrated with this core.
 2. C15: measure actual loop period, transaction latency, overruns and feedback age using fake transport and deterministic cases. Distinguish measurements from limits and explain the measured workload.
 3. C16: prove station independence, one bus owner and no automatic rearm after dashboard loss using fake transport, PTYs and browser behavior.
 

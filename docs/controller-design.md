@@ -69,3 +69,14 @@ C02 first implements state legality and a test fixture. C03 adds per-joint clock
 Each unit is authored in an isolated worktree, reviewed and run by the parent before the next. scripts/check_milestone.py records hashes, actual checks and raw logs. New modules enter the offline copyset and startup fingerprint. The final driver runs sequentially and its images are inspected. The full controller source and decision trail go to Muse and MiMo for review before handoff. Their requested routes, terminal receipts, findings and parent triage are retained with the evidence.
 
 Software Stop does not prove physical torque off. PTY locking and algebra do not prove adapter performance or calibration. Live multi-joint execution, physical velocity tracking, effort validity, timing, loaded-arm shutdown and station independence remain later work. Position and speed bounds constrain codec-representable software references only; they are not verified mechanical limits or measured physical motion. The pending timeout acknowledgment remains a separate hardware gate.
+
+
+## C14 protection history
+
+The immutable `ProtectionPolicy` belongs to each `JointSpec`. A separate set of private `_ProtectionHistory` records belongs to the core lifetime. Reference history belongs to issued commands and can be cleared by Stop. Keeping these histories separate prevents a new command or reconnect from forgiving confirmed overload.
+
+The selected authority is reported `JointSample.tau_nm` in joint units. C13 continues to bound predicted combined effort at command release. These two channels answer different questions and neither establishes physical load torque without hardware validation. `MotorHealth.driver_c` and `MotorHealth.winding_c` match the two decoded feedback channels. Each is explicit and may be unknown. Any unknown channel latches a named cause.
+
+Two credible overloaded observations within the configured sample gap contribute their exact represented time difference. Unknown gaps preserve exposure but contribute no time. Healthy recovery must be contiguous. Once a protection cause is latched, recovery credit comes only from healthy Stop observations during an acknowledged check. The counter and recovery credit are bounded by policy durations. No clock is sampled or advanced by target replacement for protection accounting.
+
+The rejected alternative added six independent scalar fields to `JointSpec`. A required policy record keeps those related settings together without introducing another controller, transport, or state owner. Existing callers and source-copy registries migrate with the record contract. Fixture policies are synthetic and deliberately permissive for older mathematical reference tests.

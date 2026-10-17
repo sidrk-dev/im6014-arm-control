@@ -1,0 +1,9 @@
+decision	reason	evidence	result
+Codex implements in isolated copy	Human explicitly requested direct Codex work; preserve external ownership	codex-human-direct-c14-20261017-1 stored	Original coordinator and earlier C14 checkout untouched
+Require per-joint immutable ProtectionPolicy	Keep related thresholds and time semantics together	design alternatives and joint_records.py	No default motor ratings; fixtures explicitly synthetic
+Use reported joint effort for duration accounting	C13 predicted effort and actual feedback are separate authorities	JointMap.from_output and JointSample.tau_nm	Mapping applied once; no load-torque claim
+Preserve sample anchors across software Stop/Check	A software request is not a measured feedback gap	Original Sol finding; two actual failures before, both pass after	Only actual transport boundary/failure or timestamp gaps interrupt pairs
+Separate driver and winding channels	Actual decoded feedback has two independently limited channels	im6014_codec.py:297; corrected40focusedcases	Unknown either fails closed; either known hot latches
+Reset only recovery credit on a new acknowledged check	Prevent reusing prior recovery evidence	Requested recovery-epoch probe exit0	READY only after fresh contiguous stopped interval; no owner grant
+Retain Gemini original no-findings as rejected acceptance evidence	It missed actual reproduced Stop/Check bypasses	Original Gemini final versus original Sol and red repro	Correction independently re-reviewed; original source and failures retained
+Retain Muse failures as dropouts	Actual HTTP400, no eligible retry/substitution	Original/corrected actual receipts and normalized outcomes	No Muse review output or claimed agreement

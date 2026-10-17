@@ -81,7 +81,7 @@ These are bounded mathematical references and packet-grid checks. They do not ce
 from joint_controller import JointCore
 from joint_mapping import JointMap, JointSample, JointTarget
 from joint_records import (
-    JointSpec, MotorHealth, PositionLimits, SourceIdentity, Target, State,
+    JointSpec, MotorHealth, PositionLimits, ProtectionPolicy, SourceIdentity, Target, State,
 )
 
 class DeterministicClock:
@@ -95,13 +95,14 @@ clock = DeterministicClock(0.0)
 core = JointCore(
     (JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-0.5, 0.5),
                max_velocity_rad_s=0.2, max_acceleration_rad_s2=1.0, max_measured_lead_rad=0.05,
-               max_effort_nm=1.0),),
+               max_effort_nm=1.0,
+               protection=ProtectionPolicy(70, 90, 0.5, 1, 0.5, 0.1)),),
     clock=clock, max_reference_step_s=0.02,
 )
 assert core.begin_connect()
 assert core.connected(SourceIdentity("fixture", "example", 1))
 assert core.begin_check()
-assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False))
+assert core.receive(0, JointSample(0, 0, 0), MotorHealth(0, 0, 0, False, driver_c=25, winding_c=25))
 assert core.checked()
 grant = core.arm(owner="example")
 assert grant and grant.ownership is not None
@@ -132,3 +133,27 @@ This example performs no serial operations. Its limits are illustrative controll
 The injected core clock must be finite and monotonic. Invalid or regressing time raises before a target can be released; snapshots also require that clock contract. The default is `time.monotonic`. Sequence `2**64 - 1` exhausts that core's stream. Start a new core for a new stream; reconnecting or acknowledging a fault never resets ordering. Ownership is an in-process capability: only the exact object minted by the current core is accepted. A successful arm increments the generation watermark; revoking a live grant increments it once more. A later arm receives a fresh object and generation even when the owner string is unchanged. This local identity check is not a cryptographic credential or a remote authentication protocol.
 
 The fixed per-user lock namespace under `/tmp` coordinates cooperating processes. A hostile local user can pre-create the name and deny access; validation fails closed. An administrator must remove a foreign-owned obstruction. Lockfiles persist to preserve flock inode identity, including after device-number reuse. Do not delete them while clients may be running. No automatic pruning or hostile-local-user availability guarantee is supplied.
+
+
+## Temperature and sustained measured effort
+
+Every `JointSpec` requires a keyword-only `protection=ProtectionPolicy(...)`. All six policy values are finite and positive, without defaults. They are software configuration values, not validated actuator ratings.
+
+| Field | Meaning |
+| --- | --- |
+| `driver_limit_c` | Driver temperature at or above this value latches `over_temperature`. |
+| `winding_limit_c` | Winding temperature at or above this value latches `over_temperature`. |
+| `sustained_effort_nm` | Absolute reported joint effort above this value counts as overload. Equality is permitted. |
+| `overload_duration_s` | Confirmed overload time that latches `persistent_effort`. |
+| `recovery_duration_s` | Required contiguous healthy observation time before exposure resets. Recovery from a protection fault also requires acknowledgment and Stop mode. |
+| `max_sample_gap_s` | Largest gap between consecutive samples that can contribute confirmed time. The core also applies its feedback-age limit. |
+
+`MotorHealth` requires explicit `driver_c` and `winding_c` values. Each accepts a finite temperature or `None`. A missing channel latches `protection_unavailable`; it never means a healthy room-temperature reading. Either hot channel latches even if the other channel is unknown. The example above uses synthetic temperatures and policy thresholds. Both channel names match the decoded feedback contract.
+
+Sustained-effort accounting uses `JointSample.tau_nm`, already mapped to external joint units. It does not use a requested feedforward value or C13's predicted combined command effort. An adapter must supply the reported effort with its verified meaning and map it exactly once. These checks do not establish that reported effort equals measured load torque.
+
+Only pairs of credible overloaded samples within the gap limit add time. The core uses exact differences between the represented monotonic timestamps and saturates the counter at the configured duration. Long or unknown gaps add no time and preserve confirmed exposure. A brief healthy interval also preserves it. A complete contiguous healthy interval resets unlatched exposure. Command submission, reference suppression, Stop, disconnect, reconnect and repeated checks cannot clear exposure on their own.
+
+Protection causes merge with the existing per-joint hardware and communication causes. A fault revokes ownership and discards pending references. Healthy packets cannot clear the latch. After `begin_check(acknowledge_fault=True)`, every affected protection joint needs fresh, healthy, stopped samples spanning its recovery duration. `checked()` returns `RECOVERY_PENDING` while that evidence is incomplete. A gap restarts recovery credit. An additional unhealthy observation latches its cause and requires a new acknowledged check. Successful recovery returns READY without granting ownership or rearming.
+
+This milestone implements the pure controller only. Production dashboard integration and physical protection validation remain separate work. All physical I/O is currently blocked after the adapter incident.

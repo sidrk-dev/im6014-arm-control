@@ -3,6 +3,7 @@ from dataclasses import FrozenInstanceError
 
 from joint_controller import JointCore
 from joint_records import (
+    ProtectionPolicy,
     ArmDecision,
     CommunicationFailure,
     DecisionCode,
@@ -18,14 +19,16 @@ from joint_records import (
 from joint_mapping import JointMap, JointTarget
 from test_controller import DeterministicClock, FakeStation, SAMPLE
 
+SYNTHETIC_PROTECTION = ProtectionPolicy(1e6, 1e6, 1e12, 1e6, 0.1, 0.5)
+
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
 
 class OwnershipTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -151,7 +154,7 @@ class OwnershipTests(unittest.TestCase):
         core, station, _clock, _decision = self._armed_station()
         self.assertTrue(station.stop().accepted)
         self.assertTrue(station.check().accepted)
-        self.assertTrue(core.receive(0, SAMPLE, MotorHealth(1, 0, 0, False)).accepted)
+        self.assertTrue(core.receive(0, SAMPLE, MotorHealth(1, 0, 0, False, driver_c=25.0, winding_c=25.0)).accepted)
         not_stopped = station.arm(owner="teleop")
         self.assertEqual(not_stopped.code, DecisionCode.NOT_STOPPED)
         self.assertIsNone(not_stopped.ownership)
@@ -212,12 +215,12 @@ class OwnershipTests(unittest.TestCase):
                     self.assertEqual(core.snapshot().ownership_generation, generation_after_revoke)
                     self.assertTrue(station.check().accepted)
                 elif path == "fault":
-                    self.assertTrue(core.receive(0, SAMPLE, MotorHealth(0, 1, 0, False)).accepted)
+                    self.assertTrue(core.receive(0, SAMPLE, MotorHealth(0, 1, 0, False, driver_c=25.0, winding_c=25.0)).accepted)
                     generation_after_revoke = 2
                     self.assertIsNone(core.snapshot().ownership)
                     self.assertTrue(core.communication_failed(1, CommunicationFailure.TIMEOUT).accepted)
                     self.assertEqual(core.snapshot().ownership_generation, generation_after_revoke)
-                    self.assertTrue(core.receive(0, SAMPLE, MotorHealth(0, 0, 0, False)).accepted)
+                    self.assertTrue(core.receive(0, SAMPLE, MotorHealth(0, 0, 0, False, driver_c=25.0, winding_c=25.0)).accepted)
                     self.assertIsNone(core.snapshot().ownership)
                     self.assertTrue(station.check(acknowledge_fault=True).accepted)
                 elif path == "communication":

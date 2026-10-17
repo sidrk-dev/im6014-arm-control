@@ -1,6 +1,6 @@
 """Frozen public records and enums for the joint-controller API."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 import math
 from typing import Literal
@@ -38,6 +38,7 @@ class DecisionCode(str, Enum):
     POSITION_LIMIT = "position_limit"
     DUPLICATE_OR_OLDER = "duplicate_or_older"
     EFFORT_LIMIT = "effort_limit"
+    RECOVERY_PENDING = "recovery_pending"
 
 
 class CommunicationFailure(str, Enum):
@@ -104,6 +105,29 @@ class PositionLimits:
             raise ValueError("minimum_rad must not exceed maximum_rad")
 
 @dataclass(frozen=True)
+class ProtectionPolicy:
+    driver_limit_c: float
+    winding_limit_c: float
+    sustained_effort_nm: float
+    overload_duration_s: float
+    recovery_duration_s: float
+    max_sample_gap_s: float
+
+    def __post_init__(self) -> None:
+        for name in self.__dataclass_fields__:
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be finite and positive")
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite and positive") from exc
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError(f"{name} must be finite and positive")
+            object.__setattr__(self, name, value)
+
+
+@dataclass(frozen=True)
 class JointSpec:
     name: str
     motor_id: int
@@ -113,8 +137,11 @@ class JointSpec:
     max_acceleration_rad_s2: float
     max_measured_lead_rad: float
     max_effort_nm: float
+    protection: ProtectionPolicy = field(kw_only=True)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.protection, ProtectionPolicy):
+            raise ValueError("protection must be a ProtectionPolicy")
         if type(self.name) is not str or not self.name.strip():
             raise ValueError("joint name must be a non-empty string")
         if type(self.motor_id) is not int or not 0 <= self.motor_id <= 14:
@@ -178,6 +205,9 @@ class JointFault:
     communication_error: CommunicationFailure | None = None
     stale: bool = False
     communication_errors: tuple[CommunicationFailure, ...] = ()
+    over_temperature: bool = False
+    persistent_effort: bool = False
+    protection_unavailable: bool = False
 
     def __post_init__(self) -> None:
         if type(self.name) is not str or not self.name.strip():
@@ -192,6 +222,9 @@ class JointFault:
             raise ValueError("timeout must be a bool")
         if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
             raise ValueError("communication_error must be a CommunicationFailure or None")
+        for name in ("over_temperature", "persistent_effort", "protection_unavailable"):
+            if type(getattr(self, name)) is not bool:
+                raise ValueError(f"{name} must be a bool")
         if type(self.stale) is not bool:
             raise ValueError("stale must be a bool")
         if type(self.communication_errors) is not tuple or any(
@@ -217,6 +250,8 @@ class MotorHealth:
     errors: int
     warnings: int
     timeout: bool
+    driver_c: float | None
+    winding_c: float | None
 
     def __post_init__(self) -> None:
         if type(self.mode) is not int or self.mode not in (0, 1):
@@ -228,9 +263,24 @@ class MotorHealth:
         if type(self.timeout) is not bool:
             raise ValueError("timeout must be a bool")
 
+        for name in ("driver_c", "winding_c"):
+            value = getattr(self, name)
+            if value is None:
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name} must be finite or None")
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise ValueError(f"{name} must be finite or None") from exc
+            if not math.isfinite(value):
+                raise ValueError(f"{name} must be finite or None")
+            object.__setattr__(self, name, value)
+
     @property
     def healthy(self) -> bool:
-        return self.errors == 0 and self.warnings == 0 and not self.timeout
+        return (self.driver_c is not None and self.winding_c is not None and self.errors == 0
+                and self.warnings == 0 and not self.timeout)
 
 @dataclass(frozen=True)
 class SourceIdentity:

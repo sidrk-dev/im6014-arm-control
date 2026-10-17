@@ -1,0 +1,10 @@
+{
+  "exitCode": 0,
+  "command": [
+    "/home/sid/Documents/code/im6014Workbench/.venv/bin/python",
+    "-B",
+    "/tmp/c14-codex-evidence-20261017/fixed/check-recovery-epoch.py"
+  ],
+  "cwd": "/tmp/c14-codex-fixed-20261017",
+  "physicalIO": "none;pure records/clock/core only"
+}

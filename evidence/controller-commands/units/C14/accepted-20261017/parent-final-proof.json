@@ -1,0 +1,48 @@
+{
+  "baseline": "/tmp/c14-codex-evidence-20261017/fixed/final-baseline/run-20261017T202451Z-umSLjCuU",
+  "sourceUnchanged": true,
+  "startup": {
+    "real": {
+      "fingerprints": 34,
+      "allMatch": true,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "fingerprints": 34,
+      "allMatch": true,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "capturesViewed": [
+    {
+      "path": "/tmp/c14-codex-evidence-20261017/fixed/final-baseline/run-20261017T202451Z-umSLjCuU/dashboard_preview.png",
+      "sha256": "1b4b3d929add491ff5cd5704d7beb8be8672aab7c1faf84052bd34f4dcd0bcc6",
+      "inspected": "parent visually inspected actual legacyQt capture; not arm web UI"
+    },
+    {
+      "path": "/tmp/c14-codex-evidence-20261017/fixed/final-baseline/run-20261017T202451Z-umSLjCuU/dashboard_dark_preview.png",
+      "sha256": "895565fe21fe1a1150047e8de1ca3ec21c7cc2703d080076cd27e0de655fbb7d",
+      "inspected": "parent visually inspected actual legacyQt capture; not arm web UI"
+    },
+    {
+      "path": "/tmp/c14-codex-evidence-20261017/fixed/final-baseline/run-20261017T202451Z-umSLjCuU/startup-real/dashboard.png",
+      "sha256": "79a617ccb393b27e1cf22209944ebe85a571b3d701a3a428a6cf8adaf2960fcd",
+      "inspected": "parent visually inspected actual legacyQt capture; not arm web UI"
+    },
+    {
+      "path": "/tmp/c14-codex-evidence-20261017/fixed/final-baseline/run-20261017T202451Z-umSLjCuU/startup-demo/dashboard.png",
+      "sha256": "752d74bf311afb4b9efecd36d5f82001d78fcdc93f066805c5194d290a70966e",
+      "inspected": "parent visually inspected actual legacyQt capture; not arm web UI"
+    }
+  ],
+  "milestoneTests": 239,
+  "dashboardGroups": 19
+}

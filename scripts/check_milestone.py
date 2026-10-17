@@ -25,6 +25,7 @@ CHECKS = {
     'C11': 'test_controller_acceleration',
     'C12': 'test_controller_lead',
     'C13': 'test_controller_effort',
+    'C14': 'test_controller_faults',
 }
 
 

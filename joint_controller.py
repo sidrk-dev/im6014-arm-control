@@ -6,6 +6,7 @@ transport and all externally visible records are immutable snapshots.
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from fractions import Fraction
 import math
 import time
 from typing import Literal
@@ -48,6 +49,15 @@ class _ReferenceHistory:
     issued_at_s: float
     kind: Literal["seed", "issued"]
     position_rates_rad_s: tuple[float, ...]
+
+
+@dataclass(frozen=True)
+class _ProtectionHistory:
+    received_at_s: float | None = None
+    overloaded: bool = False
+    recovering: bool = False
+    overload_s: Fraction = Fraction(0)
+    recovery_s: Fraction = Fraction(0)
 
 
 class JointCore:
@@ -107,6 +117,7 @@ class JointCore:
         self._clock = clock
         self._last_now: float | None = None
         self._faults: dict[str, JointFault] = {}
+        self._protection = [_ProtectionHistory() for _ in specs]
         self._pending_target: _PendingTarget | None = None
         self._history: _ReferenceHistory | None = None
         self._last_sequence: int = -1
@@ -137,6 +148,53 @@ class JointCore:
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
 
+    def _break_protection_continuity(self, index: int | None = None) -> None:
+        indices = range(len(self._specs)) if index is None else (index,)
+        for i in indices:
+            prior = self._protection[i]
+            self._protection[i] = _ProtectionHistory(overload_s=prior.overload_s)
+
+    def _observe_protection(
+        self, index: int, sample: JointSample, health: MotorHealth, now: float
+    ) -> tuple[bool, bool, bool]:
+        policy = self._specs[index].protection
+        prior = self._protection[index]
+        unknown = health.driver_c is None or health.winding_c is None
+        hot = ((health.driver_c is not None and health.driver_c >= policy.driver_limit_c)
+               or (health.winding_c is not None and health.winding_c >= policy.winding_limit_c))
+        credible = health.healthy and not hot
+        overloaded = credible and abs(sample.tau_nm) > policy.sustained_effort_nm
+        recovering = (credible and not overloaded and (
+            not self._faults or (self._state is State.CHECKING and health.mode == 0)
+        ))
+        dt = Fraction(0)
+        contiguous = False
+        if prior.received_at_s is not None:
+            gap = Fraction(now) - Fraction(prior.received_at_s)
+            if gap <= Fraction(min(self._feedback_max_age_s, policy.max_sample_gap_s)):
+                dt = gap
+                contiguous = True
+        overload_s = prior.overload_s
+        if prior.overloaded and overloaded:
+            overload_s = min(Fraction(policy.overload_duration_s), overload_s + dt)
+        recovery_s = Fraction(0)
+        if contiguous and prior.recovering and recovering:
+            recovery_s = min(Fraction(policy.recovery_duration_s), prior.recovery_s + dt)
+        if recovering and recovery_s >= Fraction(policy.recovery_duration_s):
+            overload_s = Fraction(0)
+        self._protection[index] = _ProtectionHistory(
+            now, overloaded, recovering, overload_s, recovery_s,
+        )
+        return hot, overloaded and overload_s >= Fraction(policy.overload_duration_s), unknown
+
+    def _protection_healthy(self, index: int) -> bool:
+        joint = self._observations[index]
+        policy = self._specs[index].protection
+        return (joint.healthy
+                and joint.health.driver_c < policy.driver_limit_c
+                and joint.health.winding_c < policy.winding_limit_c
+                and abs(joint.sample.tau_nm) <= policy.sustained_effort_nm)
+
     def _clear_reference(self) -> None:
         self._history = None
 
@@ -150,6 +208,9 @@ class JointCore:
         timeout: bool = False,
         communication_error: CommunicationFailure | None = None,
         stale: bool = False,
+        over_temperature: bool = False,
+        persistent_effort: bool = False,
+        protection_unavailable: bool = False,
     ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
         communication_errors = existing.communication_errors
@@ -163,6 +224,9 @@ class JointCore:
             stale=existing.stale or stale,
             communication_error=communication_error or existing.communication_error,
             communication_errors=communication_errors,
+            over_temperature=existing.over_temperature or over_temperature,
+            persistent_effort=existing.persistent_effort or persistent_effort,
+            protection_unavailable=existing.protection_unavailable or protection_unavailable,
         )
         self._faults[name] = fault
         self._state = State.FAULT
@@ -212,6 +276,7 @@ class JointCore:
         if not isinstance(source, SourceIdentity):
             return self._rejected(DecisionCode.INVALID_SOURCE)
         self._clear_observations()
+        self._break_protection_continuity()
         self._source = source
         self._state = State.CONNECTED
         return self._accepted()
@@ -224,6 +289,10 @@ class JointCore:
         if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
+        self._protection = [
+            _ProtectionHistory(h.received_at_s, h.overloaded, overload_s=h.overload_s)
+            for h in self._protection
+        ]
         self._pending_target = None
         self._clear_reference()
         self._state = State.CHECKING
@@ -250,14 +319,19 @@ class JointCore:
         if not isinstance(sample, JointSample) or not isinstance(status, MotorHealth):
             return self._rejected(DecisionCode.INVALID_OBSERVATION)
 
-        self._observations[index] = JointStatus(sample, status, self._now())
-        if not status.healthy:
+        now = self._now()
+        self._observations[index] = JointStatus(sample, status, now)
+        hot, overloaded, unknown = self._observe_protection(index, sample, status, now)
+        if not status.healthy or hot or overloaded:
             self._latch_joint_fault(
                 self._specs[index].name,
                 motor_id,
                 errors=status.errors,
                 warnings=status.warnings,
                 timeout=status.timeout,
+                over_temperature=hot,
+                persistent_effort=overloaded,
+                protection_unavailable=unknown,
             )
         return self._accepted()
 
@@ -277,6 +351,7 @@ class JointCore:
         failure_code = code
 
         spec = self._specs[index]
+        self._break_protection_continuity(index)
         self._latch_joint_fault(
             spec.name,
             motor_id,
@@ -299,6 +374,14 @@ class JointCore:
             return self._rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
+        if any(not self._protection_healthy(i) for i in range(len(self._specs))):
+            return self._rejected(DecisionCode.UNHEALTHY)
+        for i, spec in enumerate(self._specs):
+            fault = self._faults.get(spec.name)
+            if (fault is not None
+                    and (fault.over_temperature or fault.persistent_effort or fault.protection_unavailable)
+                    and self._protection[i].recovery_s < Fraction(spec.protection.recovery_duration_s)):
+                return self._rejected(DecisionCode.RECOVERY_PENDING)
         self._state = State.READY
         self._faults.clear()
         return self._accepted()
@@ -319,6 +402,8 @@ class JointCore:
             return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._arm_rejected(DecisionCode.NOT_STOPPED)
+        if any(not self._protection_healthy(i) for i in range(len(self._specs))):
+            return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(
             not spec.position_limits.minimum_rad <= joint.sample.q_rad <= spec.position_limits.maximum_rad
             for spec, joint in zip(self._specs, self._observations)
@@ -561,6 +646,7 @@ class JointCore:
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
+        self._break_protection_continuity()
         self._pending_target = None
         self._clear_reference()
         return self._accepted()

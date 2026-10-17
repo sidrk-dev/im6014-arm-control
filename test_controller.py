@@ -5,6 +5,7 @@ import math
 from im6014_codec import command
 from joint_controller import JointCore
 from joint_records import (
+    ProtectionPolicy,
     CommunicationFailure,
     DecisionCode,
     JointFault,
@@ -17,9 +18,11 @@ from joint_records import (
 )
 from joint_mapping import JointMap, JointSample, JointTarget
 
+SYNTHETIC_PROTECTION = ProtectionPolicy(1e6, 1e6, 1e12, 1e6, 0.1, 0.5)
+
 
 SAMPLE = JointSample(0.1, 0.0, 0.0)
-HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False)
+HEALTHY_STOP = MotorHealth(mode=0, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0)
 SOURCE = SourceIdentity("fixture", "controller-test", 1)
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
@@ -104,8 +107,8 @@ class DeterministicClock:
 class FeedbackAgeTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
 
     def _ready_station(self, clock, *, feedback_max_age_s=1.0):
@@ -295,7 +298,7 @@ def core_at(test, state, clock=None):
         test.assertTrue(core.receive(
             test.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=1, warnings=0, timeout=False),
+            MotorHealth(mode=0, errors=1, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0),
         ).accepted)
         return core
     raise AssertionError(f"{state} is not reachable")
@@ -305,8 +308,8 @@ class ControllerStateTests(unittest.TestCase):
     def setUp(self):
         self.clock = lambda: 0.0
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
 
 
@@ -315,13 +318,13 @@ class ControllerStateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             JointCore((), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0), JointSpec("J1", 1, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0)), max_reference_step_s=1000000.0)
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION), JointSpec("J1", 1, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION)), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0), JointSpec("J2", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0)), max_reference_step_s=1000000.0)
+            JointCore((JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION), JointSpec("J2", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION)), max_reference_step_s=1000000.0)
         with self.assertRaises(ValueError):
-            JointSpec("J1", True, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0)
+            JointSpec("J1", True, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION)
 
-        supplied = [JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0)]
+        supplied = [JointSpec("J1", 0, mapping, WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION)]
         core = JointCore(supplied, clock=self.clock, max_reference_step_s=1000000.0)
         supplied.clear()
         self.assertEqual(tuple(spec.name for spec in core.joint_specs), ("J1",))
@@ -334,7 +337,7 @@ class ControllerStateTests(unittest.TestCase):
             dict(mode=0, errors=0, warnings=0, timeout=1),
         ):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
-                MotorHealth(**kwargs)
+                MotorHealth(driver_c=25.0, winding_c=25.0, **kwargs)
         with self.assertRaises(ValueError):
             SourceIdentity("other", "x", 1)
 
@@ -365,7 +368,7 @@ class ControllerStateTests(unittest.TestCase):
 
     def test_arm_requires_current_stop_feedback(self):
         core = core_at(self, State.READY)
-        self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False)))
+        self.assertTrue(core.receive(1, SAMPLE, MotorHealth(1, 0, 0, False, driver_c=25.0, winding_c=25.0)))
         before = core.snapshot()
         self.assertEqual(core.arm(owner="test").code, DecisionCode.NOT_STOPPED)
         self.assertEqual(core.snapshot(), before)
@@ -385,13 +388,13 @@ class ControllerStateTests(unittest.TestCase):
         self.assertEqual(core.snapshot(), before)
 
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, HEALTHY_STOP).accepted)
-        foc = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
+        foc = MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, foc).accepted)
         before = core.snapshot()
         self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
         self.assertEqual(core.snapshot(), before)
 
-        unhealthy = MotorHealth(mode=0, errors=0, warnings=1, timeout=False)
+        unhealthy = MotorHealth(mode=0, errors=0, warnings=1, timeout=False, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, unhealthy).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertTrue(core.snapshot().fault_latched)
@@ -418,7 +421,7 @@ class ControllerStateTests(unittest.TestCase):
         self.assertTrue(station.check().accepted)
         self.assertTrue(station.arm(owner="test").accepted)
 
-        bad_health = MotorHealth(mode=0, errors=4, warnings=2, timeout=True)
+        bad_health = MotorHealth(mode=0, errors=4, warnings=2, timeout=True, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, bad_health).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertTrue(core.snapshot().fault_latched)
@@ -525,8 +528,8 @@ class ControllerStateTests(unittest.TestCase):
 class JointFaultTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
-            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
+            JointSpec("J1", 0, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
 
     def _ready_core(self, clock=None, *, feedback_max_age_s=1.0):
@@ -582,7 +585,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.arm(owner="test").accepted)
 
         unknown_errors = 0x80000004
-        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True)
+        status = MotorHealth(mode=0, errors=unknown_errors, warnings=5, timeout=True, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, status).accepted)
 
         snap = core.snapshot()
@@ -603,7 +606,7 @@ class JointFaultTests(unittest.TestCase):
             dict(mode=0, errors=0, warnings=0, timeout="True"),
         ):
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
-                MotorHealth(**kwargs)
+                MotorHealth(driver_c=25.0, winding_c=25.0, **kwargs)
 
         for kwargs in (
             dict(name="J1", motor_id=0, errors=-1),
@@ -622,7 +625,7 @@ class JointFaultTests(unittest.TestCase):
         core = self._ready_core()
         self.assertTrue(core.arm(owner="test").accepted)
 
-        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False)
+        unhealthy = MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, unhealthy).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
@@ -648,13 +651,13 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False),
+            MotorHealth(mode=0, errors=0x01, warnings=1, timeout=False, driver_c=25.0, winding_c=25.0),
         ).accepted)
 
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True),
+            MotorHealth(mode=0, errors=0x04, warnings=2, timeout=True, driver_c=25.0, winding_c=25.0),
         ).accepted)
 
         self.assertTrue(core.communication_failed(
@@ -676,7 +679,7 @@ class JointFaultTests(unittest.TestCase):
             self.assertTrue(core.receive(
                 self.specs[0].motor_id,
                 SAMPLE,
-                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False),
+                MotorHealth(mode=0, errors=0x02, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0),
             ).accepted)
         self.assertEqual(len(core.snapshot().faults), 1)
         self.assertEqual(core.snapshot().faults[0].errors, 0x07)
@@ -776,7 +779,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertTrue(core.receive(
             self.specs[0].motor_id,
             SAMPLE,
-            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False),
+            MotorHealth(mode=0, errors=0x04, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0),
         ).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
@@ -793,7 +796,7 @@ class JointFaultTests(unittest.TestCase):
         self.assertEqual(core.checked().code, DecisionCode.OBSERVATIONS_INCOMPLETE)
         self.assertEqual(core.snapshot().affected_joints, ("J1",))
 
-        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False)
+        non_stop = MotorHealth(mode=1, errors=0, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, non_stop).accepted)
         self.assertTrue(core.receive(self.specs[1].motor_id, SAMPLE, HEALTHY_STOP).accepted)
         self.assertEqual(core.checked().code, DecisionCode.NOT_STOPPED)
@@ -844,8 +847,8 @@ class JointFaultTests(unittest.TestCase):
 
     def test_independent_second_core_unchanged_by_fault(self):
         specs2 = (
-            JointSpec("J3", 2, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
-            JointSpec("J4", 3, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0),
+            JointSpec("J3", 2, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J4", 3, JointMap(1, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         clock = DeterministicClock(0.0)
         core1 = JointCore(self.specs, clock=clock, max_reference_step_s=1000000.0)

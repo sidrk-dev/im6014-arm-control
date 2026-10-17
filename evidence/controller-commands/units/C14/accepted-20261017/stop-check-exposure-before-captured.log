@@ -1,0 +1,23 @@
+test_repeated_stop_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_stop_does_not_erase_measured_time) ... FAIL
+test_repeated_check_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_check_does_not_erase_measured_time) ... FAIL
+
+======================================================================
+FAIL: test_repeated_stop_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_stop_does_not_erase_measured_time)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c14-codex-evidence-20261017/check-stop-exposure.py", line 11, in test_repeated_stop_does_not_erase_measured_time
+    self.assertTrue(any(f.persistent_effort for f in core.snapshot().faults))
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_repeated_check_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_check_does_not_erase_measured_time)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c14-codex-evidence-20261017/check-stop-exposure.py", line 19, in test_repeated_check_does_not_erase_measured_time
+    self.assertTrue(any(f.persistent_effort for f in core.snapshot().faults))
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+FAILED (failures=2)
