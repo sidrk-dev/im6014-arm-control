@@ -1,0 +1,14 @@
+test_all_later_stages_have_exact_ordered_joint_dimensions (test_provisional_builds.D03ProvisionalBuilds.test_all_later_stages_have_exact_ordered_joint_dimensions) ... ok
+test_existing_j1_plan_also_rejects_simulation_backend (test_provisional_builds.D03ProvisionalBuilds.test_existing_j1_plan_also_rejects_simulation_backend) ... ok
+test_explicit_declared_and_measured_values_keep_provenance (test_provisional_builds.D03ProvisionalBuilds.test_explicit_declared_and_measured_values_keep_provenance) ... ok
+test_geometry_units_and_negative_known_values_are_rejected (test_provisional_builds.D03ProvisionalBuilds.test_geometry_units_and_negative_known_values_are_rejected) ... ok
+test_inputs_require_explicit_mapping_identity_revision_and_unique_bus_ids (test_provisional_builds.D03ProvisionalBuilds.test_inputs_require_explicit_mapping_identity_revision_and_unique_bus_ids) ... ok
+test_missing_geometry_is_unknown_without_nominal_numeric_defaults (test_provisional_builds.D03ProvisionalBuilds.test_missing_geometry_is_unknown_without_nominal_numeric_defaults) ... ok
+test_roundtrip_does_not_upgrade_unknowns_including_measured_named_simulation (test_provisional_builds.D03ProvisionalBuilds.test_roundtrip_does_not_upgrade_unknowns_including_measured_named_simulation) ... ok
+test_simulation_and_physical_workflow_metadata_stay_distinct (test_provisional_builds.D03ProvisionalBuilds.test_simulation_and_physical_workflow_metadata_stay_distinct) ... ok
+test_wrong_backends_names_and_dimensions_are_rejected (test_provisional_builds.D03ProvisionalBuilds.test_wrong_backends_names_and_dimensions_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.004s
+
+OK

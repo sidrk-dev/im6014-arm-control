@@ -1,0 +1,32 @@
+{
+  "baseHead": "99545c1182b7730b9c20bce41857c78dccc6ce39",
+  "sourcePinsMatch": true,
+  "focusedTests": 9,
+  "combinedBuildTests": 42,
+  "baselineGroups": 9,
+  "milestoneTests": 298,
+  "legacyQtGroups": 19,
+  "capturesViewed": 4,
+  "startup": {
+    "real": {
+      "sourceHashesMatched": 45,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "sourceHashesMatched": 45,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "docsExampleExecuted": true,
+  "physicalIO": false,
+  "runtime": "pure metadata only; owner/core/D01unchanged; D02BuildPlan extended with exact robot/backend/joint-set checks",
+  "failedRuns": "sandbox baseline socket/lock fixtures failed; intermediate host pass retained; final exact-source host pass; initial parent evidence parser failed on unskipped TSV header, corrected without changing tests"
+}
