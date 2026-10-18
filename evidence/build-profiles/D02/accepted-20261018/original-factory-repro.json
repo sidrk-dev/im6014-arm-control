@@ -1,0 +1,7 @@
+{
+  "motorIDInvented": 1,
+  "readinessFromFactory": "calibrated",
+  "lowLevelArmGrantedFromFactory": true,
+  "lowLevelReleaseGrantedFromFactory": true,
+  "actualHardwareOrNetwork": false
+}

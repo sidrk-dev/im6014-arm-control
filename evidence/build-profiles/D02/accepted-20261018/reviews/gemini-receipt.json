@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/d02-codex-20261018",
+  "promptPath": "/tmp/d02-codex-evidence-20261018/review/prompt.md",
+  "outputPath": "/tmp/d02-codex-evidence-20261018/review/gemini.md",
+  "receiptPath": "/tmp/d02-codex-evidence-20261018/review/gemini-receipt.json",
+  "executionId": "/tmp/d02-codex-evidence-20261018/review/gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/d02-codex-20261018",
+    "output": "/tmp/d02-codex-evidence-20261018/review/gemini.md",
+    "receipt": "/tmp/d02-codex-evidence-20261018/review/gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-18T02:09:33.291Z",
+  "completedAt": "2026-10-18T22:36:34.377Z",
+  "elapsedMs": 73621086,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-004566dd0ebe9874",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/d02-codex-20261018"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "child-failed",
+  "reportedModel": null,
+  "modelVerified": false,
+  "modelEvidence": null,
+  "sessionId": null,
+  "usage": null,
+  "costUsd": null,
+  "error": {
+    "message": "antigravity did not report a successful result",
+    "evidence": "terminal: {\"response\":\"### Review Summary: D02 Workbench Build Workflow Definitions\\n\\n**Verdict: No Blocker.**\\n\\nThe implementation of Milestone D02 in [`build_profiles.py`](file:///tmp/d02-codex-20261018/build_profiles.py) and accompanying tests/docs adheres to repository constraints, avoids premature live authority or hardware execution, and maintains strict immutability and separation of concerns.\\n\\n---\\n\\n### Key Review Findings\\n\\n#### 1. Authority and Operational Boundaries (Verified Compliant)\\n- **No live readiness or\"}\nstdout: 308 line(s), 308 JSON event(s); stderr: 0 line(s), 0 JSON event(s)"
+  },
+  "failurePhase": "postprocess",
+  "processStarted": true,
+  "apiSpend": "deny",
+  "terminalSuccess": false
+}

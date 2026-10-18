@@ -6,3 +6,4 @@ C11-C15	software verified	Codex parent	Accepted sequential controller/timing che
 C16	software verified	Codex parent	Station failure independence	Two cleanup regressions fixed;7focused/79guardedarm/9offlinegroups; fake transport only; evidence/controller-commands/units/C16/accepted-20261017
 Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination
 D01-build-profile	software verified	Codex parent	build_profile.py;schema tests;baseline fingerprints	26focused/all9baselinegroups282milestone/42hashes per mode0I/O; no live permission or calibrated zero imported; D02-D06 pending
+D02-build-workflows	software verified	Codex parent	build_profiles.py;focused tests;baseline fingerprints	Distinct setup/evidence/conditional workflow scopes; no motion permission; configured external dropouts retained; fresh native accepts; D03-D06 pending

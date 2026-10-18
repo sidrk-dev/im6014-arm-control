@@ -1,0 +1,12 @@
+test_conditional_workflow_scopes_stay_distinct (test_build_profiles.D02BuildWorkflows.test_conditional_workflow_scopes_stay_distinct) ... ok
+test_explicit_configurations_round_trip_without_readiness_upgrade (test_build_profiles.D02BuildWorkflows.test_explicit_configurations_round_trip_without_readiness_upgrade) ... ok
+test_factories_never_invent_mapping_or_calibration (test_build_profiles.D02BuildWorkflows.test_factories_never_invent_mapping_or_calibration) ... ok
+test_identity_and_mapping_validation_stays_at_d01_boundary (test_build_profiles.D02BuildWorkflows.test_identity_and_mapping_validation_stays_at_d01_boundary) ... ok
+test_mismatched_or_modified_definitions_are_rejected (test_build_profiles.D02BuildWorkflows.test_mismatched_or_modified_definitions_are_rejected) ... ok
+test_profiles_have_distinct_identity_and_mechanical_requirements (test_build_profiles.D02BuildWorkflows.test_profiles_have_distinct_identity_and_mechanical_requirements) ... ok
+test_values_and_scopes_are_immutable (test_build_profiles.D02BuildWorkflows.test_values_and_scopes_are_immutable) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK

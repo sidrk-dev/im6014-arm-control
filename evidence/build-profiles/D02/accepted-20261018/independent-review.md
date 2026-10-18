@@ -1,0 +1,27 @@
+What this change does: D02 adds canonical bench and mounted-base workflow definitions and explicit J1 configuration factories. It records intended setup, required evidence and conditional workflow ceilings without asserting calibration or granting live control.
+
+Verdict: ACCEPT — SOFTWARE SOURCE ONLY. No concrete must-fix or should-fix finding in the pinned scope.
+
+Reviewed checkout: `/tmp/d02-codex-20261018`, HEAD `a709e160d93a70ef5af26d9e02bfbf21b37927a4`. Read-only Git inspection showed exactly the six candidate files: three new files and three check/fingerprint edits; no runtime owner, transport, controller or D01 source change. All six SHA-256 values matched `review/source-hashes.json` at the start and end of review:
+
+| File | SHA-256 |
+|---|---|
+| `build_profiles.py` | `1ac3fc5f6c6adb0d8f2b9930c796b505791d7bdef4c61deab40f0cf999b0fb09` |
+| `test_build_profiles.py` | `d8285bd205dd76b99e0b35026da850a5599b7550248b2793dad2ac320f766ab5` |
+| `scripts/check_milestone.py` | `61e234ec418e66728a00f2ce3415cee59d2ed1fe13a864f025dc7028e2b7e828` |
+| `scripts/check_offline_baseline.sh` | `e4480b075f9637511932cccbca9c69ac149864bacae8802e5bbe48ebc5844bb4` |
+| `test_startup.py` | `a49cb0398c5b8150abbb373735d2aeb99484d7a4df775ab9c5f442ff362a9a1a` |
+| `docs/build-workflows.md` | `6d9825a5661893383f00cb6b2114c92c81af5d92ce5b05e6d943403579b28408` |
+
+Evidence supporting acceptance:
+
+- Plan grounding: `docs/ROBOT_WORKBENCH_AGENT_PROMPT.md:90-111,341-350` distinguishes bench verification from the mounted/calibrated target configuration and makes D02's mechanical readiness and action distinctions explicit. The design and `docs/build-workflows.md:22-33` honestly scope this unit to configuration preparation. The broader absent/uncommissioned/calibrated/movable state model and D03-D06 behavior are not established here.
+- Distinct definitions: `build_profiles.py:28-43` separates secured-bench evidence and bounded-bench workflows from base mounting, attached load, arm clearance and arm joint control. Evidence names describe requirements; no evidence value says that a fact has been observed. `actions_when_commissioned` contains high-level conditional workflows, with no low-level arm/release/Enable permission API.
+- Explicit, truthful factory inputs: `build_profiles.py:62-93` requires revision, bus, motor ID, JointMap, mapping provenance and explicit actuator identity/source. It preserves `None` identity, sets encoder to `unmarked`, and keeps mapping status `declared`. It supplies no nominal motor ID, reduction, direction, zero, measured value or calibrated flag. D01 validates the required fields and JointMap validates finite mapping values (`build_profile.py:105-133,178-195`; `joint_mapping.py:49-62`).
+- Accepted plans are immutable by the normal frozen-dataclass contract: canonical metadata uses frozensets, BuildPlan is frozen, D01 profiles/joints hold tuples and frozen maps. `BuildPlan.__post_init__` requires a D01 BuildProfile, the exact canonical definition object, a matching build identity and exactly `('J1',)` (`build_profiles.py:46-59`). Copied/replaced definitions, including one carrying a mutable set, cannot enter an accepted plan. The documented profile-only JSON round trip retains the canonical definition supplied by its caller; serialized build names do not regain live readiness.
+- Caller coverage: source search of Python and shell files outside retained evidence found no runtime import/use of `build_profiles`, BuildPlan or BuildDefinition. Current callers are the focused tests and documentation example; both factories share the reviewed `_j1_plan`. D02 is registered in `scripts/check_milestone.py:32`; both new Python files are copied in `scripts/check_offline_baseline.sh:81`, the test is run at line 101, and both are included in `test_startup.py:111-119` fingerprints. The milestone fingerprint already collects root Python files. The existing ticket/armed/connected boundary remains in `arm_manual.py:803-858` and has no connection to this metadata.
+- Test source covers the two identities/evidence sets, distinct conditional scopes, every missing factory input, explicit synthetic mappings and unknown identity, no authority/calibration attributes, JSON round trip, swapped/modified definitions, an empty joint set, invalid profile type, frozen values and inherited D01 input validation (`test_build_profiles.py:16-98`). Connected D01 tests retain provenance, unknown identity, declared mapping and immutable-record coverage. The retained original-factory reproduction records the rejected nominal-ID/calibrated/arm/release behavior; the candidate source does not reproduce that design.
+
+Existing evidence read, not executed by this reviewer: the focused receipt names this checkout/base and records unchanged source plus exit 0; its stderr records 7 tests passing. The baseline checks table records 9 groups with exit 0, and `milestone-tests.log` records 289 tests passing. These are parent-generated artifacts, not independent execution evidence. External reviewer verdicts were not used and no consensus is claimed.
+
+Not checked: no checks, imports, product execution, providers, network, credentials, hardware, services or subagents were run. No source or Git mutation was made. This verdict does not establish physical mounting, calibration, a fresh reference, motion permission, runtime integration, exact-head candidate CI, or release of dependent milestones; parent review triage, Git, CI and dependency gates remain required.
