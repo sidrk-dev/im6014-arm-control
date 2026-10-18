@@ -1,0 +1,8 @@
+{
+  "source": "/tmp/d05-milestone-scout-20261018.md",
+  "selected": "Full canonical profile SHA256 conservative binding; separate exact opaque artifact digest. Duplicate identity subset/hybrid rejected for D05 because omissions/drift and unnecessary partial-binding semantics.",
+  "scope": "Scout correctly notes missing real calibration engine/data semantics, unknown physical identity and runtime live references: explicitly outside binding contract, no claims to validate/calibrate/apply.",
+  "hashVersion": "Named SHA256 fields/BuildProfile schema_version in canonicalJSON; no persistence loader. Serializer/config changes fail closed. A future persistent versioned format must pin canonicalization; not silently infer old matches.",
+  "incorrectScoutPremise": "Whole canonical profile DOES include revision, so another revision is rejected; no hash-collision guarantee asserted. Incidental metadata changes intentionally invalidate this exact binding; D06 selective validation later.",
+  "authority": "Unknown remainsunverified; no saved absolutezero or movement authority; owner current-session references remain."
+}

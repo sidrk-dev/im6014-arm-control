@@ -1,0 +1,13 @@
+test_actuator_bus_id_mapping_and_provenance_changes_reject (test_calibration_binding.D05CalibrationBinding.test_actuator_bus_id_mapping_and_provenance_changes_reject) ... ok
+test_another_revision_build_robot_or_backend_is_rejected (test_calibration_binding.D05CalibrationBinding.test_another_revision_build_robot_or_backend_is_rejected) ... ok
+test_binding_is_immutable_metadata_without_live_application (test_calibration_binding.D05CalibrationBinding.test_binding_is_immutable_metadata_without_live_application) ... ok
+test_changed_artifact_is_rejected_even_if_build_matches (test_calibration_binding.D05CalibrationBinding.test_changed_artifact_is_rejected_even_if_build_matches) ... ok
+test_exact_profile_and_opaque_artifact_match (test_calibration_binding.D05CalibrationBinding.test_exact_profile_and_opaque_artifact_match) ... ok
+test_locked_mass_angle_and_active_measurement_changes_reject (test_calibration_binding.D05CalibrationBinding.test_locked_mass_angle_and_active_measurement_changes_reject) ... ok
+test_strict_input_and_digest_boundaries (test_calibration_binding.D05CalibrationBinding.test_strict_input_and_digest_boundaries) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
+Receipt: /tmp/d05-codex-evidence-20261018/focused/D05-20261018T231136710595Z/receipt.json
