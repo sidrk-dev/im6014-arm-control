@@ -31,6 +31,7 @@ CHECKS = {
     'D01': 'test_build_profile test_build_profile_boundary',
     'D02': 'test_build_profiles',
     'D03': 'test_provisional_builds',
+    'D04': 'test_locked_joints',
 }
 
 

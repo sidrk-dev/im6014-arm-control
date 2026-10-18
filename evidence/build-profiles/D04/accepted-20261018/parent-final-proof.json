@@ -1,0 +1,32 @@
+{
+  "baseHead": "5a25ddfddb18376dfe48dac06e2205f939e4dcc7",
+  "sourcePinsMatch": true,
+  "focusedTests": 8,
+  "combinedBuildTests": 50,
+  "baselineGroups": 9,
+  "milestoneTests": 306,
+  "legacyQtGroups": 19,
+  "capturesViewed": 4,
+  "startup": {
+    "real": {
+      "sourceHashesMatched": 46,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "sourceHashesMatched": 46,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "docsExampleExecuted": true,
+  "physicalIO": false,
+  "existingOwnerCoreD02D03Unchanged": true,
+  "boundary": "Locked aggregate mass persisted, absent omitted, active-only config lookup. FakeCore rejects extra positional coordinate/no issued write; no new production owner adapter or dynamics integration."
+}

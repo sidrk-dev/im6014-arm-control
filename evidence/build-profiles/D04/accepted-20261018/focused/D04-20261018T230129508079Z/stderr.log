@@ -1,0 +1,13 @@
+test_duplicate_and_active_locked_overlapping_names_are_rejected (test_locked_joints.D04LockedJoints.test_duplicate_and_active_locked_overlapping_names_are_rejected) ... ok
+test_fake_core_has_only_active_dimensions_and_rejects_extra_targets_without_issue (test_locked_joints.D04LockedJoints.test_fake_core_has_only_active_dimensions_and_rejects_extra_targets_without_issue) ... ok
+test_json_boundary_rejects_unknown_fields_nulls_missing_and_motor_mappings (test_locked_joints.D04LockedJoints.test_json_boundary_rejects_unknown_fields_nulls_missing_and_motor_mappings) ... ok
+test_locked_mass_and_position_survive_roundtrip_outside_active_coordinates (test_locked_joints.D04LockedJoints.test_locked_mass_and_position_survive_roundtrip_outside_active_coordinates) ... ok
+test_locked_measurement_names_units_and_values_are_checked (test_locked_joints.D04LockedJoints.test_locked_measurement_names_units_and_values_are_checked) ... ok
+test_named_config_lookup_rejects_locked_and_absent_joints (test_locked_joints.D04LockedJoints.test_named_config_lookup_rejects_locked_and_absent_joints) ... ok
+test_no_placeholder_mass_or_extra_coordinate_is_created_for_absence (test_locked_joints.D04LockedJoints.test_no_placeholder_mass_or_extra_coordinate_is_created_for_absence) ... ok
+test_old_version_one_json_remains_byte_compatible_when_no_locked_joints (test_locked_joints.D04LockedJoints.test_old_version_one_json_remains_byte_compatible_when_no_locked_joints) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.002s
+
+OK
