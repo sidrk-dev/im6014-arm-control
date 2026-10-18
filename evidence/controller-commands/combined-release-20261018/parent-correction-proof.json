@@ -1,0 +1,44 @@
+{
+  "baseHead": "71a0a5f5123f7b64288b795cc1f39330c89c5fe0",
+  "onlyAuthoredChange": "test_controller_lead.py",
+  "controllerTests": 164,
+  "baselineGroups": 9,
+  "milestoneTests": 256,
+  "legacyQtGroups": 19,
+  "capturesActuallyViewed": 4,
+  "startup": {
+    "real": {
+      "sourceHashes": 39,
+      "allMatch": true,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "sourceHashes": 39,
+      "allMatch": true,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "guardedArm": {
+    "testsRun": 79,
+    "successful": true,
+    "physicalSerialConstructorCalls": 0,
+    "defaultFakePortSnapshots": 1,
+    "discovery": "comports supplied fixtures; by-id lookup replaced; no host serial metadata discovery",
+    "physicalIO": "no motor ports; demo/fake exchanges and ephemeral HTTP only"
+  },
+  "mutation": {
+    "corrected": 0,
+    "mutant": 1
+  },
+  "review": "native correction accepts; configured combined Gemini complete/no findings; Muse HTTP400 retained dropout",
+  "runtime": "unchanged",
+  "hardware": "no physical I/O; no deployment"
+}

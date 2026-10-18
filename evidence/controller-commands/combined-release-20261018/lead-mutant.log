@@ -1,0 +1,15 @@
+test_release_time_lead_check_veto (test_controller_lead.ReferenceLeadTests.test_release_time_lead_check_veto) ... FAIL
+
+======================================================================
+FAIL: test_release_time_lead_check_veto (test_controller_lead.ReferenceLeadTests.test_release_time_lead_check_veto)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/controller-release-lead-mutant-20261017/test_controller_lead.py", line 401, in test_release_time_lead_check_veto
+    self.assertIsNone(issued)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^
+AssertionError: Reference(requested=Target(sequence=0, joints=(JointTarget(q_rad=0.5, dq_rad_s=0.0, tau_nm=0.0, kp=0.0, kd=0.0),), created_at_s=0.02, expires_at_s=100.0, ownership=Ownership(owner='test', generation=1)), joints=(JointTarget(q_rad=0.000787174351678158, dq_rad_s=0.0, tau_nm=0.0, kp=0.0, kd=0.0),), accepted_at_s=0.02, issued_at_s=0.02) is not None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (failures=1)

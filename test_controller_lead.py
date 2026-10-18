@@ -381,32 +381,41 @@ class ReferenceLeadTests(unittest.TestCase):
     def test_release_time_lead_check_veto(self):
         spec = JointSpec("J1", 0, JointMap(1, 1, 0.0), PositionLimits(-2.0, 2.0), 1.0, 2.0, max_effort_nm=1000000.0, max_measured_lead_rad=0.05, protection=SYNTHETIC_PROTECTION)
         core, station, clock = armed_core((spec,), (0.0,), max_step=0.02)
-
         clock.value = 0.02
-        station.submit(make_target(core, clock, 0, (JointTarget(0.5, 0.0, 0.0, 1.0, 0.1),)))
+        target = make_target(core, clock, 0, (JointTarget(0.5, 0.0, 0.0, 0.0, 0.0),))
+        self.assertTrue(station.submit(target).accepted)
+        ownership = core.snapshot().ownership
+        planned = []
 
-        # Hook into now() callback during consume to simulate observation shift before release
-        orig_now = core._now
-        shifted = False
-        def shifted_now():
-            nonlocal shifted
-            t = orig_now()
-            if not shifted:
-                # Simulate external disturbance shifting measured position to -0.2 rad
-                core._observations[0] = core._observations[0].sample and core._observations[0].__class__(
-                    JointSample(-0.2, 0.0, 0.0),
-                    core._observations[0].health,
-                    t,
-                )
-                shifted = True
-            return t
+        def plan_then_shift(*args, **kwargs):
+            candidate = plan_reference(*args, **kwargs)
+            self.assertIsNotNone(candidate)
+            planned.append(candidate)
+            self.assertTrue(core.receive(0, JointSample(-0.2, 0.0, 0.0), STOP).accepted)
+            return candidate
 
-        core._now = shifted_now
-        # Candidate was planned with q_meas=0.0, but at release q_meas=-0.2 rad -> |cand - (-0.2)| > 0.05 -> veto!
-        ref = core.consume_target()
-        self.assertIsNone(ref)
-        # Pending target retained
-        self.assertIsNotNone(core.snapshot().pending_target)
+        with patch("joint_controller.plan_reference", side_effect=plan_then_shift):
+            issued = station.consume()
+
+        self.assertEqual(len(planned), 1)
+        self.assertIsNone(issued)
+        self.assertEqual(station.writes, [])
+        snapshot = core.snapshot()
+        self.assertIs(snapshot.pending_target, target)
+        self.assertIs(snapshot.ownership, ownership)
+        self.assertEqual(snapshot.state, State.ARMED)
+        self.assertFalse(snapshot.fault_latched)
+
+        self.assertTrue(core.receive(0, JointSample(0.0, 0.0, 0.0), STOP).accepted)
+        recovered = station.consume()
+        self.assertIsNotNone(recovered)
+        control, control_station, control_clock = armed_core((spec,), (0.0,), max_step=0.02)
+        control_clock.value = clock.value
+        self.assertTrue(control_station.submit(make_target(control, control_clock, 0, target.joints)).accepted)
+        baseline = control_station.consume()
+        self.assertIsNotNone(baseline)
+        self.assertEqual(recovered.joints, baseline.joints)
+        self.assertEqual(recovered.issued_at_s, baseline.issued_at_s)
 
     def test_both_directions_and_reductions_roundtrip_codec(self):
         for reduction in (1, 3, 6):
