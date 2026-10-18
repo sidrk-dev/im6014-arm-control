@@ -1,0 +1,32 @@
+{
+  "baseHead": "5a4fed12666a46ec320122a52582246de4d4905b",
+  "sourcePinsMatch": true,
+  "focusedTests": 7,
+  "baselineGroups": 9,
+  "milestoneTests": 313,
+  "legacyQtGroups": 19,
+  "capturesViewed": 4,
+  "startup": {
+    "real": {
+      "sourceHashesMatched": 48,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "sourceHashesMatched": 48,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "docsExampleExecuted": true,
+  "physicalIO": false,
+  "existingOwnerCoreD01D04Unchanged": true,
+  "boundary": "Pure exact artifact/build binding; opaque artifact content not semantically certified, no persistence parser/apply/restore/permission",
+  "failedInvocation": "Initial unittest command ran from /tmp and failed import; corrected cwd passed, both logs retained"
+}

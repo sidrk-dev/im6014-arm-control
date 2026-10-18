@@ -32,6 +32,7 @@ CHECKS = {
     'D02': 'test_build_profiles',
     'D03': 'test_provisional_builds',
     'D04': 'test_locked_joints',
+    'D05': 'test_calibration_binding',
 }
 
 
