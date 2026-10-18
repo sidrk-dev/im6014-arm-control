@@ -1,0 +1,6 @@
+{
+  "Gemini": "Complete/no blocker; model pinned argv/modelVerifiedfalse. Accept low-priority diagnostic: declared missing value now names declared. Keep optional-object omission contract; explicitly document null rejection and test it. Source snapshot originally reviewed remains pinned in review/source-hashes.json; final-source-hashes records corrected bytes. Gemini prose JointController refers to actual JointCore.",
+  "Muse": "HTTP400 dropout drained/normalized; no retry or substitution.",
+  "comments": "One module narration line deleted; no application-code rewrite or suppression.",
+  "originalFailures": "Original duplicate JSON keys and padded bus IDs accepted; corrected rejection proved. Earlier inherited immutable constructor fixture missed added provenance args; failure retained and corrected test only."
+}

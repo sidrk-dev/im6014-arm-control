@@ -1,0 +1,28 @@
+test_bench_and_mounted_builds_are_distinct (test_build_profile.D01BuildProfile.test_bench_and_mounted_builds_are_distinct) ... ok
+test_duplicate_joint_names_rejected (test_build_profile.D01BuildProfile.test_duplicate_joint_names_rejected) ... ok
+test_duplicate_motor_id_on_one_bus_rejected_allowed_on_distinct_buses (test_build_profile.D01BuildProfile.test_duplicate_motor_id_on_one_bus_rejected_allowed_on_distinct_buses) ... ok
+test_invalid_mapping_and_identity_values_rejected (test_build_profile.D01BuildProfile.test_invalid_mapping_and_identity_values_rejected) ... ok
+test_measurements_are_sorted_deterministically (test_build_profile.D01BuildProfile.test_measurements_are_sorted_deterministically) ... ok
+test_missing_required_fields_rejected (test_build_profile.D01BuildProfile.test_missing_required_fields_rejected) ... ok
+test_non_finite_and_malformed_numbers_rejected (test_build_profile.D01BuildProfile.test_non_finite_and_malformed_numbers_rejected) ... ok
+test_passive_build_with_no_joints_round_trips (test_build_profile.D01BuildProfile.test_passive_build_with_no_joints_round_trips) ... ok
+test_position_limits_reuse_existing_validator (test_build_profile.D01BuildProfile.test_position_limits_reuse_existing_validator) ... ok
+test_result_is_immutable (test_build_profile.D01BuildProfile.test_result_is_immutable) ... ERROR
+test_round_trip_deterministic_serialization (test_build_profile.D01BuildProfile.test_round_trip_deterministic_serialization) ... ok
+test_unknown_fields_rejected (test_build_profile.D01BuildProfile.test_unknown_fields_rejected) ... ok
+test_unknown_measurement_preserved_as_unknown_not_defaulted (test_build_profile.D01BuildProfile.test_unknown_measurement_preserved_as_unknown_not_defaulted) ... ok
+test_unknown_schema_version_rejected (test_build_profile.D01BuildProfile.test_unknown_schema_version_rejected) ... ok
+test_valid_minimal_profile (test_build_profile.D01BuildProfile.test_valid_minimal_profile) ... ok
+
+======================================================================
+ERROR: test_result_is_immutable (test_build_profile.D01BuildProfile.test_result_is_immutable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/d01-codex-20261018/test_build_profile.py", line 249, in test_result_is_immutable
+    measurement = build_profile.Measurement("thermal", "measured", 1.0)
+TypeError: Measurement.__init__() missing 1 required positional argument: 'source'
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.006s
+
+FAILED (errors=1)

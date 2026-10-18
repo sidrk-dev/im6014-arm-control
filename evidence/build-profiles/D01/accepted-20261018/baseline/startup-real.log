@@ -1,0 +1,2 @@
+This plugin does not support propagateSizeHints()
+PASS: real dashboard startup and shutdown; evidence: /tmp/d01-codex-evidence-20261018/diagnostic-final-baseline/run-20261018T020048Z-5eWY3ZKr/startup-real

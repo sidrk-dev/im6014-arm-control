@@ -1,0 +1,32 @@
+test_bench_and_mounted_builds_are_distinct (test_build_profile.D01BuildProfile.test_bench_and_mounted_builds_are_distinct) ... ok
+test_duplicate_joint_names_rejected (test_build_profile.D01BuildProfile.test_duplicate_joint_names_rejected) ... ok
+test_duplicate_motor_id_on_one_bus_rejected_allowed_on_distinct_buses (test_build_profile.D01BuildProfile.test_duplicate_motor_id_on_one_bus_rejected_allowed_on_distinct_buses) ... ok
+test_invalid_mapping_and_identity_values_rejected (test_build_profile.D01BuildProfile.test_invalid_mapping_and_identity_values_rejected) ... ok
+test_measurements_are_sorted_deterministically (test_build_profile.D01BuildProfile.test_measurements_are_sorted_deterministically) ... ok
+test_missing_required_fields_rejected (test_build_profile.D01BuildProfile.test_missing_required_fields_rejected) ... ok
+test_non_finite_and_malformed_numbers_rejected (test_build_profile.D01BuildProfile.test_non_finite_and_malformed_numbers_rejected) ... ok
+test_passive_build_with_no_joints_round_trips (test_build_profile.D01BuildProfile.test_passive_build_with_no_joints_round_trips) ... ok
+test_position_limits_reuse_existing_validator (test_build_profile.D01BuildProfile.test_position_limits_reuse_existing_validator) ... ok
+test_result_is_immutable (test_build_profile.D01BuildProfile.test_result_is_immutable) ... ok
+test_round_trip_deterministic_serialization (test_build_profile.D01BuildProfile.test_round_trip_deterministic_serialization) ... ok
+test_unknown_fields_rejected (test_build_profile.D01BuildProfile.test_unknown_fields_rejected) ... ok
+test_unknown_measurement_preserved_as_unknown_not_defaulted (test_build_profile.D01BuildProfile.test_unknown_measurement_preserved_as_unknown_not_defaulted) ... ok
+test_unknown_schema_version_rejected (test_build_profile.D01BuildProfile.test_unknown_schema_version_rejected) ... ok
+test_valid_minimal_profile (test_build_profile.D01BuildProfile.test_valid_minimal_profile) ... ok
+test_actuator_identity_is_explicit_and_source_is_preserved (test_build_profile_boundary.D01BoundaryTests.test_actuator_identity_is_explicit_and_source_is_preserved) ... ok
+test_all_provenance_fields_are_required (test_build_profile_boundary.D01BoundaryTests.test_all_provenance_fields_are_required) ... ok
+test_mapping_provenance_is_required_in_direct_constructor (test_build_profile_boundary.D01BoundaryTests.test_mapping_provenance_is_required_in_direct_constructor) ... ok
+test_measurement_provenance_cannot_be_dropped_or_nonfinite (test_build_profile_boundary.D01BoundaryTests.test_measurement_provenance_cannot_be_dropped_or_nonfinite) ... ok
+test_measurements_retain_units_source_and_verification (test_build_profile_boundary.D01BoundaryTests.test_measurements_retain_units_source_and_verification) ... ok
+test_missing_declared_value_names_actual_status_and_optional_null_is_rejected (test_build_profile_boundary.D01BoundaryTests.test_missing_declared_value_names_actual_status_and_optional_null_is_rejected) ... ok
+test_padded_identifiers_cannot_hide_duplicate_bus_slot (test_build_profile_boundary.D01BoundaryTests.test_padded_identifiers_cannot_hide_duplicate_bus_slot) ... ok
+test_parser_returns_detached_immutable_values_and_preserves_joint_order (test_build_profile_boundary.D01BoundaryTests.test_parser_returns_detached_immutable_values_and_preserves_joint_order) ... ok
+test_repeated_json_keys_rejected_at_every_depth (test_build_profile_boundary.D01BoundaryTests.test_repeated_json_keys_rejected_at_every_depth) ... ok
+test_unknown_actuator_identity_and_declared_mapping_do_not_gain_authority (test_build_profile_boundary.D01BoundaryTests.test_unknown_actuator_identity_and_declared_mapping_do_not_gain_authority) ... ok
+test_unknown_backend_and_non_string_identity_rejected (test_build_profile_boundary.D01BoundaryTests.test_unknown_backend_and_non_string_identity_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.005s
+
+OK
+Receipt: /tmp/d01-codex-evidence-20261018/final-focused/D01-20261018T020045475278Z/receipt.json

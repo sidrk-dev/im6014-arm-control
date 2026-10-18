@@ -1,0 +1,9 @@
+# D01 versioned build identity and mapping schema
+
+D01 adds a pure immutable JSON boundary for ordered build/joint identity, validated mappings and optional limits/measurements. It rejects duplicate bus slots, names and JSON object keys, unsupported versions/backends, padded identifiers, missing mappings and nonfinite values. Mapping and actuator identity have explicit provenance; measurements retain units/source and measured/declared/unknown status. It has no live owner attachment, calibration-restoration or movement permission API.
+
+The settled peer D01 shape is retained as original source here, not trusted by its local supervisor commit. Parent reproductions show the original accepted duplicate JSON keys and padded bus identities; corrected code rejects both. The parent implemented the provenance/boundary corrections personally. D02's separate peer candidate was not adopted because it grants movement from nominal calibration/name declarations.
+
+Final parent evidence records 26 focused tests and nine offline baseline groups, including 282 milestone tests and 19 legacy Qt groups. These overlap and are not summed. Four current legacy captures were inspected. Both disconnected startup modes match 42 source hashes with zero opens/exchanges. No physical I/O, owner behavior change, deployment or full geometry/tool/camera schema is claimed.
+
+Gemini completed with no blocker. The parent fixed its minor declared-value diagnostic and documented explicit-null rejection for absent optional objects; both have regression assertions. Original reviewed source and final corrected source have separate manifests. Muse HTTP400 remains a dropout with no retry/substitution. The comment audit deleted one narration line. A fresh independent final source review accepts the corrected software slice. Parent checked its exact final hashes and the source/fingerprint evidence. Commit and exact-head CI are subsequent gates.

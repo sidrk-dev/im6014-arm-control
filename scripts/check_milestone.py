@@ -28,6 +28,7 @@ CHECKS = {
     'C14': 'test_controller_faults',
     'C15': 'test_station_timing',
     'C16': 'test_station_independence',
+    'D01': 'test_build_profile test_build_profile_boundary',
 }
 
 
@@ -56,7 +57,7 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     before = fingerprint(repo)
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
-    command = [str(args.python.absolute()), '-B', '-m', 'unittest', '-v', CHECKS[args.unit]]
+    command = [str(args.python.absolute()), '-B', '-m', 'unittest', '-v', *CHECKS[args.unit].split()]
     result = subprocess.run(command, cwd=repo, capture_output=True, text=True,
                             env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1', QT_QPA_PLATFORM='offscreen'))
     (out / 'stdout.log').write_text(result.stdout)
