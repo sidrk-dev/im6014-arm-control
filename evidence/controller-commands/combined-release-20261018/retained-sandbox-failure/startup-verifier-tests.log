@@ -1,0 +1,17 @@
+test_caught_forbidden_io_attempts_still_fail (__main__.StartupVerifierTests.test_caught_forbidden_io_attempts_still_fail) ... ok
+test_cleanup_cannot_hide_worker_alive_after_normal_close (__main__.StartupVerifierTests.test_cleanup_cannot_hide_worker_alive_after_normal_close) ... ok
+test_faults_fail_actual_startup_process (__main__.StartupVerifierTests.test_faults_fail_actual_startup_process) ... PASS: injected serial_open rejected; exit 1; no startup receipt
+PASS: injected demo_open rejected; exit 1; no startup receipt
+PASS: injected exchange rejected; exit 1; no startup receipt
+PASS: injected screenshot rejected; exit 1; no startup receipt
+PASS: injected close rejected; exit 1; no startup receipt
+PASS: injected missing_window rejected; exit 1; no startup receipt
+PASS: injected exit_code rejected; exit 1; no startup receipt
+ok
+test_invalid_lifecycle_evidence_never_passes (__main__.StartupVerifierTests.test_invalid_lifecycle_evidence_never_passes) ... ok
+test_valid_report_passes (__main__.StartupVerifierTests.test_valid_report_passes) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.584s
+
+OK

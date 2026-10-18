@@ -1,0 +1,11 @@
+Evidence: /tmp/controller-release-review-20261017/baseline/run-20261017T212056Z-5ZHhcfu8
+check	exit_code
+interpreter	0
+packet-tests	0
+protocol-tests	0
+serial-deadline-tests	0
+milestone-tests	1
+dashboard-tests	1
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0

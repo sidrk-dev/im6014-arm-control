@@ -2,10 +2,11 @@ import unittest
 from dataclasses import FrozenInstanceError
 import math
 from im6014_codec import command
-from joint_controller import (
+from joint_controller import JointCore
+from joint_records import (
+    ProtectionPolicy,
     CommunicationFailure,
     DecisionCode,
-    JointCore,
     JointSpec,
     MotorHealth,
     Ownership,
@@ -16,6 +17,8 @@ from joint_controller import (
 from joint_mapping import JointMap, JointTarget
 
 from test_controller import DeterministicClock, FakeStation, SAMPLE, HEALTHY_STOP, core_at
+
+SYNTHETIC_PROTECTION = ProtectionPolicy(1e6, 1e6, 1e12, 1e6, 0.1, 0.5)
 
 WIDE_LIMITS = PositionLimits(-1e12, 1e12)
 
@@ -28,8 +31,8 @@ def owned_target(core, *args, **kwargs):
 class LatestTargetTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
 
     def test_ten_thousand_accepted_updates_leave_one_newest_target_and_one_consume(self):
@@ -202,7 +205,7 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertEqual(core.snapshot().last_sequence, 0)
                 station.writes.clear()
                 if action == 'packet':
-                    self.assertTrue(core.receive(1, SAMPLE, MotorHealth(0, 4, 0, False)))
+                    self.assertTrue(core.receive(1, SAMPLE, MotorHealth(0, 4, 0, False, driver_c=25.0, winding_c=25.0)))
                 elif action == 'communication':
                     self.assertTrue(core.communication_failed(1, CommunicationFailure.TIMEOUT))
                 else:
@@ -243,8 +246,8 @@ class LatestTargetTests(unittest.TestCase):
         self.assertEqual(core.snapshot().last_sequence, 1)
 
         specs_ratio = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
-            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(reduction=1.0, direction=1, zero_output_rad=0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         core_ratio = JointCore(specs_ratio, clock=clock, max_reference_step_s=1000000.0)
         station_ratio = FakeStation(core_ratio)
@@ -263,8 +266,8 @@ class LatestTargetTests(unittest.TestCase):
     def test_successful_fake_adapter_uses_actual_codec_foc_packets_with_independent_expected_mappings(self):
         clock = DeterministicClock(0.0)
         specs = (
-            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
-            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J1", 0, JointMap(reduction=3.0, direction=-1, zero_output_rad=0.25), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(reduction=2.0, direction=1, zero_output_rad=0.1), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         core = JointCore(specs, clock=clock, max_reference_step_s=1000000.0)
         station = FakeStation(core)
@@ -444,7 +447,9 @@ class LatestTargetTests(unittest.TestCase):
                 self.assertIsNone(core.consume_target())
                 self.assertEqual(core.snapshot(), before)
 
-        core = core_at(self, State.ARMED)
+        clock = DeterministicClock(0.0)
+        core = core_at(self, State.ARMED, clock=clock)
+        clock.value += 0.01
         target = owned_target(core, 1, (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.2, 0.0, 0.0, 1.0, 0.1),
@@ -456,6 +461,7 @@ class LatestTargetTests(unittest.TestCase):
         self.assertIs(core.snapshot().state, State.MOVING)
         self.assertEqual(core.snapshot().last_sequence, 1)
 
+        clock.value += 0.01
         target2 = owned_target(core, 2, (
             JointTarget(0.3, 0.0, 0.0, 1.0, 0.1),
             JointTarget(0.4, 0.0, 0.0, 1.0, 0.1),
@@ -472,8 +478,8 @@ class LatestTargetTests(unittest.TestCase):
 class CommandSequenceTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         self.valid_joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),
@@ -658,7 +664,7 @@ class CommandSequenceTests(unittest.TestCase):
         self.assertTrue(station.arm(owner="test").accepted)
         self.assertEqual(core.snapshot().last_sequence, 10)
 
-        bad_health = MotorHealth(mode=0, errors=1, warnings=0, timeout=False)
+        bad_health = MotorHealth(mode=0, errors=1, warnings=0, timeout=False, driver_c=25.0, winding_c=25.0)
         self.assertTrue(core.receive(self.specs[0].motor_id, SAMPLE, bad_health).accepted)
         self.assertIs(core.snapshot().state, State.FAULT)
         self.assertEqual(core.snapshot().last_sequence, 10)
@@ -759,8 +765,8 @@ class CommandSequenceTests(unittest.TestCase):
 class CommandExpiryTests(unittest.TestCase):
     def setUp(self):
         self.specs = (
-            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
-            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0),
+            JointSpec("J1", 0, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
+            JointSpec("J2", 1, JointMap(1.0, 1, 0.0), WIDE_LIMITS, max_velocity_rad_s=1000000.0, max_acceleration_rad_s2=1000000.0, max_measured_lead_rad=1000000.0, max_effort_nm=1000000.0, protection=SYNTHETIC_PROTECTION),
         )
         self.joints = (
             JointTarget(0.1, 0.0, 0.0, 1.0, 0.1),

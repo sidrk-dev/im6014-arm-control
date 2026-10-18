@@ -1,0 +1,6 @@
+test_exchange_latency_excludes_post_exchange_lock_wait (timing_boundary_checks.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.012s
+
+OK

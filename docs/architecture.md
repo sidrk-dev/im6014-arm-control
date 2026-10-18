@@ -18,7 +18,10 @@ Inspect external foundations at exact revisions and record the revision in evide
 | `im6014_codec.py` | Pure packet encoding, strict feedback decoding, CRC and internal reduction | Python standard library |
 | `im6014_serial.py` | One request, bounded stream scan, timeout budgets, restoration and optional bounded capture | Pure feedback decoder; Python standard library |
 | `im6014_port.py` | Passive configuration and cooperating device lease | OS metadata; injected serial factory |
-| `joint_controller.py` | Transport-free lifecycle, per-joint freshness and faults, identity-checked owner grants, bounded codec-grid references and sequence watermark | Frozen mapping records; pure codec projectors and command validation; Python standard library |
+| `station_timing.py` | Fixed-storage owner loop and exchange-attempt timing observations | Python standard library; called by `arm_manual.py` |
+| `joint_records.py` | Frozen public domain records and enums with validated constructor contracts | `joint_mapping.py`; Python standard library |
+| `joint_reference.py` | Pure reference planning, codec projection corridors, and release finite-difference rate math | `im6014_codec.py`; `joint_mapping.py`; `joint_records.py`; Python standard library |
+| `joint_controller.py` | Transport-free lifecycle, clock, per-joint freshness and faults, identity-checked owner grants, pending targets, reference history, and sequence watermark | `joint_records.py`; `joint_reference.py`; `im6014_codec.py`; Python standard library |
 | `joint_mapping.py` | Pure external joint units and gain conversion | Python standard library |
 | `spin_5rpm.py` | Bench aliases, health checks and standalone bounded CLI | Codec and serial boundary; pyserial |
 | `fake_serial.py` | Scripted replies and deterministic clock for offline checks | Python standard library; never imported by production |
@@ -39,3 +42,5 @@ This repository uses Python 3.12 for its clean bench environment. MakerMods and 
 ## Evidence identities
 
 `evidence/baseline` contains the committed parent-run snapshot. Later verification runs use fresh directories under `evidence/runs`, which are ignored. Fake motor outputs are marked as simulation. Disconnected startup contains no measured motor state. Hardware commissioning remains pending.
+
+Dashboard ingress and owner cleanup are described in [station-independence.md](station-independence.md). The HTTP layer receives the existing owner; server construction/loop/cleanup failures do not skip owner cleanup.

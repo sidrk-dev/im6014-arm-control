@@ -22,6 +22,12 @@ CHECKS = {
     'C08': 'test_controller_ownership',
     'C09': 'test_controller_limits',
     'C10': 'test_controller_velocity',
+    'C11': 'test_controller_acceleration',
+    'C12': 'test_controller_lead',
+    'C13': 'test_controller_effort',
+    'C14': 'test_controller_faults',
+    'C15': 'test_station_timing',
+    'C16': 'test_station_independence',
 }
 
 

@@ -1,0 +1,6 @@
+test_new_acknowledged_check_does_not_inherit_recovery_credit (__main__.RecoveryEpochProbe.test_new_acknowledged_check_does_not_inherit_recovery_credit) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK

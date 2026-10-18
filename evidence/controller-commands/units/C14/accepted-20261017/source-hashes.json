@@ -1,0 +1,20 @@
+{
+  "docs/controller-design.md": "303d57000b966008d82b3ff7fe96f1ffb681320a84e47e46e80e080a3faaf685",
+  "docs/joint-api.md": "820fd128262115e5e5c26c5de69a044deb031dc7cdcf74269eb52e908ab20ddb",
+  "joint_controller.py": "4f9e4fb8865052787db085cbf900c52c1eac7e5706984de3726f645e4f7d1f17",
+  "joint_mapping.py": "a39502e207e9dac4f9dae1827ba4dacd4b9e835633ea11d738834e3be152fd0b",
+  "joint_records.py": "faa06f7c30878fb986086ec35e55dbcdde7977ff6b5fb407906c56b1f00beaeb",
+  "joint_reference.py": "61c6ac62cc301b5918174aadf29ab259d437d4de52a733a5050330b07d64ed96",
+  "scripts/check_milestone.py": "6c91d8ce77a326a71b2268b831bf1bff3b394a94d3fefb5bfa057bdbe5f67716",
+  "scripts/check_offline_baseline.sh": "fd315ebf544a07b915a43e9b19c36df66120b32aecd351218c419ba6bbad4aeb",
+  "test_controller.py": "ca1e34ae89d85393c203725d8553f545b587cbc5fdc9e37cfd08b89935417fb4",
+  "test_controller_acceleration.py": "e1955b184e3cd94c6c855af1758137683e80457052262c7c68330b96e6a7798b",
+  "test_controller_effort.py": "e063321e07f645cde9bff56a2f88388200d29d48d28e195692f6fbc7a5536c3a",
+  "test_controller_faults.py": "07255edead37d0615d986eb180a069dd3c85bdbccd982361a83418330c95292e",
+  "test_controller_lead.py": "7df5bb745c4e5328520f2e4179774243a31654a2c50f1fbe04ded8e99f2fbb15",
+  "test_controller_limits.py": "03d7fcdabe89f222bab1d2bf0e409eb37866f6edd702c9871ad1c41b67670c3d",
+  "test_controller_ownership.py": "d001181218666cd736ca9a189ad42296625611889cbbc7e820f7a1bde5f7bd5a",
+  "test_controller_targets.py": "6cb71d15283ff597c0fe79ec7bc17ed8e3ad16cefa34b1168024d2d35793d56f",
+  "test_controller_velocity.py": "1878e139ffd209d2bc20a28b2b016eba6034990ae82e81839c294419bd28d13c",
+  "test_startup.py": "82b472b42873736bcc05e13e3979b7f36fecec1ab57651ab7e596b72f9826431"
+}

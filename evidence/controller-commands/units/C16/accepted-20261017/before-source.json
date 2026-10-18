@@ -1,0 +1,7 @@
+{
+  "base": "2c3bd5bfc9613cbc6d1b6814c97db12b298c830b",
+  "sha256": "3ddc867ef5c62d72fd9225eb768fe4f5cfb8aac758f220ce7c12b69303404569",
+  "failureProbe": "cleanup-before.log",
+  "candidate": "/tmp/c16-codex-20261017",
+  "runtimeEdits": "not started; exact-head C15 CI pending"
+}

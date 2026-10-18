@@ -1,0 +1,31 @@
+{
+  "source": "/home/sid/Documents/code/agent-control-room/.state/pilot/swarm-milestones-20261017/workspace",
+  "frozen": "/tmp/c13-direction-parent-check-20261017",
+  "base": "227ec4ecc712c0cee48a50c9e234e70dd065b8e3",
+  "files": {
+    "docs/controller-design.md": "728466fc2b6b9e8458c5f2be0e8b1425ead2ccecb1e64b91071495b4100af392",
+    "docs/joint-api.md": "4bace13ef77d1c1c8365830aee0099ec9d02b81ae5174e489f54a7c860534886",
+    "evidence/controller-commands/units/C13/baseline/checks.tsv": "4f339b30daed5ba43851a49f3008b540a173230adffc3d6e2d4a282c2515e2f9",
+    "evidence/controller-commands/units/C13/c13-review-mimo-receipt.json": "b04e577d6ed48ab0a7ef993efc54fe39f553510d3809225ae422da11c41c5240",
+    "evidence/controller-commands/units/C13/c13-review-muse-receipt.json": "5ca7d9d85f9383cbeaffdd8581c259996f588dbcfdb30462a7883b71e7d0e462",
+    "evidence/controller-commands/units/C13/receipt.json": "0454d95269e11b99060bde30152434deb17c849d3676c5554cc0b11a13c1bfb3",
+    "evidence/controller-commands/units/C13/visual-review.md": "d21d5bd7449a6b769349894b17641d439bbb988b6f1325fa5960bd5c1df34cb5",
+    "joint_controller.py": "e705a68992692a539fc8d722981c837ab92547c72cb9fa99f0d5dabebf2f5309",
+    "joint_records.py": "0c6be443e3041ed6004b9d62aef571753bbad4cd467119a5237b88ecb139aec6",
+    "joint_reference.py": "c88ba8ec27e87640a59b5d33ebe9165e8eadc6293125ac66ca52b8437da41aba",
+    "scripts/check_milestone.py": "2390e3ecb2dac7a2d4a37089e20efb6dc388ba0ed3c21d5aebb871caa1bc8820",
+    "scripts/check_offline_baseline.sh": "69027b7072d96331dca49cc1719e00b9562737f58fbdbecedfa5cbfcc0c944bd",
+    "test_controller.py": "663d8f1a3ee85c173b7a4b08a4699e0b144b400510f7b8249fbf7d00f7fc50bc",
+    "test_controller_acceleration.py": "94a25a935e2201ce7f74256e37e7b553faaef640eba6270e3851f3215ad3d4ac",
+    "test_controller_effort.py": "264f2b76b1ac3c9a5a3a58cff08a6f9cb4e3f2745c08b44020ac6454d9921524",
+    "test_controller_lead.py": "7377228801b4754fb261be02829d543c2986fe2190a7dceb3d71e581762aa7ab",
+    "test_controller_limits.py": "ab735507f701f67eac6bd4083d0098f1cd9c4e14baa9808fcac0f2310f04e384",
+    "test_controller_ownership.py": "61e883cc54ba74d7e63b5af202c67c67524766f0b16d2fd65bd2ea64b91601ac",
+    "test_controller_targets.py": "f99c83fde55a28afb03e25f39b5aee4bc67b870c27e5bc9b141f61ef70cb8127",
+    "test_controller_velocity.py": "df32c7156c1d0769efa9cec5358730350b10d4b4cd96dc111e35b4ccb5ec34c2",
+    "test_startup.py": "a12f4c8f47b2446a80b8f571fc09b494b6cd74466312689dd9e74a7fe3ca8c97"
+  },
+  "at": 1792232112.7166443,
+  "candidateWhileCoordinatorChecks": true,
+  "accepted": false
+}

@@ -1,0 +1,26 @@
+test_bind_failure_closes_the_implicitly_created_owner (test_station_independence.StationIndependenceTests.test_bind_failure_closes_the_implicitly_created_owner) ... ok
+test_bind_failure_closes_the_supplied_owner_without_constructing_another (test_station_independence.StationIndependenceTests.test_bind_failure_closes_the_supplied_owner_without_constructing_another) ... ok
+test_http_loop_failure_stops_and_closes_the_actual_demo_owner (test_station_independence.StationIndependenceTests.test_http_loop_failure_stops_and_closes_the_actual_demo_owner) ... ok
+test_http_restart_preserves_one_owner_and_cannot_renew_stale_input (test_station_independence.StationIndependenceTests.test_http_restart_preserves_one_owner_and_cannot_renew_stale_input) ... ok
+test_keyboard_interrupt_uses_the_same_stop_and_close_path (test_station_independence.StationIndependenceTests.test_keyboard_interrupt_uses_the_same_stop_and_close_path) ... ok
+test_new_http_session_requires_explicit_enable_and_revokes_old_tickets (test_station_independence.StationIndependenceTests.test_new_http_session_requires_explicit_enable_and_revokes_old_tickets) ... FAIL
+test_server_cleanup_failure_cannot_skip_actual_owner_close (test_station_independence.StationIndependenceTests.test_server_cleanup_failure_cannot_skip_actual_owner_close) ... ok
+
+======================================================================
+FAIL: test_new_http_session_requires_explicit_enable_and_revokes_old_tickets (test_station_independence.StationIndependenceTests.test_new_http_session_requires_explicit_enable_and_revokes_old_tickets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c16-codex-20261017/test_station_independence.py", line 199, in test_new_http_session_requires_explicit_enable_and_revokes_old_tickets
+    self.assertFalse(self.get_state(server)['armed'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.687s
+
+FAILED (failures=1)
+IM6014 Arm Dashboard running in DEMO (Virtual 3-joint) mode at http://127.0.0.1:0
+IM6014 Arm Dashboard running in DEMO (Virtual 3-joint) mode at http://127.0.0.1:0
+
+Shutting down server...
+IM6014 Arm Dashboard running in DEMO (Virtual 3-joint) mode at http://127.0.0.1:0

@@ -36,6 +36,7 @@ from im6014_serial import (
 )
 from im6014_transport import WriteResult
 from spin_5rpm import MAX_CONFIGURED_EFFORT_NM, healthy
+from station_timing import StationTiming
 
 MAX_SESSIONS = 16
 MAX_QUEUE = 64
@@ -244,13 +245,18 @@ class DemoSerial:
 class ArmManualSession:
     """One serialized authority for the selected fixed IM6014 joint profile."""
 
-    def __init__(self, physical_opt_in=False, serial_factory=None, clock=time.monotonic):
+    def __init__(self, physical_opt_in=False, serial_factory=None, clock=time.monotonic, *, timing_clock_ns=None):
         if type(physical_opt_in) is not bool:
             raise ValueError('physical_opt_in must be an exact bool')
         if serial_factory is not None and not callable(serial_factory):
             raise ValueError('serial_factory must be callable')
         if not callable(clock):
             raise ValueError('clock must be callable')
+        if timing_clock_ns is not None and not callable(timing_clock_ns):
+            raise ValueError('timing_clock_ns must be callable')
+        self._timing_clock_ns = time.monotonic_ns if timing_clock_ns is None else timing_clock_ns
+        self._timing_clock_source = 'host_monotonic_ns' if timing_clock_ns is None else 'injected_clock'
+        self._timing = StationTiming(round(SCHEDULE_GAP_MAX_S * 1e9))
         self.physical_opt_in = physical_opt_in
         self.serial_factory = serial_factory
         self.clock = clock
@@ -1005,6 +1011,7 @@ class ArmManualSession:
                 'stop_confirmed': bool(self.stop_confirmed and self.data['connected']),
                 'feedback_age_s': age, 'settings': dict(self.settings), 'joints': joints,
                 'latest': latest, 'events': list(self.events),
+                'timing': dict(self._timing.snapshot(), clock_source=self._timing_clock_source),
             }
 
     def _assert_owner_thread(self):
@@ -1024,14 +1031,33 @@ class ArmManualSession:
             raise RuntimeError('Not connected')
         source = 'demo' if self.data['demo'] else 'physical'
         identity = 'demo-simulator' if source == 'demo' else self.data['port']
-        result = capture_exchange(
-            self.packet_capture, exchange, self.bus, packet, motor_id,
-            before_write=before_write, on_write=on_write,
-            source=source, identity=identity,
-            connection=self.data['connection'],
-            port='' if source == 'demo' else self.data['port'],
-            baud=self.data['baud'],
-        )
+        try:
+            started_ns = self._timing_clock_ns()
+        except Exception:
+            started_ns = None
+        succeeded = False
+        try:
+            result = capture_exchange(
+                self.packet_capture, exchange, self.bus, packet, motor_id,
+                before_write=before_write, on_write=on_write,
+                source=source, identity=identity,
+                connection=self.data['connection'],
+                port='' if source == 'demo' else self.data['port'],
+                baud=self.data['baud'],
+            )
+            succeeded = True
+        finally:
+            try:
+                finished_ns = self._timing_clock_ns()
+            except Exception:
+                finished_ns = None
+            with self.lock:
+                try:
+                    self._timing.transaction_finished(
+                        started_ns, finished_ns, succeeded=succeeded,
+                    )
+                except Exception:
+                    self._timing.transaction_unavailable(succeeded=succeeded)
         joint = self._joint_for_id(motor_id)
         with self.lock:
             joint.latest = self._sanitize_feedback(result)
@@ -2174,6 +2200,11 @@ class ArmManualSession:
         try:
             while True:
                 try:
+                    with self.lock:
+                        try:
+                            self._timing.loop_started(self._timing_clock_ns())
+                        except Exception:
+                            self._timing.loop_unavailable()
                     if self.close_requested.is_set():
                         if self._service_close():
                             break

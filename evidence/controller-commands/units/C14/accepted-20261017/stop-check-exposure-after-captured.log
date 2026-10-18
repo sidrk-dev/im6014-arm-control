@@ -1,0 +1,7 @@
+test_repeated_stop_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_stop_does_not_erase_measured_time) ... ok
+test_repeated_check_does_not_erase_measured_time (__main__.RepeatedControlActions.test_repeated_check_does_not_erase_measured_time) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+OK

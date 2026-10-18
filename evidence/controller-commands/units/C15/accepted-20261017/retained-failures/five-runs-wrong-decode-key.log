@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/c15-codex-evidence-20261017/assess-timing.py", line 50, in <module>
+    for _ in range(5):rows.append(run())
+                                  ^^^^^
+  File "/tmp/c15-codex-evidence-20261017/assess-timing.py", line 31, in run
+    receipt=arm.receipt(sid,op);assert receipt['status']=='complete',receipt
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'status': 'rejected', 'reason': 'Cannot verify Stop for J1 (ID 0), J2 (ID 1), J3 (ID 2); check unique motor IDs, wiring, 6 Mbaud and motor power'}

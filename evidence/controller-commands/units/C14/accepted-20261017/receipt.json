@@ -1,0 +1,99 @@
+{
+  "milestone": "C14",
+  "status": "software verified",
+  "baseHead": "a64407937e6e64f5238ce91b26113d177d0affbd",
+  "sourceManifestSha256": "9528f3f872f2e15c4bc6c7fb27ead0a8650d44b7c20e19c1e0ebc3f61de56303",
+  "focusedTests": 40,
+  "baselineGroups": 9,
+  "milestoneTests": 239,
+  "legacyDashboardGroups": 19,
+  "viewedCaptures": 4,
+  "startupHashesPerMode": 34,
+  "startupIOAttempts": 0,
+  "parentReproductions": 3,
+  "physicalIO": "none;blocked",
+  "integration": "purecontrolleronly",
+  "reviews": {
+    "finalVerdict": "accept",
+    "scope": "pure C14 controller software only;notproductionintegrationorhardware",
+    "original": {
+      "Sol": [
+        {
+          "finding": "repeatedsoftwareStop/checkerasesoverloadanchor",
+          "decision": "act",
+          "evidence": "stop-check-before-after.json;twoactualfailuresbefore,passafter"
+        },
+        {
+          "finding": "temperaturechannelidentity",
+          "decision": "act",
+          "result": "explicitdriver/windingchannelsandindependentthresholds"
+        },
+        {
+          "finding": "redundantcomment/duplicateimports",
+          "decision": "act",
+          "result": "onecommentremoved;importsfolded;moduledocstringspreserved"
+        }
+      ],
+      "Gemini": {
+        "status": "complete",
+        "findings": 0,
+        "leadJudgment": "no-findingsdidnotestablishacceptance;actualStop/checkbypassesreproducedandcorrected"
+      },
+      "Muse": {
+        "status": "failed",
+        "cause": "HTTP400",
+        "retry": false,
+        "output": "none"
+      }
+    },
+    "corrected": {
+      "Sol": {
+        "status": "FINALaccept",
+        "sourceHashesMatched": 18,
+        "reviewerExecutedTests": false,
+        "extraParentProbe": "recoveryepochexit0"
+      },
+      "Gemini": {
+        "status": "complete",
+        "findings": 0,
+        "modelEvidence": "pinned-argv",
+        "modelVerified": false,
+        "requestedModel": "gemini-3.8-flash-high",
+        "receipt": "reviews/corrected/gemini-receipt.json"
+      },
+      "Muse": {
+        "status": "failed",
+        "cause": "HTTP400",
+        "retry": false,
+        "substitution": false,
+        "output": "none"
+      }
+    },
+    "parent": {
+      "checkedActualSource": true,
+      "actualFocused": 40,
+      "baselineGroups": 9,
+      "milestoneTests": 239,
+      "legacyQtGroups": 19,
+      "capturesViewed": 4,
+      "fingerprintsPerStartupMode": 34,
+      "startupIOAttempts": 0,
+      "actualBeforeAfterRepros": 2,
+      "extraRecoveryEpochProbe": 1,
+      "APIExample": "executed/pass"
+    },
+    "noComments": {
+      "deletedAddedComments": 1,
+      "restored": 0,
+      "reruns": 0,
+      "newSuppressions": 0,
+      "openConstraints": 0
+    },
+    "limitations": [
+      "configthresholdsnotvalidatedratings",
+      "reportedjointtorquenotmeasuredloadtorque",
+      "productionarmstationnotusingJointCore",
+      "physicalIOblocked"
+    ]
+  }
+}

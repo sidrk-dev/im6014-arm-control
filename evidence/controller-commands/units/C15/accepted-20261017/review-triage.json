@@ -1,0 +1,29 @@
+{
+  "finalVerdict": "accept",
+  "scope": "C15 software only; no merge/deployment/physical performance claim",
+  "originalFindings": [
+    {
+      "by": [
+        "native Sol",
+        "configured Gemini"
+      ],
+      "finding": "completion timestamp read after publishing lock",
+      "disposition": "act on; reproduced52ms instead of2ms success and failure; corrected end sample before lock",
+      "proof": "lock-boundary-before-after.json"
+    }
+  ],
+  "correctedReviews": {
+    "nativeSol": "accept; actual FINAL/report; no tests executed by reviewer",
+    "Gemini": "complete, no findings; pinned-argv/modelVerifiedfalse",
+    "Muse": "HTTP400 dropout; actualterminal/drained/normalized; no retry or substitution"
+  },
+  "reviewProseCorrections": [
+    "Gemini called counters uint64; actual Python counters are integers; uint64 validation applies only to clock inputs. This is reviewer wording, not a product contract."
+  ],
+  "verificationCorrections": [
+    "Older unguarded arm HTTP tests could enumerate host port metadata; retained as not no-enumeration proof. No motor port open/command followed.",
+    "First globalemptyhandlerguard failed3fixtureexpectations; retained. Finalguard replacescomports/byid/serialconstructor beforeload and preserves suppliedfixtures:79pass.",
+    "First added contention failure fixture allowedlaterretry success; corrected to consistent failures. Both actual original runtime cases then reproduced52ms vs2ms.",
+    "Sandbox loopback EPERM retained; host check uses only ephemeral127.0.0.1, fakeowner and rejectingphysicalboundary."
+  ]
+}

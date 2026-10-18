@@ -1,0 +1,1 @@
+PASS: packet units/CRC, signed and unsigned parsing, fragmented/noisy replies, partial-write/deadline and safety rejection checks; no motor I/O

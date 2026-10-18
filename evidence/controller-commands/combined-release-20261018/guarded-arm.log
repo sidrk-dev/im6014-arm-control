@@ -1,0 +1,6 @@
+...............................................................................
+----------------------------------------------------------------------
+Ran 79 tests in 4.522s
+
+OK
+{"testsRun": 79, "successful": true, "physicalSerialConstructorCalls": 0, "defaultFakePortSnapshots": 1, "discovery": "comports supplied fixtures; by-id lookup replaced; no host serial metadata discovery", "physicalIO": "no motor ports; demo/fake exchanges and ephemeral HTTP only"}

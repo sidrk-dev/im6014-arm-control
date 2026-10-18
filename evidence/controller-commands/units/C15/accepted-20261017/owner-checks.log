@@ -1,0 +1,17 @@
+test_actual_owner_counts_failed_exchange_attempts (test_arm_timing.ArmTimingTests.test_actual_owner_counts_failed_exchange_attempts) ... ok
+test_actual_owner_loop_uses_host_clock_without_touching_serial (test_arm_timing.ArmTimingTests.test_actual_owner_loop_uses_host_clock_without_touching_serial) ... ok
+test_actual_owner_measures_successful_demo_exchanges (test_arm_timing.ArmTimingTests.test_actual_owner_measures_successful_demo_exchanges) ... ok
+test_close_keeps_working_with_unavailable_observation_clock (test_arm_timing.ArmTimingTests.test_close_keeps_working_with_unavailable_observation_clock) ... ok
+test_exchange_latency_excludes_post_exchange_lock_wait (test_arm_timing.ArmTimingTests.test_exchange_latency_excludes_post_exchange_lock_wait) ... ok
+test_measurement_clock_failure_does_not_mask_exchange_failure (test_arm_timing.ArmTimingTests.test_measurement_clock_failure_does_not_mask_exchange_failure) ... ok
+test_real_http_state_reports_timing_without_serial_enumeration (test_arm_timing.ArmTimingTests.test_real_http_state_reports_timing_without_serial_enumeration) ... ok
+test_real_prewrite_cancellation_counts_failed_attempt_without_write (test_arm_timing.ArmTimingTests.test_real_prewrite_cancellation_counts_failed_attempt_without_write) ... ok
+test_timing_clock_must_be_callable (test_arm_timing.ArmTimingTests.test_timing_clock_must_be_callable) ... ok
+test_timing_counts_survive_demo_reconnect (test_arm_timing.ArmTimingTests.test_timing_counts_survive_demo_reconnect) ... ok
+test_timing_json_allowlist_drops_unknowns_and_nonfinite_values (test_arm_timing.ArmTimingTests.test_timing_json_allowlist_drops_unknowns_and_nonfinite_values) ... ok
+test_unavailable_measurement_clock_does_not_block_owner_actions (test_arm_timing.ArmTimingTests.test_unavailable_measurement_clock_does_not_block_owner_actions) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.592s
+
+OK

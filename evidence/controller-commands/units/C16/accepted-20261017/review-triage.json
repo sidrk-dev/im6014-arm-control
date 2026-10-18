@@ -1,0 +1,32 @@
+{
+  "finalVerdict": "accept",
+  "scope": "software-only C16; no merge/deployment/physical stopping claim",
+  "actOn": [
+    {
+      "by": "parent actual repro",
+      "finding": "server construction failure skipped session cleanup",
+      "outcome": "fixed; originalfails/correctedpasses"
+    },
+    {
+      "by": "parent actual repro",
+      "finding": "server_close exception skipped owner close",
+      "outcome": "fixed; originalfails/correctedpasses"
+    }
+  ],
+  "reviewers": {
+    "nativeSol": "actualFINAL accepts;7hashesmatch;read-only, no tests executed",
+    "Gemini": "complete, no findings; pinned-argv/modelVerifiedfalse",
+    "Muse": "actualHTTP400dropout;drained/normalized;no retry/substitution"
+  },
+  "reviewProseCorrections": [
+    "Gemini says10baselinegroups;actualchecks.tsv has9.",
+    "Gemini saysINGRESS_LEASE_S0.2;actualcode0.250seconds.",
+    "The final observer test starts from explicitStop; it does not itself test observer creation while an existing owner is armed. Unchangedcreate_session source establishes noimplicitStop/authoritytransfer.",
+    "Cleanup guarantees an owner-close attempt on these exception paths, not physicalStop confirmation or forced process-kill cleanup."
+  ],
+  "fixtureCorrections": [
+    "New observer creation does not Stop a valid operator.",
+    "Enable waiting firstneutral has no inputleaseyet; final observerfixture usesexplicitStop. Original failedbaseline/logs and hashmatched oldfixture retained."
+  ],
+  "otherConsidered": []
+}

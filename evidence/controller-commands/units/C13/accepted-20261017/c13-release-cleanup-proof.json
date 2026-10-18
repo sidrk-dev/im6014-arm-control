@@ -1,0 +1,56 @@
+{
+  "source": "/tmp/c13-direction-parent-check-20261017",
+  "release": "/tmp/c13-release-20261017",
+  "deletedBlocks": 19,
+  "deletedLines": 32,
+  "publicContractsRetained": 2,
+  "files": {
+    "joint_reference.py": {
+      "deletedLines": [
+        81,
+        164
+      ],
+      "astExcludingDocstringsEqual": true,
+      "syntax": "pass",
+      "sha256": "61c6ac62cc301b5918174aadf29ab259d437d4de52a733a5050330b07d64ed96"
+    },
+    "test_controller_effort.py": {
+      "deletedLines": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        108,
+        128,
+        141,
+        173,
+        185,
+        201,
+        214,
+        218,
+        228,
+        241,
+        245,
+        261,
+        266,
+        281,
+        536,
+        537,
+        604
+      ],
+      "astExcludingDocstringsEqual": true,
+      "syntax": "pass",
+      "sha256": "bb8c089c51d37f00a59a51b46be527cae3ff036bf34cdcc2a6ff65f8167df441"
+    }
+  },
+  "sourceOwnerWorktreeChanged": false
+}

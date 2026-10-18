@@ -1,0 +1,39 @@
+..F.F...F..................................................................
+======================================================================
+FAIL: test_builtin_linux_uart_is_hidden_but_usb_adapter_remains_selectable (test_arm_http.ArmHttpServerTests.test_builtin_linux_uart_is_hidden_but_usb_adapter_remains_selectable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-20261017/tests/test_arm_http.py", line 547, in test_builtin_linux_uart_is_hidden_but_usb_adapter_remains_selectable
+    self.assertEqual([port["device"] for port in data["ports"]], ["/dev/ttyUSB0"])
+AssertionError: Lists differ: [] != ['/dev/ttyUSB0']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'/dev/ttyUSB0'
+
+- []
++ ['/dev/ttyUSB0']
+
+======================================================================
+FAIL: test_empty_and_failed_port_enumeration_return_no_fabricated_port (test_arm_http.ArmHttpServerTests.test_empty_and_failed_port_enumeration_return_no_fabricated_port)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-20261017/tests/test_arm_http.py", line 529, in test_empty_and_failed_port_enumeration_return_no_fabricated_port
+    self.assertEqual(data["error"], "Port enumeration failed (OSError)")
+AssertionError: None != 'Port enumeration failed (OSError)'
+
+======================================================================
+FAIL: test_legacy_route_is_classified_without_becoming_the_u2d2_default (test_arm_http.ArmHttpServerTests.test_legacy_route_is_classified_without_becoming_the_u2d2_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/c15-codex-20261017/tests/test_arm_http.py", line 563, in test_legacy_route_is_classified_without_becoming_the_u2d2_default
+    self.assertEqual(data["default_ports"]["legacy-ft4232h"], "/dev/ttyUSB3")
+AssertionError: '' != '/dev/ttyUSB3'
++ /dev/ttyUSB3
+
+
+----------------------------------------------------------------------
+Ran 75 tests in 4.453s
+
+FAILED (failures=3)
+{"testsRun": 75, "successful": false, "realEnumerationCalls": 0, "fakePortSnapshots": 6, "physicalIO": "no motor ports;demo/fake exchanges and ephemeral HTTP only"}

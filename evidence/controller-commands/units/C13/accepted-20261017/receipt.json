@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "milestone": "C13",
+  "status": "software verified",
+  "at": "2026-10-17T12:50:02.645333+00:00",
+  "baseHead": "227ec4ecc712c0cee48a50c9e234e70dd065b8e3",
+  "sourceHashes": {
+    "docs/controller-design.md": "728466fc2b6b9e8458c5f2be0e8b1425ead2ccecb1e64b91071495b4100af392",
+    "docs/joint-api.md": "4bace13ef77d1c1c8365830aee0099ec9d02b81ae5174e489f54a7c860534886",
+    "joint_controller.py": "e705a68992692a539fc8d722981c837ab92547c72cb9fa99f0d5dabebf2f5309",
+    "joint_records.py": "0c6be443e3041ed6004b9d62aef571753bbad4cd467119a5237b88ecb139aec6",
+    "joint_reference.py": "61c6ac62cc301b5918174aadf29ab259d437d4de52a733a5050330b07d64ed96",
+    "scripts/check_milestone.py": "2390e3ecb2dac7a2d4a37089e20efb6dc388ba0ed3c21d5aebb871caa1bc8820",
+    "scripts/check_offline_baseline.sh": "69027b7072d96331dca49cc1719e00b9562737f58fbdbecedfa5cbfcc0c944bd",
+    "test_controller.py": "663d8f1a3ee85c173b7a4b08a4699e0b144b400510f7b8249fbf7d00f7fc50bc",
+    "test_controller_acceleration.py": "94a25a935e2201ce7f74256e37e7b553faaef640eba6270e3851f3215ad3d4ac",
+    "test_controller_effort.py": "bb8c089c51d37f00a59a51b46be527cae3ff036bf34cdcc2a6ff65f8167df441",
+    "test_controller_lead.py": "7377228801b4754fb261be02829d543c2986fe2190a7dceb3d71e581762aa7ab",
+    "test_controller_limits.py": "ab735507f701f67eac6bd4083d0098f1cd9c4e14baa9808fcac0f2310f04e384",
+    "test_controller_ownership.py": "61e883cc54ba74d7e63b5af202c67c67524766f0b16d2fd65bd2ea64b91601ac",
+    "test_controller_targets.py": "f99c83fde55a28afb03e25f39b5aee4bc67b870c27e5bc9b141f61ef70cb8127",
+    "test_controller_velocity.py": "df32c7156c1d0769efa9cec5358730350b10d4b4cd96dc111e35b4ccb5ec34c2",
+    "test_startup.py": "a12f4c8f47b2446a80b8f571fc09b494b6cd74466312689dd9e74a7fe3ca8c97"
+  },
+  "focusedControllerTests": 124,
+  "focusedEffortTests": 16,
+  "baselineGroups": 9,
+  "baselineMilestoneTests": 199,
+  "decodedProgressCases": 32,
+  "finalReleaseVetoAndRecovery": "pass",
+  "reverseCancellationSuppression": "pass",
+  "commentCleanup": {
+    "deletedBlocks": 19,
+    "deletedLines": 32,
+    "publicContractsKept": 2,
+    "syntaxAndAstExcludingDocstrings": "pass"
+  },
+  "startupFingerprints": {
+    "demo": {
+      "filesMatched": 33,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "real": {
+      "filesMatched": 33,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "fourCurrentLegacyDashboardCapturesInspected": true,
+  "syntheticTrackingTrace": {
+    "ticks": 40,
+    "feedback": "perfect synthetic tracking",
+    "hardwareTrackingEvidence": false
+  },
+  "reviews": {
+    "gemini": "complete, approved, pinned argv; modelVerified false",
+    "muse": "HTTP400 terminal dropout; no retry or substitution",
+    "sol": "fresh independent read-only approval before comment-only cleanup"
+  },
+  "hardwareIO": "none; blocked after damaged adapter",
+  "productionStationIntegration": "not verified",
+  "originalArtifacts": "/home/sid/Documents/code/im6014Workbench-runs/mini-swarm-20261017"
+}

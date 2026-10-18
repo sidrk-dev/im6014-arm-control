@@ -1,0 +1,137 @@
+[
+  {
+    "wall_s": 0.9215567509963876,
+    "successful_mode0_by_id": {
+      "0": 21,
+      "1": 21,
+      "2": 21
+    },
+    "all_packet_modes": {
+      "0": 63
+    },
+    "timing": {
+      "scope": "owner_lifetime",
+      "loop_samples": 93,
+      "loop_period_s": 0.002061357,
+      "loop_max_s": 0.010772628,
+      "loop_overruns": 0,
+      "loop_budget_s": 0.08,
+      "transaction_samples": 63,
+      "transaction_failures": 0,
+      "transaction_latency_s": 6.3956e-05,
+      "transaction_max_s": 0.000219925,
+      "measurement_errors": 0,
+      "clock_source": "host_monotonic_ns"
+    },
+    "physicalIO": "none;DemoSerialonly",
+    "profiled": false
+  },
+  {
+    "wall_s": 0.9191317660006462,
+    "successful_mode0_by_id": {
+      "0": 21,
+      "1": 21,
+      "2": 21
+    },
+    "all_packet_modes": {
+      "0": 63
+    },
+    "timing": {
+      "scope": "owner_lifetime",
+      "loop_samples": 93,
+      "loop_period_s": 0.001140832,
+      "loop_max_s": 0.0105552,
+      "loop_overruns": 0,
+      "loop_budget_s": 0.08,
+      "transaction_samples": 63,
+      "transaction_failures": 0,
+      "transaction_latency_s": 5.92e-05,
+      "transaction_max_s": 0.000129645,
+      "measurement_errors": 0,
+      "clock_source": "host_monotonic_ns"
+    },
+    "physicalIO": "none;DemoSerialonly",
+    "profiled": false
+  },
+  {
+    "wall_s": 0.9197414029913489,
+    "successful_mode0_by_id": {
+      "0": 21,
+      "1": 21,
+      "2": 21
+    },
+    "all_packet_modes": {
+      "0": 63
+    },
+    "timing": {
+      "scope": "owner_lifetime",
+      "loop_samples": 93,
+      "loop_period_s": 0.000890604,
+      "loop_max_s": 0.010848859,
+      "loop_overruns": 0,
+      "loop_budget_s": 0.08,
+      "transaction_samples": 63,
+      "transaction_failures": 0,
+      "transaction_latency_s": 6.2348e-05,
+      "transaction_max_s": 0.000228116,
+      "measurement_errors": 0,
+      "clock_source": "host_monotonic_ns"
+    },
+    "physicalIO": "none;DemoSerialonly",
+    "profiled": false
+  },
+  {
+    "wall_s": 0.9229423549986677,
+    "successful_mode0_by_id": {
+      "0": 21,
+      "1": 21,
+      "2": 21
+    },
+    "all_packet_modes": {
+      "0": 63
+    },
+    "timing": {
+      "scope": "owner_lifetime",
+      "loop_samples": 93,
+      "loop_period_s": 0.001628243,
+      "loop_max_s": 0.010776197,
+      "loop_overruns": 0,
+      "loop_budget_s": 0.08,
+      "transaction_samples": 63,
+      "transaction_failures": 0,
+      "transaction_latency_s": 5.919e-05,
+      "transaction_max_s": 0.000120304,
+      "measurement_errors": 0,
+      "clock_source": "host_monotonic_ns"
+    },
+    "physicalIO": "none;DemoSerialonly",
+    "profiled": false
+  },
+  {
+    "wall_s": 0.9221447269956116,
+    "successful_mode0_by_id": {
+      "0": 21,
+      "1": 21,
+      "2": 21
+    },
+    "all_packet_modes": {
+      "0": 63
+    },
+    "timing": {
+      "scope": "owner_lifetime",
+      "loop_samples": 93,
+      "loop_period_s": 0.002147496,
+      "loop_max_s": 0.010776669,
+      "loop_overruns": 0,
+      "loop_budget_s": 0.08,
+      "transaction_samples": 63,
+      "transaction_failures": 0,
+      "transaction_latency_s": 5.603e-05,
+      "transaction_max_s": 0.000266572,
+      "measurement_errors": 0,
+      "clock_source": "host_monotonic_ns"
+    },
+    "physicalIO": "none;DemoSerialonly",
+    "profiled": false
+  }
+]

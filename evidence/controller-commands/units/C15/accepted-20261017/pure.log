@@ -1,0 +1,15 @@
+test_actual_consecutive_start_intervals_and_budget_boundary (test_station_timing.StationTimingTests.test_actual_consecutive_start_intervals_and_budget_boundary) ... ok
+test_bad_constructor_and_clock_values_reject_without_partial_updates (test_station_timing.StationTimingTests.test_bad_constructor_and_clock_values_reject_without_partial_updates) ... ok
+test_bad_transaction_does_not_consume_a_sample (test_station_timing.StationTimingTests.test_bad_transaction_does_not_consume_a_sample) ... ok
+test_failed_and_successful_exchange_attempts_are_both_measured (test_station_timing.StationTimingTests.test_failed_and_successful_exchange_attempts_are_both_measured) ... ok
+test_long_run_keeps_fixed_storage_and_independent_instances (test_station_timing.StationTimingTests.test_long_run_keeps_fixed_storage_and_independent_instances) ... ok
+test_missing_loop_clock_breaks_only_measurement_continuity (test_station_timing.StationTimingTests.test_missing_loop_clock_breaks_only_measurement_continuity) ... ok
+test_missing_transaction_time_is_unknown_but_retains_actual_outcome (test_station_timing.StationTimingTests.test_missing_transaction_time_is_unknown_but_retains_actual_outcome) ... ok
+test_no_samples_are_unknown_instead_of_fake_zero_durations (test_station_timing.StationTimingTests.test_no_samples_are_unknown_instead_of_fake_zero_durations) ... ok
+test_snapshot_is_detached_from_internal_counters (test_station_timing.StationTimingTests.test_snapshot_is_detached_from_internal_counters) ... ok
+test_zero_elapsed_is_a_real_sample (test_station_timing.StationTimingTests.test_zero_elapsed_is_a_real_sample) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.004s
+
+OK

@@ -1,0 +1,294 @@
+{
+  "passed": 32,
+  "cases": [
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04503545569697154,
+      "decodedEffort": -0.999911389324456
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": -0.05492054899785302,
+      "decodedEffort": -0.9997501329307986
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04503767692230881,
+      "decodedEffort": -0.9999558258628387
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": -0.05492277022319031,
+      "decodedEffort": -0.9997945694691818
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": 0.05492054899785302,
+      "decodedEffort": 0.9997501329307986
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04503545569697154,
+      "decodedEffort": 0.999911389324456
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": 0.05491832777251576,
+      "decodedEffort": 0.9997056963924164
+    },
+    {
+      "reduction": 1.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": 0.045033234471634265,
+      "decodedEffort": 0.9998669527860733
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04503545569697154,
+      "decodedEffort": -0.999911389324456
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": -0.05492054899785302,
+      "decodedEffort": -0.9997501329307986
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": -0.045033234471634265,
+      "decodedEffort": -0.9998669527860733
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": -0.05491832777251576,
+      "decodedEffort": -0.9997056963924164
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": 0.05492054899785302,
+      "decodedEffort": 0.9997501329307986
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04503545569697154,
+      "decodedEffort": 0.999911389324456
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": 0.05492277022319031,
+      "decodedEffort": 0.9997945694691818
+    },
+    {
+      "reduction": 1.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04503767692230881,
+      "decodedEffort": 0.9999558258628387
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04487398403508883,
+      "decodedEffort": -0.999941549340647
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": -0.055283860237089096,
+      "decodedEffort": -0.9999915054904004
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04487472444353461,
+      "decodedEffort": -0.9999563336776658
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": -0.055279554656101015,
+      "decodedEffort": -0.999905532456527
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": 0.055283860237089096,
+      "decodedEffort": 0.9999915054904004
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04487398403508883,
+      "decodedEffort": 0.999941549340647
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": 0.05528311982864334,
+      "decodedEffort": 0.9999767211533822
+    },
+    {
+      "reduction": 3.0,
+      "direction": -1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04487324362664308,
+      "decodedEffort": 0.9999267650036289
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04487398403508883,
+      "decodedEffort": -0.999941549340647
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": -0.055283860237089096,
+      "decodedEffort": -0.9999915054904004
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": -0.04487324362664308,
+      "decodedEffort": -0.9999267650036289
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": -1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": -0.05528311982864334,
+      "decodedEffort": -0.9999767211533822
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": -0.1,
+      "issuedPosition": 0.055283860237089096,
+      "decodedEffort": 0.9999915054904004
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.0,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04487398403508883,
+      "decodedEffort": 0.999941549340647
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": -0.1,
+      "issuedPosition": 0.055279554656101015,
+      "decodedEffort": 0.999905532456527
+    },
+    {
+      "reduction": 3.0,
+      "direction": 1,
+      "sign": 1,
+      "zero": 0.37,
+      "feedforward": 0.1,
+      "issuedPosition": 0.04487472444353461,
+      "decodedEffort": 0.9999563336776658
+    }
+  ],
+  "hardwareOrNetwork": false
+}

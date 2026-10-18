@@ -6,348 +6,35 @@ transport and all externally visible records are immutable snapshots.
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum
+from fractions import Fraction
 import math
 import time
 from typing import Literal
 
-from im6014_codec import (
-    command,
-    decode_command,
-    project_position_raw,
-    project_speed_raw,
-    raw_to_position,
-    raw_to_rpm,
+from im6014_codec import command
+from joint_mapping import JointSample, JointTarget
+from joint_records import (
+    ArmDecision,
+    CommunicationFailure,
+    Decision,
+    DecisionCode,
+    JointFault,
+    JointSpec,
+    JointStatus,
+    MotorHealth,
+    Ownership,
+    Reference,
+    Snapshot,
+    SourceIdentity,
+    State,
+    Target,
 )
-from joint_mapping import JointMap, JointSample, JointTarget, OutputSample
-
-
-class State(Enum):
-    DISCONNECTED = "disconnected"
-    CONNECTING = "connecting"
-    CONNECTED = "connected"
-    CHECKING = "checking"
-    READY = "ready"
-    ARMED = "armed"
-    MOVING = "moving"
-    STOPPED = "stopped"
-    FAULT = "fault"
-
-
-class DecisionCode(str, Enum):
-    ACCEPTED = "accepted"
-    INVALID_STATE = "invalid_state"
-    INVALID_ARGUMENT = "invalid_argument"
-    INVALID_SOURCE = "invalid_source"
-    UNKNOWN_JOINT = "unknown_joint"
-    INVALID_OBSERVATION = "invalid_observation"
-    FAULT_ACK_REQUIRED = "fault_ack_required"
-    FAULT_LATCHED = "fault_latched"
-    OBSERVATIONS_INCOMPLETE = "observations_incomplete"
-    STALE_FEEDBACK = "stale_feedback"
-    UNHEALTHY = "unhealthy"
-    NOT_STOPPED = "not_stopped"
-    EXPIRED = "expired"
-    INVALID_OWNERSHIP = "invalid_ownership"
-    POSITION_LIMIT = "position_limit"
-    DUPLICATE_OR_OLDER = "duplicate_or_older"
-
-
-class CommunicationFailure(str, Enum):
-    TIMEOUT = "timeout"
-    INVALID_FEEDBACK = "invalid_feedback"
-    DRIVER_FAILURE = "driver_failure"
-
-
-@dataclass(frozen=True)
-class Decision:
-    accepted: bool
-    code: DecisionCode
-
-    def __post_init__(self) -> None:
-        if type(self.accepted) is not bool:
-            raise ValueError("accepted must be a bool")
-        if not isinstance(self.code, DecisionCode):
-            raise ValueError("code must be a DecisionCode")
-        if self.accepted != (self.code is DecisionCode.ACCEPTED):
-            raise ValueError("accepted must match the decision code")
-
-    def __bool__(self) -> bool:
-        return self.accepted
-
-
-@dataclass(frozen=True)
-class Ownership:
-    owner: str
-    generation: int
-
-    def __post_init__(self) -> None:
-        if type(self.owner) is not str or not self.owner.strip():
-            raise ValueError("owner must be a non-empty string")
-        if type(self.generation) is not int or self.generation < 1:
-            raise ValueError("generation must be a positive integer")
-
-
-@dataclass(frozen=True)
-class ArmDecision(Decision):
-    ownership: Ownership | None
-
-    def __post_init__(self) -> None:
-        Decision.__post_init__(self)
-        if (self.ownership is not None) != self.accepted:
-            raise ValueError("ownership must be present exactly when arm is accepted")
-        if self.ownership is not None and not isinstance(self.ownership, Ownership):
-            raise ValueError("ownership must be an Ownership or None")
-
-
-@dataclass(frozen=True)
-class PositionLimits:
-    minimum_rad: float
-    maximum_rad: float
-
-    def __post_init__(self) -> None:
-        for name in ("minimum_rad", "maximum_rad"):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise ValueError(f"{name} must be a finite real number")
-            try:
-                value = float(value)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError(f"{name} must be finite") from exc
-            if not math.isfinite(value):
-                raise ValueError(f"{name} must be finite")
-            object.__setattr__(self, name, value)
-        if self.minimum_rad > self.maximum_rad:
-            raise ValueError("minimum_rad must not exceed maximum_rad")
-
-
-@dataclass(frozen=True)
-class JointSpec:
-    name: str
-    motor_id: int
-    mapping: JointMap
-    position_limits: PositionLimits
-    max_velocity_rad_s: float
-
-    def __post_init__(self) -> None:
-        if type(self.name) is not str or not self.name.strip():
-            raise ValueError("joint name must be a non-empty string")
-        if type(self.motor_id) is not int or not 0 <= self.motor_id <= 14:
-            raise ValueError("motor_id must be an integer from 0 to 14")
-        if not isinstance(self.mapping, JointMap):
-            raise ValueError("mapping must be a JointMap")
-        if not isinstance(self.position_limits, PositionLimits):
-            raise ValueError("position_limits must be PositionLimits")
-        value = self.max_velocity_rad_s
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValueError("max_velocity_rad_s must be finite and positive")
-        try:
-            value = float(value)
-        except (OverflowError, TypeError, ValueError) as exc:
-            raise ValueError("max_velocity_rad_s must be finite and positive") from exc
-        if not math.isfinite(value) or value <= 0.0:
-            raise ValueError("max_velocity_rad_s must be finite and positive")
-        object.__setattr__(self, "max_velocity_rad_s", value)
-
-
-@dataclass(frozen=True)
-class JointFault:
-    name: str
-    motor_id: int
-    errors: int = 0
-    warnings: int = 0
-    timeout: bool = False
-    communication_error: CommunicationFailure | None = None
-    stale: bool = False
-    communication_errors: tuple[CommunicationFailure, ...] = ()
-
-    def __post_init__(self) -> None:
-        if type(self.name) is not str or not self.name.strip():
-            raise ValueError("joint name must be a non-empty string")
-        if type(self.motor_id) is not int or not (0 <= self.motor_id <= 14):
-            raise ValueError("motor_id must be an integer from 0 to 14")
-        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
-            raise ValueError("errors must be a uint32 integer")
-        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
-            raise ValueError("warnings must be a uint3 integer")
-        if type(self.timeout) is not bool:
-            raise ValueError("timeout must be a bool")
-        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
-            raise ValueError("communication_error must be a CommunicationFailure or None")
-        if type(self.stale) is not bool:
-            raise ValueError("stale must be a bool")
-        if type(self.communication_errors) is not tuple or any(
-            not isinstance(c, CommunicationFailure) for c in self.communication_errors
-        ):
-            raise ValueError("communication_errors must be a tuple of CommunicationFailure")
-
-        if len(self.communication_errors) != len(set(self.communication_errors)):
-            raise ValueError("communication_errors must contain unique codes")
-        if self.communication_error is not None and self.communication_errors and (
-            self.communication_error not in self.communication_errors
-        ):
-            raise ValueError("communication_error must belong to communication_errors")
-
-        if self.communication_error is not None and not self.communication_errors:
-            object.__setattr__(self, "communication_errors", (self.communication_error,))
-        elif self.communication_errors and self.communication_error is None:
-            object.__setattr__(self, "communication_error", self.communication_errors[-1])
-
-
-@dataclass(frozen=True)
-class MotorHealth:
-    mode: int
-    errors: int
-    warnings: int
-    timeout: bool
-
-    def __post_init__(self) -> None:
-        if type(self.mode) is not int or self.mode not in (0, 1):
-            raise ValueError("mode must be the integer 0 or 1")
-        if type(self.errors) is not int or not (0 <= self.errors <= 0xFFFFFFFF):
-            raise ValueError("errors must be a uint32 integer")
-        if type(self.warnings) is not int or not (0 <= self.warnings <= 7):
-            raise ValueError("warnings must be a uint3 integer")
-        if type(self.timeout) is not bool:
-            raise ValueError("timeout must be a bool")
-
-    @property
-    def healthy(self) -> bool:
-        return self.errors == 0 and self.warnings == 0 and not self.timeout
-
-
-@dataclass(frozen=True)
-class SourceIdentity:
-    backend: Literal["physical", "demo", "fixture"]
-    identity: str
-    connection: int
-
-    def __post_init__(self) -> None:
-        if type(self.backend) is not str or self.backend not in ("physical", "demo", "fixture"):
-            raise ValueError("backend must be physical, demo, or fixture")
-        if type(self.identity) is not str or not self.identity.strip():
-            raise ValueError("identity must be a non-empty string")
-        if type(self.connection) is not int or self.connection < 0:
-            raise ValueError("connection must be a nonnegative integer")
-
-
-@dataclass(frozen=True)
-class JointStatus:
-    sample: JointSample | None = None
-    health: MotorHealth | None = None
-    received_at: float | None = None
-    communication_error: CommunicationFailure | None = None
-
-    def __post_init__(self) -> None:
-        if (self.sample is None) != (self.health is None):
-            raise ValueError("sample and health must both be present or both be absent")
-        if self.sample is not None and not isinstance(self.sample, JointSample):
-            raise ValueError("sample must be a JointSample")
-        if self.health is not None and not isinstance(self.health, MotorHealth):
-            raise ValueError("health must be MotorHealth")
-        if self.communication_error is not None and not isinstance(self.communication_error, CommunicationFailure):
-            raise ValueError("communication_error must be a CommunicationFailure or None")
-        if self.valid and self.received_at is None:
-            raise ValueError("a valid observation requires received_at")
-        if self.received_at is not None:
-            if isinstance(self.received_at, bool) or not isinstance(self.received_at, (int, float)):
-                raise ValueError("received_at must be a finite real number or None")
-            try:
-                received_at = float(self.received_at)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError("received_at must be finite") from exc
-            if not math.isfinite(received_at):
-                raise ValueError("received_at must be finite")
-            if not self.valid:
-                raise ValueError("received_at requires a valid observation")
-            object.__setattr__(self, "received_at", received_at)
-
-    @property
-    def valid(self) -> bool:
-        return self.sample is not None and self.health is not None
-
-    @property
-    def healthy(self) -> bool:
-        return self.valid and self.health.healthy and self.communication_error is None
-
-    @property
-    def errors(self) -> int:
-        return self.health.errors if self.health is not None else 0
-
-    @property
-    def warnings(self) -> int:
-        return self.health.warnings if self.health is not None else 0
-
-    @property
-    def timeout(self) -> bool:
-        return self.health.timeout if self.health is not None else False
-
-
-@dataclass(frozen=True)
-class Target:
-    sequence: int
-    joints: tuple[JointTarget, ...]
-    created_at_s: float
-    expires_at_s: float
-    ownership: Ownership
-
-    def __post_init__(self) -> None:
-        if type(self.sequence) is not int or not (0 <= self.sequence <= (1 << 64) - 1):
-            raise ValueError("sequence must be an integer from 0 to 2**64 - 1")
-        if type(self.joints) is not tuple:
-            raise ValueError("joints must be a tuple of JointTarget")
-        if not self.joints:
-            raise ValueError("joints must be a non-empty tuple")
-        if any(not isinstance(joint, JointTarget) for joint in self.joints):
-            raise ValueError("every joint target must be a JointTarget")
-        if not isinstance(self.ownership, Ownership):
-            raise ValueError("ownership must be an Ownership")
-        for name in ("created_at_s", "expires_at_s"):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise ValueError(f"{name} must be a finite real number")
-            try:
-                value = float(value)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError(f"{name} must be finite") from exc
-            if not math.isfinite(value):
-                raise ValueError(f"{name} must be finite")
-            object.__setattr__(self, name, value)
-        if self.expires_at_s <= self.created_at_s:
-            raise ValueError("expires_at_s must be later than created_at_s")
-
-
-@dataclass(frozen=True)
-class Reference:
-    """One requested target and its complete bounded, codec-representable issue."""
-
-    requested: Target
-    joints: tuple[JointTarget, ...]
-    accepted_at_s: float
-    issued_at_s: float
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.requested, Target):
-            raise ValueError("requested must be a Target")
-        if type(self.joints) is not tuple or not self.joints or any(
-            not isinstance(joint, JointTarget) for joint in self.joints
-        ):
-            raise ValueError("joints must be a non-empty tuple of JointTarget")
-        if len(self.joints) != len(self.requested.joints):
-            raise ValueError("issued joints must match the requested vector length")
-        for name in ("accepted_at_s", "issued_at_s"):
-            value = getattr(self, name)
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise ValueError(f"{name} must be a finite real number")
-            try:
-                value = float(value)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError(f"{name} must be finite") from exc
-            if not math.isfinite(value):
-                raise ValueError(f"{name} must be finite")
-            object.__setattr__(self, name, value)
-        if self.issued_at_s < self.accepted_at_s:
-            raise ValueError("issued_at_s must not precede accepted_at_s")
+from joint_reference import (
+    compute_predicted_effort,
+    plan_reference,
+    position_rates_at_release,
+    project_joint_target,
+)
 
 
 @dataclass(frozen=True)
@@ -357,69 +44,20 @@ class _PendingTarget:
 
 
 @dataclass(frozen=True)
-class Snapshot:
-    state: State
-    joint_names: tuple[str, ...]
-    joints: tuple[JointStatus, ...]
-    source: SourceIdentity | None
-    fault_latched: bool
-    feedback_ages_s: tuple[float | None, ...]
-    faults: tuple[JointFault, ...] = ()
-    pending_target: Target | None = None
-    last_sequence: int = -1
-    ownership: Ownership | None = None
-    ownership_generation: int = 0
+class _ReferenceHistory:
+    joints: tuple[JointTarget, ...]
+    issued_at_s: float
+    kind: Literal["seed", "issued"]
+    position_rates_rad_s: tuple[float, ...]
 
-    def __post_init__(self) -> None:
-        if not isinstance(self.state, State):
-            raise ValueError("state must be a State")
-        if type(self.joint_names) is not tuple or any(type(name) is not str for name in self.joint_names):
-            raise ValueError("joint_names must be a tuple of strings")
-        if type(self.joints) is not tuple or any(not isinstance(joint, JointStatus) for joint in self.joints):
-            raise ValueError("joints must be a tuple of JointStatus")
-        if type(self.feedback_ages_s) is not tuple:
-            raise ValueError("feedback_ages_s must be a tuple")
-        if len(self.joint_names) != len(self.joints):
-            raise ValueError("joint names and statuses must have equal lengths")
-        if len(self.feedback_ages_s) != len(self.joints):
-            raise ValueError("feedback ages and joint statuses must have equal lengths")
-        normalized_ages: list[float | None] = []
-        for joint, age in zip(self.joints, self.feedback_ages_s):
-            if joint.received_at is None:
-                if age is not None:
-                    raise ValueError("feedback age must be None before a joint is received")
-                normalized_ages.append(None)
-                continue
-            if isinstance(age, bool) or not isinstance(age, (int, float)):
-                raise ValueError("feedback age must be a finite nonnegative number")
-            try:
-                age_value = float(age)
-            except (OverflowError, TypeError, ValueError) as exc:
-                raise ValueError("feedback age must be finite") from exc
-            if not math.isfinite(age_value) or age_value < 0.0:
-                raise ValueError("feedback age must be finite and nonnegative")
-            normalized_ages.append(age_value)
-        object.__setattr__(self, "feedback_ages_s", tuple(normalized_ages))
-        if self.source is not None and not isinstance(self.source, SourceIdentity):
-            raise ValueError("source must be a SourceIdentity or None")
-        if self.ownership is not None and not isinstance(self.ownership, Ownership):
-            raise ValueError("ownership must be an Ownership or None")
-        if type(self.ownership_generation) is not int or self.ownership_generation < 0:
-            raise ValueError("ownership_generation must be a nonnegative integer")
-        if self.ownership is not None and self.ownership.generation != self.ownership_generation:
-            raise ValueError("active ownership generation must match its watermark")
-        if type(self.fault_latched) is not bool:
-            raise ValueError("fault_latched must be a bool")
-        if type(self.faults) is not tuple or any(not isinstance(f, JointFault) for f in self.faults):
-            raise ValueError("faults must be a tuple of JointFault")
-        if self.pending_target is not None and not isinstance(self.pending_target, Target):
-            raise ValueError("pending_target must be a Target or None")
-        if type(self.last_sequence) is not int or not (-1 <= self.last_sequence <= (1 << 64) - 1):
-            raise ValueError("last_sequence must be an integer from -1 to 2**64 - 1")
 
-    @property
-    def affected_joints(self) -> tuple[str, ...]:
-        return tuple(fault.name for fault in self.faults)
+@dataclass(frozen=True)
+class _ProtectionHistory:
+    received_at_s: float | None = None
+    overloaded: bool = False
+    recovering: bool = False
+    overload_s: Fraction = Fraction(0)
+    recovery_s: Fraction = Fraction(0)
 
 
 class JointCore:
@@ -479,9 +117,9 @@ class JointCore:
         self._clock = clock
         self._last_now: float | None = None
         self._faults: dict[str, JointFault] = {}
+        self._protection = [_ProtectionHistory() for _ in specs]
         self._pending_target: _PendingTarget | None = None
-        self._reference_positions: tuple[float, ...] | None = None
-        self._last_reference_at_s: float | None = None
+        self._history: _ReferenceHistory | None = None
         self._last_sequence: int = -1
         self._ownership: Ownership | None = None
         self._ownership_generation = 0
@@ -510,9 +148,55 @@ class JointCore:
     def _clear_observations(self) -> None:
         self._observations = [JointStatus() for _ in self._specs]
 
+    def _break_protection_continuity(self, index: int | None = None) -> None:
+        indices = range(len(self._specs)) if index is None else (index,)
+        for i in indices:
+            prior = self._protection[i]
+            self._protection[i] = _ProtectionHistory(overload_s=prior.overload_s)
+
+    def _observe_protection(
+        self, index: int, sample: JointSample, health: MotorHealth, now: float
+    ) -> tuple[bool, bool, bool]:
+        policy = self._specs[index].protection
+        prior = self._protection[index]
+        unknown = health.driver_c is None or health.winding_c is None
+        hot = ((health.driver_c is not None and health.driver_c >= policy.driver_limit_c)
+               or (health.winding_c is not None and health.winding_c >= policy.winding_limit_c))
+        credible = health.healthy and not hot
+        overloaded = credible and abs(sample.tau_nm) > policy.sustained_effort_nm
+        recovering = (credible and not overloaded and (
+            not self._faults or (self._state is State.CHECKING and health.mode == 0)
+        ))
+        dt = Fraction(0)
+        contiguous = False
+        if prior.received_at_s is not None:
+            gap = Fraction(now) - Fraction(prior.received_at_s)
+            if gap <= Fraction(min(self._feedback_max_age_s, policy.max_sample_gap_s)):
+                dt = gap
+                contiguous = True
+        overload_s = prior.overload_s
+        if prior.overloaded and overloaded:
+            overload_s = min(Fraction(policy.overload_duration_s), overload_s + dt)
+        recovery_s = Fraction(0)
+        if contiguous and prior.recovering and recovering:
+            recovery_s = min(Fraction(policy.recovery_duration_s), prior.recovery_s + dt)
+        if recovering and recovery_s >= Fraction(policy.recovery_duration_s):
+            overload_s = Fraction(0)
+        self._protection[index] = _ProtectionHistory(
+            now, overloaded, recovering, overload_s, recovery_s,
+        )
+        return hot, overloaded and overload_s >= Fraction(policy.overload_duration_s), unknown
+
+    def _protection_healthy(self, index: int) -> bool:
+        joint = self._observations[index]
+        policy = self._specs[index].protection
+        return (joint.healthy
+                and joint.health.driver_c < policy.driver_limit_c
+                and joint.health.winding_c < policy.winding_limit_c
+                and abs(joint.sample.tau_nm) <= policy.sustained_effort_nm)
+
     def _clear_reference(self) -> None:
-        self._reference_positions = None
-        self._last_reference_at_s = None
+        self._history = None
 
     def _latch_joint_fault(
         self,
@@ -524,6 +208,9 @@ class JointCore:
         timeout: bool = False,
         communication_error: CommunicationFailure | None = None,
         stale: bool = False,
+        over_temperature: bool = False,
+        persistent_effort: bool = False,
+        protection_unavailable: bool = False,
     ) -> None:
         existing = self._faults.get(name) or JointFault(name, motor_id)
         communication_errors = existing.communication_errors
@@ -537,6 +224,9 @@ class JointCore:
             stale=existing.stale or stale,
             communication_error=communication_error or existing.communication_error,
             communication_errors=communication_errors,
+            over_temperature=existing.over_temperature or over_temperature,
+            persistent_effort=existing.persistent_effort or persistent_effort,
+            protection_unavailable=existing.protection_unavailable or protection_unavailable,
         )
         self._faults[name] = fault
         self._state = State.FAULT
@@ -586,6 +276,7 @@ class JointCore:
         if not isinstance(source, SourceIdentity):
             return self._rejected(DecisionCode.INVALID_SOURCE)
         self._clear_observations()
+        self._break_protection_continuity()
         self._source = source
         self._state = State.CONNECTED
         return self._accepted()
@@ -598,6 +289,10 @@ class JointCore:
         if bool(self._faults) and not acknowledge_fault:
             return self._rejected(DecisionCode.FAULT_ACK_REQUIRED)
         self._clear_observations()
+        self._protection = [
+            _ProtectionHistory(h.received_at_s, h.overloaded, overload_s=h.overload_s)
+            for h in self._protection
+        ]
         self._pending_target = None
         self._clear_reference()
         self._state = State.CHECKING
@@ -624,14 +319,19 @@ class JointCore:
         if not isinstance(sample, JointSample) or not isinstance(status, MotorHealth):
             return self._rejected(DecisionCode.INVALID_OBSERVATION)
 
-        self._observations[index] = JointStatus(sample, status, self._now())
-        if not status.healthy:
+        now = self._now()
+        self._observations[index] = JointStatus(sample, status, now)
+        hot, overloaded, unknown = self._observe_protection(index, sample, status, now)
+        if not status.healthy or hot or overloaded:
             self._latch_joint_fault(
                 self._specs[index].name,
                 motor_id,
                 errors=status.errors,
                 warnings=status.warnings,
                 timeout=status.timeout,
+                over_temperature=hot,
+                persistent_effort=overloaded,
+                protection_unavailable=unknown,
             )
         return self._accepted()
 
@@ -651,6 +351,7 @@ class JointCore:
         failure_code = code
 
         spec = self._specs[index]
+        self._break_protection_continuity(index)
         self._latch_joint_fault(
             spec.name,
             motor_id,
@@ -673,6 +374,14 @@ class JointCore:
             return self._rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._rejected(DecisionCode.NOT_STOPPED)
+        if any(not self._protection_healthy(i) for i in range(len(self._specs))):
+            return self._rejected(DecisionCode.UNHEALTHY)
+        for i, spec in enumerate(self._specs):
+            fault = self._faults.get(spec.name)
+            if (fault is not None
+                    and (fault.over_temperature or fault.persistent_effort or fault.protection_unavailable)
+                    and self._protection[i].recovery_s < Fraction(spec.protection.recovery_duration_s)):
+                return self._rejected(DecisionCode.RECOVERY_PENDING)
         self._state = State.READY
         self._faults.clear()
         return self._accepted()
@@ -693,6 +402,8 @@ class JointCore:
             return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(joint.health.mode != 0 for joint in self._observations):
             return self._arm_rejected(DecisionCode.NOT_STOPPED)
+        if any(not self._protection_healthy(i) for i in range(len(self._specs))):
+            return self._arm_rejected(DecisionCode.UNHEALTHY)
         if any(
             not spec.position_limits.minimum_rad <= joint.sample.q_rad <= spec.position_limits.maximum_rad
             for spec, joint in zip(self._specs, self._observations)
@@ -712,19 +423,25 @@ class JointCore:
                     position=output.q_rad,
                     kp=output.kp,
                 )
-                self._project_joint_target(
+                project_joint_target(
                     spec,
                     seed,
                     spec.position_limits.minimum_rad,
                     spec.position_limits.maximum_rad,
+                    -spec.max_velocity_rad_s,
+                    spec.max_velocity_rad_s,
                 )
         except (ArithmeticError, ValueError):
             return self._arm_rejected(DecisionCode.INVALID_ARGUMENT)
         self._state = State.ARMED
         self._ownership_generation += 1
         self._ownership = Ownership(owner, self._ownership_generation)
-        self._reference_positions = tuple(joint.sample.q_rad for joint in self._observations)
-        self._last_reference_at_s = now
+        self._history = _ReferenceHistory(
+            joints=tuple(JointTarget(joint.sample.q_rad, 0.0, 0.0, 0.0, 0.0) for joint in self._observations),
+            issued_at_s=now,
+            kind="seed",
+            position_rates_rad_s=tuple(0.0 for _ in self._specs),
+        )
         return ArmDecision(True, DecisionCode.ACCEPTED, self._ownership)
 
     def tick(self) -> Decision:
@@ -782,6 +499,12 @@ class JointCore:
         ):
             return self._rejected(DecisionCode.POSITION_LIMIT)
 
+        if any(
+            abs(joint_target.tau_nm) > spec.max_effort_nm
+            for spec, joint_target in zip(self._specs, target.joints)
+        ):
+            return self._rejected(DecisionCode.EFFORT_LIMIT)
+
         try:
             for spec, joint_target in zip(self._specs, target.joints):
                 output = spec.mapping.to_output(joint_target)
@@ -805,60 +528,6 @@ class JointCore:
         self._last_sequence = target.sequence
         return self._accepted()
 
-    def _project_joint_target(
-        self,
-        spec: JointSpec,
-        target: JointTarget,
-        q_min: float,
-        q_max: float,
-    ) -> JointTarget:
-        mapping = spec.mapping
-        direction = mapping.direction
-        velocity = spec.max_velocity_rad_s
-        wanted_speed = max(-velocity, min(velocity, target.dq_rad_s))
-
-        def position_to_joint(output_rad: float) -> float:
-            return mapping.from_output(OutputSample(output_rad, 0.0, 0.0)).q_rad
-
-        def speed_to_joint(output_rpm: float) -> float:
-            return mapping.from_output(OutputSample(0.0, output_rpm, 0.0)).dq_rad_s
-
-        raw_position = project_position_raw(
-            target.q_rad, q_min, q_max, position_to_joint, direction
-        )
-        raw_speed = project_speed_raw(
-            wanted_speed, -velocity, velocity, speed_to_joint, direction
-        )
-        if raw_position is None or raw_speed is None:
-            raise ValueError("no representable reference fits the configured bounds")
-
-        safe_target = JointTarget(
-            position_to_joint(raw_to_position(raw_position)),
-            speed_to_joint(raw_to_rpm(raw_speed)),
-            target.tau_nm,
-            target.kp,
-            target.kd,
-        )
-        output = mapping.to_output(safe_target)
-        frame = command(
-            spec.motor_id,
-            mode=1,
-            rpm=output.rpm,
-            kd=output.kd,
-            torque=output.tau_nm,
-            watchdog=True,
-            position=output.q_rad,
-            kp=output.kp,
-        )
-        decoded = decode_command(frame)
-        if decoded["raw_position"] != raw_position or decoded["raw_rpm"] != raw_speed:
-            raise ValueError("normal command encoding changed a projected grid code")
-        if not q_min <= safe_target.q_rad <= q_max:
-            raise ValueError("projected position violates its closed bounds")
-        if not -velocity <= safe_target.dq_rad_s <= velocity:
-            raise ValueError("projected speed violates its closed bounds")
-        return safe_target
-
     def consume_target(self) -> Reference | None:
         if self._state not in (State.ARMED, State.MOVING):
             return None
@@ -880,23 +549,24 @@ class JointCore:
         if now >= target.expires_at_s:
             self._pending_target = None
             return None
-        if self._reference_positions is None or self._last_reference_at_s is None:
+        if self._history is None:
             return None
 
-        elapsed = now - self._last_reference_at_s
-        step_time = min(elapsed, self._max_reference_step_s)
-        try:
-            candidate_joints = []
-            for spec, requested, q_reference in zip(
-                self._specs, target.joints, self._reference_positions
-            ):
-                step = spec.max_velocity_rad_s * step_time
-                lower = max(spec.position_limits.minimum_rad, q_reference - step)
-                upper = min(spec.position_limits.maximum_rad, q_reference + step)
-                candidate_joints.append(
-                    self._project_joint_target(spec, requested, lower, upper)
-                )
-        except (ArithmeticError, ValueError):
+        elapsed = now - self._history.issued_at_s
+        measured_positions = tuple(joint.sample.q_rad for joint in self._observations)
+        measured_velocities = tuple(joint.sample.dq_rad_s for joint in self._observations)
+        candidate_joints = plan_reference(
+            specs=self._specs,
+            requested=target.joints,
+            previous=self._history.joints,
+            previous_rates=self._history.position_rates_rad_s,
+            measured_positions=measured_positions,
+            elapsed_s=elapsed,
+            max_step_s=self._max_reference_step_s,
+            allow_bootstrap=(self._history.kind == "seed"),
+            measured_velocities=measured_velocities,
+        )
+        if candidate_joints is None:
             return None
 
         release_now = self._now()
@@ -919,14 +589,42 @@ class JointCore:
             self._pending_target = None
             return None
 
+        release_elapsed = release_now - self._history.issued_at_s
+        rates = position_rates_at_release(
+            specs=self._specs,
+            previous=self._history.joints,
+            previous_rates=self._history.position_rates_rad_s,
+            candidate=candidate_joints,
+            elapsed_s=release_elapsed,
+        )
+        if rates is None:
+            return None
+
+        for spec, cand, obs in zip(self._specs, candidate_joints, self._observations):
+            if (
+                obs.sample is None
+                or not math.isfinite(obs.sample.q_rad)
+                or not math.isfinite(obs.sample.dq_rad_s)
+            ):
+                return None
+            if abs(cand.q_rad - obs.sample.q_rad) > spec.max_measured_lead_rad:
+                return None
+            tau_pred = compute_predicted_effort(spec, cand, obs.sample.q_rad, obs.sample.dq_rad_s)
+            if tau_pred is None or abs(tau_pred) > spec.max_effort_nm:
+                return None
+
         reference = Reference(
             target,
-            tuple(candidate_joints),
+            candidate_joints,
             pending.accepted_at_s,
             release_now,
         )
-        self._reference_positions = tuple(joint.q_rad for joint in reference.joints)
-        self._last_reference_at_s = release_now
+        self._history = _ReferenceHistory(
+            joints=reference.joints,
+            issued_at_s=release_now,
+            kind="issued",
+            position_rates_rad_s=rates,
+        )
         self._pending_target = None
         self._state = State.MOVING
         return reference
@@ -948,6 +646,7 @@ class JointCore:
         self._state = State.DISCONNECTED
         self._source = None
         self._clear_observations()
+        self._break_protection_continuity()
         self._pending_target = None
         self._clear_reference()
         return self._accepted()

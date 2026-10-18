@@ -1,0 +1,14 @@
+{
+  "before": {
+    "cwd": "/tmp/c14-codex-20261017",
+    "exitCode": 1,
+    "controllerSha256": "8d79153c2d204669b02c3ac3eae0d44f68a0c9abe5e600501832bec7a0dbe00e",
+    "probeSha256": "06bc056318545a8cad623931e366c5b798c6de7410863d8945756cc5f03eba06"
+  },
+  "after": {
+    "cwd": "/tmp/c14-codex-fixed-20261017",
+    "exitCode": 0,
+    "controllerSha256": "4f9e4fb8865052787db085cbf900c52c1eac7e5706984de3726f645e4f7d1f17",
+    "probeSha256": "06bc056318545a8cad623931e366c5b798c6de7410863d8945756cc5f03eba06"
+  }
+}

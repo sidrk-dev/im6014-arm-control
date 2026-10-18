@@ -1,0 +1,2 @@
+This plugin does not support propagateSizeHints()
+PASS: demo dashboard startup and shutdown; evidence: /tmp/hapi-mini-swarm-20261017/c13-release-baseline-runs/run-20261017T124837Z-Gmv0gXqA/startup-demo
