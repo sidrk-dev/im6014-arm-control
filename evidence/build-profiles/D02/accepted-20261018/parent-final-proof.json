@@ -1,0 +1,31 @@
+{
+  "baseHead": "a709e160d93a70ef5af26d9e02bfbf21b37927a4",
+  "sourcePinsMatch": true,
+  "focusedTests": 7,
+  "baselineGroups": 9,
+  "legacyQtGroups": 19,
+  "capturesViewed": 4,
+  "startup": {
+    "real": {
+      "sourceHashesMatched": 44,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "sourceHashesMatched": 44,
+      "sentinels": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "physicalIO": false,
+  "newRuntime": "pure build workflow metadata; no owner/transport integration",
+  "existingOwnerCoreAndD01Unchanged": true,
+  "milestoneTests": 289,
+  "docsExampleExecuted": true
+}

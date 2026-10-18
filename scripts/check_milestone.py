@@ -29,6 +29,7 @@ CHECKS = {
     'C15': 'test_station_timing',
     'C16': 'test_station_independence',
     'D01': 'test_build_profile test_build_profile_boundary',
+    'D02': 'test_build_profiles',
 }
 
 

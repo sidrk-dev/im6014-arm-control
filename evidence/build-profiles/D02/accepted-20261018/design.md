@@ -1,0 +1,11 @@
+# D02 build workflow definitions
+
+Ground: actual D02 plan, accepted D01 parser/records at a709e16 with exact-head CI green, current live owner ticket/Enable boundary, and settled peer D02 /tmp/deepseek-d02-20261017. Parent implements personally. Existing owners/source remain unchanged.
+
+The peer alternative extends persisted JointEntry with a calibrated flag and grants arm/release solely when build identity is arm_j1. Its factory supplies nominal zero/reduction/motor1 but calls it calibrated. Reject that shape; a name is not observed mounting, calibration or live authority. Do not add another readiness/Enable mechanism to the UI or owner.
+
+Chosen alternative: pure immutable BuildDefinition declares intended mechanical setup, required evidence and actions_when_commissioned. BuildPlan pairs that definition with the D01 profile and checks build identity. bench_j1 and arm_j1 have distinct setup requirements/workflow ceilings; neither has live permissions or calibrated=true. Factories require explicit revision, bus, motor ID, JointMap, mapping source and actuator identity source, so no default motor, reduction, direction or physical zero is invented. Mapping status stays declared. Both can represent unknown actuator identity explicitly. This is configuration preparation only; existing runtime owner remains the sole authority.
+
+Caller usage: bench_j1(revision=...,bus=...,motor_id=0,mapping=...,mapping_source=...,actuator_identity=None,actuator_identity_source=...) -> BuildPlan. plan.profile serializes through D01. Definition metadata is canonical in Python; no new second JSON schema or automatic registry migration is introduced. Build identity is not substitutable, and replaced metadata inconsistent with canonical definition must reject.
+
+Done: two profiles and their mechanical evidence requirements/workflow scopes remain distinct; caller-supplied mappings/provenance/unknown identities round-trip; no low-level arm/release/Enable grant or calibrated flag; no owner/hardware change; old peer failure retained; schema and baseline/copy/fingerprint callers migrate together. Parent checks, configured review, independent final and exact-head CI precede acceptance of dependent D03 runtime work.

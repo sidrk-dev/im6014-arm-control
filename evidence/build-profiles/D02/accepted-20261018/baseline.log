@@ -1,0 +1,11 @@
+Evidence: /tmp/d02-codex-evidence-20261018/baseline/run-20261018T020856Z-wftCkNyV
+check	exit_code
+interpreter	0
+packet-tests	0
+protocol-tests	0
+serial-deadline-tests	0
+milestone-tests	0
+dashboard-tests	0
+startup-verifier-tests	0
+startup-real	0
+startup-demo	0
