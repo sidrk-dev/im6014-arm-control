@@ -5,3 +5,4 @@ C07-C10	software verified; Muse triaged; MiMo review dropout	Codex parent	codex/
 C11-C15	software verified	Codex parent	Accepted sequential controller/timing checkpoints	C14 f43d7aa; C15 source/evidence pinned under evidence/controller-commands/units/C15/accepted-20261017; production JointCore integration remains pending
 C16	software verified	Codex parent	Station failure independence	Two cleanup regressions fixed;7focused/79guardedarm/9offlinegroups; fake transport only; evidence/controller-commands/units/C16/accepted-20261017
 Opus-contribution	unassigned	Incoming collaborator	Agree isolated scope first	No shared writes or physical I/O without coordination
+D01-build-profile	software verified	Codex parent	build_profile.py;schema tests;baseline fingerprints	26focused/all9baselinegroups282milestone/42hashes per mode0I/O; no live permission or calibrated zero imported; D02-D06 pending

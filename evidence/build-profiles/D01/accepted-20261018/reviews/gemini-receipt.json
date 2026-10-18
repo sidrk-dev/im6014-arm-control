@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "parent": "codex",
+  "provider": "antigravity",
+  "model": "gemini-3.8-flash-high",
+  "effort": "default",
+  "mode": "read-only",
+  "cwd": "/tmp/d01-codex-20261018",
+  "promptPath": "/tmp/d01-codex-evidence-20261018/review/prompt.md",
+  "outputPath": "/tmp/d01-codex-evidence-20261018/review/gemini.md",
+  "receiptPath": "/tmp/d01-codex-evidence-20261018/review/gemini-receipt.json",
+  "executionId": "/tmp/d01-codex-evidence-20261018/review/gemini-receipt.json",
+  "canonicalPaths": {
+    "cwd": "/tmp/d01-codex-20261018",
+    "output": "/tmp/d01-codex-evidence-20261018/review/gemini.md",
+    "receipt": "/tmp/d01-codex-evidence-20261018/review/gemini-receipt.json"
+  },
+  "timeoutMs": null,
+  "contract": "legacy",
+  "startedAt": "2026-10-18T01:55:05.037Z",
+  "completedAt": "2026-10-18T02:00:04.056Z",
+  "elapsedMs": 299019,
+  "executable": "/home/sid/.local/bin/agy",
+  "preflight": {
+    "argv": [
+      "/home/sid/.local/bin/agy",
+      "models"
+    ],
+    "status": "passed",
+    "evidence": "model gemini-3.8-flash-high listed; authentication deferred to execution"
+  },
+  "argv": [
+    "/home/sid/.local/bin/agy",
+    "--print=",
+    "--output-format",
+    "stream-json",
+    "--input-format",
+    "stream-json",
+    "--model",
+    "gemini-3.8-flash-high",
+    "--agent",
+    "pstack-16d2f72802cedcfe",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--add-dir",
+    "/tmp/d01-codex-20261018"
+  ],
+  "exitCode": 0,
+  "signal": null,
+  "status": "complete",
+  "reportedModel": "gemini-3.8-flash-high",
+  "modelVerified": false,
+  "modelEvidence": "pinned-argv",
+  "sessionId": "f90bb30b-e285-426a-8edf-8e13e855538f",
+  "usage": {
+    "inputTokens": 78461,
+    "cachedInputTokens": 342271,
+    "outputTokens": 46242,
+    "reasoningTokens": 43841,
+    "totalTokens": 124703
+  },
+  "costUsd": null,
+  "error": null,
+  "failurePhase": null,
+  "processStarted": true,
+  "apiSpend": "deny"
+}

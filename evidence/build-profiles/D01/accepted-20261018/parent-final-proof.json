@@ -1,0 +1,30 @@
+{
+  "sourceManifestMatches": true,
+  "baselineGroups": 9,
+  "focusedTests": 26,
+  "legacyQtGroups": 19,
+  "capturesActuallyViewed": 4,
+  "baseline": "/tmp/d01-codex-evidence-20261018/diagnostic-final-baseline/run-20261018T020048Z-5eWY3ZKr",
+  "startup": {
+    "real": {
+      "hashesMatched": 42,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "hashesMatched": 42,
+      "sentinelCounts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "liveOwnerCodeUnchanged": true,
+  "physicalIO": false,
+  "authority": "profile has no movement/calibration grant API",
+  "milestoneTests": 282
+}
