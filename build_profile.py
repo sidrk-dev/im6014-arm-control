@@ -10,8 +10,8 @@ ENCODER_CONVENTIONS = ("rotor_incremental", "output_absolute", "unmarked")
 MEASUREMENT_STATUSES = ("measured", "declared", "unknown")
 BACKENDS = ("physical", "simulation", "demo")
 
-TOP_LEVEL_FIELDS = ("schema_version", "robot", "build", "backend", "revision", "joints")
-REQUIRED_TOP_LEVEL_FIELDS = TOP_LEVEL_FIELDS
+TOP_LEVEL_FIELDS = ("schema_version", "robot", "build", "backend", "revision", "joints", "locked_joints")
+REQUIRED_TOP_LEVEL_FIELDS = tuple(name for name in TOP_LEVEL_FIELDS if name != "locked_joints")
 JOINT_FIELDS = ("name", "bus", "motor_id", "actuator_identity", "actuator_identity_source", "encoder", "mapping", "mapping_source", "mapping_status", "position_limits", "measurements")
 REQUIRED_JOINT_FIELDS = tuple(name for name in JOINT_FIELDS if name not in ("position_limits", "measurements"))
 MAPPING_FIELDS = ("reduction", "direction", "zero_output_rad")
@@ -167,6 +167,25 @@ class JointEntry:
 
 
 @dataclass(frozen=True)
+class LockedJoint:
+    name: str
+    mass: Measurement
+    position: Measurement
+
+    def __post_init__(self):
+        _text(self.name, "locked joint name")
+        for field, label, units in ((self.mass, 'body_mass', 'kg'),
+                                    (self.position, 'locked_angle', 'rad')):
+            if not isinstance(field, Measurement) or field.name != label or field.units != units:
+                raise ValueError(f'locked joint {label} must be a {units} Measurement')
+        if self.mass.value is not None and self.mass.value < 0:
+            raise ValueError('locked body mass must be nonnegative when known')
+
+    def to_dict(self):
+        return {'name': self.name, 'mass': self.mass.to_dict(), 'position': self.position.to_dict()}
+
+
+@dataclass(frozen=True)
 class BuildProfile:
     schema_version: int
     robot: str
@@ -174,6 +193,7 @@ class BuildProfile:
     backend: str
     revision: str
     joints: tuple[JointEntry, ...] = ()
+    locked_joints: tuple[LockedJoint, ...] = ()
 
     def __post_init__(self):
         if type(self.schema_version) is not int or self.schema_version not in SUPPORTED_SCHEMA_VERSIONS:
@@ -194,11 +214,28 @@ class BuildProfile:
         if len(slots) != len(set(slots)):
             raise ValueError("motor ids must be unique per bus")
 
+        if type(self.locked_joints) is not tuple or any(
+            not isinstance(joint, LockedJoint) for joint in self.locked_joints
+        ):
+            raise ValueError('locked_joints must be a tuple of LockedJoint')
+        locked_names = [joint.name for joint in self.locked_joints]
+        if len(locked_names) != len(set(locked_names)):
+            raise ValueError('locked joint names must be unique')
+        if set(names) & set(locked_names):
+            raise ValueError('a joint cannot be both active and locked')
+
+    def require_active_joint(self, name: str) -> JointEntry:
+        _text(name, 'requested joint name')
+        for joint in self.joints:
+            if joint.name == name:
+                return joint
+        raise ValueError(f'joint {name} is absent or locked in this build')
+
     def joint_names(self) -> tuple[str, ...]:
         return tuple(joint.name for joint in self.joints)
 
     def to_dict(self):
-        return {
+        record = {
             "schema_version": self.schema_version,
             "robot": self.robot,
             "build": self.build,
@@ -206,6 +243,9 @@ class BuildProfile:
             "revision": self.revision,
             "joints": [joint.to_dict() for joint in self.joints],
         }
+        if self.locked_joints:
+            record['locked_joints'] = [joint.to_dict() for joint in self.locked_joints]
+        return record
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict(), sort_keys=True, allow_nan=False)
@@ -218,15 +258,26 @@ def _parse_limits(record):
     return PositionLimits(minimum_rad=raw["minimum_rad"], maximum_rad=raw["maximum_rad"])
 
 
+def _parse_measurement(name, value):
+    entry = _object(value, f'measurement {name}')
+    _reject_unknown_fields(entry, MEASUREMENT_FIELDS, f'measurement {name}')
+    _require_keys(entry, ('status', 'units', 'source'), f'measurement {name}')
+    return Measurement(name=name, status=entry['status'], units=entry['units'],
+                       source=entry['source'], value=entry.get('value'))
+
+
 def _parse_measurements(record):
-    raw = _object(record["measurements"], "measurements")
-    parsed = []
-    for name, value in raw.items():
-        entry = _object(value, f"measurement {name}")
-        _reject_unknown_fields(entry, MEASUREMENT_FIELDS, f"measurement {name}")
-        _require_keys(entry, ("status", "units", "source"), f"measurement {name}")
-        parsed.append(Measurement(name=name, status=entry["status"], units=entry["units"], source=entry["source"], value=entry.get("value")))
-    return tuple(parsed)
+    raw = _object(record['measurements'], 'measurements')
+    return tuple(_parse_measurement(name, value) for name, value in raw.items())
+
+
+def _parse_locked_joint(record):
+    _object(record, 'locked joint')
+    fields = ('name', 'mass', 'position')
+    _reject_unknown_fields(record, fields, 'locked joint')
+    _require_keys(record, fields, 'locked joint')
+    return LockedJoint(record['name'], _parse_measurement('body_mass', record['mass']),
+                       _parse_measurement('locked_angle', record['position']))
 
 
 def _parse_joint(record):
@@ -264,6 +315,9 @@ def from_dict(raw):
     if not isinstance(raw_joints, list):
         raise ValueError("joints must be a JSON array")
     joints = tuple(_parse_joint(_object(joint, f"joints[{index}]")) for index, joint in enumerate(raw_joints))
+    raw_locked = raw.get('locked_joints', [])
+    if not isinstance(raw_locked, list):
+        raise ValueError('locked_joints must be a JSON array')
     return BuildProfile(
         schema_version=raw["schema_version"],
         robot=raw["robot"],
@@ -271,6 +325,7 @@ def from_dict(raw):
         backend=raw["backend"],
         revision=raw["revision"],
         joints=joints,
+        locked_joints=tuple(_parse_locked_joint(record) for record in raw_locked),
     )
 
 
