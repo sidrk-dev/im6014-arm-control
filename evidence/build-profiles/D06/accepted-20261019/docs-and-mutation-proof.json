@@ -1,0 +1,25 @@
+{
+  "mutationExit": 1,
+  "mutationMeaning": "Removing changed-input invalidation makes the public reduction-change test fail",
+  "docSnippetsExecuted": 1,
+  "startup": {
+    "real": {
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      },
+      "status": null,
+      "source": "real"
+    },
+    "demo": {
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      },
+      "status": null,
+      "source": "demo"
+    }
+  }
+}

@@ -33,6 +33,7 @@ CHECKS = {
     'D03': 'test_provisional_builds',
     'D04': 'test_locked_joints',
     'D05': 'test_calibration_binding',
+    'D06': 'test_validation_invalidation',
 }
 
 

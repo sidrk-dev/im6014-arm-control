@@ -1,0 +1,55 @@
+{
+  "recordedAt": "2026-10-20T03:57:14.068280+00:00",
+  "sourcePinsUnchanged": true,
+  "startup": {
+    "real": {
+      "matchedCurrentSourceFiles": 50,
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    },
+    "demo": {
+      "matchedCurrentSourceFiles": 50,
+      "sentinel_counts": {
+        "serial_open": 0,
+        "demo_open": 0,
+        "exchange": 0
+      }
+    }
+  },
+  "viewedCaptures": [
+    {
+      "file": "dashboard_preview.png",
+      "sha256": "cb039d6602333f676c46618c32b0959eb2757cbebc430abf186bbbf59471964b",
+      "parentInspected": true,
+      "observation": "Legacy Qt bench UI. Two simulated test captures and two disconnected startup captures; not arm web dashboard verification."
+    },
+    {
+      "file": "dashboard_dark_preview.png",
+      "sha256": "ed7323880e6880a4785ff17b684d148a4f549a56ca5f5e36f99a1ed059e09d71",
+      "parentInspected": true,
+      "observation": "Legacy Qt bench UI. Two simulated test captures and two disconnected startup captures; not arm web dashboard verification."
+    },
+    {
+      "file": "startup-real/dashboard.png",
+      "sha256": "79a617ccb393b27e1cf22209944ebe85a571b3d701a3a428a6cf8adaf2960fcd",
+      "parentInspected": true,
+      "observation": "Legacy Qt bench UI. Two simulated test captures and two disconnected startup captures; not arm web dashboard verification."
+    },
+    {
+      "file": "startup-demo/dashboard.png",
+      "sha256": "752d74bf311afb4b9efecd36d5f82001d78fcdc93f066805c5194d290a70966e",
+      "parentInspected": true,
+      "observation": "Legacy Qt bench UI. Two simulated test captures and two disconnected startup captures; not arm web dashboard verification."
+    }
+  ],
+  "parentCounts": {
+    "focused": 16,
+    "milestoneTests": 329,
+    "QtGroups": 19,
+    "baselineGroups": 9
+  },
+  "physicalIO": "None. Fake/allocated PTY/local HTTP only; startup serial/demo/exchange rejecting sentinels zero."
+}

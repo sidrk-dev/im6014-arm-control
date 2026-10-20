@@ -1,0 +1,10 @@
+{
+  "configuredReviews": {
+    "gemini": "Actual child-failed postprocess exit70; child process exit0 did not yield successful terminal. Partial no-findings prose is NOT an accepted review. Drained.",
+    "muse": "Actual HTTP400 child-failed exit1; drained. No retry or substitution."
+  },
+  "nativeFinal": "Actual FINAL ACCEPT, seven independently calculated source hashes match, comment audit zero flags. Same interrupted native task completed after host reattachment; not a failed provider retry.",
+  "source": "Seven frozen source pins unchanged; parent16focused/all9hostbaseline329milestone/19Qt pass;4actuallegacyQt captures viewed;50startup hashes per mode matched zero sentinels.",
+  "acceptance": "Parent accepts D06 narrow software behavior with native source verdict and actual parent checks. Both external reviewers FAILED; no model-diverse agreement or review success claimed.",
+  "nonblockingWhitespaceCoverage": "Native suggested isolated whitespace-preserving JSON change case. Parent separately executed check-exact-bytes.py against unchanged frozen production source; passed. Not added to reviewed test module."
+}

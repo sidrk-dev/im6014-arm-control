@@ -1,0 +1,15 @@
+test_reduction_change_marks_pending_and_clears_old_result (test_validation_invalidation.D06ValidationInvalidation.test_reduction_change_marks_pending_and_clears_old_result) ... FAIL
+
+======================================================================
+FAIL: test_reduction_change_marks_pending_and_clears_old_result (test_validation_invalidation.D06ValidationInvalidation.test_reduction_change_marks_pending_and_clears_old_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/d06-codex-recovery-20261019/test_validation_invalidation.py", line 55, in test_reduction_change_marks_pending_and_clears_old_result
+    self.assertIs(pending.status, Status.PENDING)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: <ValidationStatus.PASSED: 'passed'> is not <ValidationStatus.PENDING: 'pending'>
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
