@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-19T22:58:31.112446+00:00",
+  "missingTemporaryPaths": [
+    "/tmp/d06-deepseek-20261018",
+    "/tmp/hapi-mini-swarm-20261017",
+    "/tmp/hapi-child-retry-codex-20261018",
+    "/tmp/review-exec-codex-20261018",
+    "/tmp/swarm-codex-pagefix-20261018"
+  ],
+  "recoveredSource": "sidrk-dev/im6014-arm-control d0093b1656aec80dca5d24f753af634c2c1f2347",
+  "newCheckout": "/tmp/d06-codex-recovery-20261019",
+  "branch": "codex/d06-validation-invalidation-20261019",
+  "peerObservation": "Authenticated hub at127.0.0.1:8780 unreachable, no current ownership/consumption inference; persistent workspaces present and preserved. No service restart/duplicate coordinator.",
+  "lossBoundary": "Pushed source/evidence recovered; uncommitted HAPI candidates unavailable unless retained by owners. Do not claim integrated/recovered.",
+  "pr16": "Exact head/twoSUCCESS checked; body stale sentence corrected and readback verified; draft held.",
+  "physicalIO": "none; blocked",
+  "next": "Personally implement D06 isolated; existing external approval gates held."
+}

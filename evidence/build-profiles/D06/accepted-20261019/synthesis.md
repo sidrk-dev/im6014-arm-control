@@ -1,0 +1,9 @@
+# D06 synthesis
+
+Two candidates reviewed: explicit geometry schema and selected exact opaque configuration dependencies. Choose the latter because no geometry parser exists and invalidation needs equality, not invented transform conventions. Artifact bytes and provenance are strict, immutable, and explicit unknown (None). Never claim those bytes are semantically certified tool geometry or transforms.
+
+Native grounded review identified missing build identity for TOOL-only records. All records now REQUIRE PROFILE dependency; conservative full-profile changes invalidate every record, while tool/mount changes affect checks declaring those dependencies. Rejected separate identity-only anchor because it adds a second profile equivalence relation and risks omitted fields. No silent PROFILE injection.
+
+Records are caller-reported result metadata, not test execution or physical certification. Evidence is an explicit reference string, not verified file contents. Missing selected tool/mount data rejects completed results. Inner profile unknown/declared facts remain unchanged; schema checks may pass on an explicitly unknown profile and confer no physical readiness. Pending updates clear previous result metadata and remain pending even after configuration revert until an explicit fresh report_result call. No persistence, automatic application, controller/owner/adapter changes, or saved-zero restoration.
+
+Human requested Codex personally implement; no DeepSeek implementation seat started as substitute or retry. Existing unreachable HAPI peer owns old path; this artifact is disjoint and based on exact pushed D05. Native saved architect lane provides independent grounded design critique; parent supplies second complete sketch. External review follows only new Workbench source authorization.

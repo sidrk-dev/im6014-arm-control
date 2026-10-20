@@ -1,0 +1,9 @@
+# Parent D06 sketch
+
+Ground: BuildProfile stores canonical versioned joint mappings/measurement provenance/locked bodies. CalibrationBinding hashes full canonical profile and exact opaque artifact; no certification or live use. Tool and mounting geometry are not represented in D01-D05. Baseline and startup verifier copy exact module lists; both plus milestone runner must migrate with new pure API.
+
+A. Explicit tool/transform schema plus validated per-check dependency snapshot. Would require frames, translation, rotation, units, provenance, unknown states and schema parser versioning now. Correct long-term for geometry, but D06 is invalidation, not geometry engine. Risk incomplete transform semantics and premature defaults.
+
+B. Exact opaque tool and mounting configuration artifacts alongside existing typed BuildProfile. No geometry parser or claims. Named dependency enum PROFILE, TOOL, MOUNTING_TRANSFORM; explicit bytes or None meaning unknown. Immutable ValidationRecord declares selected dependencies and caller-reported status/evidence/hash tuple. Updating for changed inputs yields sticky PENDING and clears stale evidence. Explicit new result required to pass again. No arbitrary dependency keys or mutable dict; all profile changes conservatively invalidate PROFILE checks. Missing required artifact can never record completed result. Per-check dependencies make irrelevant changes leave unrelated checks unchanged. Bounded schema/API, no persistence or runtime owner integration.
+
+Choose B provisionally pending independent design critique. Unlike D05 this explicitly invalidates per-check status rather than only rejecting calibration binding. Unknown profile measurements remain unknown; a software result about a declared profile is not proof of physical setup. Test receipts are caller metadata, no execution/certification claim.

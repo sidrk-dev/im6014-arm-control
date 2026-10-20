@@ -1,0 +1,24 @@
+{
+  "status": "event",
+  "role": "interrogate reviewers",
+  "header": "interrogate reviewers",
+  "laneIndex": 0,
+  "lane": "interrogate reviewers#1",
+  "attempt": "antigravity:gemini-3.8-flash-high@default",
+  "event": {
+    "attemptIndex": 0,
+    "status": "terminal-failure",
+    "processStarted": true,
+    "execution": {
+      "id": "/tmp/d06-evidence-20261019/review/gemini-receipt.json",
+      "outputPath": "/tmp/d06-evidence-20261019/review/gemini.md",
+      "receiptPath": "/tmp/d06-evidence-20261019/review/gemini-receipt.json",
+      "workspacePath": "/tmp/d06-codex-recovery-20261019",
+      "descriptor": "antigravity:gemini-3.8-flash-high@default",
+      "apiSpend": "deny",
+      "access": "read-only",
+      "contract": "legacy"
+    },
+    "receiptPath": "/tmp/d06-evidence-20261019/review/gemini-receipt.json"
+  }
+}

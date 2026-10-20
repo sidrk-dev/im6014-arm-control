@@ -22,6 +22,7 @@ Inspect external foundations at exact revisions and record the revision in evide
 | `joint_records.py` | Frozen public domain records and enums with validated constructor contracts | `joint_mapping.py`; Python standard library |
 | `joint_reference.py` | Pure reference planning, codec projection corridors, and release finite-difference rate math | `im6014_codec.py`; `joint_mapping.py`; `joint_records.py`; Python standard library |
 | `joint_controller.py` | Transport-free lifecycle, clock, per-joint freshness and faults, identity-checked owner grants, pending targets, reference history, and sequence watermark | `joint_records.py`; `joint_reference.py`; `im6014_codec.py`; Python standard library |
+| `validation_records.py` | Pure caller-reported validation status and configuration dependency invalidation | `build_profile.py`; Python standard library; no runtime owner integration |
 | `joint_mapping.py` | Pure external joint units and gain conversion | Python standard library |
 | `spin_5rpm.py` | Bench aliases, health checks and standalone bounded CLI | Codec and serial boundary; pyserial |
 | `fake_serial.py` | Scripted replies and deterministic clock for offline checks | Python standard library; never imported by production |

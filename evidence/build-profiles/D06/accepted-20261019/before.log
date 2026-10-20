@@ -1,0 +1,20 @@
+test_validation_invalidation (unittest.loader._FailedTest.test_validation_invalidation) ... ERROR
+
+======================================================================
+ERROR: test_validation_invalidation (unittest.loader._FailedTest.test_validation_invalidation)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_validation_invalidation
+Traceback (most recent call last):
+  File "/usr/lib64/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/tmp/d06-codex-recovery-20261019/test_validation_invalidation.py", line 7, in <module>
+    from validation_records import (
+    ...<2 lines>...
+    )
+ModuleNotFoundError: No module named 'validation_records'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
